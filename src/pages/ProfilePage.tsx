@@ -8,6 +8,28 @@ import PlayerAvatar from '../components/PlayerAvatar'
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
 
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+
+function parseDob(dob: string | null | undefined) {
+  if (!dob) return { day: '', month: '', year: '' }
+  const [y, m, d] = dob.split('-')
+  return {
+    day: d ? String(parseInt(d)) : '',
+    month: m ? String(parseInt(m)) : '',
+    year: y ?? '',
+  }
+}
+
+function composeDob(day: string, month: string, year: string): string | null {
+  if (!day || !month || !year || year.length !== 4) return null
+  const y = parseInt(year), m = parseInt(month), d = parseInt(day)
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return null
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+}
+
 export default function ProfilePage() {
   const { profile, user, refreshProfile, signOut } = useAuth()
   const navigate = useNavigate()
@@ -15,7 +37,10 @@ export default function ProfilePage() {
   const [name, setName] = useState(profile?.name ?? '')
   const [surname, setSurname] = useState(profile?.surname ?? '')
   const [ageGroup, setAgeGroup] = useState(profile?.age_group ?? '20–29')
-  const [dob, setDob] = useState(profile?.dob ?? '')
+  const parsed = parseDob(profile?.dob)
+  const [dobDay, setDobDay] = useState(parsed.day)
+  const [dobMonth, setDobMonth] = useState(parsed.month)
+  const [dobYear, setDobYear] = useState(parsed.year)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [saveDone, setSaveDone] = useState(false)
@@ -36,7 +61,7 @@ export default function ProfilePage() {
     setSaveError('')
     const { error } = await supabase
       .from('profiles')
-      .update({ name, surname, age_group: ageGroup, dob: dob || null })
+      .update({ name, surname, age_group: ageGroup, dob: composeDob(dobDay, dobMonth, dobYear) })
       .eq('id', profile!.id)
     setSaving(false)
     if (error) {
@@ -188,13 +213,39 @@ export default function ProfilePage() {
           <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>
             Date of Birth <span style={{ color: '#555' }}>(optional)</span>
           </label>
-          <input
-            type="date"
-            value={dob ?? ''}
-            onChange={e => setDob(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-            style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', colorScheme: 'dark' }}
-          />
+          <div className="grid gap-2" style={{ gridTemplateColumns: '64px 1fr 80px' }}>
+            <input
+              type="number"
+              value={dobDay}
+              onChange={e => setDobDay(e.target.value)}
+              placeholder="DD"
+              min={1}
+              max={31}
+              className="px-3 py-3 rounded-xl text-white text-sm outline-none text-center"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            />
+            <select
+              value={dobMonth}
+              onChange={e => setDobMonth(e.target.value)}
+              className="px-3 py-3 rounded-xl text-white text-sm outline-none"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', color: dobMonth ? 'white' : '#555' }}
+            >
+              <option value="">Month</option>
+              {MONTHS.map((m, i) => (
+                <option key={m} value={String(i + 1)}>{m}</option>
+              ))}
+            </select>
+            <input
+              type="number"
+              value={dobYear}
+              onChange={e => setDobYear(e.target.value)}
+              placeholder="YYYY"
+              min={1920}
+              max={new Date().getFullYear()}
+              className="px-3 py-3 rounded-xl text-white text-sm outline-none text-center"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            />
+          </div>
         </div>
 
         {saveError && (
