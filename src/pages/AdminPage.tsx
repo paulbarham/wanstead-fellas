@@ -7,6 +7,9 @@ import type { Profile, Feedback, BadgeType } from '../types'
 import PlayerAvatar from '../components/PlayerAvatar'
 import { cropAndResizeImage } from '../lib/imageUtils'
 
+const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
+const AGE_GROUP_DEFAULT = '20–29'
+
 const STAT_KEYS: (keyof Profile)[] = ['sp', 'sk', 'st', 'tk', 'ps', 'ag', 'phy', 'cp', 'wr', 'cunt', 'overall_rating']
 const STAT_LABELS: Record<string, string> = {
   sp: 'Pace', sk: 'Skill', st: 'Stamina', tk: 'Tackling',
@@ -95,7 +98,7 @@ function PlayersPanel() {
     const vals: Record<string, number> = {}
     for (const k of STAT_KEYS) vals[k as string] = p[k] as number
     setEditValues(vals as Partial<Profile>)
-    setEditAgeGroup(p.age_group ?? '16-40')
+    setEditAgeGroup(p.age_group ?? AGE_GROUP_DEFAULT)
   }
 
   async function saveEdit(id: string) {
@@ -130,7 +133,7 @@ function PlayersPanel() {
     try {
       const blob = await cropAndResizeImage(file)
       const path = `avatars/${playerId}/profile.jpg`
-      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
       if (!error) {
         const { data } = supabase.storage.from('avatars').getPublicUrl(path)
         const photoUrl = `${data.publicUrl}?t=${Date.now()}`
@@ -222,7 +225,7 @@ function PlayersPanel() {
                       className="flex-1 px-3 py-1.5 rounded-lg text-white text-xs outline-none"
                       style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
                     >
-                      {['Under 16', '16-40', '40+'].map(g => <option key={g} value={g}>{g}</option>)}
+                      {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
 
@@ -300,28 +303,67 @@ function PlayersPanel() {
 
 // ─── Feedback panel ───────────────────────────────────────────────────────────
 
+const FB_SUBMIT_CATEGORIES = ['General', 'Bug Report', 'Feature Request', 'Design Feedback']
+const FB_CATEGORY_HINTS: Record<string, string> = {
+  'Bug Report': "Something broken? Tell us exactly what happened and on which screen.",
+  'Feature Request': "Got an idea to improve the app? Describe what you'd love to see.",
+  'Design Feedback': 'Something looks off or could look better? Let us know.',
+  'General': 'Anything else — questions, suggestions, thoughts, complaints...',
+}
+
 function FeedbackPanel() {
+  const { profile } = useAuth()
+  const [showSubmitForm, setShowSubmitForm] = useState(false)
   const [items, setItems] = useState<FeedbackWithPlayer[]>([])
   const [loading, setLoading] = useState(true)
   const [filterCategory, setFilterCategory] = useState('All')
   const [filterReviewed, setFilterReviewed] = useState<'all' | 'unreviewed' | 'reviewed'>('unreviewed')
 
-  useEffect(() => {
-    async function load() {
-      const { data: feedbackData } = await supabase
-        .from('feedback').select('*').order('created_at', { ascending: false })
-      if (!feedbackData) { setLoading(false); return }
+  // Submit form state
+  const [fbCategory, setFbCategory] = useState('General')
+  const [fbSubject, setFbSubject] = useState('')
+  const [fbMessage, setFbMessage] = useState('')
+  const [fbSubmitting, setFbSubmitting] = useState(false)
+  const [fbError, setFbError] = useState('')
 
-      const playerIds = [...new Set((feedbackData as Feedback[]).map(f => f.player_id))]
-      const { data: profiles } = await supabase.from('profiles').select('id, name, surname').in('id', playerIds)
-      const profileMap: Record<string, string> = {}
-      for (const p of (profiles as Profile[]) || []) profileMap[p.id] = `${p.name} ${p.surname}`
+  async function loadFeedback() {
+    const { data: feedbackData } = await supabase
+      .from('feedback').select('*').order('created_at', { ascending: false })
+    if (!feedbackData) { setLoading(false); return }
 
-      setItems((feedbackData as Feedback[]).map(f => ({ ...f, playerName: profileMap[f.player_id] })))
-      setLoading(false)
+    const playerIds = [...new Set((feedbackData as Feedback[]).map(f => f.player_id))]
+    const { data: profiles } = await supabase.from('profiles').select('id, name, surname').in('id', playerIds)
+    const profileMap: Record<string, string> = {}
+    for (const p of (profiles as Profile[]) || []) profileMap[p.id] = `${p.name} ${p.surname}`
+
+    setItems((feedbackData as Feedback[]).map(f => ({ ...f, playerName: profileMap[f.player_id] })))
+    setLoading(false)
+  }
+
+  useEffect(() => { loadFeedback() }, [])
+
+  async function handleFbSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!profile) return
+    setFbSubmitting(true)
+    setFbError('')
+    const { error } = await supabase.from('feedback').insert({
+      player_id: profile.id,
+      category: fbCategory,
+      subject: fbSubject,
+      message: fbMessage,
+    })
+    setFbSubmitting(false)
+    if (error) {
+      setFbError(error.message)
+    } else {
+      setFbSubject('')
+      setFbMessage('')
+      setFbCategory('General')
+      setShowSubmitForm(false)
+      await loadFeedback()
     }
-    load()
-  }, [])
+  }
 
   async function toggleReviewed(id: string, current: boolean) {
     await supabase.from('feedback').update({ reviewed: !current }).eq('id', id)
@@ -334,8 +376,95 @@ function FeedbackPanel() {
 
   const unreviewed = items.filter(f => !f.reviewed).length
 
+  if (showSubmitForm) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-white">Submit Feedback</p>
+          <button
+            onClick={() => setShowSubmitForm(false)}
+            className="text-xs px-3 py-1.5 rounded-lg"
+            style={{ background: '#1e1e1e', color: '#888', border: '1px solid #2e2e2e' }}
+          >
+            Cancel
+          </button>
+        </div>
+
+        {fbError && (
+          <div className="p-3 rounded-lg text-sm" style={{ background: '#2a0a0a', color: '#ff6b6b', border: '1px solid #5a1a1a' }}>
+            {fbError}
+          </div>
+        )}
+
+        <form onSubmit={handleFbSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Category</label>
+            <select
+              value={fbCategory}
+              onChange={e => setFbCategory(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            >
+              {FB_SUBMIT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <p className="mt-1.5 text-xs" style={{ color: '#555' }}>{FB_CATEGORY_HINTS[fbCategory]}</p>
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Subject</label>
+            <input
+              type="text"
+              value={fbSubject}
+              onChange={e => setFbSubject(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              placeholder="One-line summary"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Message</label>
+            <textarea
+              value={fbMessage}
+              onChange={e => setFbMessage(e.target.value)}
+              required
+              rows={5}
+              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none resize-none"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              placeholder="Tell us more..."
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={fbSubmitting}
+            className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
+            style={{ background: '#0D6B52', color: 'white' }}
+          >
+            {fbSubmitting ? 'Submitting...' : 'Submit Feedback'}
+          </button>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <>
+      {/* Submit button */}
+      <div className="flex items-center justify-between mb-3">
+        <button
+          onClick={() => setShowSubmitForm(true)}
+          className="px-3 py-1.5 rounded-xl text-xs font-semibold"
+          style={{ background: '#0D6B52', color: 'white' }}
+        >
+          + Submit Feedback
+        </button>
+        {unreviewed > 0 && (
+          <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+            style={{ background: '#1e1e1e', color: '#4ade80', border: '1px solid #4ade80' }}>
+            {unreviewed} new
+          </span>
+        )}
+      </div>
+
       {/* Category filter */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 mb-2" style={{ scrollbarWidth: 'none' }}>
         {FB_CATEGORIES.map(c => (
@@ -354,30 +483,22 @@ function FeedbackPanel() {
         ))}
       </div>
 
-      {/* Reviewed filter + count */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex gap-1">
-          {(['unreviewed', 'all', 'reviewed'] as const).map(v => (
-            <button
-              key={v}
-              onClick={() => setFilterReviewed(v)}
-              className="px-2.5 py-1 rounded-full text-xs font-medium capitalize"
-              style={{
-                background: filterReviewed === v ? '#1e1e1e' : 'transparent',
-                color: filterReviewed === v ? 'white' : '#555',
-                border: `1px solid ${filterReviewed === v ? '#3e3e3e' : 'transparent'}`,
-              }}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
-        {unreviewed > 0 && (
-          <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-            style={{ background: '#0D6B52', color: 'white' }}>
-            {unreviewed} new
-          </span>
-        )}
+      {/* Reviewed filter */}
+      <div className="flex gap-1 mb-3">
+        {(['unreviewed', 'all', 'reviewed'] as const).map(v => (
+          <button
+            key={v}
+            onClick={() => setFilterReviewed(v)}
+            className="px-2.5 py-1 rounded-full text-xs font-medium capitalize"
+            style={{
+              background: filterReviewed === v ? '#1e1e1e' : 'transparent',
+              color: filterReviewed === v ? 'white' : '#555',
+              border: `1px solid ${filterReviewed === v ? '#3e3e3e' : 'transparent'}`,
+            }}
+          >
+            {v}
+          </button>
+        ))}
       </div>
 
       {loading ? (

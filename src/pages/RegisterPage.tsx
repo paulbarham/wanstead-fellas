@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
-const AGE_GROUPS = ['Under 16', '16-40', '40+']
+const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
 
 export default function RegisterPage() {
   const { signUp } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ email: '', password: '', name: '', surname: '', age_group: '16-40' })
+  const [form, setForm] = useState({ email: '', password: '', name: '', surname: '', age_group: '20–29' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 

@@ -5,6 +5,10 @@ import type { Profile, BadgeType } from '../types'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import TopTrumpCard from '../components/TopTrumpCard'
 
+
+const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
+const AGE_GROUP_DEFAULT = '20–29'
+
 const ALL_BADGES: BadgeType[] = ['Super Sharp Shooter', 'Legend', 'Captain']
 const BADGE_COLORS: Record<BadgeType, string> = {
   'Super Sharp Shooter': '#C0392B',
@@ -20,7 +24,7 @@ const STAT_LABELS: Record<string, string> = {
 }
 
 export default function CardsPage() {
-  const { profile: myProfile, refreshProfile } = useAuth()
+  const { profile: myProfile, refreshProfile, user } = useAuth()
   const [players, setPlayers] = useState<Profile[]>([])
   const [selected, setSelected] = useState<Profile | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -28,6 +32,7 @@ export default function CardsPage() {
   const [editAgeGroup, setEditAgeGroup] = useState('')
   const [uploadingFor, setUploadingFor] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [pwResetSent, setPwResetSent] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileInputPhotoId = useRef<string | null>(null)
 
@@ -41,14 +46,14 @@ export default function CardsPage() {
 
   useEffect(() => { loadPlayers() }, [])
 
-  function openCard(p: Profile) { setSelected(p); setEditingId(null) }
+  function openCard(p: Profile) { setSelected(p); setEditingId(null); setPwResetSent(false) }
 
   function startEdit(p: Profile) {
     setEditingId(p.id)
     const vals: Record<string, number> = {}
     for (const k of STAT_KEYS) vals[k as string] = p[k] as number
     setEditValues(vals as Partial<Profile>)
-    setEditAgeGroup(p.age_group ?? '16-40')
+    setEditAgeGroup(p.age_group ?? AGE_GROUP_DEFAULT)
   }
 
   async function saveEdit(id: string) {
@@ -92,7 +97,7 @@ export default function CardsPage() {
     try {
       const blob = await cropAndResizeImage(file)
       const path = `avatars/${playerId}/profile.jpg`
-      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
       if (!error) {
         const { data } = supabase.storage.from('avatars').getPublicUrl(path)
         const photoUrl = `${data.publicUrl}?t=${Date.now()}`
@@ -138,7 +143,7 @@ export default function CardsPage() {
         <div
           className="fixed inset-0 z-50 flex items-end justify-center px-3 pb-4"
           style={{ background: 'rgba(0,0,0,0.9)' }}
-          onClick={() => { setSelected(null); setEditingId(null) }}
+          onClick={() => { setSelected(null); setEditingId(null); setPwResetSent(false) }}
         >
           <div
             className="w-full overflow-y-auto"
@@ -162,7 +167,7 @@ export default function CardsPage() {
                         className="flex-1 px-2 py-1.5 rounded-lg text-white text-xs outline-none"
                         style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
                       >
-                        {['Under 16', '16-40', '40+'].map(g => <option key={g} value={g}>{g}</option>)}
+                        {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                       </select>
                       <button onClick={() => { saveAgeGroup(selected.id); setEditingId(null) }}
                         className="text-xs px-2.5 py-1.5 rounded-lg font-semibold"
@@ -171,7 +176,7 @@ export default function CardsPage() {
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => { setEditAgeGroup(selected.age_group ?? '16-40'); setEditingId('agegroup') }}
+                    <button onClick={() => { setEditAgeGroup(selected.age_group ?? AGE_GROUP_DEFAULT); setEditingId('agegroup') }}
                       className="text-xs px-2.5 py-1.5 rounded-lg"
                       style={{ color: '#0D6B52', border: '1px solid #0D6B52' }}>
                       {selected.age_group} · Edit
@@ -198,6 +203,31 @@ export default function CardsPage() {
                       style={{ background: '#1a0808', color: '#ff6b6b', border: '1px solid #5a1a1a' }}
                     >
                       Remove
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Change password (own card only) */}
+              {selected.id === myProfile?.id && (
+                <div>
+                  {pwResetSent ? (
+                    <p className="text-xs text-center py-2" style={{ color: '#4ade80' }}>
+                      Check your email for a password reset link.
+                    </p>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        if (!user?.email) return
+                        await supabase.auth.resetPasswordForEmail(user.email, {
+                          redirectTo: window.location.origin,
+                        })
+                        setPwResetSent(true)
+                      }}
+                      className="w-full py-2.5 rounded-xl text-sm font-medium"
+                      style={{ background: '#1e1e1e', color: '#888', border: '1px solid #2e2e2e' }}
+                    >
+                      Change password
                     </button>
                   )}
                 </div>
@@ -266,14 +296,14 @@ export default function CardsPage() {
                         <select value={editAgeGroup} onChange={e => setEditAgeGroup(e.target.value)}
                           className="flex-1 px-2 py-1.5 rounded-lg text-white text-xs outline-none"
                           style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}>
-                          {['Under 16', '16-40', '40+'].map(g => <option key={g} value={g}>{g}</option>)}
+                          {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                         <button onClick={() => { saveAgeGroup(selected.id); setEditingId(null) }}
                           className="text-xs px-2.5 py-1.5 rounded-lg font-semibold"
                           style={{ background: '#0D6B52', color: 'white' }}>Save</button>
                       </>
                     ) : (
-                      <button onClick={() => { setEditAgeGroup(selected.age_group ?? '16-40'); setEditingId('agegroup_admin') }}
+                      <button onClick={() => { setEditAgeGroup(selected.age_group ?? AGE_GROUP_DEFAULT); setEditingId('agegroup_admin') }}
                         className="text-xs px-2.5 py-1.5 rounded-lg"
                         style={{ color: '#0D6B52', border: '1px solid #0D6B52' }}>
                         {selected.age_group} · Edit
@@ -284,7 +314,7 @@ export default function CardsPage() {
               )}
 
               <button
-                onClick={() => { setSelected(null); setEditingId(null) }}
+                onClick={() => { setSelected(null); setEditingId(null); setPwResetSent(false) }}
                 className="w-full py-2.5 rounded-xl text-sm"
                 style={{ background: '#1e1e1e', color: '#666', border: '1px solid #2e2e2e' }}
               >
