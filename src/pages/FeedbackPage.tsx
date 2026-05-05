@@ -142,37 +142,68 @@ interface FeedbackWithProfile extends Feedback {
 }
 
 function AdminFeedbackView() {
+  const { profile } = useAuth()
+  const [showSubmitForm, setShowSubmitForm] = useState(false)
   const [items, setItems] = useState<FeedbackWithProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [filterCategory, setFilterCategory] = useState('All')
   const [filterReviewed, setFilterReviewed] = useState<'all' | 'unreviewed' | 'reviewed'>('all')
 
-  useEffect(() => {
-    async function load() {
-      const { data: feedbackData } = await supabase
-        .from('feedback')
-        .select('*')
-        .order('created_at', { ascending: false })
+  // Submit form state
+  const [fbCategory, setFbCategory] = useState('General')
+  const [fbSubject, setFbSubject] = useState('')
+  const [fbMessage, setFbMessage] = useState('')
+  const [fbSubmitting, setFbSubmitting] = useState(false)
+  const [fbError, setFbError] = useState('')
 
-      if (!feedbackData) { setLoading(false); return }
+  async function loadFeedback() {
+    const { data: feedbackData } = await supabase
+      .from('feedback')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-      const playerIds = [...new Set((feedbackData as Feedback[]).map(f => f.player_id))]
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, name, surname')
-        .in('id', playerIds)
+    if (!feedbackData) { setLoading(false); return }
 
-      const profileMap: Record<string, Pick<Profile, 'name' | 'surname'>> = {}
-      for (const p of (profiles as Profile[]) || []) profileMap[p.id] = p
+    const playerIds = [...new Set((feedbackData as Feedback[]).map(f => f.player_id))]
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name, surname')
+      .in('id', playerIds)
 
-      setItems((feedbackData as Feedback[]).map(f => ({
-        ...f,
-        profile: profileMap[f.player_id],
-      })))
-      setLoading(false)
+    const profileMap: Record<string, Pick<Profile, 'name' | 'surname'>> = {}
+    for (const p of (profiles as Profile[]) || []) profileMap[p.id] = p
+
+    setItems((feedbackData as Feedback[]).map(f => ({
+      ...f,
+      profile: profileMap[f.player_id],
+    })))
+    setLoading(false)
+  }
+
+  useEffect(() => { loadFeedback() }, [])
+
+  async function handleFbSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!profile) return
+    setFbSubmitting(true)
+    setFbError('')
+    const { error } = await supabase.from('feedback').insert({
+      player_id: profile.id,
+      category: fbCategory,
+      subject: fbSubject,
+      message: fbMessage,
+    })
+    setFbSubmitting(false)
+    if (error) {
+      setFbError(error.message)
+    } else {
+      setFbSubject('')
+      setFbMessage('')
+      setFbCategory('General')
+      setShowSubmitForm(false)
+      await loadFeedback()
     }
-    load()
-  }, [])
+  }
 
   async function toggleReviewed(id: string, current: boolean) {
     await supabase.from('feedback').update({ reviewed: !current }).eq('id', id)
@@ -189,17 +220,96 @@ function AdminFeedbackView() {
 
   const unreviewed = items.filter(f => !f.reviewed).length
 
+  if (showSubmitForm) {
+    return (
+      <div className="px-4 py-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-white">Submit Feedback</p>
+          <button
+            onClick={() => setShowSubmitForm(false)}
+            className="text-xs px-3 py-1.5 rounded-lg"
+            style={{ background: '#1e1e1e', color: '#888', border: '1px solid #2e2e2e' }}
+          >
+            Cancel
+          </button>
+        </div>
+
+        {fbError && (
+          <div className="p-3 rounded-lg text-sm" style={{ background: '#2a0a0a', color: '#ff6b6b', border: '1px solid #5a1a1a' }}>
+            {fbError}
+          </div>
+        )}
+
+        <form onSubmit={handleFbSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Category</label>
+            <select
+              value={fbCategory}
+              onChange={e => setFbCategory(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            >
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <p className="mt-1.5 text-xs" style={{ color: '#555' }}>{CATEGORY_HINTS[fbCategory]}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Subject</label>
+            <input
+              type="text"
+              value={fbSubject}
+              onChange={e => setFbSubject(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              placeholder="One-line summary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Message</label>
+            <textarea
+              value={fbMessage}
+              onChange={e => setFbMessage(e.target.value)}
+              required
+              rows={5}
+              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none resize-none"
+              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              placeholder="Tell us more..."
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={fbSubmitting}
+            className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
+            style={{ background: '#0D6B52', color: 'white' }}
+          >
+            {fbSubmitting ? 'Submitting...' : 'Submit Feedback'}
+          </button>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div className="px-4 py-5">
       <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>Admin</p>
       <div className="flex items-center justify-between mb-5">
         <h1 className="font-display text-3xl text-white tracking-wide">FEEDBACK</h1>
-        {unreviewed > 0 && (
-          <span className="text-xs px-2 py-1 rounded-full font-medium"
-            style={{ background: '#0D6B52', color: 'white' }}>
-            {unreviewed} new
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSubmitForm(true)}
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold"
+            style={{ background: '#0D6B52', color: 'white' }}
+          >
+            + Submit Feedback
+          </button>
+          {unreviewed > 0 && (
+            <span className="text-xs px-2 py-1 rounded-full font-medium"
+              style={{ background: '#1e1e1e', color: '#4ade80', border: '1px solid #4ade80' }}>
+              {unreviewed} new
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
