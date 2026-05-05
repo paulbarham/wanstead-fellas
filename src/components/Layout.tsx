@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import PlayerAvatar from './PlayerAvatar'
 
 const BASE_NAV_ITEMS = [
   { to: '/', label: 'Tonight', icon: '⚽' },
@@ -13,14 +14,9 @@ const BASE_NAV_ITEMS = [
 const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: '⚙️' }
 
 export default function Layout() {
-  const { signOut, profile } = useAuth()
+  const { profile } = useAuth()
   const navigate = useNavigate()
   const navItems = profile?.is_admin ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS
-
-  async function handleSignOut() {
-    await signOut()
-    navigate('/login')
-  }
 
   return (
     <div className="flex flex-col h-full" style={{ background: '#0a0a0a' }}>
@@ -34,10 +30,23 @@ export default function Layout() {
           </div>
           <span className="font-display text-lg text-white tracking-wide">WANSTEAD FELLAS</span>
         </div>
-        <button onClick={handleSignOut} className="text-xs px-3 py-1.5 rounded-lg"
-          style={{ color: '#888', border: '1px solid #2e2e2e' }}>
-          Sign out
-        </button>
+
+        {/* Avatar — tappable, navigates to Profile */}
+        {profile && (
+          <button
+            onClick={() => navigate('/profile')}
+            className="rounded-full transition-opacity active:opacity-70"
+            style={{
+              padding: 2,
+              border: '2px solid #0D6B52',
+              borderRadius: '50%',
+              lineHeight: 0,
+            }}
+            aria-label="My profile"
+          >
+            <PlayerAvatar profile={profile} size={28} />
+          </button>
+        )}
       </header>
 
       {/* Main content */}

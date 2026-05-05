@@ -3,6 +3,7 @@ export interface Profile {
   name: string
   surname: string
   age_group: string
+  dob: string | null
   photo_url: string | null
   overall_rating: number
   sp: number

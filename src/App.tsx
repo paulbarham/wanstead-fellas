@@ -10,6 +10,7 @@ import HistoryPage from './pages/HistoryPage'
 import CardsPage from './pages/CardsPage'
 import FeedbackPage from './pages/FeedbackPage'
 import AdminPage from './pages/AdminPage'
+import ProfilePage from './pages/ProfilePage'
 
 function ProtectedRoutes() {
   const { session, loading } = useAuth()
@@ -40,6 +41,7 @@ function ProtectedRoutes() {
         <Route path="cards" element={<CardsPage />} />
         <Route path="feedback" element={<FeedbackPage />} />
         <Route path="admin" element={<AdminPage />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
     </Routes>
   )
