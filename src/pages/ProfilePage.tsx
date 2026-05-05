@@ -210,41 +210,57 @@ export default function ProfilePage() {
 
         {/* Date of birth */}
         <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>
+          <label className="block text-xs font-medium mb-2" style={{ color: '#888' }}>
             Date of Birth <span style={{ color: '#555' }}>(optional)</span>
           </label>
-          <div className="grid gap-2" style={{ gridTemplateColumns: '64px 1fr 80px' }}>
-            <input
-              type="number"
-              value={dobDay}
-              onChange={e => setDobDay(e.target.value)}
-              placeholder="DD"
-              min={1}
-              max={31}
-              className="px-3 py-3 rounded-xl text-white text-sm outline-none text-center"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
-            />
-            <select
-              value={dobMonth}
-              onChange={e => setDobMonth(e.target.value)}
-              className="px-3 py-3 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', color: dobMonth ? 'white' : '#555' }}
-            >
-              <option value="">Month</option>
-              {MONTHS.map((m, i) => (
-                <option key={m} value={String(i + 1)}>{m}</option>
-              ))}
-            </select>
-            <input
-              type="number"
-              value={dobYear}
-              onChange={e => setDobYear(e.target.value)}
-              placeholder="YYYY"
-              min={1920}
-              max={new Date().getFullYear()}
-              className="px-3 py-3 rounded-xl text-white text-sm outline-none text-center"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
-            />
+          <div className="flex gap-2">
+            {/* Day */}
+            <div className="flex flex-col gap-1" style={{ width: 68 }}>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={dobDay}
+                onChange={e => setDobDay(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                placeholder="DD"
+                className="w-full py-3 rounded-xl text-white text-sm outline-none text-center font-medium"
+                style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              />
+              <span className="text-center text-[10px]" style={{ color: '#444' }}>Day</span>
+            </div>
+            {/* Month */}
+            <div className="flex flex-col gap-1 flex-1">
+              <select
+                value={dobMonth}
+                onChange={e => setDobMonth(e.target.value)}
+                className="w-full py-3 px-3 rounded-xl text-sm outline-none"
+                style={{
+                  background: '#1e1e1e',
+                  border: '1px solid #2e2e2e',
+                  color: dobMonth ? 'white' : '#555',
+                }}
+              >
+                <option value="">Month</option>
+                {MONTHS.map((m, i) => (
+                  <option key={m} value={String(i + 1)}>{m}</option>
+                ))}
+              </select>
+              <span className="text-center text-[10px]" style={{ color: '#444' }}>Month</span>
+            </div>
+            {/* Year */}
+            <div className="flex flex-col gap-1" style={{ width: 76 }}>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={dobYear}
+                onChange={e => setDobYear(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="YYYY"
+                className="w-full py-3 rounded-xl text-white text-sm outline-none text-center font-medium"
+                style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              />
+              <span className="text-center text-[10px]" style={{ color: '#444' }}>Year</span>
+            </div>
           </div>
         </div>
 
