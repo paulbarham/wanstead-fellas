@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import type { Profile, Availability } from '../types'
 import { getNextThursdayDate, getMatchPhase, formatCountdown } from '../lib/time'
 import PlayerAvatar from '../components/PlayerAvatar'
+import InstallBanner from '../components/InstallBanner'
 
 export default function TonightPage() {
   const { profile } = useAuth()
@@ -79,6 +80,8 @@ export default function TonightPage() {
 
   return (
     <div className="px-4 pt-4 pb-4">
+
+      <InstallBanner />
 
       {/* Date + countdown inline */}
       <div className="flex items-start justify-between mb-3">

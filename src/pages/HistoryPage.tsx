@@ -74,7 +74,8 @@ export default function HistoryPage() {
           {records.map(({ match, result, teams, fixtures }) => {
             const isExpanded = expanded === match.id
             const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'EEE do MMM yyyy')
-            const mainFixture = match.format === '11v11' ? fixtures[0] : null
+            const isTwoTeam = match.format !== 'tournament'
+            const mainFixture = isTwoTeam ? fixtures[0] : null
 
             return (
               <div key={match.id} className="rounded-2xl overflow-hidden"
@@ -86,7 +87,7 @@ export default function HistoryPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs mb-1" style={{ color: '#888' }}>{dateLabel}</p>
-                      {match.format === '11v11' && mainFixture ? (
+                      {isTwoTeam && mainFixture ? (
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-white text-sm">{mainFixture.team1?.name}</span>
                           <span className="font-display text-xl" style={{ color: '#0D6B52' }}>
@@ -103,8 +104,8 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs px-2 py-1 rounded-full"
                         style={{
-                          background: match.format === '11v11' ? '#0a1a10' : '#1a0a0a',
-                          color: match.format === '11v11' ? '#0D6B52' : '#A0714F',
+                          background: isTwoTeam ? '#0a1a10' : '#1a0a0a',
+                          color: isTwoTeam ? '#0D6B52' : '#A0714F',
                         }}>
                         {match.format}
                       </span>
@@ -122,7 +123,7 @@ export default function HistoryPage() {
                       </div>
                     )}
 
-                    {match.format !== '11v11' && fixtures.length > 0 && (
+                    {!isTwoTeam && fixtures.length > 0 && (
                       <div>
                         <p className="text-xs uppercase tracking-widest mb-2 pt-3" style={{ color: '#888' }}>Results</p>
                         <div className="space-y-1">
