@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback } from 'react'
 import { format } from 'date-fns'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import type { Profile, Availability } from '../types'
+import type { Profile, Availability, FineType } from '../types'
+import { FINE_TYPES } from '../types'
 import { getNextThursdayDate, getMatchPhase, formatCountdown } from '../lib/time'
 import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
@@ -19,6 +20,9 @@ export default function TonightPage() {
   const [players, setPlayers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(false)
+  const [fineModal, setFineModal] = useState<{ player: Profile } | null>(null)
+  const [fineType, setFineType] = useState<FineType>('late')
+  const [issuingFine, setIssuingFine] = useState(false)
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -111,6 +115,20 @@ export default function TonightPage() {
       await supabase.from('availability').insert({ player_id: playerId, match_date: nextThursday, status: 'confirmed' })
     }
     await fetchData()
+  }
+
+  async function issueFine() {
+    if (!fineModal) return
+    setIssuingFine(true)
+    const ft = FINE_TYPES.find(t => t.value === fineType)!
+    await supabase.from('fines').insert({
+      player_id: fineModal.player.id,
+      type: fineType,
+      amount: ft.amount,
+      match_date: nextThursday,
+    })
+    setFineModal(null)
+    setIssuingFine(false)
   }
 
   const signedUpPlayers = players.filter(p => confirmedAvail.some(a => a.player_id === p.id))
@@ -241,10 +259,19 @@ export default function TonightPage() {
                   )}
                 </span>
                 <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
+                {profile?.is_admin && (
+                  <button
+                    onClick={() => { setFineModal({ player: p }); setFineType('late') }}
+                    className="text-xs px-2 py-0.5 rounded-lg ml-1"
+                    style={{ color: '#C9A227', border: '1px solid #3a2a00' }}
+                  >
+                    £
+                  </button>
+                )}
                 {profile?.is_admin && p.id !== profile.id && (
                   <button
                     onClick={() => adminTogglePlayer(p.id)}
-                    className="text-xs px-2 py-0.5 rounded-lg ml-1"
+                    className="text-xs px-2 py-0.5 rounded-lg"
                     style={{ color: '#ff6b6b', border: '1px solid #5a1a1a' }}
                   >
                     Remove
@@ -292,6 +319,56 @@ export default function TonightPage() {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Quick fine modal */}
+      {fineModal && (
+        <div className="fixed inset-0 flex items-end justify-center z-50 px-4 pb-4"
+          style={{ background: 'rgba(0,0,0,0.85)' }}
+          onClick={() => setFineModal(null)}>
+          <div className="w-full rounded-2xl p-5"
+            style={{ background: '#141414', border: '1px solid #2e2e2e', maxWidth: 430 }}
+            onClick={e => e.stopPropagation()}>
+            <p className="text-xs uppercase tracking-widest mb-0.5" style={{ color: '#C9A227' }}>Issue Fine</p>
+            <p className="font-semibold text-white mb-4">
+              {fineModal.player.name} {fineModal.player.surname}
+            </p>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {FINE_TYPES.map(t => (
+                <button
+                  key={t.value}
+                  onClick={() => setFineType(t.value)}
+                  className="py-3 rounded-xl text-sm font-semibold"
+                  style={{
+                    background: fineType === t.value ? '#C9A227' : '#1e1e1e',
+                    color: fineType === t.value ? '#000' : '#888',
+                    border: `1px solid ${fineType === t.value ? '#C9A227' : '#2e2e2e'}`,
+                  }}
+                >
+                  {t.label}<br />
+                  <span style={{ fontSize: '0.75rem' }}>£{t.amount}</span>
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={issueFine}
+                disabled={issuingFine}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
+                style={{ background: '#C9A227', color: '#000' }}
+              >
+                {issuingFine ? 'Issuing…' : `Issue £${FINE_TYPES.find(t => t.value === fineType)?.amount}`}
+              </button>
+              <button
+                onClick={() => setFineModal(null)}
+                className="px-4 py-3 rounded-xl text-sm"
+                style={{ background: '#1e1e1e', color: '#666', border: '1px solid #2e2e2e' }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

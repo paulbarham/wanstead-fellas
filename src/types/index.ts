@@ -82,6 +82,35 @@ export interface Feedback {
   created_at: string
 }
 
+export type FineType = 'late' | 'lost_ball' | 'cuntiness' | 'dropout'
+
+export const FINE_TYPES: { value: FineType; label: string; amount: number }[] = [
+  { value: 'late', label: 'Late', amount: 2 },
+  { value: 'lost_ball', label: 'Lost Ball', amount: 3 },
+  { value: 'cuntiness', label: 'Cuntiness', amount: 5 },
+  { value: 'dropout', label: 'Drop Out', amount: 2 },
+]
+
+export interface Fine {
+  id: string
+  player_id: string
+  match_date: string | null
+  type: FineType
+  amount: number
+  notes: string | null
+  paid: boolean
+  created_at: string
+}
+
+export interface WtpGame {
+  id: string
+  player_id: string
+  match_date: string
+  amount: number
+  paid: boolean
+  created_at: string
+}
+
 export type BadgeType = 'Super Sharp Shooter' | 'Legend' | 'Captain'
 
 export type TierType = 'gold' | 'silver' | 'bronze' | 'standard'

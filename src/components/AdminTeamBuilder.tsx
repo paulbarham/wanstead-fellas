@@ -183,6 +183,16 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         )
       }
     }
+    // Auto-create WTP game entries for all WTP players in the published teams
+    const allPlayers = draftTeams.flatMap(t => t.players)
+    const wtpPlayers = allPlayers.filter(p => (p.player_type ?? 'wtp') === 'wtp')
+    if (wtpPlayers.length > 0) {
+      await supabase.from('wtp_games').upsert(
+        wtpPlayers.map(p => ({ player_id: p.id, match_date: nextThursday, amount: 5.00 })),
+        { onConflict: 'player_id,match_date' }
+      )
+    }
+
     setPublished(true)
     setPublishing(false)
     onPublished()

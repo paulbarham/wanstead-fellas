@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import TopTrumpCard from '../components/TopTrumpCard'
 import PlayerAvatar from '../components/PlayerAvatar'
+import MyFinances from '../components/MyFinances'
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
 
@@ -279,6 +280,11 @@ export default function ProfilePage() {
           {saving ? 'Saving...' : saveDone ? '✓ Saved' : 'Save Changes'}
         </button>
       </form>
+
+      {/* My Finances */}
+      <div className="mb-8">
+        <MyFinances profile={profile} />
+      </div>
 
       {/* Password reset */}
       <div className="p-4 rounded-2xl mb-4" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>

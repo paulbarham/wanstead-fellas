@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import type { Profile, Feedback, BadgeType } from '../types'
 import PlayerAvatar from '../components/PlayerAvatar'
 import { cropAndResizeImage } from '../lib/imageUtils'
+import AdminFinancePanel from '../components/AdminFinancePanel'
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
 const AGE_GROUP_DEFAULT = '20–29'
@@ -33,7 +34,7 @@ interface FeedbackWithPlayer extends Feedback {
 export default function AdminPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'players' | 'feedback'>('players')
+  const [tab, setTab] = useState<'players' | 'feedback' | 'finance'>('players')
 
   useEffect(() => {
     if (profile && !profile.is_admin) navigate('/', { replace: true })
@@ -49,23 +50,23 @@ export default function AdminPage() {
       <h1 className="font-display text-2xl text-white tracking-wide mb-3">DASHBOARD</h1>
 
       {/* Tab toggle */}
-      <div className="flex gap-2 mb-4 p-1 rounded-xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-        {(['players', 'feedback'] as const).map(t => (
+      <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+        {(['players', 'finance', 'feedback'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="flex-1 py-2 rounded-lg text-sm font-semibold capitalize transition-all"
+            className="flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all"
             style={{
               background: tab === t ? '#0D6B52' : 'transparent',
               color: tab === t ? 'white' : '#666',
             }}
           >
-            {t === 'players' ? 'Players' : 'Feedback'}
+            {t === 'players' ? 'Players' : t === 'finance' ? 'Finance' : 'Feedback'}
           </button>
         ))}
       </div>
 
-      {tab === 'players' ? <PlayersPanel /> : <FeedbackPanel />}
+      {tab === 'players' ? <PlayersPanel /> : tab === 'finance' ? <AdminFinancePanel /> : <FeedbackPanel />}
     </div>
   )
 }
