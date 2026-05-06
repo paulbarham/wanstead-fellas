@@ -26,20 +26,38 @@ export default function MatchPage() {
   const nextThursday = getNextThursdayDate()
   const phase = getMatchPhase(nextThursday)
   const [match, setMatch] = useState<Match | null>(null)
+  const [isCurrentWeek, setIsCurrentWeek] = useState(false)
   const [teams, setTeams] = useState<Team[]>([])
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>([])
   const [result, setResult] = useState<Result | null>(null)
   const [loading, setLoading] = useState(true)
 
   const fetchMatch = useCallback(async () => {
-    const { data: matchData } = await supabase
+    // Try this week's match first
+    const { data: weekMatch } = await supabase
       .from('matches')
       .select('*')
       .eq('match_date', nextThursday)
-      .single()
+      .maybeSingle()
+
+    // Fall back to the most recent completed match if nothing this week
+    let matchData: Match | null = weekMatch as Match | null
+    if (!matchData) {
+      const { data: latest } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('status', 'completed')
+        .order('match_date', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      matchData = latest as Match | null
+      setIsCurrentWeek(false)
+    } else {
+      setIsCurrentWeek(true)
+    }
 
     if (!matchData) { setLoading(false); return }
-    setMatch(matchData as Match)
+    setMatch(matchData)
 
     const { data: teamsData } = await supabase
       .from('teams')
@@ -71,7 +89,7 @@ export default function MatchPage() {
       .from('results')
       .select('*')
       .eq('match_id', matchData.id)
-      .single()
+      .maybeSingle()
 
     setResult((resultData as Result) || null)
     setLoading(false)
@@ -79,7 +97,8 @@ export default function MatchPage() {
 
   useEffect(() => { fetchMatch() }, [fetchMatch])
 
-  const canEnterResult = profile?.is_admin && (phase === 'match_live' || phase === 'post_match')
+  // Only show admin entry form for the current week's match during live/post phases
+  const canEnterResult = profile?.is_admin && isCurrentWeek && (phase === 'match_live' || phase === 'post_match')
 
   if (loading) {
     return <div className="px-4 py-5 text-sm" style={{ color: '#888' }}>Loading...</div>
