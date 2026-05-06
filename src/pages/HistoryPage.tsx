@@ -102,38 +102,38 @@ export default function HistoryPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs px-2 py-1 rounded-full"
+                      <span className="text-xs px-2 py-1 rounded-md font-medium"
                         style={{
                           background: isTwoTeam ? '#0a1a10' : '#1a0a0a',
                           color: isTwoTeam ? '#0D6B52' : '#A0714F',
                         }}>
                         {match.format}
                       </span>
-                      <span style={{ color: '#555' }}>{isExpanded ? '▲' : '▼'}</span>
+                      <span className="text-xs" style={{ color: '#3a3a3a' }}>{isExpanded ? '▲' : '▼'}</span>
                     </div>
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t space-y-3" style={{ borderColor: '#2e2e2e' }}>
+                  <div style={{ borderTop: '1px solid #2e2e2e' }}>
                     {result?.scorers && (
-                      <div className="pt-3">
-                        <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#888' }}>Scorers</p>
-                        <p className="text-sm text-white">{result.scorers}</p>
+                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e1e' }}>
+                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#555' }}>Scorers</p>
+                        <p className="text-sm text-white leading-relaxed">{result.scorers}</p>
                       </div>
                     )}
 
                     {!isTwoTeam && fixtures.length > 0 && (
-                      <div>
-                        <p className="text-xs uppercase tracking-widest mb-2 pt-3" style={{ color: '#888' }}>Results</p>
-                        <div className="space-y-1">
+                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e1e' }}>
+                        <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>Results</p>
+                        <div className="space-y-1.5">
                           {fixtures.map(f => (
-                            <div key={f.id} className="flex items-center gap-2 text-sm">
-                              <span className="flex-1 text-right text-white">{f.team1?.name}</span>
-                              <span className="font-display text-base" style={{ color: '#0D6B52' }}>
+                            <div key={f.id} className="flex items-center gap-3 text-xs">
+                              <span className="flex-1 text-right font-medium" style={{ color: '#ccc' }}>{f.team1?.name}</span>
+                              <span className="font-display text-base tabular-nums" style={{ color: '#0D6B52' }}>
                                 {f.score1} – {f.score2}
                               </span>
-                              <span className="flex-1 text-white">{f.team2?.name}</span>
+                              <span className="flex-1 font-medium" style={{ color: '#ccc' }}>{f.team2?.name}</span>
                             </div>
                           ))}
                         </div>
@@ -141,9 +141,12 @@ export default function HistoryPage() {
                     )}
 
                     {result?.report_text && (
-                      <div>
-                        <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#888' }}>Report</p>
-                        <p className="text-sm leading-relaxed" style={{ color: '#ccc' }}>{result.report_text}</p>
+                      <div className="px-4 py-3">
+                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#555' }}>Report</p>
+                        <p className="text-sm leading-relaxed" style={{ color: '#bbb' }}>{result.report_text}</p>
+                        {result.highlights && (
+                          <p className="text-xs mt-2 font-medium" style={{ color: '#0D6B52' }}>{result.highlights}</p>
+                        )}
                       </div>
                     )}
                   </div>

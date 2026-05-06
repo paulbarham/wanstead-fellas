@@ -46,6 +46,14 @@ html, body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 2px; }
 
+/* Focus ring on all form controls */
+input:not([type="range"]):focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #0D6B52 !important;
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { format } from 'date-fns'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Result } from '../types'
@@ -115,10 +116,21 @@ export default function MatchPage() {
     />
   }
 
+  const matchDateLabel = match && match.status !== 'upcoming'
+    ? format(new Date(match.match_date + 'T12:00:00'), 'EEE do MMM yyyy')
+    : null
+
   return (
     <div className="px-4 py-5">
-      <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>Match</p>
-      <h1 className="font-display text-3xl text-white tracking-wide mb-5">RESULTS</h1>
+      <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>
+        {isCurrentWeek ? 'Match' : 'Last Result'}
+      </p>
+      <div className="flex items-end justify-between mb-5">
+        <h1 className="font-display text-3xl text-white tracking-wide">RESULTS</h1>
+        {matchDateLabel && (
+          <span className="text-xs pb-0.5" style={{ color: '#555' }}>{matchDateLabel}</span>
+        )}
+      </div>
 
       {!match || match.status === 'upcoming' ? (
         <div className="text-center py-12" style={{ color: '#555' }}>
@@ -141,104 +153,150 @@ function ElevenVElevenView({ result, fixtures }: {
   fixtures: FixtureWithTeams[]
 }) {
   const main = fixtures[0]
-  return (
-    <div className="space-y-4">
-      {main && (
-        <div className="p-5 rounded-2xl text-center"
-          style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <div className="flex items-center justify-center gap-4">
-            <span className="font-semibold text-white text-sm flex-1 text-right">{main.team1?.name}</span>
-            <div className="flex items-center gap-2">
-              <span className="font-display text-4xl text-white">{main.score1 ?? '-'}</span>
-              <span className="text-xl" style={{ color: '#555' }}>—</span>
-              <span className="font-display text-4xl text-white">{main.score2 ?? '-'}</span>
-            </div>
-            <span className="font-semibold text-white text-sm flex-1 text-left">{main.team2?.name}</span>
-          </div>
-        </div>
-      )}
+  const winner = main?.score1 != null && main?.score2 != null
+    ? main.score1 > main.score2 ? main.team1?.name
+    : main.score2 > main.score1 ? main.team2?.name
+    : null
+    : null
 
-      {result?.scorers && (
-        <div className="p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <h3 className="text-xs uppercase tracking-widest mb-2" style={{ color: '#888' }}>Scorers</h3>
-          <p className="text-sm text-white">{result.scorers}</p>
+  return (
+    <div className="space-y-3">
+      {main && (
+        <div className="rounded-2xl overflow-hidden"
+          style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+          <div className="px-5 pt-5 pb-4">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <span className="font-semibold text-white text-sm flex-1 text-right leading-tight">{main.team1?.name}</span>
+              <div className="flex items-center gap-3">
+                <span className="font-display text-6xl text-white leading-none">{main.score1 ?? '–'}</span>
+                <span className="font-display text-2xl leading-none" style={{ color: '#333' }}>–</span>
+                <span className="font-display text-6xl text-white leading-none">{main.score2 ?? '–'}</span>
+              </div>
+              <span className="font-semibold text-white text-sm flex-1 leading-tight">{main.team2?.name}</span>
+            </div>
+            {winner && (
+              <p className="text-center text-xs font-medium" style={{ color: '#0D6B52' }}>
+                {winner} win
+              </p>
+            )}
+            {!winner && main.score1 != null && (
+              <p className="text-center text-xs" style={{ color: '#555' }}>Draw</p>
+            )}
+          </div>
+
+          {result?.scorers && (
+            <div className="px-5 py-3" style={{ borderTop: '1px solid #2e2e2e' }}>
+              <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#555' }}>Scorers</p>
+              <p className="text-sm text-white">{result.scorers}</p>
+            </div>
+          )}
         </div>
       )}
 
       {result?.report_text && (
         <div className="p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <h3 className="text-xs uppercase tracking-widest mb-2" style={{ color: '#888' }}>Match Report</h3>
-          <p className="text-sm leading-relaxed" style={{ color: '#ccc' }}>{result.report_text}</p>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>Match Report</p>
+          <p className="text-sm leading-relaxed" style={{ color: '#bbb' }}>{result.report_text}</p>
         </div>
       )}
     </div>
   )
 }
 
-function FourTeamView({ teams, fixtures }: {
+function FourTeamView({ result, teams, fixtures }: {
   result: Result | null
   teams: Team[]
   fixtures: FixtureWithTeams[]
 }) {
   const table = buildTable(teams, fixtures)
+  const winner = table[0]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Group table */}
       <div className="rounded-2xl overflow-hidden" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-        <div className="px-4 py-3 border-b" style={{ borderColor: '#2e2e2e' }}>
-          <h3 className="font-semibold text-white text-sm">Group Table</h3>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid #2e2e2e' }}>
+          <h3 className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>Group Table</h3>
         </div>
         <table className="w-full text-xs">
           <thead>
-            <tr style={{ color: '#888' }}>
-              <th className="px-4 py-2 text-left">Team</th>
-              <th className="px-2 py-2">P</th>
-              <th className="px-2 py-2">W</th>
-              <th className="px-2 py-2">D</th>
-              <th className="px-2 py-2">L</th>
-              <th className="px-2 py-2">GD</th>
-              <th className="px-2 py-2 font-bold text-white">Pts</th>
+            <tr style={{ color: '#444' }}>
+              <th className="px-4 py-2 text-left font-medium">Team</th>
+              <th className="px-2 py-2 font-medium">P</th>
+              <th className="px-2 py-2 font-medium">W</th>
+              <th className="px-2 py-2 font-medium">D</th>
+              <th className="px-2 py-2 font-medium">L</th>
+              <th className="px-2 py-2 font-medium">GD</th>
+              <th className="px-2 py-2 font-medium" style={{ color: '#888' }}>Pts</th>
             </tr>
           </thead>
           <tbody>
-            {table.map((row, i) => (
-              <tr key={row.team.id} style={{ borderTop: '1px solid #2e2e2e' }}>
-                <td className="px-4 py-2 font-medium text-white">
-                  <span className="mr-2 text-xs" style={{ color: '#888' }}>{i + 1}</span>
-                  {row.team.name}
-                </td>
-                <td className="px-2 py-2 text-center" style={{ color: '#888' }}>{row.played}</td>
-                <td className="px-2 py-2 text-center" style={{ color: '#888' }}>{row.won}</td>
-                <td className="px-2 py-2 text-center" style={{ color: '#888' }}>{row.drawn}</td>
-                <td className="px-2 py-2 text-center" style={{ color: '#888' }}>{row.lost}</td>
-                <td className="px-2 py-2 text-center" style={{ color: '#888' }}>{row.gf - row.ga}</td>
-                <td className="px-2 py-2 text-center font-bold text-white">{row.pts}</td>
-              </tr>
-            ))}
+            {table.map((row, i) => {
+              const isLeader = i === 0 && row.pts > 0
+              return (
+                <tr key={row.team.id} style={{ borderTop: '1px solid #1e1e1e' }}>
+                  <td className="px-4 py-2.5 font-medium"
+                    style={{ color: isLeader ? 'white' : '#999' }}>
+                    <span className="mr-2 text-xs" style={{ color: isLeader ? '#0D6B52' : '#333' }}>{i + 1}</span>
+                    {row.team.name}
+                    {isLeader && <span className="ml-2 text-xs" style={{ color: '#0D6B52' }}>★</span>}
+                  </td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: '#444' }}>{row.played}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: '#444' }}>{row.won}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: '#444' }}>{row.drawn}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: '#444' }}>{row.lost}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: '#444' }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
+                  <td className="px-2 py-2.5 text-center font-bold"
+                    style={{ color: isLeader ? '#0D6B52' : '#888' }}>{row.pts}</td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Fixtures */}
       <div className="rounded-2xl overflow-hidden" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-        <div className="px-4 py-3 border-b" style={{ borderColor: '#2e2e2e' }}>
-          <h3 className="font-semibold text-white text-sm">Fixtures</h3>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid #2e2e2e' }}>
+          <h3 className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>Results</h3>
         </div>
-        <div className="divide-y" style={{ borderColor: '#2e2e2e' }}>
-          {fixtures.map(f => (
-            <div key={f.id} className="px-4 py-3 flex items-center gap-2">
-              <span className="flex-1 text-sm text-right font-medium text-white">{f.team1?.name}</span>
-              <div className="flex gap-1 items-center px-3">
-                <span className="font-display text-xl text-white">{f.score1 ?? '-'}</span>
-                <span className="text-xs" style={{ color: '#555' }}>v</span>
-                <span className="font-display text-xl text-white">{f.score2 ?? '-'}</span>
+        <div>
+          {fixtures.map((f, i) => (
+            <div key={f.id} className="px-4 py-3 flex items-center gap-2"
+              style={{ borderTop: i > 0 ? '1px solid #1e1e1e' : 'none' }}>
+              <span className="flex-1 text-xs text-right font-medium" style={{ color: '#ccc' }}>{f.team1?.name}</span>
+              <div className="flex items-center gap-2 px-3">
+                <span className="font-display text-2xl text-white">{f.score1 ?? '–'}</span>
+                <span className="text-xs" style={{ color: '#333' }}>–</span>
+                <span className="font-display text-2xl text-white">{f.score2 ?? '–'}</span>
               </div>
-              <span className="flex-1 text-sm font-medium text-white">{f.team2?.name}</span>
+              <span className="flex-1 text-xs font-medium" style={{ color: '#ccc' }}>{f.team2?.name}</span>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Scorers */}
+      {result?.scorers && (
+        <div className="p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>Scorers</p>
+          <p className="text-sm text-white leading-relaxed">{result.scorers}</p>
+        </div>
+      )}
+
+      {/* Match report */}
+      {result?.report_text && (
+        <div className="p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>
+            Match Report
+            {winner && <span className="ml-2 normal-case" style={{ color: '#0D6B52' }}>· {winner.team.name} win</span>}
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: '#bbb' }}>{result.report_text}</p>
+          {result.highlights && (
+            <p className="text-xs mt-3 font-medium" style={{ color: '#0D6B52' }}>{result.highlights}</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -120,16 +120,16 @@ export default function TonightPage() {
       )}
 
       {/* Count + format bar */}
-      <div className="flex gap-2 mb-3">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
-          style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <span className="font-display text-xl leading-none" style={{ color: '#0D6B52' }}>{signedUpCount}</span>
-          <span className="text-xs" style={{ color: '#666' }}>in</span>
+      <div className="flex items-center mb-3 px-4 py-3 rounded-2xl"
+        style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+        <div className="flex items-baseline gap-2 flex-1">
+          <span className="font-display text-5xl leading-none" style={{ color: '#0D6B52' }}>{signedUpCount}</span>
+          <span className="text-xs" style={{ color: '#555' }}>signed up</span>
         </div>
-        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl"
-          style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <span style={{ color: '#0D6B52' }}>⚽</span>
-          <span className="text-xs font-medium text-white">{formatLabel}</span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+          style={{ background: '#1a1a1a', border: '1px solid #2e2e2e' }}>
+          <span className="text-sm">⚽</span>
+          <span className="text-xs font-semibold text-white">{formatLabel}</span>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ export default function TonightPage() {
           <button
             onClick={toggleAvailability}
             disabled={toggling}
-            className="w-full py-3 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50"
+            className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
             style={{
               background: isIn ? '#0a1a10' : '#0D6B52',
               color: isIn ? '#4ade80' : 'white',
@@ -158,9 +158,14 @@ export default function TonightPage() {
 
       {/* Who's In */}
       <div className="mb-4">
-        <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
-          Who's In
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>Who's In</p>
+          {signedUpPlayers.length > 0 && (
+            <span className="text-xs" style={{ color: '#3a3a3a' }}>
+              {signedUpPlayers.length} {signedUpPlayers.length === 1 ? 'player' : 'players'}
+            </span>
+          )}
+        </div>
         {loading ? (
           <div className="text-sm py-2" style={{ color: '#555' }}>Loading…</div>
         ) : signedUpPlayers.length === 0 ? (

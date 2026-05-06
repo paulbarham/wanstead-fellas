@@ -63,11 +63,10 @@ export default function Layout() {
               key={item.to}
               to={item.to}
               end={item.to === '/'}
-              className={({ isActive }) =>
-                `flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${isActive ? '' : ''}`
-              }
+              className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors active:opacity-60"
               style={({ isActive }) => ({
-                color: isActive ? '#0D6B52' : '#555',
+                color: isActive ? '#0D6B52' : '#4a4a4a',
+                borderTop: `2px solid ${isActive ? '#0D6B52' : 'transparent'}`,
               })}
             >
               <span className="text-lg leading-none">{item.icon}</span>
