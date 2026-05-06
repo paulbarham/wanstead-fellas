@@ -74,7 +74,7 @@ export default function HistoryPage() {
           {records.map(({ match, result, teams, fixtures }) => {
             const isExpanded = expanded === match.id
             const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'EEE do MMM yyyy')
-            const isTwoTeam = match.format !== 'tournament'
+            const isTwoTeam = match.format !== 'tournament' && match.format !== '4-team'
             const mainFixture = isTwoTeam ? fixtures[0] : null
 
             return (

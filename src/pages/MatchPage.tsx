@@ -138,7 +138,7 @@ export default function MatchPage() {
           <p className="font-medium text-white">No result yet</p>
           <p className="text-sm mt-1">Results posted after the match</p>
         </div>
-      ) : match.format === 'tournament' ? (
+      ) : (match.format === 'tournament' || match.format === '4-team') ? (
         <FourTeamView result={result} teams={teams} fixtures={fixtures} />
       ) : (
         <ElevenVElevenView result={result} teams={teams} fixtures={fixtures} />

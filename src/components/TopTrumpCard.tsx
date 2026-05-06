@@ -1,5 +1,6 @@
 import type { Profile, BadgeType } from '../types'
 import { getTier, calcStrength, calcTeamPlayer, calcTechnical } from '../types'
+import PlayerTypeBadge from './PlayerTypeBadge'
 
 const BADGE_STYLES: Record<BadgeType, { bg: string; color: string }> = {
   'Super Sharp Shooter': { bg: '#C0392B', color: 'white' },
@@ -121,16 +122,15 @@ export default function TopTrumpCard({ profile, compact = false }: Props) {
           }}>
             {profile.name?.toUpperCase()} {profile.surname?.toUpperCase()}
           </p>
-          {badges.length > 0 && (
-            <div style={{ display: 'flex', gap: 3, marginTop: 3, flexWrap: 'wrap' }}>
-              {badges.slice(0, 2).map(b => (
-                <span key={b} style={{
-                  background: BADGE_STYLES[b].bg, color: 'white',
-                  fontSize: '0.48rem', padding: '1px 4px', borderRadius: 3, fontWeight: 700,
-                }}>{b}</span>
-              ))}
-            </div>
-          )}
+          <div style={{ display: 'flex', gap: 3, marginTop: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+            <PlayerTypeBadge type={profile.player_type ?? 'wtp'} />
+            {badges.slice(0, 1).map(b => (
+              <span key={b} style={{
+                background: BADGE_STYLES[b].bg, color: 'white',
+                fontSize: '0.48rem', padding: '1px 4px', borderRadius: 3, fontWeight: 700,
+              }}>{b}</span>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -189,9 +189,12 @@ export default function TopTrumpCard({ profile, compact = false }: Props) {
           <p style={{ fontFamily: 'display', fontSize: '1.5rem', color: 'white', lineHeight: 1, letterSpacing: '0.02em' }}>
             {profile.name?.toUpperCase()} {profile.surname?.toUpperCase()}
           </p>
-          <p style={{ color: s.accent, fontSize: '0.7rem', marginTop: 4, letterSpacing: '0.12em', fontWeight: 700 }}>
-            {s.label} · WANSTEAD FELLAS
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+            <p style={{ color: s.accent, fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700 }}>
+              {s.label} · WANSTEAD FELLAS
+            </p>
+            <PlayerTypeBadge type={profile.player_type ?? 'wtp'} />
+          </div>
         </div>
 
         {/* Overall badge */}

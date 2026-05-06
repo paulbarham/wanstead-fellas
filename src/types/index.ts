@@ -1,3 +1,5 @@
+export type PlayerType = 'subscribed' | 'wtp_priority' | 'wtp'
+
 export interface Profile {
   id: string
   name: string
@@ -18,6 +20,7 @@ export interface Profile {
   cunt: number
   badges: string[]
   is_admin: boolean
+  player_type: PlayerType
   created_at: string
 }
 
@@ -25,6 +28,7 @@ export interface Availability {
   id: string
   player_id: string
   match_date: string
+  status: 'confirmed' | 'waiting'
   created_at: string
 }
 

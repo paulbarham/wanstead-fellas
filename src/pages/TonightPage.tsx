@@ -5,7 +5,10 @@ import { supabase } from '../lib/supabase'
 import type { Profile, Availability } from '../types'
 import { getNextThursdayDate, getMatchPhase, formatCountdown } from '../lib/time'
 import PlayerAvatar from '../components/PlayerAvatar'
+import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import InstallBanner from '../components/InstallBanner'
+
+const SIGNUP_CAP = 32
 
 export default function TonightPage() {
   const { profile } = useAuth()
@@ -17,13 +20,18 @@ export default function TonightPage() {
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(false)
 
-  const isIn = availability.some(a => a.player_id === profile?.id)
-  const signedUpCount = availability.length
+  const confirmedAvail = availability.filter(a => a.status !== 'waiting')
+  const waitingAvail = availability.filter(a => a.status === 'waiting')
+
+  const myEntry = availability.find(a => a.player_id === profile?.id)
+  const isIn = myEntry?.status === 'confirmed'
+  const isWaiting = myEntry?.status === 'waiting'
+  const signedUpCount = confirmedAvail.length
 
   const fetchData = useCallback(async () => {
     const [{ data: avail }, { data: profs }] = await Promise.all([
       supabase.from('availability').select('*').eq('match_date', nextThursday),
-      supabase.from('profiles').select('id, name, surname, photo_url, overall_rating, badges'),
+      supabase.from('profiles').select('id, name, surname, photo_url, overall_rating, badges, player_type'),
     ])
     setAvailability((avail as Availability[]) || [])
     setPlayers((profs as Profile[]) || [])
@@ -47,11 +55,49 @@ export default function TonightPage() {
     if (!profile.is_admin && phase === 'signup_locked') return
     if (!profile.is_admin && phase === 'match_live') return
     setToggling(true)
-    if (isIn) {
-      await supabase.from('availability').delete().eq('player_id', profile.id).eq('match_date', nextThursday)
+
+    if (myEntry) {
+      // Drop out
+      await supabase.from('availability').delete().eq('id', myEntry.id)
+
+      // If they were confirmed, auto-promote first waiting player (FIFO)
+      if (myEntry.status === 'confirmed') {
+        const firstWaiting = [...waitingAvail]
+          .filter(a => a.player_id !== profile.id)
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())[0]
+        if (firstWaiting) {
+          await supabase.from('availability').update({ status: 'confirmed' }).eq('id', firstWaiting.id)
+        }
+      }
     } else {
-      await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday })
+      // Sign up
+      const playerType = profile.player_type ?? 'wtp'
+
+      if (profile.is_admin || signedUpCount < SIGNUP_CAP) {
+        await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'confirmed' })
+      } else if (playerType === 'wtp') {
+        // Regular WTP: waitlist
+        await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'waiting' })
+      } else {
+        // Subscribed / WTP Priority: bump last confirmed WTP player (LIFO)
+        const confirmedWtp = confirmedAvail
+          .filter(a => {
+            const p = players.find(pl => pl.id === a.player_id)
+            return (p?.player_type ?? 'wtp') === 'wtp'
+          })
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+        if (confirmedWtp.length > 0) {
+          const toBump = confirmedWtp[0]
+          await supabase.from('availability').update({ status: 'waiting' }).eq('id', toBump.id)
+          await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'confirmed' })
+        } else {
+          // No WTP to bump — waitlist
+          await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'waiting' })
+        }
+      }
     }
+
     await fetchData()
     setToggling(false)
   }
@@ -62,12 +108,13 @@ export default function TonightPage() {
     if (existing) {
       await supabase.from('availability').delete().eq('id', existing.id)
     } else {
-      await supabase.from('availability').insert({ player_id: playerId, match_date: nextThursday })
+      await supabase.from('availability').insert({ player_id: playerId, match_date: nextThursday, status: 'confirmed' })
     }
     await fetchData()
   }
 
-  const signedUpPlayers = players.filter(p => availability.some(a => a.player_id === p.id))
+  const signedUpPlayers = players.filter(p => confirmedAvail.some(a => a.player_id === p.id))
+  const waitingPlayers = players.filter(p => waitingAvail.some(a => a.player_id === p.id))
   const notSignedUp = players.filter(p => !availability.some(a => a.player_id === p.id))
 
   const dateLabel = (() => {
@@ -125,6 +172,9 @@ export default function TonightPage() {
         <div className="flex items-baseline gap-2 flex-1">
           <span className="font-display text-5xl leading-none" style={{ color: '#0D6B52' }}>{signedUpCount}</span>
           <span className="text-xs" style={{ color: '#555' }}>signed up</span>
+          {signedUpCount >= SIGNUP_CAP && (
+            <span className="text-xs font-semibold" style={{ color: '#ff6b6b' }}>FULL</span>
+          )}
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
           style={{ background: '#1a1a1a', border: '1px solid #2e2e2e' }}>
@@ -141,12 +191,12 @@ export default function TonightPage() {
             disabled={toggling}
             className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
             style={{
-              background: isIn ? '#0a1a10' : '#0D6B52',
-              color: isIn ? '#4ade80' : 'white',
-              border: isIn ? '2px solid #4ade80' : '2px solid transparent',
+              background: isWaiting ? '#1a1300' : isIn ? '#0a1a10' : '#0D6B52',
+              color: isWaiting ? '#C9A227' : isIn ? '#4ade80' : 'white',
+              border: isWaiting ? '2px solid #C9A227' : isIn ? '2px solid #4ade80' : '2px solid transparent',
             }}
           >
-            {toggling ? '…' : isIn ? "✓ I'm In — Tap to Drop Out" : 'Mark Me In'}
+            {toggling ? '…' : isWaiting ? '⏳ On Waiting List — Tap to Remove' : isIn ? "✓ I'm In — Tap to Drop Out" : 'Mark Me In'}
           </button>
         ) : (
           <div className="w-full py-3 rounded-2xl text-center font-medium text-xs"
@@ -190,10 +240,11 @@ export default function TonightPage() {
                     <span className="ml-1.5 text-xs" style={{ color: '#0D6B52' }}>you</span>
                   )}
                 </span>
+                <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
                 {profile?.is_admin && p.id !== profile.id && (
                   <button
                     onClick={() => adminTogglePlayer(p.id)}
-                    className="text-xs px-2 py-0.5 rounded-lg"
+                    className="text-xs px-2 py-0.5 rounded-lg ml-1"
                     style={{ color: '#ff6b6b', border: '1px solid #5a1a1a' }}
                   >
                     Remove
@@ -204,6 +255,46 @@ export default function TonightPage() {
           </div>
         )}
       </div>
+
+      {/* Waiting list */}
+      {waitingPlayers.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
+            Waiting List ({waitingPlayers.length})
+          </p>
+          <div className="space-y-1.5">
+            {waitingPlayers.map((p, i) => (
+              <div
+                key={p.id}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl"
+                style={{
+                  background: p.id === profile?.id ? '#1a1300' : '#141414',
+                  border: `1px solid ${p.id === profile?.id ? '#C9A227' : '#2e2e2e'}`,
+                }}
+              >
+                <span className="text-xs w-4 text-center" style={{ color: '#555' }}>{i + 1}</span>
+                <PlayerAvatar profile={p} size={28} />
+                <span className="flex-1 text-sm font-medium" style={{ color: '#888' }}>
+                  {p.name} {p.surname}
+                  {p.id === profile?.id && (
+                    <span className="ml-1.5 text-xs" style={{ color: '#C9A227' }}>you</span>
+                  )}
+                </span>
+                <span className="text-xs" style={{ color: '#C9A227' }}>⏳</span>
+                {profile?.is_admin && p.id !== profile.id && (
+                  <button
+                    onClick={() => adminTogglePlayer(p.id)}
+                    className="text-xs px-2 py-0.5 rounded-lg ml-1"
+                    style={{ color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Admin: not signed up */}
       {profile?.is_admin && notSignedUp.length > 0 && (
@@ -222,9 +313,10 @@ export default function TonightPage() {
                 <span className="flex-1 text-sm" style={{ color: '#666' }}>
                   {p.name} {p.surname}
                 </span>
+                <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
                 <button
                   onClick={() => adminTogglePlayer(p.id)}
-                  className="text-xs px-2 py-0.5 rounded-lg font-medium"
+                  className="text-xs px-2 py-0.5 rounded-lg font-medium ml-1"
                   style={{ color: '#0D6B52', border: '1px solid #0D6B52' }}
                 >
                   Add
