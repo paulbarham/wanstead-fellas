@@ -121,7 +121,7 @@ export default function CardsPage() {
   if (loading) return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading cards…</div>
 
   return (
-    <div className="px-4 pt-4 pb-24">
+    <div className="px-4 pt-4 pb-6">
       <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
         Player Cards
       </p>

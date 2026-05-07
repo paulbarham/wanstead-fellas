@@ -50,13 +50,13 @@ export default function Layout() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto" style={{ maxWidth: 430, width: '100%', margin: '0 auto', paddingBottom: 80 }}>
+      <main className="flex-1 overflow-y-auto" style={{ maxWidth: 430, width: '100%', margin: '0 auto' }}>
         <Outlet />
       </main>
 
       {/* Bottom nav */}
-      <nav className="flex-shrink-0 fixed bottom-0 left-1/2 -translate-x-1/2 w-full"
-        style={{ maxWidth: 430, background: '#FFFFFF', borderTop: '1px solid #E2E4DC' }}>
+      <nav className="flex-shrink-0"
+        style={{ background: '#FFFFFF', borderTop: '1px solid #E2E4DC' }}>
         <div className="flex">
           {navItems.map(item => (
             <NavLink

@@ -54,7 +54,7 @@ function DobInputs({ day, month, year, setDay, setMonth, setYear }: DobProps) {
         <select
           value={month} onChange={e => setMonth(e.target.value)}
           className="w-full py-3 px-3 rounded-xl text-sm outline-none"
-          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: month ? 'white' : '#555' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: month ? '#18201A' : '#9CA897' }}
         >
           <option value="">Month</option>
           {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
