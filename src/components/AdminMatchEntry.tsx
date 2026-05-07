@@ -254,23 +254,28 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               </div>
               <table className="w-full text-xs">
                 <thead>
-                  <tr style={{ color: '#647060' }}>
-                    <th className="px-4 py-2 text-left">Team</th>
-                    <th className="px-2 py-2">P</th>
-                    <th className="px-2 py-2">GD</th>
-                    <th className="px-2 py-2 font-bold text-[#18201A]">Pts</th>
+                  <tr style={{ color: '#647060', background: '#F8F9F6', borderBottom: '1px solid #E2E4DC' }}>
+                    <th className="py-2 text-center font-medium" style={{ width: 28, paddingLeft: 12 }}>#</th>
+                    <th className="py-2 text-left font-medium" style={{ paddingLeft: 8 }}>Team</th>
+                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>P</th>
+                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>W</th>
+                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>D</th>
+                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>L</th>
+                    <th className="px-2 py-2 text-center font-medium" style={{ width: 40 }}>GD</th>
+                    <th className="px-2 py-2 text-center font-bold" style={{ width: 40, color: '#18201A' }}>Pts</th>
                   </tr>
                 </thead>
                 <tbody>
                   {table.map((row, i) => (
-                    <tr key={row.team.id} style={{ borderTop: '1px solid #E2E4DC' }}>
-                      <td className="px-4 py-2 font-medium text-[#18201A]">
-                        <span className="mr-2 text-xs" style={{ color: '#647060' }}>{i + 1}</span>
-                        {row.team.name}
-                      </td>
-                      <td className="px-2 py-2 text-center" style={{ color: '#647060' }}>{row.played}</td>
-                      <td className="px-2 py-2 text-center" style={{ color: '#647060' }}>{row.gf - row.ga}</td>
-                      <td className="px-2 py-2 text-center font-bold text-[#18201A]">{row.pts}</td>
+                    <tr key={row.team.id} style={{ background: i % 2 === 0 ? '#FFFFFF' : '#F2F3EE' }}>
+                      <td className="py-2.5 text-center font-medium" style={{ paddingLeft: 12, color: '#9CA897' }}>{i + 1}</td>
+                      <td className="py-2.5 font-medium text-[#18201A]" style={{ paddingLeft: 8 }}>{row.team.name}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.played}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.won}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.drawn}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.lost}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
+                      <td className="px-2 py-2.5 text-center font-bold" style={{ color: '#18201A' }}>{row.pts}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -286,9 +291,9 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               </div>
               <div className="divide-y" style={{ borderColor: '#E2E4DC' }}>
                 {fixtures.map(f => (
-                  <div key={f.id} className="px-4 py-3 flex items-center gap-2">
+                  <div key={f.id} className="px-4 py-4 flex items-center gap-2">
                     <span className="flex-1 text-xs text-right font-medium text-[#18201A]">{f.team1?.name}</span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <input
                         type="number"
                         min={0}
@@ -297,7 +302,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                         className="w-10 text-center py-1.5 rounded-lg text-[#18201A] font-display text-lg outline-none"
                         style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                       />
-                      <span className="text-xs" style={{ color: '#9CA897' }}>v</span>
+                      <span style={{ color: '#B0B5AA', fontSize: 11, fontWeight: 500 }}>v</span>
                       <input
                         type="number"
                         min={0}
@@ -317,7 +322,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
       )}
 
       {/* Actions */}
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-2 pb-4">
         <button
           onClick={saveResult}
           disabled={saving}
@@ -330,7 +335,11 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
         <button
           onClick={copyToClipboard}
           className="w-full py-3 rounded-xl font-medium text-sm"
-          style={{ background: '#FFFFFF', color: copied ? '#0D6B52' : '#ccc', border: '1px solid #E2E4DC' }}
+          style={{
+            background: '#FFFFFF',
+            color: copied ? '#0D6B52' : '#647060',
+            border: `1px solid ${copied ? '#0D6B52' : '#8C9688'}`,
+          }}
         >
           {copied ? '✓ Copied!' : 'Copy to Clipboard'}
         </button>
