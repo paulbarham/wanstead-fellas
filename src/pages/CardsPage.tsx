@@ -118,14 +118,14 @@ export default function CardsPage() {
     setSelected(prev => prev?.id === playerId ? { ...prev, photo_url: null } : prev)
   }
 
-  if (loading) return <div className="px-4 py-5 text-sm" style={{ color: '#666' }}>Loading cards…</div>
+  if (loading) return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading cards…</div>
 
   return (
     <div className="px-4 pt-4 pb-4">
       <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
         Player Cards
       </p>
-      <h1 className="font-display text-2xl text-white tracking-wide mb-4">TOP TRUMPS</h1>
+      <h1 className="font-display text-2xl text-[#18201A] tracking-wide mb-4">TOP TRUMPS</h1>
 
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
 
@@ -153,25 +153,25 @@ export default function CardsPage() {
             <TopTrumpCard profile={selected} />
 
             {/* Actions beneath card */}
-            <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+            <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
 
               {/* Own card age group (non-admin) */}
               {selected.id === myProfile?.id && !isAdmin && (
                 <div className="flex items-center gap-2">
-                  <label className="text-xs flex-shrink-0" style={{ color: '#666' }}>Age Group:</label>
+                  <label className="text-xs flex-shrink-0" style={{ color: '#647060' }}>Age Group:</label>
                   {editingId === 'agegroup' ? (
                     <>
                       <select
                         value={editAgeGroup}
                         onChange={e => setEditAgeGroup(e.target.value)}
-                        className="flex-1 px-2 py-1.5 rounded-lg text-white text-xs outline-none"
-                        style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                        className="flex-1 px-2 py-1.5 rounded-lg text-[#18201A] text-xs outline-none"
+                        style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                       >
                         {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                       </select>
                       <button onClick={() => { saveAgeGroup(selected.id); setEditingId(null) }}
                         className="text-xs px-2.5 py-1.5 rounded-lg font-semibold"
-                        style={{ background: '#0D6B52', color: 'white' }}>
+                        style={{ background: '#0D6B52', color: '#18201A' }}>
                         Save
                       </button>
                     </>
@@ -192,7 +192,7 @@ export default function CardsPage() {
                     onClick={() => triggerPhotoUpload(selected.id)}
                     disabled={uploadingFor === selected.id}
                     className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
-                    style={{ background: '#0D6B52', color: 'white' }}
+                    style={{ background: '#0D6B52', color: '#18201A' }}
                   >
                     {uploadingFor === selected.id ? 'Uploading…' : selected.photo_url ? 'Change Photo' : 'Upload Photo'}
                   </button>
@@ -200,7 +200,7 @@ export default function CardsPage() {
                     <button
                       onClick={() => deletePhoto(selected.id)}
                       className="px-4 py-2.5 rounded-xl text-sm font-semibold"
-                      style={{ background: '#1a0808', color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                      style={{ background: '#1a0808', color: '#DC2626', border: '1px solid #FECACA' }}
                     >
                       Remove
                     </button>
@@ -212,7 +212,7 @@ export default function CardsPage() {
               {selected.id === myProfile?.id && (
                 <div>
                   {pwResetSent ? (
-                    <p className="text-xs text-center py-2" style={{ color: '#4ade80' }}>
+                    <p className="text-xs text-center py-2" style={{ color: '#0D6B52' }}>
                       Check your email for a password reset link.
                     </p>
                   ) : (
@@ -225,7 +225,7 @@ export default function CardsPage() {
                         setPwResetSent(true)
                       }}
                       className="w-full py-2.5 rounded-xl text-sm font-medium"
-                      style={{ background: '#1e1e1e', color: '#888', border: '1px solid #2e2e2e' }}
+                      style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
                     >
                       Change password
                     </button>
@@ -240,7 +240,7 @@ export default function CardsPage() {
                     <div className="space-y-2.5">
                       {STAT_KEYS.map(key => (
                         <div key={key as string} className="flex items-center gap-3">
-                          <span className="text-xs w-20 flex-shrink-0" style={{ color: '#666' }}>
+                          <span className="text-xs w-20 flex-shrink-0" style={{ color: '#647060' }}>
                             {STAT_LABELS[key as string]}
                           </span>
                           <input
@@ -249,27 +249,27 @@ export default function CardsPage() {
                             onChange={e => setEditValues(v => ({ ...v, [key]: parseInt(e.target.value) }))}
                             className="flex-1"
                           />
-                          <span className="text-xs w-4 text-right text-white">
+                          <span className="text-xs w-4 text-right text-[#18201A]">
                             {(editValues[key] as number) ?? 5}
                           </span>
                         </div>
                       ))}
                       <button onClick={() => saveEdit(selected.id)}
                         className="w-full py-2.5 rounded-xl text-sm font-semibold"
-                        style={{ background: '#0D6B52', color: 'white' }}>
+                        style={{ background: '#0D6B52', color: '#18201A' }}>
                         Save Stats
                       </button>
                     </div>
                   ) : (
                     <button onClick={() => startEdit(selected)}
                       className="w-full py-2.5 rounded-xl text-sm font-medium"
-                      style={{ background: '#1e1e1e', color: '#ccc', border: '1px solid #2e2e2e' }}>
+                      style={{ background: '#FFFFFF', color: '#ccc', border: '1px solid #E2E4DC' }}>
                       Edit Stats
                     </button>
                   )}
 
                   <div>
-                    <p className="text-xs mb-2" style={{ color: '#666' }}>Badges</p>
+                    <p className="text-xs mb-2" style={{ color: '#647060' }}>Badges</p>
                     <div className="flex flex-wrap gap-2">
                       {ALL_BADGES.map(badge => {
                         const has = (selected.badges ?? []).includes(badge)
@@ -277,9 +277,9 @@ export default function CardsPage() {
                           <button key={badge} onClick={() => toggleBadge(selected.id, badge)}
                             className="text-xs px-2.5 py-1 rounded-full font-medium"
                             style={{
-                              background: has ? BADGE_COLORS[badge] : '#1e1e1e',
+                              background: has ? BADGE_COLORS[badge] : '#FFFFFF',
                               color: has ? 'white' : '#666',
-                              border: `1px solid ${has ? BADGE_COLORS[badge] : '#2e2e2e'}`,
+                              border: `1px solid ${has ? BADGE_COLORS[badge] : '#E2E4DC'}`,
                             }}>
                             {badge}
                           </button>
@@ -290,17 +290,17 @@ export default function CardsPage() {
 
                   {/* Age group (admin) */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs flex-shrink-0" style={{ color: '#666' }}>Age Group:</label>
+                    <label className="text-xs flex-shrink-0" style={{ color: '#647060' }}>Age Group:</label>
                     {editingId === 'agegroup_admin' ? (
                       <>
                         <select value={editAgeGroup} onChange={e => setEditAgeGroup(e.target.value)}
-                          className="flex-1 px-2 py-1.5 rounded-lg text-white text-xs outline-none"
-                          style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}>
+                          className="flex-1 px-2 py-1.5 rounded-lg text-[#18201A] text-xs outline-none"
+                          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
                           {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                         <button onClick={() => { saveAgeGroup(selected.id); setEditingId(null) }}
                           className="text-xs px-2.5 py-1.5 rounded-lg font-semibold"
-                          style={{ background: '#0D6B52', color: 'white' }}>Save</button>
+                          style={{ background: '#0D6B52', color: '#18201A' }}>Save</button>
                       </>
                     ) : (
                       <button onClick={() => { setEditAgeGroup(selected.age_group ?? AGE_GROUP_DEFAULT); setEditingId('agegroup_admin') }}
@@ -316,7 +316,7 @@ export default function CardsPage() {
               <button
                 onClick={() => { setSelected(null); setEditingId(null); setPwResetSent(false) }}
                 className="w-full py-2.5 rounded-xl text-sm"
-                style={{ background: '#1e1e1e', color: '#666', border: '1px solid #2e2e2e' }}
+                style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
               >
                 Close
               </button>

@@ -220,22 +220,22 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
     <div className="px-4 pt-4 pb-4">
       <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>Teams</p>
       <div className="flex items-center justify-between mb-1">
-        <h1 className="font-display text-2xl text-white tracking-wide">TEAM BUILDER</h1>
-        <span className="text-xs px-2 py-1 rounded-full" style={{ background: '#141414', color: '#888', border: '1px solid #2e2e2e' }}>
+        <h1 className="font-display text-2xl text-[#18201A] tracking-wide">TEAM BUILDER</h1>
+        <span className="text-xs px-2 py-1 rounded-full" style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
           {availablePlayers.length} confirmed
         </span>
       </div>
 
       {published && draftTeams.length === 0 && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
-          style={{ background: '#0a1a10', color: '#4ade80', border: '1px solid #4ade80' }}>
+          style={{ background: '#DCFCE7', color: '#0D6B52', border: '1px solid #0D6B52' }}>
           ✓ Teams published and visible to players
         </div>
       )}
 
       {isOverCap && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
-          style={{ background: '#1a0a0a', color: '#ff6b6b', border: '1px solid #ff6b6b' }}>
+          style={{ background: '#1a0a0a', color: '#DC2626', border: '1px solid #DC2626' }}>
           ⚠ {totalPlayers} players — over the 32-player cap
         </div>
       )}
@@ -245,7 +245,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         onClick={autoBalance}
         disabled={availablePlayers.length < 2}
         className="w-full py-3.5 rounded-2xl font-semibold text-sm mb-3 disabled:opacity-40 transition-opacity"
-        style={{ background: '#0D6B52', color: 'white' }}
+        style={{ background: '#0D6B52', color: '#18201A' }}
       >
         ⚡ Auto-Balance Teams
       </button>
@@ -255,24 +255,24 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         <button
           onClick={() => setShowWeights(w => !w)}
           className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm"
-          style={{ background: '#141414', border: '1px solid #2e2e2e', color: '#888' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: '#647060' }}
         >
           <span>⚙ Balance settings</span>
           <span style={{ fontSize: '0.6rem' }}>{showWeights ? '▲' : '▼'}</span>
         </button>
 
         {showWeights && (
-          <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+          <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
             {ATTR_LABELS.map(({ key, label }) => (
               <div key={key} className="flex items-center gap-3">
-                <span className="text-xs w-20 flex-shrink-0" style={{ color: '#888' }}>{label}</span>
+                <span className="text-xs w-20 flex-shrink-0" style={{ color: '#647060' }}>{label}</span>
                 <input
                   type="range" min={0} max={5} step={0.5}
                   value={weights[key] || 0}
                   onChange={e => setWeights(w => ({ ...w, [key]: parseFloat(e.target.value) }))}
                   className="flex-1"
                 />
-                <span className="text-xs w-5 text-right text-white">{weights[key] || 0}</span>
+                <span className="text-xs w-5 text-right text-[#18201A]">{weights[key] || 0}</span>
               </div>
             ))}
           </div>
@@ -284,11 +284,11 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         <>
           {draftTeams.length > 0 && (
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>Draft Teams</p>
+              <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Draft Teams</p>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full"
-                  style={{ background: score >= 80 ? '#4ade80' : score >= 60 ? '#C9A227' : '#ff6b6b' }} />
-                <span className="text-xs" style={{ color: '#888' }}>Balance: {score}%</span>
+                  style={{ background: score >= 80 ? '#4ade80' : score >= 60 ? '#C9A227' : '#DC2626' }} />
+                <span className="text-xs" style={{ color: '#647060' }}>Balance: {score}%</span>
               </div>
             </div>
           )}
@@ -303,7 +303,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   <div className="px-4 py-3 flex items-center justify-between"
                     style={{ background: color }}>
                     <div>
-                      <h3 className="font-display text-white tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
+                      <h3 className="font-display text-[#18201A] tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
                         {team.name}
                       </h3>
                       {team.captain && (
@@ -313,7 +313,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                       )}
                     </div>
                     <span className="text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0"
-                      style={{ background: 'rgba(0,0,0,0.35)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      style={{ background: 'rgba(0,0,0,0.35)', color: '#18201A', border: '1px solid rgba(255,255,255,0.2)' }}>
                       {team.bibs ? '🟡 BIBS' : '⬜ SKINS'}
                     </span>
                   </div>
@@ -327,9 +327,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                           onClick={() => draftTeams.length > 0 && setSwapModal({ player: p, fromTeamIdx: teamIdx })}
                           className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-opacity"
                           style={{
-                            background: isCap ? `${color}33` : '#1e1e1e',
+                            background: isCap ? `${color}33` : '#FFFFFF',
                             color: isCap ? 'white' : '#bbb',
-                            border: `1px solid ${isCap ? color : '#2e2e2e'}`,
+                            border: `1px solid ${isCap ? color : '#E2E4DC'}`,
                             cursor: draftTeams.length > 0 ? 'pointer' : 'default',
                           }}
                         >
@@ -349,7 +349,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
               onClick={publish}
               disabled={publishing}
               className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 mb-4"
-              style={{ background: '#0D6B52', color: 'white' }}
+              style={{ background: '#0D6B52', color: '#18201A' }}
             >
               {publishing ? 'Publishing…' : published ? '↺ Re-publish Teams' : 'Publish Teams'}
             </button>
@@ -357,9 +357,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
 
           {/* Finalise & Export section */}
           {teamsToShow.length > 0 && (
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #2e2e2e' }}>
-              <div className="px-4 py-3" style={{ background: '#141414', borderBottom: '1px solid #2e2e2e' }}>
-                <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E2E4DC' }}>
+              <div className="px-4 py-3" style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E4DC' }}>
+                <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
                   Finalise & Export
                 </p>
               </div>
@@ -368,8 +368,8 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   onClick={() => copyToClipboard(buildWhatsAppText(teamsToShow, nextThursday), 'whatsapp')}
                   className="w-full py-3 rounded-xl font-semibold text-sm"
                   style={{
-                    background: copied === 'whatsapp' ? '#0a1a10' : '#1a2e1a',
-                    color: copied === 'whatsapp' ? '#4ade80' : '#0D6B52',
+                    background: copied === 'whatsapp' ? '#DCFCE7' : '#1a2e1a',
+                    color: copied === 'whatsapp' ? '#0D6B52' : '#647060',
                     border: '1px solid #0D6B52',
                   }}
                 >
@@ -379,9 +379,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   onClick={() => copyToClipboard(buildFlatList(teamsToShow), 'flat')}
                   className="w-full py-3 rounded-xl font-semibold text-sm"
                   style={{
-                    background: copied === 'flat' ? '#0a1a10' : '#141414',
-                    color: copied === 'flat' ? '#4ade80' : '#888',
-                    border: '1px solid #2e2e2e',
+                    background: copied === 'flat' ? '#DCFCE7' : '#FFFFFF',
+                    color: copied === 'flat' ? '#0D6B52' : '#9CA897',
+                    border: '1px solid #E2E4DC',
                   }}
                 >
                   {copied === 'flat' ? '✓ Copied!' : '📝 Copy Flat Player List'}
@@ -398,12 +398,12 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
           style={{ background: 'rgba(0,0,0,0.85)' }}
           onClick={() => setSwapModal(null)}>
           <div className="w-full rounded-2xl p-5"
-            style={{ background: '#141414', border: '1px solid #2e2e2e', maxWidth: 430 }}
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', maxWidth: 430 }}
             onClick={e => e.stopPropagation()}>
-            <h3 className="font-semibold text-white mb-0.5">
+            <h3 className="font-semibold text-[#18201A] mb-0.5">
               Swap {swapModal.player.name} {swapModal.player.surname}
             </h3>
-            <p className="text-xs mb-4" style={{ color: '#666' }}>Select a player to swap with</p>
+            <p className="text-xs mb-4" style={{ color: '#647060' }}>Select a player to swap with</p>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {draftTeams.map((team, teamIdx) => {
                 if (teamIdx === swapModal.fromTeamIdx) return null
@@ -413,11 +413,11 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                     key={p.id}
                     onClick={() => swapPlayers(swapModal.fromTeamIdx, swapModal.player, teamIdx, p)}
                     className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
-                    style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                    style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                   >
                     <PlayerAvatar profile={p} size={32} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-white">{p.name} {p.surname}</p>
+                      <p className="text-sm font-medium text-[#18201A]">{p.name} {p.surname}</p>
                       <p className="text-xs" style={{ color }}>{team.name}</p>
                     </div>
                   </button>
@@ -427,7 +427,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
             <button
               onClick={() => setSwapModal(null)}
               className="w-full mt-3 py-2.5 rounded-xl text-sm"
-              style={{ background: '#1e1e1e', color: '#666', border: '1px solid #2e2e2e' }}
+              style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
             >
               Cancel
             </button>

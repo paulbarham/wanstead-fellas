@@ -57,12 +57,12 @@ function PlayerFeedbackForm() {
       <div className="px-4 py-5">
         <div className="text-center py-16">
           <div className="text-5xl mb-4">✅</div>
-          <h2 className="font-semibold text-white text-lg mb-2">Thanks for your feedback!</h2>
-          <p className="text-sm mb-6" style={{ color: '#888' }}>We'll review it soon.</p>
+          <h2 className="font-semibold text-[#18201A] text-lg mb-2">Thanks for your feedback!</h2>
+          <p className="text-sm mb-6" style={{ color: '#647060' }}>We'll review it soon.</p>
           <button
             onClick={() => setSubmitted(false)}
             className="px-6 py-2.5 rounded-xl text-sm font-medium"
-            style={{ background: '#0D6B52', color: 'white' }}
+            style={{ background: '#0D6B52', color: '#18201A' }}
           >
             Send another
           </button>
@@ -76,50 +76,50 @@ function PlayerFeedbackForm() {
       <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>
         Have a say
       </p>
-      <h1 className="font-display text-3xl text-white tracking-wide mb-5">FEEDBACK</h1>
+      <h1 className="font-display text-3xl text-[#18201A] tracking-wide mb-5">FEEDBACK</h1>
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg text-sm" style={{ background: '#2a0a0a', color: '#ff6b6b', border: '1px solid #5a1a1a' }}>
+        <div className="mb-4 p-3 rounded-lg text-sm" style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Category</label>
+          <label className="block text-sm font-medium mb-1.5" style={{ color: '#647060' }}>Category</label>
           <select
             value={category}
             onChange={e => setCategory(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-            style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
           >
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <p className="mt-1.5 text-xs" style={{ color: '#555' }}>{CATEGORY_HINTS[category]}</p>
+          <p className="mt-1.5 text-xs" style={{ color: '#9CA897' }}>{CATEGORY_HINTS[category]}</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Subject</label>
+          <label className="block text-sm font-medium mb-1.5" style={{ color: '#647060' }}>Subject</label>
           <input
             type="text"
             value={subject}
             onChange={e => setSubject(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-            style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
             placeholder="One-line summary"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Message</label>
+          <label className="block text-sm font-medium mb-1.5" style={{ color: '#647060' }}>Message</label>
           <textarea
             value={message}
             onChange={e => setMessage(e.target.value)}
             required
             rows={5}
-            className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none resize-none"
-            style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none resize-none"
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
             placeholder="Tell us more..."
           />
         </div>
@@ -128,7 +128,7 @@ function PlayerFeedbackForm() {
           type="submit"
           disabled={submitting}
           className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
-          style={{ background: '#0D6B52', color: 'white' }}
+          style={{ background: '#0D6B52', color: '#18201A' }}
         >
           {submitting ? 'Submitting...' : 'Submit Feedback'}
         </button>
@@ -224,56 +224,56 @@ function AdminFeedbackView() {
     return (
       <div className="px-4 py-5 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-white">Submit Feedback</p>
+          <p className="text-sm font-semibold text-[#18201A]">Submit Feedback</p>
           <button
             onClick={() => setShowSubmitForm(false)}
             className="text-xs px-3 py-1.5 rounded-lg"
-            style={{ background: '#1e1e1e', color: '#888', border: '1px solid #2e2e2e' }}
+            style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
           >
             Cancel
           </button>
         </div>
 
         {fbError && (
-          <div className="p-3 rounded-lg text-sm" style={{ background: '#2a0a0a', color: '#ff6b6b', border: '1px solid #5a1a1a' }}>
+          <div className="p-3 rounded-lg text-sm" style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
             {fbError}
           </div>
         )}
 
         <form onSubmit={handleFbSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Category</label>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: '#647060' }}>Category</label>
             <select
               value={fbCategory}
               onChange={e => setFbCategory(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
             >
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            <p className="mt-1.5 text-xs" style={{ color: '#555' }}>{CATEGORY_HINTS[fbCategory]}</p>
+            <p className="mt-1.5 text-xs" style={{ color: '#9CA897' }}>{CATEGORY_HINTS[fbCategory]}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Subject</label>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: '#647060' }}>Subject</label>
             <input
               type="text"
               value={fbSubject}
               onChange={e => setFbSubject(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
               placeholder="One-line summary"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: '#888' }}>Message</label>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: '#647060' }}>Message</label>
             <textarea
               value={fbMessage}
               onChange={e => setFbMessage(e.target.value)}
               required
               rows={5}
-              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none resize-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none resize-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
               placeholder="Tell us more..."
             />
           </div>
@@ -281,7 +281,7 @@ function AdminFeedbackView() {
             type="submit"
             disabled={fbSubmitting}
             className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
-            style={{ background: '#0D6B52', color: 'white' }}
+            style={{ background: '#0D6B52', color: '#18201A' }}
           >
             {fbSubmitting ? 'Submitting...' : 'Submit Feedback'}
           </button>
@@ -294,18 +294,18 @@ function AdminFeedbackView() {
     <div className="px-4 py-5">
       <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>Admin</p>
       <div className="flex items-center justify-between mb-5">
-        <h1 className="font-display text-3xl text-white tracking-wide">FEEDBACK</h1>
+        <h1 className="font-display text-3xl text-[#18201A] tracking-wide">FEEDBACK</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowSubmitForm(true)}
             className="px-3 py-1.5 rounded-xl text-xs font-semibold"
-            style={{ background: '#0D6B52', color: 'white' }}
+            style={{ background: '#0D6B52', color: '#18201A' }}
           >
             + Submit Feedback
           </button>
           {unreviewed > 0 && (
             <span className="text-xs px-2 py-1 rounded-full font-medium"
-              style={{ background: '#1e1e1e', color: '#4ade80', border: '1px solid #4ade80' }}>
+              style={{ background: '#FFFFFF', color: '#0D6B52', border: '1px solid #0D6B52' }}>
               {unreviewed} new
             </span>
           )}
@@ -321,9 +321,9 @@ function AdminFeedbackView() {
               onClick={() => setFilterCategory(c)}
               className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium"
               style={{
-                background: filterCategory === c ? '#0D6B52' : '#1e1e1e',
+                background: filterCategory === c ? '#0D6B52' : '#FFFFFF',
                 color: filterCategory === c ? 'white' : '#888',
-                border: `1px solid ${filterCategory === c ? '#0D6B52' : '#2e2e2e'}`,
+                border: `1px solid ${filterCategory === c ? '#0D6B52' : '#E2E4DC'}`,
               }}
             >
               {c}
@@ -338,9 +338,9 @@ function AdminFeedbackView() {
               onClick={() => setFilterReviewed(v)}
               className="px-3 py-1.5 rounded-full text-xs font-medium capitalize"
               style={{
-                background: filterReviewed === v ? '#1e1e1e' : 'transparent',
+                background: filterReviewed === v ? '#FFFFFF' : 'transparent',
                 color: filterReviewed === v ? 'white' : '#555',
-                border: `1px solid ${filterReviewed === v ? '#2e2e2e' : 'transparent'}`,
+                border: `1px solid ${filterReviewed === v ? '#E2E4DC' : 'transparent'}`,
               }}
             >
               {v}
@@ -350,9 +350,9 @@ function AdminFeedbackView() {
       </div>
 
       {loading ? (
-        <p className="text-sm" style={{ color: '#888' }}>Loading...</p>
+        <p className="text-sm" style={{ color: '#647060' }}>Loading...</p>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-10" style={{ color: '#555' }}>
+        <div className="text-center py-10" style={{ color: '#9CA897' }}>
           <p>No feedback found</p>
         </div>
       ) : (
@@ -360,20 +360,20 @@ function AdminFeedbackView() {
           {filtered.map(item => (
             <div key={item.id} className="p-4 rounded-2xl"
               style={{
-                background: '#141414',
-                border: `1px solid ${item.reviewed ? '#2e2e2e' : '#0D6B52'}`,
+                background: '#FFFFFF',
+                border: `1px solid ${item.reviewed ? '#E2E4DC' : '#0D6B52'}`,
                 opacity: item.reviewed ? 0.7 : 1,
               }}>
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: '#1e1e1e', color: '#888', border: '1px solid #2e2e2e' }}>
+                      style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
                       {item.category}
                     </span>
-                    <span className="font-semibold text-white text-sm">{item.subject}</span>
+                    <span className="font-semibold text-[#18201A] text-sm">{item.subject}</span>
                   </div>
-                  <p className="text-xs mt-0.5" style={{ color: '#555' }}>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA897' }}>
                     {item.profile ? `${item.profile.name} ${item.profile.surname}` : 'Unknown'} ·{' '}
                     {format(new Date(item.created_at), 'dd MMM yyyy HH:mm')}
                   </p>
@@ -382,9 +382,9 @@ function AdminFeedbackView() {
                   onClick={() => toggleReviewed(item.id, item.reviewed)}
                   className="flex-shrink-0 text-xs px-2 py-1 rounded-lg"
                   style={{
-                    background: item.reviewed ? '#1e1e1e' : '#0a1a10',
-                    color: item.reviewed ? '#555' : '#4ade80',
-                    border: `1px solid ${item.reviewed ? '#2e2e2e' : '#4ade80'}`,
+                    background: item.reviewed ? '#FFFFFF' : '#DCFCE7',
+                    color: item.reviewed ? '#9CA897' : '#0D6B52',
+                    border: `1px solid ${item.reviewed ? '#E2E4DC' : '#0D6B52'}`,
                   }}
                 >
                   {item.reviewed ? 'Reviewed' : 'Mark done'}

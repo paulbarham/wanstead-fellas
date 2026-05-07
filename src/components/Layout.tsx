@@ -19,16 +19,16 @@ export default function Layout() {
   const navItems = profile?.is_admin ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#0a0a0a' }}>
+    <div className="flex flex-col h-full" style={{ background: '#F2F3EE' }}>
       {/* Top bar */}
       <header className="flex-shrink-0 flex items-center justify-between px-4 py-3"
-        style={{ background: '#141414', borderBottom: '1px solid #2e2e2e', maxWidth: 430, width: '100%', margin: '0 auto' }}>
+        style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E4DC', maxWidth: 430, width: '100%', margin: '0 auto' }}>
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center"
             style={{ background: '#0D6B52' }}>
             <span className="font-display text-sm text-white">WF</span>
           </div>
-          <span className="font-display text-lg text-white tracking-wide">WANSTEAD FELLAS</span>
+          <span className="font-display text-lg tracking-wide" style={{ color: '#18201A' }}>WANSTEAD FELLAS</span>
         </div>
 
         {/* Avatar — tappable, navigates to Profile */}
@@ -56,7 +56,7 @@ export default function Layout() {
 
       {/* Bottom nav */}
       <nav className="flex-shrink-0 fixed bottom-0 left-1/2 -translate-x-1/2 w-full"
-        style={{ maxWidth: 430, background: '#141414', borderTop: '1px solid #2e2e2e' }}>
+        style={{ maxWidth: 430, background: '#FFFFFF', borderTop: '1px solid #E2E4DC' }}>
         <div className="flex">
           {navItems.map(item => (
             <NavLink
@@ -65,7 +65,7 @@ export default function Layout() {
               end={item.to === '/'}
               className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors active:opacity-60"
               style={({ isActive }) => ({
-                color: isActive ? '#0D6B52' : '#4a4a4a',
+                color: isActive ? '#0D6B52' : '#9CA897',
                 borderTop: `2px solid ${isActive ? '#0D6B52' : 'transparent'}`,
               })}
             >

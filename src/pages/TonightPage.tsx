@@ -219,12 +219,12 @@ export default function TonightPage() {
           <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
             Next Match
           </p>
-          <h1 className="font-display text-2xl text-white tracking-wide leading-tight">{dateLabel}</h1>
+          <h1 className="font-display text-2xl text-[#18201A] tracking-wide leading-tight">{dateLabel}</h1>
         </div>
         {(phase === 'signup_open' || phase === 'signup_locked') && (
           <div className="text-right flex-shrink-0 ml-3">
-            <p className="text-xs uppercase tracking-wider mb-0.5" style={{ color: '#555' }}>Kick-off</p>
-            <p className="font-display text-lg text-white tabular-nums leading-tight">{countdown}</p>
+            <p className="text-xs uppercase tracking-wider mb-0.5" style={{ color: '#9CA897' }}>Kick-off</p>
+            <p className="font-display text-lg text-[#18201A] tabular-nums leading-tight">{countdown}</p>
           </div>
         )}
       </div>
@@ -232,37 +232,37 @@ export default function TonightPage() {
       {/* Phase banners */}
       {phase === 'post_match' && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
-          style={{ background: '#0a1a10', color: '#0D6B52', border: '1px solid #0D6B52' }}>
+          style={{ background: '#DCFCE7', color: '#0D6B52', border: '1px solid #0D6B52' }}>
           Sign-ups for next week are now open! ⚽
         </div>
       )}
       {phase === 'signup_locked' && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
-          style={{ background: '#1a1000', color: '#C9A227', border: '1px solid #C9A227' }}>
+          style={{ background: '#FEF9C3', color: '#92400e', border: '1px solid #C9A227' }}>
           🔒 Sign-ups locked — see you Thursday!
         </div>
       )}
       {phase === 'match_live' && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
-          style={{ background: '#0a1a10', color: '#4ade80', border: '1px solid #4ade80' }}>
+          style={{ background: '#DCFCE7', color: '#0D6B52', border: '1px solid #0D6B52' }}>
           🟢 Match is on right now!
         </div>
       )}
 
       {/* Count + format bar */}
       <div className="flex items-center mb-3 px-4 py-3 rounded-2xl"
-        style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+        style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
         <div className="flex items-baseline gap-2 flex-1">
           <span className="font-display text-5xl leading-none" style={{ color: '#0D6B52' }}>{signedUpCount}</span>
-          <span className="text-xs" style={{ color: '#555' }}>signed up</span>
+          <span className="text-xs" style={{ color: '#9CA897' }}>signed up</span>
           {signedUpCount >= SIGNUP_CAP && (
-            <span className="text-xs font-semibold" style={{ color: '#ff6b6b' }}>FULL</span>
+            <span className="text-xs font-semibold" style={{ color: '#DC2626' }}>FULL</span>
           )}
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
-          style={{ background: '#1a1a1a', border: '1px solid #2e2e2e' }}>
+          style={{ background: '#F7F8F5', border: '1px solid #E2E4DC' }}>
           <span className="text-sm">⚽</span>
-          <span className="text-xs font-semibold text-white">{formatLabel}</span>
+          <span className="text-xs font-semibold text-[#18201A]">{formatLabel}</span>
         </div>
       </div>
 
@@ -274,16 +274,16 @@ export default function TonightPage() {
             disabled={toggling}
             className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
             style={{
-              background: isWaiting ? '#1a1300' : isIn ? '#0a1a10' : '#0D6B52',
-              color: isWaiting ? '#C9A227' : isIn ? '#4ade80' : 'white',
-              border: isWaiting ? '2px solid #C9A227' : isIn ? '2px solid #4ade80' : '2px solid transparent',
+              background: isWaiting ? '#FEF9C3' : isIn ? '#DCFCE7' : '#0D6B52',
+              color: isWaiting ? '#92400e' : isIn ? '#0D6B52' : 'white',
+              border: isWaiting ? '2px solid #C9A227' : isIn ? '2px solid #0D6B52' : '2px solid transparent',
             }}
           >
             {toggling ? '…' : isWaiting ? '⏳ On Waiting List — Tap to Remove' : isIn ? "✓ I'm In — Tap to Drop Out" : 'Mark Me In'}
           </button>
         ) : (
           <div className="w-full py-3 rounded-2xl text-center font-medium text-xs"
-            style={{ background: '#141414', color: '#666', border: '1px solid #2e2e2e' }}>
+            style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
             {phase === 'signup_locked' ? '🔒 Sign-ups are closed' : 'Sign-ups re-open after Thursday 10pm'}
           </div>
         )}
@@ -292,7 +292,7 @@ export default function TonightPage() {
       {/* My squad - linked children */}
       {linkedChildren.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
+          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#9CA897' }}>
             My Squad
           </p>
           <div className="space-y-2">
@@ -304,10 +304,10 @@ export default function TonightPage() {
                 <div
                   key={child.id}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                  style={{ background: '#141414', border: '1px solid #2e2e2e' }}
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                 >
                   <PlayerAvatar profile={child} size={32} />
-                  <span className="flex-1 text-sm font-medium text-white">
+                  <span className="flex-1 text-sm font-medium text-[#18201A]">
                     {child.name} {child.surname}
                   </span>
                   {canToggle ? (
@@ -316,15 +316,15 @@ export default function TonightPage() {
                       disabled={toggling}
                       className="text-xs px-3 py-1.5 rounded-xl font-semibold disabled:opacity-50"
                       style={{
-                        background: childIsWaiting ? '#1a1300' : childIsIn ? '#0a1a10' : '#1e1e1e',
-                        color: childIsWaiting ? '#C9A227' : childIsIn ? '#4ade80' : '#888',
-                        border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#4ade80' : '#2e2e2e'}`,
+                        background: childIsWaiting ? '#FEF9C3' : childIsIn ? '#DCFCE7' : '#FFFFFF',
+                        color: childIsWaiting ? '#92400e' : childIsIn ? '#0D6B52' : '#9CA897',
+                        border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#0D6B52' : '#E2E4DC'}`,
                       }}
                     >
                       {childIsWaiting ? '⏳ Waiting' : childIsIn ? '✓ In' : 'Mark In'}
                     </button>
                   ) : (
-                    <span className="text-xs" style={{ color: childIsIn ? '#4ade80' : childIsWaiting ? '#C9A227' : '#555' }}>
+                    <span className="text-xs" style={{ color: childIsIn ? '#0D6B52' : childIsWaiting ? '#92400e' : '#9CA897' }}>
                       {childIsIn ? '✓ In' : childIsWaiting ? '⏳' : 'Not In'}
                     </span>
                   )}
@@ -338,7 +338,7 @@ export default function TonightPage() {
       {/* Who's In */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>Who's In</p>
+          <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Who's In</p>
           {signedUpPlayers.length > 0 && (
             <span className="text-xs" style={{ color: '#3a3a3a' }}>
               {signedUpPlayers.length} {signedUpPlayers.length === 1 ? 'player' : 'players'}
@@ -346,7 +346,7 @@ export default function TonightPage() {
           )}
         </div>
         {loading ? (
-          <div className="text-sm py-2" style={{ color: '#555' }}>Loading…</div>
+          <div className="text-sm py-2" style={{ color: '#9CA897' }}>Loading…</div>
         ) : signedUpPlayers.length === 0 ? (
           <p className="text-sm py-4 text-center" style={{ color: '#444' }}>
             No one signed up yet — be first!
@@ -358,12 +358,12 @@ export default function TonightPage() {
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
                 style={{
-                  background: p.id === profile?.id ? '#0a1a10' : '#141414',
-                  border: `1px solid ${p.id === profile?.id ? '#0D6B52' : '#2e2e2e'}`,
+                  background: p.id === profile?.id ? '#DCFCE7' : '#FFFFFF',
+                  border: `1px solid ${p.id === profile?.id ? '#0D6B52' : '#E2E4DC'}`,
                 }}
               >
                 <PlayerAvatar profile={p} size={32} />
-                <span className="flex-1 text-sm font-medium text-white">
+                <span className="flex-1 text-sm font-medium text-[#18201A]">
                   {p.name} {p.surname}
                   {p.id === profile?.id && (
                     <span className="ml-1.5 text-xs" style={{ color: '#0D6B52' }}>you</span>
@@ -383,7 +383,7 @@ export default function TonightPage() {
                   <button
                     onClick={() => adminTogglePlayer(p.id)}
                     className="text-xs px-2 py-0.5 rounded-lg"
-                    style={{ color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                    style={{ color: '#DC2626', border: '1px solid #FECACA' }}
                   >
                     Remove
                   </button>
@@ -397,7 +397,7 @@ export default function TonightPage() {
       {/* Waiting list */}
       {waitingPlayers.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
+          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#9CA897' }}>
             Waiting List ({waitingPlayers.length})
           </p>
           <div className="space-y-1.5">
@@ -406,13 +406,13 @@ export default function TonightPage() {
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
                 style={{
-                  background: p.id === profile?.id ? '#1a1300' : '#141414',
-                  border: `1px solid ${p.id === profile?.id ? '#C9A227' : '#2e2e2e'}`,
+                  background: p.id === profile?.id ? '#FEF9C3' : '#FFFFFF',
+                  border: `1px solid ${p.id === profile?.id ? '#C9A227' : '#E2E4DC'}`,
                 }}
               >
-                <span className="text-xs w-4 text-center" style={{ color: '#555' }}>{i + 1}</span>
+                <span className="text-xs w-4 text-center" style={{ color: '#9CA897' }}>{i + 1}</span>
                 <PlayerAvatar profile={p} size={28} />
-                <span className="flex-1 text-sm font-medium" style={{ color: '#888' }}>
+                <span className="flex-1 text-sm font-medium" style={{ color: '#647060' }}>
                   {p.name} {p.surname}
                   {p.id === profile?.id && (
                     <span className="ml-1.5 text-xs" style={{ color: '#C9A227' }}>you</span>
@@ -423,7 +423,7 @@ export default function TonightPage() {
                   <button
                     onClick={() => adminTogglePlayer(p.id)}
                     className="text-xs px-2 py-0.5 rounded-lg ml-1"
-                    style={{ color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                    style={{ color: '#DC2626', border: '1px solid #FECACA' }}
                   >
                     Remove
                   </button>
@@ -440,10 +440,10 @@ export default function TonightPage() {
           style={{ background: 'rgba(0,0,0,0.85)' }}
           onClick={() => setFineModal(null)}>
           <div className="w-full rounded-2xl p-5"
-            style={{ background: '#141414', border: '1px solid #2e2e2e', maxWidth: 430 }}
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', maxWidth: 430 }}
             onClick={e => e.stopPropagation()}>
             <p className="text-xs uppercase tracking-widest mb-0.5" style={{ color: '#C9A227' }}>Issue Fine</p>
-            <p className="font-semibold text-white mb-4">
+            <p className="font-semibold text-[#18201A] mb-4">
               {fineModal.player.name} {fineModal.player.surname}
             </p>
             <div className="grid grid-cols-2 gap-2 mb-4">
@@ -453,9 +453,9 @@ export default function TonightPage() {
                   onClick={() => setFineType(t.value)}
                   className="py-3 rounded-xl text-sm font-semibold"
                   style={{
-                    background: fineType === t.value ? '#C9A227' : '#1e1e1e',
+                    background: fineType === t.value ? '#C9A227' : '#FFFFFF',
                     color: fineType === t.value ? '#000' : '#888',
-                    border: `1px solid ${fineType === t.value ? '#C9A227' : '#2e2e2e'}`,
+                    border: `1px solid ${fineType === t.value ? '#C9A227' : '#E2E4DC'}`,
                   }}
                 >
                   {t.label}<br />
@@ -475,7 +475,7 @@ export default function TonightPage() {
               <button
                 onClick={() => setFineModal(null)}
                 className="px-4 py-3 rounded-xl text-sm"
-                style={{ background: '#1e1e1e', color: '#666', border: '1px solid #2e2e2e' }}
+                style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
               >
                 Cancel
               </button>
@@ -487,7 +487,7 @@ export default function TonightPage() {
       {/* Admin: not signed up */}
       {profile?.is_admin && notSignedUp.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
+          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#9CA897' }}>
             Not In ({notSignedUp.length})
           </p>
           <div className="space-y-1.5">
@@ -495,10 +495,10 @@ export default function TonightPage() {
               <div
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
-                style={{ background: '#141414', border: '1px solid #2e2e2e' }}
+                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
               >
                 <PlayerAvatar profile={p} size={32} />
-                <span className="flex-1 text-sm" style={{ color: '#666' }}>
+                <span className="flex-1 text-sm" style={{ color: '#647060' }}>
                   {p.name} {p.surname}
                 </span>
                 <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
@@ -520,7 +520,7 @@ export default function TonightPage() {
         <button
           onClick={() => navigate('/match')}
           className="w-full text-left mt-2 p-4 rounded-2xl"
-          style={{ background: '#0d0d0d', border: '1px solid #1e1e1e' }}
+          style={{ background: '#F2F3EE', border: '1px solid #FFFFFF' }}
         >
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#333' }}>

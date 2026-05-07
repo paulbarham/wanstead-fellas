@@ -45,8 +45,8 @@ function DobInputs({ day, month, year, setDay, setMonth, setYear }: DobProps) {
           type="text" inputMode="numeric" pattern="[0-9]*"
           value={day} onChange={e => setDay(e.target.value.replace(/\D/g, '').slice(0, 2))}
           placeholder="DD"
-          className="w-full py-3 rounded-xl text-white text-sm outline-none text-center font-medium"
-          style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+          className="w-full py-3 rounded-xl text-[#18201A] text-sm outline-none text-center font-medium"
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
         />
         <span className="text-center text-[10px]" style={{ color: '#444' }}>Day</span>
       </div>
@@ -54,7 +54,7 @@ function DobInputs({ day, month, year, setDay, setMonth, setYear }: DobProps) {
         <select
           value={month} onChange={e => setMonth(e.target.value)}
           className="w-full py-3 px-3 rounded-xl text-sm outline-none"
-          style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', color: month ? 'white' : '#555' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: month ? 'white' : '#555' }}
         >
           <option value="">Month</option>
           {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
@@ -66,8 +66,8 @@ function DobInputs({ day, month, year, setDay, setMonth, setYear }: DobProps) {
           type="text" inputMode="numeric" pattern="[0-9]*"
           value={year} onChange={e => setYear(e.target.value.replace(/\D/g, '').slice(0, 4))}
           placeholder="YYYY"
-          className="w-full py-3 rounded-xl text-white text-sm outline-none text-center font-medium"
-          style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+          className="w-full py-3 rounded-xl text-[#18201A] text-sm outline-none text-center font-medium"
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
         />
         <span className="text-center text-[10px]" style={{ color: '#444' }}>Year</span>
       </div>
@@ -364,7 +364,7 @@ export default function ProfilePage() {
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-1.5 mb-5 text-sm font-medium"
-        style={{ color: '#888' }}
+        style={{ color: '#647060' }}
       >
         ← Back
       </button>
@@ -372,7 +372,7 @@ export default function ProfilePage() {
       <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>
         My Profile
       </p>
-      <h1 className="font-display text-3xl text-white tracking-wide mb-6">PROFILE</h1>
+      <h1 className="font-display text-3xl text-[#18201A] tracking-wide mb-6">PROFILE</h1>
 
       {/* Top Trump card preview */}
       <div className="mb-8">
@@ -383,7 +383,7 @@ export default function ProfilePage() {
       <form onSubmit={handleSave} className="space-y-4 mb-8">
 
         {/* Photo */}
-        <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+        <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
           <PlayerAvatar profile={profile} size={56} />
           <div className="flex flex-col gap-2">
             <button
@@ -391,7 +391,7 @@ export default function ProfilePage() {
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
               className="px-3 py-1.5 rounded-xl text-xs font-semibold disabled:opacity-50"
-              style={{ background: '#0D6B52', color: 'white' }}
+              style={{ background: '#0D6B52', color: '#18201A' }}
             >
               {uploading ? 'Uploading...' : profile.photo_url ? 'Change Photo' : 'Add Photo'}
             </button>
@@ -400,7 +400,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={handleRemovePhoto}
                 className="px-3 py-1.5 rounded-xl text-xs font-semibold"
-                style={{ background: '#1a0808', color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                style={{ background: '#1a0808', color: '#DC2626', border: '1px solid #FECACA' }}
               >
                 Remove Photo
               </button>
@@ -412,30 +412,30 @@ export default function ProfilePage() {
         {/* Name */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>First Name</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>First Name</label>
             <input
               type="text" value={name} onChange={e => setName(e.target.value)} required
-              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Surname</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Surname</label>
             <input
               type="text" value={surname} onChange={e => setSurname(e.target.value)} required
-              className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
             />
           </div>
         </div>
 
         {/* Age group */}
         <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Age Group</label>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Age Group</label>
           <select
             value={ageGroup} onChange={e => setAgeGroup(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-            style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+            className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
           >
             {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
@@ -443,8 +443,8 @@ export default function ProfilePage() {
 
         {/* Date of birth */}
         <div>
-          <label className="block text-xs font-medium mb-2" style={{ color: '#888' }}>
-            Date of Birth <span style={{ color: '#555' }}>(optional)</span>
+          <label className="block text-xs font-medium mb-2" style={{ color: '#647060' }}>
+            Date of Birth <span style={{ color: '#9CA897' }}>(optional)</span>
           </label>
           <DobInputs
             day={dobDay} month={dobMonth} year={dobYear}
@@ -453,7 +453,7 @@ export default function ProfilePage() {
         </div>
 
         {saveError && (
-          <div className="p-3 rounded-lg text-sm" style={{ background: '#2a0a0a', color: '#ff6b6b', border: '1px solid #5a1a1a' }}>
+          <div className="p-3 rounded-lg text-sm" style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
             {saveError}
           </div>
         )}
@@ -462,7 +462,7 @@ export default function ProfilePage() {
           type="submit"
           disabled={saving}
           className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 transition-colors"
-          style={{ background: saveDone ? '#0a3a2a' : '#0D6B52', color: 'white' }}
+          style={{ background: saveDone ? '#0a3a2a' : '#0D6B52', color: '#18201A' }}
         >
           {saving ? 'Saving...' : saveDone ? '✓ Saved' : 'Save Changes'}
         </button>
@@ -482,7 +482,7 @@ export default function ProfilePage() {
           <button
             onClick={() => setAddFormOpen(true)}
             className="text-xs px-3 py-1.5 rounded-xl font-semibold"
-            style={{ background: '#0D6B52', color: 'white' }}
+            style={{ background: '#0D6B52', color: '#18201A' }}
           >
             + Add family member
           </button>
@@ -494,12 +494,12 @@ export default function ProfilePage() {
                 key={child.id}
                 onClick={() => openChildModal(child)}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left"
-                style={{ background: '#141414', border: '1px solid #2e2e2e' }}
+                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
               >
                 <PlayerAvatar profile={child} size={40} />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-white">{child.name} {child.surname}</p>
-                  <p className="text-xs" style={{ color: '#555' }}>{child.age_group}</p>
+                  <p className="text-sm font-semibold text-[#18201A]">{child.name} {child.surname}</p>
+                  <p className="text-xs" style={{ color: '#9CA897' }}>{child.age_group}</p>
                 </div>
                 <span style={{ color: '#444' }}>›</span>
               </button>
@@ -513,20 +513,20 @@ export default function ProfilePage() {
       </div>
 
       {/* Password reset */}
-      <div className="p-4 rounded-2xl mb-4" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-        <p className="text-sm font-semibold text-white mb-1">Password</p>
-        <p className="text-xs mb-3" style={{ color: '#555' }}>
+      <div className="p-4 rounded-2xl mb-4" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        <p className="text-sm font-semibold text-[#18201A] mb-1">Password</p>
+        <p className="text-xs mb-3" style={{ color: '#9CA897' }}>
           Send a reset link to {user?.email}
         </p>
         {resetSent ? (
-          <p className="text-sm font-medium" style={{ color: '#4ade80' }}>✓ Reset link sent to your email.</p>
+          <p className="text-sm font-medium" style={{ color: '#0D6B52' }}>✓ Reset link sent to your email.</p>
         ) : (
           <>
-            {resetError && <p className="text-xs mb-2" style={{ color: '#ff6b6b' }}>{resetError}</p>}
+            {resetError && <p className="text-xs mb-2" style={{ color: '#DC2626' }}>{resetError}</p>}
             <button
               onClick={handlePasswordReset}
               className="px-4 py-2 rounded-xl text-sm font-semibold"
-              style={{ background: '#1e1e1e', color: '#aaa', border: '1px solid #2e2e2e' }}
+              style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
             >
               Send password reset email
             </button>
@@ -538,7 +538,7 @@ export default function ProfilePage() {
       <button
         onClick={handleSignOut}
         className="w-full py-3 rounded-xl font-semibold text-sm"
-        style={{ background: '#1a0808', color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+        style={{ background: '#1a0808', color: '#DC2626', border: '1px solid #FECACA' }}
       >
         Sign Out
       </button>
@@ -552,14 +552,14 @@ export default function ProfilePage() {
         >
           <div
             className="w-full rounded-2xl p-5 overflow-y-auto"
-            style={{ background: '#141414', border: '1px solid #2e2e2e', maxWidth: 430, maxHeight: '90vh' }}
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', maxWidth: 430, maxHeight: '90vh' }}
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-medium uppercase tracking-widest" style={{ color: '#0D6B52' }}>
                 Edit Family Member
               </p>
-              <button onClick={() => setSelectedChild(null)} className="text-sm" style={{ color: '#666' }}>✕</button>
+              <button onClick={() => setSelectedChild(null)} className="text-sm" style={{ color: '#647060' }}>✕</button>
             </div>
 
             <TopTrumpCard profile={{ ...selectedChild, name: childName, surname: childSurname, age_group: childAgeGroup }} />
@@ -571,7 +571,7 @@ export default function ProfilePage() {
                 onClick={() => childFileRef.current?.click()}
                 disabled={childUploading}
                 className="flex-1 py-2.5 rounded-xl text-xs font-semibold disabled:opacity-50"
-                style={{ background: '#0D6B52', color: 'white' }}
+                style={{ background: '#0D6B52', color: '#18201A' }}
               >
                 {childUploading ? 'Uploading...' : selectedChild.photo_url ? 'Change Photo' : 'Add Photo'}
               </button>
@@ -580,7 +580,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleChildRemovePhoto}
                   className="px-3 py-2.5 rounded-xl text-xs font-semibold"
-                  style={{ background: '#1a0808', color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                  style={{ background: '#1a0808', color: '#DC2626', border: '1px solid #FECACA' }}
                 >
                   Remove
                 </button>
@@ -591,30 +591,30 @@ export default function ProfilePage() {
             {/* Name */}
             <div className="grid grid-cols-2 gap-3 mt-3">
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>First Name</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>First Name</label>
                 <input
                   type="text" value={childName} onChange={e => setChildName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-                  style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                  className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Surname</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Surname</label>
                 <input
                   type="text" value={childSurname} onChange={e => setChildSurname(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-                  style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                  className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                 />
               </div>
             </div>
 
             {/* Age group */}
             <div className="mt-3">
-              <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Age Group</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Age Group</label>
               <select
                 value={childAgeGroup} onChange={e => setChildAgeGroup(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-                style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
               >
                 {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
               </select>
@@ -622,8 +622,8 @@ export default function ProfilePage() {
 
             {/* DOB */}
             <div className="mt-3">
-              <label className="block text-xs font-medium mb-2" style={{ color: '#888' }}>
-                Date of Birth <span style={{ color: '#555' }}>(optional)</span>
+              <label className="block text-xs font-medium mb-2" style={{ color: '#647060' }}>
+                Date of Birth <span style={{ color: '#9CA897' }}>(optional)</span>
               </label>
               <DobInputs
                 day={childDobDay} month={childDobMonth} year={childDobYear}
@@ -635,7 +635,7 @@ export default function ProfilePage() {
               onClick={handleChildSave}
               disabled={childSaving}
               className="w-full mt-4 py-3 rounded-xl font-semibold text-sm disabled:opacity-50 transition-colors"
-              style={{ background: childSaveDone ? '#0a3a2a' : '#0D6B52', color: 'white' }}
+              style={{ background: childSaveDone ? '#0a3a2a' : '#0D6B52', color: '#18201A' }}
             >
               {childSaving ? 'Saving...' : childSaveDone ? '✓ Saved' : 'Save Changes'}
             </button>
@@ -652,7 +652,7 @@ export default function ProfilePage() {
         >
           <form
             className="w-full rounded-2xl p-5 overflow-y-auto space-y-4"
-            style={{ background: '#141414', border: '1px solid #2e2e2e', maxWidth: 430, maxHeight: '90vh' }}
+            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', maxWidth: 430, maxHeight: '90vh' }}
             onClick={e => e.stopPropagation()}
             onSubmit={handleAddChildSubmit}
           >
@@ -661,13 +661,13 @@ export default function ProfilePage() {
                 <p className="text-xs font-medium uppercase tracking-widest" style={{ color: '#0D6B52' }}>
                   My Squad
                 </p>
-                <p className="font-semibold text-white text-base">Add Family Member</p>
+                <p className="font-semibold text-[#18201A] text-base">Add Family Member</p>
               </div>
-              <button type="button" onClick={closeAddForm} className="text-sm" style={{ color: '#666' }}>✕</button>
+              <button type="button" onClick={closeAddForm} className="text-sm" style={{ color: '#647060' }}>✕</button>
             </div>
 
             {/* Photo (optional) */}
-            <div className="flex items-center gap-4 p-3 rounded-xl" style={{ background: '#1a1a1a', border: '1px solid #2e2e2e' }}>
+            <div className="flex items-center gap-4 p-3 rounded-xl" style={{ background: '#F7F8F5', border: '1px solid #E2E4DC' }}>
               {addPhotoPreview ? (
                 <img
                   src={addPhotoPreview}
@@ -676,7 +676,7 @@ export default function ProfilePage() {
                 />
               ) : (
                 <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
-                  style={{ background: '#2e2e2e' }}>
+                  style={{ background: '#E2E4DC' }}>
                   <span className="text-xl">👤</span>
                 </div>
               )}
@@ -685,7 +685,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={() => addPhotoRef.current?.click()}
                   className="px-3 py-1.5 rounded-xl text-xs font-semibold"
-                  style={{ background: '#0D6B52', color: 'white' }}
+                  style={{ background: '#0D6B52', color: '#18201A' }}
                 >
                   {addPhotoPreview ? 'Change Photo' : 'Add Photo (optional)'}
                 </button>
@@ -694,7 +694,7 @@ export default function ProfilePage() {
                     type="button"
                     onClick={() => { URL.revokeObjectURL(addPhotoPreview!); setAddPhotoPreview(null); setAddPhotoBlob(null) }}
                     className="px-3 py-1.5 rounded-xl text-xs font-semibold"
-                    style={{ background: '#1a0808', color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                    style={{ background: '#1a0808', color: '#DC2626', border: '1px solid #FECACA' }}
                   >
                     Remove
                   </button>
@@ -706,20 +706,20 @@ export default function ProfilePage() {
             {/* Name */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>First Name</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>First Name</label>
                 <input
                   type="text" value={newName} onChange={e => setNewName(e.target.value)} required
-                  className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-                  style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                  className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                   placeholder="e.g. Jamie"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Surname</label>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Surname</label>
                 <input
                   type="text" value={newSurname} onChange={e => setNewSurname(e.target.value)} required
-                  className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-                  style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                  className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
                   placeholder="e.g. Smith"
                 />
               </div>
@@ -727,11 +727,11 @@ export default function ProfilePage() {
 
             {/* Age group */}
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Age Group</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Age Group</label>
               <select
                 value={newAgeGroup} onChange={e => setNewAgeGroup(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
-                style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+                className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
+                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
               >
                 {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
               </select>
@@ -739,8 +739,8 @@ export default function ProfilePage() {
 
             {/* DOB (optional) */}
             <div>
-              <label className="block text-xs font-medium mb-2" style={{ color: '#888' }}>
-                Date of Birth <span style={{ color: '#555' }}>(optional)</span>
+              <label className="block text-xs font-medium mb-2" style={{ color: '#647060' }}>
+                Date of Birth <span style={{ color: '#9CA897' }}>(optional)</span>
               </label>
               <DobInputs
                 day={newDobDay} month={newDobMonth} year={newDobYear}
@@ -749,7 +749,7 @@ export default function ProfilePage() {
             </div>
 
             {addError && (
-              <div className="p-3 rounded-lg text-sm" style={{ background: '#2a0a0a', color: '#ff6b6b', border: '1px solid #5a1a1a' }}>
+              <div className="p-3 rounded-lg text-sm" style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
                 {addError}
               </div>
             )}
@@ -758,7 +758,7 @@ export default function ProfilePage() {
               type="submit"
               disabled={addingChild || !newName.trim() || !newSurname.trim()}
               className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-40"
-              style={{ background: '#0D6B52', color: 'white' }}
+              style={{ background: '#0D6B52', color: '#18201A' }}
             >
               {addingChild ? 'Adding...' : 'Add to my squad'}
             </button>

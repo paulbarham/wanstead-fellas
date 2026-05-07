@@ -17,13 +17,13 @@ function ProtectedRoutes() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F2F3EE' }}>
         <div className="text-center">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
             style={{ background: '#0D6B52' }}>
             <span className="font-display text-xl text-white">WF</span>
           </div>
-          <p className="text-sm" style={{ color: '#888' }}>Loading...</p>
+          <p className="text-sm" style={{ color: '#647060' }}>Loading...</p>
         </div>
       </div>
     )

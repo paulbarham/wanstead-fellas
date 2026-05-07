@@ -56,18 +56,18 @@ export default function HistoryPage() {
   }, [])
 
   if (loading) {
-    return <div className="px-4 py-5 text-sm" style={{ color: '#888' }}>Loading history...</div>
+    return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading history...</div>
   }
 
   return (
     <div className="px-4 py-5">
       <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>Archive</p>
-      <h1 className="font-display text-3xl text-white tracking-wide mb-5">HISTORY</h1>
+      <h1 className="font-display text-3xl text-[#18201A] tracking-wide mb-5">HISTORY</h1>
 
       {records.length === 0 ? (
-        <div className="text-center py-12" style={{ color: '#555' }}>
+        <div className="text-center py-12" style={{ color: '#9CA897' }}>
           <p className="text-4xl mb-3">📅</p>
-          <p className="font-medium text-white">No matches played yet</p>
+          <p className="font-medium text-[#18201A]">No matches played yet</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -79,24 +79,24 @@ export default function HistoryPage() {
 
             return (
               <div key={match.id} className="rounded-2xl overflow-hidden"
-                style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
                 <button
                   className="w-full px-4 py-4 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs mb-1" style={{ color: '#888' }}>{dateLabel}</p>
+                      <p className="text-xs mb-1" style={{ color: '#647060' }}>{dateLabel}</p>
                       {isTwoTeam && mainFixture ? (
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-white text-sm">{mainFixture.team1?.name}</span>
+                          <span className="font-semibold text-[#18201A] text-sm">{mainFixture.team1?.name}</span>
                           <span className="font-display text-xl" style={{ color: '#0D6B52' }}>
                             {mainFixture.score1} – {mainFixture.score2}
                           </span>
-                          <span className="font-semibold text-white text-sm">{mainFixture.team2?.name}</span>
+                          <span className="font-semibold text-[#18201A] text-sm">{mainFixture.team2?.name}</span>
                         </div>
                       ) : (
-                        <p className="font-semibold text-white text-sm">
+                        <p className="font-semibold text-[#18201A] text-sm">
                           4-Team Tournament · {teams.length} teams
                         </p>
                       )}
@@ -104,7 +104,7 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs px-2 py-1 rounded-md font-medium"
                         style={{
-                          background: isTwoTeam ? '#0a1a10' : '#1a0a0a',
+                          background: isTwoTeam ? '#DCFCE7' : '#1a0a0a',
                           color: isTwoTeam ? '#0D6B52' : '#A0714F',
                         }}>
                         {match.format}
@@ -115,17 +115,17 @@ export default function HistoryPage() {
                 </button>
 
                 {isExpanded && (
-                  <div style={{ borderTop: '1px solid #2e2e2e' }}>
+                  <div style={{ borderTop: '1px solid #E2E4DC' }}>
                     {result?.scorers && (
-                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e1e' }}>
-                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#555' }}>Scorers</p>
-                        <p className="text-sm text-white leading-relaxed">{result.scorers}</p>
+                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
+                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#9CA897' }}>Scorers</p>
+                        <p className="text-sm text-[#18201A] leading-relaxed">{result.scorers}</p>
                       </div>
                     )}
 
                     {!isTwoTeam && fixtures.length > 0 && (
-                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e1e' }}>
-                        <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>Results</p>
+                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
+                        <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#9CA897' }}>Results</p>
                         <div className="space-y-1.5">
                           {fixtures.map(f => (
                             <div key={f.id} className="flex items-center gap-3 text-xs">
@@ -142,7 +142,7 @@ export default function HistoryPage() {
 
                     {result?.report_text && (
                       <div className="px-4 py-3">
-                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#555' }}>Report</p>
+                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#9CA897' }}>Report</p>
                         <p className="text-sm leading-relaxed" style={{ color: '#bbb' }}>{result.report_text}</p>
                         {result.highlights && (
                           <p className="text-xs mt-2 font-medium" style={{ color: '#0D6B52' }}>{result.highlights}</p>

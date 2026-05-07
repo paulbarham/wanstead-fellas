@@ -63,7 +63,7 @@ export default function TeamsPage() {
   useEffect(() => { fetchTeams() }, [fetchTeams])
 
   if (loading) {
-    return <div className="px-4 py-5 text-sm" style={{ color: '#666' }}>Loading teams…</div>
+    return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading teams…</div>
   }
 
   if (profile?.is_admin) {
@@ -73,12 +73,12 @@ export default function TeamsPage() {
   return (
     <div className="px-4 pt-4 pb-4">
       <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>Teams</p>
-      <h1 className="font-display text-2xl text-white tracking-wide mb-4">THIS THURSDAY</h1>
+      <h1 className="font-display text-2xl text-[#18201A] tracking-wide mb-4">THIS THURSDAY</h1>
 
       {teams.length === 0 ? (
         <div className="text-center py-16" style={{ color: '#444' }}>
           <p className="text-4xl mb-3">👥</p>
-          <p className="font-semibold text-white mb-1">Teams not published yet</p>
+          <p className="font-semibold text-[#18201A] mb-1">Teams not published yet</p>
           <p className="text-sm">Check back closer to Thursday</p>
         </div>
       ) : (
@@ -94,7 +94,7 @@ export default function TeamsPage() {
                 <div className="px-4 py-3 flex items-center justify-between"
                   style={{ background: color }}>
                   <div>
-                    <h2 className="font-display text-white tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
+                    <h2 className="font-display text-[#18201A] tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
                       {team.name}
                     </h2>
                     {team.captain && (
@@ -106,12 +106,12 @@ export default function TeamsPage() {
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {isMyTeam && (
                       <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                        style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>
+                        style={{ background: 'rgba(255,255,255,0.2)', color: '#18201A' }}>
                         You
                       </span>
                     )}
                     <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
-                      style={{ background: 'rgba(0,0,0,0.35)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      style={{ background: 'rgba(0,0,0,0.35)', color: '#18201A', border: '1px solid rgba(255,255,255,0.2)' }}>
                       {team.bibs ? '🟡 BIBS' : '⬜ SKINS'}
                     </span>
                   </div>
@@ -127,7 +127,7 @@ export default function TeamsPage() {
                         key={p.id}
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium"
                         style={{
-                          background: isMe ? `${color}33` : isCap ? '#1e1e1e' : '#1a1a1a',
+                          background: isMe ? `${color}33` : isCap ? '#FFFFFF' : '#F7F8F5',
                           color: isMe ? 'white' : isCap ? '#ddd' : '#999',
                           border: `1px solid ${isMe ? color : isCap ? '#3e3e3e' : '#252525'}`,
                         }}

@@ -199,15 +199,15 @@ export default function AdminFinancePanel() {
         <button
           onClick={() => setViewDate(d => subMonths(d, 1))}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-sm"
-          style={{ background: '#141414', border: '1px solid #2e2e2e', color: '#888' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: '#647060' }}
         >
           ‹
         </button>
-        <span className="font-semibold text-white text-sm">{monthDisplay}</span>
+        <span className="font-semibold text-[#18201A] text-sm">{monthDisplay}</span>
         <button
           onClick={() => setViewDate(d => addMonths(d, 1))}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-sm"
-          style={{ background: '#141414', border: '1px solid #2e2e2e', color: '#888' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: '#647060' }}
         >
           ›
         </button>
@@ -219,7 +219,7 @@ export default function AdminFinancePanel() {
           onClick={() => { setShowFineForm(s => !s); setShowWtpForm(false) }}
           className="flex-1 py-2.5 rounded-xl text-xs font-semibold"
           style={{
-            background: showFineForm ? '#0D6B52' : '#141414',
+            background: showFineForm ? '#0D6B52' : '#FFFFFF',
             color: showFineForm ? 'white' : '#0D6B52',
             border: '1px solid #0D6B52',
           }}
@@ -230,7 +230,7 @@ export default function AdminFinancePanel() {
           onClick={() => { setShowWtpForm(s => !s); setShowFineForm(false) }}
           className="flex-1 py-2.5 rounded-xl text-xs font-semibold"
           style={{
-            background: showWtpForm ? '#C9A227' : '#141414',
+            background: showWtpForm ? '#C9A227' : '#FFFFFF',
             color: showWtpForm ? '#000' : '#C9A227',
             border: '1px solid #C9A227',
           }}
@@ -241,24 +241,24 @@ export default function AdminFinancePanel() {
 
       {/* Fine entry form */}
       {showFineForm && (
-        <div className="p-4 rounded-2xl space-y-3" style={{ background: '#141414', border: '1px solid #0D6B52' }}>
+        <div className="p-4 rounded-2xl space-y-3" style={{ background: '#FFFFFF', border: '1px solid #0D6B52' }}>
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#0D6B52' }}>Issue Fine</p>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Player</label>
+            <label className="block text-xs mb-1" style={{ color: '#647060' }}>Player</label>
             <select value={finePlayerId} onChange={e => setFinePlayerId(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}>
+              className="w-full px-3 py-2.5 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
               <option value="">Select player…</option>
               {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Fine Type</label>
+            <label className="block text-xs mb-1" style={{ color: '#647060' }}>Fine Type</label>
             <select value={fineType} onChange={e => setFineType(e.target.value as FineType)}
-              className="w-full px-3 py-2.5 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}>
+              className="w-full px-3 py-2.5 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
               {FINE_TYPES.map(t => (
                 <option key={t.value} value={t.value}>{t.label} — £{t.amount}</option>
               ))}
@@ -266,23 +266,23 @@ export default function AdminFinancePanel() {
           </div>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Match Date</label>
+            <label className="block text-xs mb-1" style={{ color: '#647060' }}>Match Date</label>
             <input type="date" value={fineDate} onChange={e => setFineDate(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', colorScheme: 'dark' }} />
+              className="w-full px-3 py-2.5 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', colorScheme: 'light' }} />
           </div>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Notes (optional)</label>
+            <label className="block text-xs mb-1" style={{ color: '#647060' }}>Notes (optional)</label>
             <input type="text" value={fineNotes} onChange={e => setFineNotes(e.target.value)}
               placeholder="e.g. 10 mins late"
-              className="w-full px-3 py-2.5 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }} />
+              className="w-full px-3 py-2.5 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }} />
           </div>
 
           <button onClick={issueFine} disabled={!finePlayerId || issuingFine}
             className="w-full py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-            style={{ background: '#0D6B52', color: 'white' }}>
+            style={{ background: '#0D6B52', color: '#18201A' }}>
             {issuingFine ? 'Issuing…' : `Issue Fine — £${FINE_TYPES.find(t => t.value === fineType)?.amount ?? 0}`}
           </button>
         </div>
@@ -290,14 +290,14 @@ export default function AdminFinancePanel() {
 
       {/* WTP game form */}
       {showWtpForm && (
-        <div className="p-4 rounded-2xl space-y-3" style={{ background: '#141414', border: '1px solid #C9A227' }}>
+        <div className="p-4 rounded-2xl space-y-3" style={{ background: '#FFFFFF', border: '1px solid #C9A227' }}>
           <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#C9A227' }}>Add WTP Game</p>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Player</label>
+            <label className="block text-xs mb-1" style={{ color: '#647060' }}>Player</label>
             <select value={wtpPlayerId} onChange={e => setWtpPlayerId(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}>
+              className="w-full px-3 py-2.5 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
               <option value="">Select player…</option>
               {players.filter(p => p.player_type === 'wtp').map(p =>
                 <option key={p.id} value={p.id}>{p.name} {p.surname}</option>
@@ -306,10 +306,10 @@ export default function AdminFinancePanel() {
           </div>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: '#666' }}>Match Date</label>
+            <label className="block text-xs mb-1" style={{ color: '#647060' }}>Match Date</label>
             <input type="date" value={wtpDate} onChange={e => setWtpDate(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl text-white text-sm outline-none"
-              style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', colorScheme: 'dark' }} />
+              className="w-full px-3 py-2.5 rounded-xl text-[#18201A] text-sm outline-none"
+              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', colorScheme: 'light' }} />
           </div>
 
           <button onClick={addWtpGame} disabled={!wtpPlayerId || addingWtp}
@@ -322,7 +322,7 @@ export default function AdminFinancePanel() {
 
       {/* Player finance table */}
       {loading ? (
-        <p className="text-sm py-4 text-center" style={{ color: '#555' }}>Loading…</p>
+        <p className="text-sm py-4 text-center" style={{ color: '#9CA897' }}>Loading…</p>
       ) : summaries.length === 0 ? (
         <div className="text-center py-10 text-sm" style={{ color: '#444' }}>
           No finance records for {monthDisplay}
@@ -331,14 +331,14 @@ export default function AdminFinancePanel() {
         <div className="space-y-2">
           {/* Column headers */}
           <div className="flex items-center px-3 pb-1 gap-1"
-            style={{ borderBottom: '1px solid #1e1e1e' }}>
-            <span className="flex-1 text-xs font-medium" style={{ color: '#555' }}>Player</span>
+            style={{ borderBottom: '1px solid #FFFFFF' }}>
+            <span className="flex-1 text-xs font-medium" style={{ color: '#9CA897' }}>Player</span>
             <span className="text-xs w-10 text-center" style={{ color: '#C9A227' }}>WTP</span>
-            <span className="text-xs w-10 text-center" style={{ color: '#888' }}>Late</span>
-            <span className="text-xs w-10 text-center" style={{ color: '#888' }}>Ball</span>
-            <span className="text-xs w-10 text-center" style={{ color: '#888' }}>C*nt</span>
-            <span className="text-xs w-10 text-center" style={{ color: '#888' }}>Out</span>
-            <span className="text-xs w-14 text-right font-semibold" style={{ color: '#ff6b6b' }}>Owed</span>
+            <span className="text-xs w-10 text-center" style={{ color: '#647060' }}>Late</span>
+            <span className="text-xs w-10 text-center" style={{ color: '#647060' }}>Ball</span>
+            <span className="text-xs w-10 text-center" style={{ color: '#647060' }}>C*nt</span>
+            <span className="text-xs w-10 text-center" style={{ color: '#647060' }}>Out</span>
+            <span className="text-xs w-14 text-right font-semibold" style={{ color: '#DC2626' }}>Owed</span>
           </div>
 
           {summaries.map(s => {
@@ -347,7 +347,7 @@ export default function AdminFinancePanel() {
 
             return (
               <div key={s.player.id} className="rounded-2xl overflow-hidden"
-                style={{ background: '#141414', border: `1px solid ${allPaid ? '#2e2e2e' : '#3a1a1a'}` }}>
+                style={{ background: '#FFFFFF', border: `1px solid ${allPaid ? '#E2E4DC' : '#3a1a1a'}` }}>
 
                 {/* Summary row */}
                 <button
@@ -363,39 +363,39 @@ export default function AdminFinancePanel() {
                     {s.wtpOwed > 0 ? `£${s.wtpOwed}` : '—'}
                   </span>
                   <span className="text-xs w-10 text-center tabular-nums"
-                    style={{ color: s.lateOwed > 0 ? '#ff6b6b' : '#444' }}>
+                    style={{ color: s.lateOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.lateOwed > 0 ? `£${s.lateOwed}` : '—'}
                   </span>
                   <span className="text-xs w-10 text-center tabular-nums"
-                    style={{ color: s.lostBallOwed > 0 ? '#ff6b6b' : '#444' }}>
+                    style={{ color: s.lostBallOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.lostBallOwed > 0 ? `£${s.lostBallOwed}` : '—'}
                   </span>
                   <span className="text-xs w-10 text-center tabular-nums"
-                    style={{ color: s.cunOwed > 0 ? '#ff6b6b' : '#444' }}>
+                    style={{ color: s.cunOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.cunOwed > 0 ? `£${s.cunOwed}` : '—'}
                   </span>
                   <span className="text-xs w-10 text-center tabular-nums"
-                    style={{ color: s.dropoutOwed > 0 ? '#ff6b6b' : '#444' }}>
+                    style={{ color: s.dropoutOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.dropoutOwed > 0 ? `£${s.dropoutOwed}` : '—'}
                   </span>
                   <span className="text-xs w-14 text-right font-bold tabular-nums"
-                    style={{ color: allPaid ? '#0D6B52' : '#ff6b6b' }}>
+                    style={{ color: allPaid ? '#0D6B52' : '#DC2626' }}>
                     {allPaid ? '✓' : `£${s.totalOwed.toFixed(2)}`}
                   </span>
                 </button>
 
                 {/* Expanded detail */}
                 {isExpanded && (
-                  <div style={{ borderTop: '1px solid #2e2e2e' }}>
+                  <div style={{ borderTop: '1px solid #E2E4DC' }}>
 
                     {/* Mark as paid button */}
                     {s.totalOwed > 0 && (
-                      <div className="px-3 py-2.5" style={{ borderBottom: '1px solid #1e1e1e' }}>
+                      <div className="px-3 py-2.5" style={{ borderBottom: '1px solid #FFFFFF' }}>
                         <button
                           onClick={() => markAllPaid(s)}
                           disabled={markingPaid === s.player.id}
                           className="w-full py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
-                          style={{ background: '#0a1a10', color: '#4ade80', border: '1px solid #4ade80' }}
+                          style={{ background: '#DCFCE7', color: '#0D6B52', border: '1px solid #0D6B52' }}
                         >
                           {markingPaid === s.player.id ? 'Marking…' : `✓ Mark All Paid (£${s.totalOwed.toFixed(2)})`}
                         </button>
@@ -404,7 +404,7 @@ export default function AdminFinancePanel() {
 
                     {/* WTP games */}
                     {s.wtpGames.length > 0 && (
-                      <div className="px-3 py-2" style={{ borderBottom: s.fines.length > 0 ? '1px solid #1e1e1e' : 'none' }}>
+                      <div className="px-3 py-2" style={{ borderBottom: s.fines.length > 0 ? '1px solid #FFFFFF' : 'none' }}>
                         <p className="text-xs mb-2 uppercase tracking-wider" style={{ color: '#C9A227' }}>WTP Games</p>
                         <div className="space-y-1.5">
                           {s.wtpGames.map(g => (
@@ -412,9 +412,9 @@ export default function AdminFinancePanel() {
                               <button onClick={() => toggleGamePaid(g)}
                                 className="text-xs px-2 py-0.5 rounded font-medium flex-shrink-0"
                                 style={{
-                                  background: g.paid ? '#0a1a10' : '#1e1e1e',
-                                  color: g.paid ? '#4ade80' : '#888',
-                                  border: `1px solid ${g.paid ? '#4ade80' : '#2e2e2e'}`,
+                                  background: g.paid ? '#DCFCE7' : '#FFFFFF',
+                                  color: g.paid ? '#0D6B52' : '#888',
+                                  border: `1px solid ${g.paid ? '#0D6B52' : '#E2E4DC'}`,
                                 }}>
                                 {g.paid ? '✓' : 'Unpaid'}
                               </button>
@@ -426,7 +426,7 @@ export default function AdminFinancePanel() {
                               </span>
                               <button onClick={() => deleteWtpGame(g.id)}
                                 className="text-xs px-1.5 py-0.5 rounded"
-                                style={{ color: '#5a1a1a', border: '1px solid #3a1010' }}>
+                                style={{ color: '#FECACA', border: '1px solid #3a1010' }}>
                                 ✕
                               </button>
                             </div>
@@ -438,16 +438,16 @@ export default function AdminFinancePanel() {
                     {/* Fines */}
                     {s.fines.length > 0 && (
                       <div className="px-3 py-2">
-                        <p className="text-xs mb-2 uppercase tracking-wider" style={{ color: '#888' }}>Fines</p>
+                        <p className="text-xs mb-2 uppercase tracking-wider" style={{ color: '#647060' }}>Fines</p>
                         <div className="space-y-1.5">
                           {s.fines.map(f => (
                             <div key={f.id} className="flex items-center gap-2">
                               <button onClick={() => toggleFinePaid(f)}
                                 className="text-xs px-2 py-0.5 rounded font-medium flex-shrink-0"
                                 style={{
-                                  background: f.paid ? '#0a1a10' : '#1e1e1e',
-                                  color: f.paid ? '#4ade80' : '#888',
-                                  border: `1px solid ${f.paid ? '#4ade80' : '#2e2e2e'}`,
+                                  background: f.paid ? '#DCFCE7' : '#FFFFFF',
+                                  color: f.paid ? '#0D6B52' : '#888',
+                                  border: `1px solid ${f.paid ? '#0D6B52' : '#E2E4DC'}`,
                                 }}>
                                 {f.paid ? '✓' : 'Unpaid'}
                               </button>
@@ -457,15 +457,15 @@ export default function AdminFinancePanel() {
                                   {f.match_date && ` · ${format(new Date(f.match_date + 'T12:00:00'), 'do MMM')}`}
                                 </span>
                                 {f.notes && (
-                                  <p className="text-xs truncate" style={{ color: '#555' }}>{f.notes}</p>
+                                  <p className="text-xs truncate" style={{ color: '#9CA897' }}>{f.notes}</p>
                                 )}
                               </div>
-                              <span className="text-xs" style={{ color: f.paid ? '#555' : '#ff6b6b' }}>
+                              <span className="text-xs" style={{ color: f.paid ? '#555' : '#DC2626' }}>
                                 £{Number(f.amount).toFixed(2)}
                               </span>
                               <button onClick={() => deleteFine(f.id)}
                                 className="text-xs px-1.5 py-0.5 rounded"
-                                style={{ color: '#5a1a1a', border: '1px solid #3a1010' }}>
+                                style={{ color: '#FECACA', border: '1px solid #3a1010' }}>
                                 ✕
                               </button>
                             </div>
@@ -481,24 +481,24 @@ export default function AdminFinancePanel() {
 
           {/* Totals row */}
           <div className="flex items-center px-3 py-3 rounded-2xl gap-1"
-            style={{ background: '#0a0a0a', border: '1px solid #2e2e2e', marginTop: 8 }}>
-            <span className="flex-1 text-xs font-bold uppercase tracking-wide" style={{ color: '#555' }}>Totals</span>
+            style={{ background: '#F2F3EE', border: '1px solid #E2E4DC', marginTop: 8 }}>
+            <span className="flex-1 text-xs font-bold uppercase tracking-wide" style={{ color: '#9CA897' }}>Totals</span>
             <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#C9A227' }}>
               £{grandWtp.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#ff6b6b' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#DC2626' }}>
               £{grandLate.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#ff6b6b' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#DC2626' }}>
               £{grandLostBall.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#ff6b6b' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#DC2626' }}>
               £{grandCun.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#ff6b6b' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: '#DC2626' }}>
               £{grandDropout.toFixed(0)}
             </span>
-            <span className="text-xs w-14 text-right font-bold tabular-nums" style={{ color: '#ff6b6b' }}>
+            <span className="text-xs w-14 text-right font-bold tabular-nums" style={{ color: '#DC2626' }}>
               £{grandTotalOwed.toFixed(2)}
             </span>
           </div>
@@ -507,7 +507,7 @@ export default function AdminFinancePanel() {
           <button
             onClick={() => exportCsv(summaries, monthLabel)}
             className="w-full py-2.5 rounded-xl text-xs font-semibold"
-            style={{ background: '#141414', color: '#888', border: '1px solid #2e2e2e' }}
+            style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
           >
             Export CSV — {monthDisplay}
           </button>

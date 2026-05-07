@@ -119,7 +119,7 @@ export default function MatchPage() {
   const canEnterResult = profile?.is_admin && (phase === 'match_live' || phase === 'post_match')
 
   if (loading) {
-    return <div className="px-4 py-5 text-sm" style={{ color: '#888' }}>Loading...</div>
+    return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading...</div>
   }
 
   if (profile?.is_admin && canEnterResult) {
@@ -144,16 +144,16 @@ export default function MatchPage() {
         {isCurrentWeek ? 'Match' : 'Last Result'}
       </p>
       <div className="flex items-end justify-between mb-5">
-        <h1 className="font-display text-3xl text-white tracking-wide">RESULTS</h1>
+        <h1 className="font-display text-3xl text-[#18201A] tracking-wide">RESULTS</h1>
         {matchDateLabel && (
-          <span className="text-xs pb-0.5" style={{ color: '#555' }}>{matchDateLabel}</span>
+          <span className="text-xs pb-0.5" style={{ color: '#9CA897' }}>{matchDateLabel}</span>
         )}
       </div>
 
       {!match ? (
-        <div className="text-center py-12" style={{ color: '#555' }}>
+        <div className="text-center py-12" style={{ color: '#9CA897' }}>
           <p className="text-4xl mb-3">📊</p>
-          <p className="font-medium text-white">No result yet</p>
+          <p className="font-medium text-[#18201A]">No result yet</p>
           <p className="text-sm mt-1">Results posted after the match</p>
         </div>
       ) : (match.format === 'tournament' || match.format === '4-team') ? (
@@ -181,16 +181,16 @@ function ElevenVElevenView({ result, fixtures }: {
     <div className="space-y-3">
       {main && (
         <div className="rounded-2xl overflow-hidden"
-          style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
           <div className="px-5 pt-5 pb-4">
             <div className="flex items-center justify-between gap-3 mb-4">
-              <span className="font-semibold text-white text-sm flex-1 text-right leading-tight">{main.team1?.name}</span>
+              <span className="font-semibold text-[#18201A] text-sm flex-1 text-right leading-tight">{main.team1?.name}</span>
               <div className="flex items-center gap-3">
-                <span className="font-display text-6xl text-white leading-none">{main.score1 ?? '–'}</span>
+                <span className="font-display text-6xl text-[#18201A] leading-none">{main.score1 ?? '–'}</span>
                 <span className="font-display text-2xl leading-none" style={{ color: '#333' }}>–</span>
-                <span className="font-display text-6xl text-white leading-none">{main.score2 ?? '–'}</span>
+                <span className="font-display text-6xl text-[#18201A] leading-none">{main.score2 ?? '–'}</span>
               </div>
-              <span className="font-semibold text-white text-sm flex-1 leading-tight">{main.team2?.name}</span>
+              <span className="font-semibold text-[#18201A] text-sm flex-1 leading-tight">{main.team2?.name}</span>
             </div>
             {winner && (
               <p className="text-center text-xs font-medium" style={{ color: '#0D6B52' }}>
@@ -198,22 +198,22 @@ function ElevenVElevenView({ result, fixtures }: {
               </p>
             )}
             {!winner && main.score1 != null && (
-              <p className="text-center text-xs" style={{ color: '#555' }}>Draw</p>
+              <p className="text-center text-xs" style={{ color: '#9CA897' }}>Draw</p>
             )}
           </div>
 
           {result?.scorers && (
-            <div className="px-5 py-3" style={{ borderTop: '1px solid #2e2e2e' }}>
-              <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#555' }}>Scorers</p>
-              <p className="text-sm text-white">{result.scorers}</p>
+            <div className="px-5 py-3" style={{ borderTop: '1px solid #E2E4DC' }}>
+              <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#9CA897' }}>Scorers</p>
+              <p className="text-sm text-[#18201A]">{result.scorers}</p>
             </div>
           )}
         </div>
       )}
 
       {result?.report_text && (
-        <div className="p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>Match Report</p>
+        <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#9CA897' }}>Match Report</p>
           <p className="text-sm leading-relaxed" style={{ color: '#bbb' }}>{result.report_text}</p>
         </div>
       )}
@@ -232,9 +232,9 @@ function FourTeamView({ result, teams, fixtures }: {
   return (
     <div className="space-y-3">
       {/* Group table */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid #2e2e2e' }}>
-          <h3 className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>Group Table</h3>
+      <div className="rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid #E2E4DC' }}>
+          <h3 className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Group Table</h3>
         </div>
         <table className="w-full text-xs">
           <thead>
@@ -245,14 +245,14 @@ function FourTeamView({ result, teams, fixtures }: {
               <th className="px-2 py-2 font-medium">D</th>
               <th className="px-2 py-2 font-medium">L</th>
               <th className="px-2 py-2 font-medium">GD</th>
-              <th className="px-2 py-2 font-medium" style={{ color: '#888' }}>Pts</th>
+              <th className="px-2 py-2 font-medium" style={{ color: '#647060' }}>Pts</th>
             </tr>
           </thead>
           <tbody>
             {table.map((row, i) => {
               const isLeader = i === 0 && row.pts > 0
               return (
-                <tr key={row.team.id} style={{ borderTop: '1px solid #1e1e1e' }}>
+                <tr key={row.team.id} style={{ borderTop: '1px solid #FFFFFF' }}>
                   <td className="px-4 py-2.5 font-medium"
                     style={{ color: isLeader ? 'white' : '#999' }}>
                     <span className="mr-2 text-xs" style={{ color: isLeader ? '#0D6B52' : '#333' }}>{i + 1}</span>
@@ -274,19 +274,19 @@ function FourTeamView({ result, teams, fixtures }: {
       </div>
 
       {/* Fixtures */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid #2e2e2e' }}>
-          <h3 className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#555' }}>Results</h3>
+      <div className="rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid #E2E4DC' }}>
+          <h3 className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Results</h3>
         </div>
         <div>
           {fixtures.map((f, i) => (
             <div key={f.id} className="px-4 py-3 flex items-center gap-2"
-              style={{ borderTop: i > 0 ? '1px solid #1e1e1e' : 'none' }}>
+              style={{ borderTop: i > 0 ? '1px solid #FFFFFF' : 'none' }}>
               <span className="flex-1 text-xs text-right font-medium" style={{ color: '#ccc' }}>{f.team1?.name}</span>
               <div className="flex items-center gap-2 px-3">
-                <span className="font-display text-2xl text-white">{f.score1 ?? '–'}</span>
+                <span className="font-display text-2xl text-[#18201A]">{f.score1 ?? '–'}</span>
                 <span className="text-xs" style={{ color: '#333' }}>–</span>
-                <span className="font-display text-2xl text-white">{f.score2 ?? '–'}</span>
+                <span className="font-display text-2xl text-[#18201A]">{f.score2 ?? '–'}</span>
               </div>
               <span className="flex-1 text-xs font-medium" style={{ color: '#ccc' }}>{f.team2?.name}</span>
             </div>
@@ -296,16 +296,16 @@ function FourTeamView({ result, teams, fixtures }: {
 
       {/* Scorers */}
       {result?.scorers && (
-        <div className="p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>Scorers</p>
-          <p className="text-sm text-white leading-relaxed">{result.scorers}</p>
+        <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#9CA897' }}>Scorers</p>
+          <p className="text-sm text-[#18201A] leading-relaxed">{result.scorers}</p>
         </div>
       )}
 
       {/* Match report */}
       {result?.report_text && (
-        <div className="p-4 rounded-2xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#555' }}>
+        <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#9CA897' }}>
             Match Report
             {winner && <span className="ml-2 normal-case" style={{ color: '#0D6B52' }}>· {winner.team.name} win</span>}
           </p>

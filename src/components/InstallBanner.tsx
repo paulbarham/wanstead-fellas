@@ -49,7 +49,7 @@ export default function InstallBanner() {
 
   return (
     <div className="mx-0 mb-3 px-3 py-2.5 rounded-xl flex items-center gap-2"
-      style={{ background: '#0a1a10', border: '1px solid #0D6B52' }}>
+      style={{ background: '#DCFCE7', border: '1px solid #0D6B52' }}>
       <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center"
         style={{ background: '#0D6B52' }}>
         <span className="font-display text-xs text-white">WF</span>
