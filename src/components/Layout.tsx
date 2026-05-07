@@ -69,8 +69,8 @@ export default function Layout() {
                 borderTop: `2px solid ${isActive ? '#0D6B52' : 'transparent'}`,
               })}
             >
-              <span className="text-lg leading-none">{item.icon}</span>
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <span className="text-base leading-none">{item.icon}</span>
+              <span className="text-[11px] font-medium">{item.label}</span>
             </NavLink>
           ))}
         </div>

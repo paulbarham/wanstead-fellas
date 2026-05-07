@@ -10,10 +10,50 @@ interface MatchRecord {
   fixtures: (Fixture & { team1?: Team; team2?: Team })[]
 }
 
+const LABEL_STYLE = { color: '#647060', letterSpacing: '0.8px' } as const
+const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
+
+function ScorersList({ scorers }: { scorers: string }) {
+  const lines = scorers.split('\n').map(l => l.trim()).filter(Boolean)
+  if (lines.length <= 1 && !scorers.includes(':')) {
+    return <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>{scorers}</p>
+  }
+  return (
+    <div className="space-y-2">
+      {lines.map((line, i) => {
+        const colonIdx = line.indexOf(':')
+        if (colonIdx > 0) {
+          return (
+            <div key={i}>
+              <p className={LABEL_CLASS} style={{ ...LABEL_STYLE, marginBottom: 2 }}>
+                {line.slice(0, colonIdx).trim()}
+              </p>
+              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>
+                {line.slice(colonIdx + 1).trim()}
+              </p>
+            </div>
+          )
+        }
+        return <p key={i} style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>{line}</p>
+      })}
+    </div>
+  )
+}
+
 export default function HistoryPage() {
   const [records, setRecords] = useState<MatchRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [expandedReports, setExpandedReports] = useState<Set<string>>(new Set())
+
+  function toggleReport(matchId: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    setExpandedReports(prev => {
+      const next = new Set(prev)
+      next.has(matchId) ? next.delete(matchId) : next.add(matchId)
+      return next
+    })
+  }
 
   useEffect(() => {
     async function load() {
@@ -40,11 +80,7 @@ export default function HistoryPage() {
         const matchTeams = (teams as Team[] || []).filter(t => t.match_id === m.id)
         const matchFixtures = (fixtures as Fixture[] || [])
           .filter(f => f.match_id === m.id)
-          .map(f => ({
-            ...f,
-            team1: teamMap[f.team1_id],
-            team2: teamMap[f.team2_id],
-          }))
+          .map(f => ({ ...f, team1: teamMap[f.team1_id], team2: teamMap[f.team2_id] }))
         const matchResult = (results as Result[] || []).find(r => r.match_id === m.id) ?? null
         return { match: m, result: matchResult, teams: matchTeams, fixtures: matchFixtures }
       })
@@ -61,8 +97,8 @@ export default function HistoryPage() {
 
   return (
     <div className="px-4 py-5">
-      <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>Archive</p>
-      <h1 className="font-display text-3xl text-[#18201A] tracking-wide mb-5">HISTORY</h1>
+      <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Archive</p>
+      <h1 className="font-display text-[#18201A] tracking-wide mb-5" style={{ fontSize: '28px' }}>HISTORY</h1>
 
       {records.length === 0 ? (
         <div className="text-center py-12" style={{ color: '#9CA897' }}>
@@ -70,12 +106,15 @@ export default function HistoryPage() {
           <p className="font-medium text-[#18201A]">No matches played yet</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {records.map(({ match, result, teams, fixtures }) => {
             const isExpanded = expanded === match.id
+            const isReportExpanded = expandedReports.has(match.id)
             const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'EEE do MMM yyyy')
             const isTwoTeam = match.format !== 'tournament' && match.format !== '4-team'
             const mainFixture = isTwoTeam ? fixtures[0] : null
+            const reportText = result?.report_text ?? null
+            const reportIsLong = reportText && reportText.length > 200
 
             return (
               <div key={match.id} className="rounded-2xl overflow-hidden"
@@ -104,12 +143,13 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs px-2 py-1 rounded-md font-medium"
                         style={{
-                          background: isTwoTeam ? '#DCFCE7' : '#1a0a0a',
-                          color: isTwoTeam ? '#0D6B52' : '#A0714F',
+                          background: isTwoTeam ? '#DCFCE7' : '#F7F8F5',
+                          color: isTwoTeam ? '#0D6B52' : '#647060',
+                          border: `1px solid ${isTwoTeam ? '#86EFAC' : '#E2E4DC'}`,
                         }}>
                         {match.format}
                       </span>
-                      <span className="text-xs" style={{ color: '#3a3a3a' }}>{isExpanded ? '▲' : '▼'}</span>
+                      <span className="text-xs" style={{ color: '#9CA897' }}>{isExpanded ? '▲' : '▼'}</span>
                     </div>
                   </div>
                 </button>
@@ -117,34 +157,55 @@ export default function HistoryPage() {
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid #E2E4DC' }}>
                     {result?.scorers && (
-                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
-                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#9CA897' }}>Scorers</p>
-                        <p className="text-sm text-[#18201A] leading-relaxed">{result.scorers}</p>
+                      <div className="px-4 py-4" style={{ borderBottom: '1px solid #F2F3EE' }}>
+                        <p className={LABEL_CLASS + ' mb-3'} style={LABEL_STYLE}>Scorers</p>
+                        <ScorersList scorers={result.scorers} />
                       </div>
                     )}
 
                     {!isTwoTeam && fixtures.length > 0 && (
-                      <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
-                        <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#9CA897' }}>Results</p>
+                      <div className="px-4 py-4" style={{ borderBottom: '1px solid #F2F3EE' }}>
+                        <p className={LABEL_CLASS + ' mb-2'} style={LABEL_STYLE}>Results</p>
                         <div className="space-y-1.5">
                           {fixtures.map(f => (
                             <div key={f.id} className="flex items-center gap-3 text-xs">
-                              <span className="flex-1 text-right font-medium" style={{ color: '#ccc' }}>{f.team1?.name}</span>
+                              <span className="flex-1 text-right font-medium text-[#18201A]">{f.team1?.name}</span>
                               <span className="font-display text-base tabular-nums" style={{ color: '#0D6B52' }}>
                                 {f.score1} – {f.score2}
                               </span>
-                              <span className="flex-1 font-medium" style={{ color: '#ccc' }}>{f.team2?.name}</span>
+                              <span className="flex-1 font-medium text-[#18201A]">{f.team2?.name}</span>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
 
-                    {result?.report_text && (
-                      <div className="px-4 py-3">
-                        <p className="text-xs uppercase tracking-widest mb-1.5" style={{ color: '#9CA897' }}>Report</p>
-                        <p className="text-sm leading-relaxed" style={{ color: '#bbb' }}>{result.report_text}</p>
-                        {result.highlights && (
+                    {reportText && (
+                      <div className="px-4 py-4">
+                        <p className={LABEL_CLASS + ' mb-2'} style={LABEL_STYLE}>Report</p>
+                        <p
+                          style={{
+                            fontSize: '14px',
+                            lineHeight: '1.6',
+                            color: '#647060',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: isReportExpanded ? 'unset' : 3,
+                          } as React.CSSProperties}
+                        >
+                          {reportText}
+                        </p>
+                        {reportIsLong && (
+                          <button
+                            onClick={(e) => toggleReport(match.id, e)}
+                            className="text-xs mt-2 font-semibold"
+                            style={{ color: '#0D6B52' }}
+                          >
+                            {isReportExpanded ? 'Read less ▲' : 'Read more ▼'}
+                          </button>
+                        )}
+                        {result?.highlights && (
                           <p className="text-xs mt-2 font-medium" style={{ color: '#0D6B52' }}>{result.highlights}</p>
                         )}
                       </div>

@@ -211,11 +211,11 @@ export default function TonightPage() {
 
       {/* Date + countdown */}
       <div className="mb-3">
-        <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
+        <p className="text-[10px] font-semibold uppercase mb-0.5" style={{ color: '#647060', letterSpacing: '0.8px' }}>
           Next Match
         </p>
         <div className="flex items-start justify-between">
-          <h1 className="font-display text-2xl text-[#18201A] tracking-wide leading-tight">{dateLabel}</h1>
+          <h1 className="font-display text-[#18201A] tracking-wide leading-tight" style={{ fontSize: '28px' }}>{dateLabel}</h1>
           {phase === 'match_live' ? (
             <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: '#DC2626' }}>⚽ LIVE NOW</span>
           ) : phase === 'post_match' ? (
@@ -283,7 +283,7 @@ export default function TonightPage() {
       {/* My squad - linked children */}
       {linkedChildren.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#9CA897' }}>
+          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#647060', letterSpacing: '0.8px' }}>
             My Squad
           </p>
           <div className="space-y-2">
@@ -329,7 +329,7 @@ export default function TonightPage() {
       {/* Who's In */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Who's In</p>
+          <p className="text-[10px] font-semibold uppercase" style={{ color: '#647060', letterSpacing: '0.8px' }}>Who's In</p>
           {signedUpPlayers.length > 0 && (
             <span className="text-xs" style={{ color: '#9CA897' }}>
               {signedUpPlayers.length} {signedUpPlayers.length === 1 ? 'player' : 'players'}
@@ -411,7 +411,7 @@ export default function TonightPage() {
       {/* Waiting list */}
       {waitingPlayers.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#9CA897' }}>
+          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#647060', letterSpacing: '0.8px' }}>
             Waiting List ({waitingPlayers.length})
           </p>
           <div className="space-y-1.5">
@@ -521,7 +521,7 @@ export default function TonightPage() {
       {/* Admin: not signed up */}
       {profile?.is_admin && notSignedUp.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#9CA897' }}>
+          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#647060', letterSpacing: '0.8px' }}>
             Not In ({notSignedUp.length})
           </p>
           <div className="space-y-1.5">
@@ -553,12 +553,12 @@ export default function TonightPage() {
       {lastResult !== undefined && (
         <button
           onClick={() => navigate('/match')}
-          className="w-full text-left p-4 rounded-2xl"
+          className="w-full text-left p-5 rounded-2xl"
           style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
-              Last Result
+            <p className="text-[10px] font-semibold uppercase" style={{ color: '#647060', letterSpacing: '0.8px' }}>
+              🏆 Last Result
             </p>
             {lastResult && (
               <span className="text-xs" style={{ color: '#9CA897' }}>
