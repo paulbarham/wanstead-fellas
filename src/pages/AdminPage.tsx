@@ -369,7 +369,7 @@ function FamiliesPanel() {
           value={parentId}
           onChange={e => setParentId(e.target.value)}
           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: parentId ? 'white' : '#555' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: parentId ? '#18201A' : '#9CA897' }}
         >
           <option value="">Select parent</option>
           {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
@@ -378,7 +378,7 @@ function FamiliesPanel() {
           value={childId}
           onChange={e => setChildId(e.target.value)}
           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: childId ? 'white' : '#555' }}
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: childId ? '#18201A' : '#9CA897' }}
         >
           <option value="">Select child</option>
           {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
@@ -387,7 +387,7 @@ function FamiliesPanel() {
           onClick={addLink}
           disabled={adding || !parentId || !childId || parentId === childId}
           className="w-full py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-          style={{ background: '#0D6B52', color: '#18201A' }}
+          style={{ background: '#0D6B52', color: '#FFFFFF' }}
         >
           {adding ? 'Adding…' : 'Add Link'}
         </button>
@@ -399,7 +399,11 @@ function FamiliesPanel() {
           Family Links ({links.length})
         </p>
         {links.length === 0 ? (
-          <p className="text-sm" style={{ color: '#444' }}>No links yet</p>
+          <div className="text-center py-8 px-4 rounded-2xl" style={{ background: '#F7F8F5', border: '1px solid #E2E4DC' }}>
+            <p className="text-3xl mb-3">👨‍👩‍👧</p>
+            <p className="text-sm font-semibold text-[#18201A] mb-1">No family links yet</p>
+            <p className="text-xs" style={{ color: '#647060' }}>Use the form above to link a parent to their child's profile.</p>
+          </div>
         ) : (
           <div className="space-y-1.5">
             {links.map(link => (

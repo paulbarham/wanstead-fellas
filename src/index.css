@@ -60,6 +60,7 @@ input[type="range"] {
   background: transparent;
   cursor: pointer;
   width: 100%;
+  accent-color: #0D6B52;
 }
 input[type="range"]::-webkit-slider-track {
   background: #E2E4DC;
@@ -69,7 +70,8 @@ input[type="range"]::-webkit-slider-track {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  background: #0D6B52;
+  background: #FFFFFF;
+  border: 2px solid #0D6B52;
   height: 16px;
   width: 16px;
   border-radius: 50%;
@@ -81,9 +83,9 @@ input[type="range"]::-moz-range-track {
   border-radius: 2px;
 }
 input[type="range"]::-moz-range-thumb {
-  background: #0D6B52;
+  background: #FFFFFF;
+  border: 2px solid #0D6B52;
   height: 16px;
   width: 16px;
   border-radius: 50%;
-  border: none;
 }

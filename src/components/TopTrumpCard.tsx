@@ -73,7 +73,6 @@ export default function TopTrumpCard({ profile, compact = false }: Props) {
           background: `${s.accent}28`,
           borderBottom: `1px solid ${s.accent}30`,
         }}>
-          <span style={{ color: s.accent, fontSize: '0.6rem', fontFamily: "'DM Mono', monospace", fontWeight: 700, letterSpacing: '0.15em' }}>WF</span>
           <span style={{ color: s.accent, fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.1em', opacity: 0.9 }}>{s.label}</span>
         </div>
 

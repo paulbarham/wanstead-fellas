@@ -121,7 +121,7 @@ export default function CardsPage() {
   if (loading) return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading cards…</div>
 
   return (
-    <div className="px-4 pt-4 pb-4">
+    <div className="px-4 pt-4 pb-24">
       <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
         Player Cards
       </p>
@@ -130,7 +130,7 @@ export default function CardsPage() {
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
 
       {/* Card grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {players.map(p => (
           <button key={p.id} onClick={() => openCard(p)} className="text-left" style={{ display: 'block' }}>
             <TopTrumpCard profile={p} compact />
@@ -192,7 +192,7 @@ export default function CardsPage() {
                     onClick={() => triggerPhotoUpload(selected.id)}
                     disabled={uploadingFor === selected.id}
                     className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
-                    style={{ background: '#0D6B52', color: '#18201A' }}
+                    style={{ background: '#0D6B52', color: '#FFFFFF' }}
                   >
                     {uploadingFor === selected.id ? 'Uploading…' : selected.photo_url ? 'Change Photo' : 'Upload Photo'}
                   </button>
@@ -200,7 +200,7 @@ export default function CardsPage() {
                     <button
                       onClick={() => deletePhoto(selected.id)}
                       className="px-4 py-2.5 rounded-xl text-sm font-semibold"
-                      style={{ background: '#1a0808', color: '#DC2626', border: '1px solid #FECACA' }}
+                      style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}
                     >
                       Remove
                     </button>
@@ -256,14 +256,14 @@ export default function CardsPage() {
                       ))}
                       <button onClick={() => saveEdit(selected.id)}
                         className="w-full py-2.5 rounded-xl text-sm font-semibold"
-                        style={{ background: '#0D6B52', color: '#18201A' }}>
+                        style={{ background: '#0D6B52', color: '#FFFFFF' }}>
                         Save Stats
                       </button>
                     </div>
                   ) : (
                     <button onClick={() => startEdit(selected)}
                       className="w-full py-2.5 rounded-xl text-sm font-medium"
-                      style={{ background: '#FFFFFF', color: '#ccc', border: '1px solid #E2E4DC' }}>
+                      style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
                       Edit Stats
                     </button>
                   )}
