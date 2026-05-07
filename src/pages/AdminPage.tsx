@@ -8,6 +8,14 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import AdminFinancePanel from '../components/AdminFinancePanel'
 
+interface LinkedProfileRow {
+  id: string
+  parent_id: string
+  child_id: string
+  parentName: string
+  childName: string
+}
+
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
 const AGE_GROUP_DEFAULT = '20–29'
 
@@ -34,7 +42,7 @@ interface FeedbackWithPlayer extends Feedback {
 export default function AdminPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'players' | 'feedback' | 'finance'>('players')
+  const [tab, setTab] = useState<'players' | 'finance' | 'feedback' | 'families'>('players')
 
   useEffect(() => {
     if (profile && !profile.is_admin) navigate('/', { replace: true })
@@ -51,7 +59,7 @@ export default function AdminPage() {
 
       {/* Tab toggle */}
       <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
-        {(['players', 'finance', 'feedback'] as const).map(t => (
+        {(['players', 'finance', 'families', 'feedback'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -61,12 +69,12 @@ export default function AdminPage() {
               color: tab === t ? 'white' : '#666',
             }}
           >
-            {t === 'players' ? 'Players' : t === 'finance' ? 'Finance' : 'Feedback'}
+            {t === 'players' ? 'Players' : t === 'finance' ? 'Finance' : t === 'families' ? 'Families' : 'Feedback'}
           </button>
         ))}
       </div>
 
-      {tab === 'players' ? <PlayersPanel /> : tab === 'finance' ? <AdminFinancePanel /> : <FeedbackPanel />}
+      {tab === 'players' ? <PlayersPanel /> : tab === 'finance' ? <AdminFinancePanel /> : tab === 'families' ? <FamiliesPanel /> : <FeedbackPanel />}
     </div>
   )
 }
@@ -299,6 +307,123 @@ function PlayersPanel() {
         })}
       </div>
     </>
+  )
+}
+
+// ─── Families panel ───────────────────────────────────────────────────────────
+
+function FamiliesPanel() {
+  const [links, setLinks] = useState<LinkedProfileRow[]>([])
+  const [players, setPlayers] = useState<Profile[]>([])
+  const [loading, setLoading] = useState(true)
+  const [parentId, setParentId] = useState('')
+  const [childId, setChildId] = useState('')
+  const [adding, setAdding] = useState(false)
+
+  const loadData = useCallback(async () => {
+    const [{ data: linkData }, { data: playerData }] = await Promise.all([
+      supabase.from('linked_profiles').select('*').order('created_at'),
+      supabase.from('profiles').select('id, name, surname').order('name'),
+    ])
+    const profs = (playerData as Profile[]) || []
+    const nameMap: Record<string, string> = {}
+    for (const p of profs) nameMap[p.id] = `${p.name} ${p.surname}`
+    setLinks(
+      ((linkData || []) as { id: string; parent_id: string; child_id: string }[]).map(l => ({
+        ...l,
+        parentName: nameMap[l.parent_id] ?? 'Unknown',
+        childName: nameMap[l.child_id] ?? 'Unknown',
+      }))
+    )
+    setPlayers(profs)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { loadData() }, [loadData])
+
+  async function addLink() {
+    if (!parentId || !childId || parentId === childId) return
+    setAdding(true)
+    await supabase.from('linked_profiles').insert({ parent_id: parentId, child_id: childId })
+    setParentId('')
+    setChildId('')
+    await loadData()
+    setAdding(false)
+  }
+
+  async function removeLink(id: string) {
+    await supabase.from('linked_profiles').delete().eq('id', id)
+    await loadData()
+  }
+
+  if (loading) return <div className="text-sm py-4" style={{ color: '#666' }}>Loading…</div>
+
+  return (
+    <div className="space-y-4">
+      {/* Add link */}
+      <div className="p-4 rounded-2xl space-y-2" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
+        <p className="text-xs uppercase tracking-widest font-semibold mb-1" style={{ color: '#555' }}>
+          Add Family Link
+        </p>
+        <select
+          value={parentId}
+          onChange={e => setParentId(e.target.value)}
+          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+          style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', color: parentId ? 'white' : '#555' }}
+        >
+          <option value="">Select parent</option>
+          {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
+        </select>
+        <select
+          value={childId}
+          onChange={e => setChildId(e.target.value)}
+          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+          style={{ background: '#1e1e1e', border: '1px solid #2e2e2e', color: childId ? 'white' : '#555' }}
+        >
+          <option value="">Select child</option>
+          {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
+        </select>
+        <button
+          onClick={addLink}
+          disabled={adding || !parentId || !childId || parentId === childId}
+          className="w-full py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
+          style={{ background: '#0D6B52', color: 'white' }}
+        >
+          {adding ? 'Adding…' : 'Add Link'}
+        </button>
+      </div>
+
+      {/* Existing links */}
+      <div>
+        <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
+          Family Links ({links.length})
+        </p>
+        {links.length === 0 ? (
+          <p className="text-sm" style={{ color: '#444' }}>No links yet</p>
+        ) : (
+          <div className="space-y-1.5">
+            {links.map(link => (
+              <div
+                key={link.id}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
+                style={{ background: '#141414', border: '1px solid #2e2e2e' }}
+              >
+                <span className="text-sm font-medium text-white">{link.parentName}</span>
+                <span className="text-xs" style={{ color: '#555' }}>→</span>
+                <span className="text-sm text-white flex-1">{link.childName}</span>
+                <button
+                  onClick={() => removeLink(link.id)}
+                  className="text-xs px-2.5 py-1 rounded-lg flex-shrink-0"
+                  style={{ color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 

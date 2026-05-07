@@ -111,6 +111,13 @@ export interface WtpGame {
   created_at: string
 }
 
+export interface LinkedProfile {
+  id: string
+  parent_id: string
+  child_id: string
+  created_at: string
+}
+
 export type BadgeType = 'Super Sharp Shooter' | 'Legend' | 'Captain'
 
 export type TierType = 'gold' | 'silver' | 'bronze' | 'standard'

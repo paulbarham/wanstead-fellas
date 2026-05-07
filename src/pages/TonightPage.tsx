@@ -20,6 +20,7 @@ export default function TonightPage() {
   const [players, setPlayers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(false)
+  const [childIds, setChildIds] = useState<string[]>([])
   const [fineModal, setFineModal] = useState<{ player: Profile } | null>(null)
   const [fineType, setFineType] = useState<FineType>('late')
   const [issuingFine, setIssuingFine] = useState(false)
@@ -43,6 +44,15 @@ export default function TonightPage() {
   }, [nextThursday])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  useEffect(() => {
+    if (!profile?.id) return
+    supabase
+      .from('linked_profiles')
+      .select('child_id')
+      .eq('parent_id', profile.id)
+      .then(({ data }) => setChildIds((data || []).map((d: { child_id: string }) => d.child_id)))
+  }, [profile?.id])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -106,6 +116,20 @@ export default function TonightPage() {
     setToggling(false)
   }
 
+  async function toggleChildAvailability(childId: string) {
+    if (!profile) return
+    setToggling(true)
+    const childEntry = availability.find(a => a.player_id === childId)
+    if (childEntry) {
+      await supabase.from('availability').delete().eq('id', childEntry.id)
+    } else {
+      const status = signedUpCount < SIGNUP_CAP ? 'confirmed' : 'waiting'
+      await supabase.from('availability').insert({ player_id: childId, match_date: nextThursday, status })
+    }
+    await fetchData()
+    setToggling(false)
+  }
+
   async function adminTogglePlayer(playerId: string) {
     if (!profile?.is_admin) return
     const existing = availability.find(a => a.player_id === playerId)
@@ -130,6 +154,8 @@ export default function TonightPage() {
     setFineModal(null)
     setIssuingFine(false)
   }
+
+  const linkedChildren = players.filter(p => childIds.includes(p.id))
 
   const signedUpPlayers = players.filter(p => confirmedAvail.some(a => a.player_id === p.id))
   const waitingPlayers = players.filter(p => waitingAvail.some(a => a.player_id === p.id))
@@ -223,6 +249,52 @@ export default function TonightPage() {
           </div>
         )}
       </div>
+
+      {/* My squad - linked children */}
+      {linkedChildren.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
+            My Squad
+          </p>
+          <div className="space-y-2">
+            {linkedChildren.map(child => {
+              const childEntry = availability.find(a => a.player_id === child.id)
+              const childIsIn = childEntry?.status === 'confirmed'
+              const childIsWaiting = childEntry?.status === 'waiting'
+              return (
+                <div
+                  key={child.id}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+                  style={{ background: '#141414', border: '1px solid #2e2e2e' }}
+                >
+                  <PlayerAvatar profile={child} size={32} />
+                  <span className="flex-1 text-sm font-medium text-white">
+                    {child.name} {child.surname}
+                  </span>
+                  {canToggle ? (
+                    <button
+                      onClick={() => toggleChildAvailability(child.id)}
+                      disabled={toggling}
+                      className="text-xs px-3 py-1.5 rounded-xl font-semibold disabled:opacity-50"
+                      style={{
+                        background: childIsWaiting ? '#1a1300' : childIsIn ? '#0a1a10' : '#1e1e1e',
+                        color: childIsWaiting ? '#C9A227' : childIsIn ? '#4ade80' : '#888',
+                        border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#4ade80' : '#2e2e2e'}`,
+                      }}
+                    >
+                      {childIsWaiting ? '⏳ Waiting' : childIsIn ? '✓ In' : 'Mark In'}
+                    </button>
+                  ) : (
+                    <span className="text-xs" style={{ color: childIsIn ? '#4ade80' : childIsWaiting ? '#C9A227' : '#555' }}>
+                      {childIsIn ? '✓ In' : childIsWaiting ? '⏳' : 'Not In'}
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Who's In */}
       <div className="mb-4">

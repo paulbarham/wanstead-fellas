@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
@@ -6,6 +6,7 @@ import { cropAndResizeImage } from '../lib/imageUtils'
 import TopTrumpCard from '../components/TopTrumpCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
+import type { Profile } from '../types'
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
 
@@ -52,9 +53,82 @@ export default function ProfilePage() {
   const [resetSent, setResetSent] = useState(false)
   const [resetError, setResetError] = useState('')
 
+  const [linkedChildren, setLinkedChildren] = useState<Profile[]>([])
+  const [selectedChild, setSelectedChild] = useState<Profile | null>(null)
+  const [childAgeGroup, setChildAgeGroup] = useState('')
+  const [childUploading, setChildUploading] = useState(false)
+  const [childSaving, setChildSaving] = useState(false)
+  const [childSaveDone, setChildSaveDone] = useState(false)
+  const childFileRef = useRef<HTMLInputElement>(null)
+
   if (!profile) return null
 
   const previewProfile = { ...profile, name, surname, age_group: ageGroup }
+
+  // Fetch linked children once on mount
+  useEffect(() => {
+    supabase
+      .from('linked_profiles')
+      .select('child_id')
+      .eq('parent_id', profile.id)
+      .then(async ({ data }) => {
+        if (!data || data.length === 0) return
+        const ids = data.map((d: { child_id: string }) => d.child_id)
+        const { data: profs } = await supabase.from('profiles').select('*').in('id', ids)
+        setLinkedChildren((profs as Profile[]) || [])
+      })
+  }, [profile.id])
+
+  function openChildModal(child: Profile) {
+    setSelectedChild(child)
+    setChildAgeGroup(child.age_group ?? '20–29')
+    setChildSaveDone(false)
+  }
+
+  async function handleChildPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || !selectedChild) return
+    setChildUploading(true)
+    try {
+      const blob = await cropAndResizeImage(file)
+      const path = `avatars/${selectedChild.id}/profile.jpg`
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
+      if (!error) {
+        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+        const photoUrl = `${data.publicUrl}?t=${Date.now()}`
+        await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', selectedChild.id)
+        const updated = { ...selectedChild, photo_url: photoUrl }
+        setSelectedChild(updated)
+        setLinkedChildren(prev => prev.map(c => c.id === selectedChild.id ? updated : c))
+      }
+    } finally {
+      setChildUploading(false)
+    }
+  }
+
+  async function handleChildRemovePhoto() {
+    if (!selectedChild) return
+    await supabase.storage.from('avatars').remove([`avatars/${selectedChild.id}/profile.jpg`])
+    await supabase.from('profiles').update({ photo_url: null }).eq('id', selectedChild.id)
+    const updated = { ...selectedChild, photo_url: null }
+    setSelectedChild(updated)
+    setLinkedChildren(prev => prev.map(c => c.id === selectedChild!.id ? updated : c))
+  }
+
+  async function handleChildSave() {
+    if (!selectedChild) return
+    setChildSaving(true)
+    await supabase.from('profiles').update({ age_group: childAgeGroup }).eq('id', selectedChild.id)
+    const updated = { ...selectedChild, age_group: childAgeGroup }
+    setSelectedChild(updated)
+    setLinkedChildren(prev => prev.map(c => c.id === selectedChild!.id ? updated : c))
+    setChildSaving(false)
+    setChildSaveDone(true)
+    setTimeout(() => setChildSaveDone(false), 2500)
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -285,6 +359,102 @@ export default function ProfilePage() {
       <div className="mb-8">
         <MyFinances profile={profile} />
       </div>
+
+      {/* My Squad */}
+      {linkedChildren.length > 0 && (
+        <div className="mb-8">
+          <p className="text-xs font-medium uppercase tracking-widest mb-3" style={{ color: '#0D6B52' }}>
+            My Squad
+          </p>
+          <div className="space-y-2">
+            {linkedChildren.map(child => (
+              <button
+                key={child.id}
+                onClick={() => openChildModal(child)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left"
+                style={{ background: '#141414', border: '1px solid #2e2e2e' }}
+              >
+                <PlayerAvatar profile={child} size={40} />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-white">{child.name} {child.surname}</p>
+                  <p className="text-xs" style={{ color: '#555' }}>{child.age_group}</p>
+                </div>
+                <span style={{ color: '#444' }}>›</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Child profile modal */}
+      {selectedChild && (
+        <div
+          className="fixed inset-0 flex items-end justify-center z-50 px-4 pb-4"
+          style={{ background: 'rgba(0,0,0,0.85)' }}
+          onClick={() => setSelectedChild(null)}
+        >
+          <div
+            className="w-full rounded-2xl p-5 overflow-y-auto"
+            style={{ background: '#141414', border: '1px solid #2e2e2e', maxWidth: 430, maxHeight: '90vh' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-medium uppercase tracking-widest" style={{ color: '#0D6B52' }}>
+                My Squad
+              </p>
+              <button onClick={() => setSelectedChild(null)} className="text-sm" style={{ color: '#666' }}>✕</button>
+            </div>
+
+            <TopTrumpCard profile={selectedChild} />
+
+            {/* Photo */}
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => childFileRef.current?.click()}
+                disabled={childUploading}
+                className="flex-1 py-2.5 rounded-xl text-xs font-semibold disabled:opacity-50"
+                style={{ background: '#0D6B52', color: 'white' }}
+              >
+                {childUploading ? 'Uploading...' : selectedChild.photo_url ? 'Change Photo' : 'Add Photo'}
+              </button>
+              {selectedChild.photo_url && (
+                <button
+                  type="button"
+                  onClick={handleChildRemovePhoto}
+                  className="px-3 py-2.5 rounded-xl text-xs font-semibold"
+                  style={{ background: '#1a0808', color: '#ff6b6b', border: '1px solid #5a1a1a' }}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+            <input ref={childFileRef} type="file" accept="image/*" className="hidden" onChange={handleChildPhoto} />
+
+            {/* Age group */}
+            <div className="mt-3">
+              <label className="block text-xs font-medium mb-1.5" style={{ color: '#888' }}>Age Group</label>
+              <select
+                value={childAgeGroup}
+                onChange={e => setChildAgeGroup(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none"
+                style={{ background: '#1e1e1e', border: '1px solid #2e2e2e' }}
+              >
+                {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </div>
+
+            <button
+              onClick={handleChildSave}
+              disabled={childSaving}
+              className="w-full mt-3 py-3 rounded-xl font-semibold text-sm disabled:opacity-50 transition-colors"
+              style={{ background: childSaveDone ? '#0a3a2a' : '#0D6B52', color: 'white' }}
+            >
+              {childSaving ? 'Saving...' : childSaveDone ? '✓ Saved' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Password reset */}
       <div className="p-4 rounded-2xl mb-4" style={{ background: '#141414', border: '1px solid #2e2e2e' }}>
