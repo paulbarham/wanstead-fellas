@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', userId)
+      .eq('auth_user_id', userId)
       .single()
 
     if (error || !data) {
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Promote to admin if email matches but flag not yet set
     if (userEmail === ADMIN_EMAIL && !data.is_admin) {
-      await supabase.from('profiles').update({ is_admin: true }).eq('id', userId)
+      await supabase.from('profiles').update({ is_admin: true }).eq('auth_user_id', userId)
       data.is_admin = true
     }
 

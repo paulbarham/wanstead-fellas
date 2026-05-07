@@ -2,6 +2,7 @@ export type PlayerType = 'subscribed' | 'wtp_priority' | 'wtp'
 
 export interface Profile {
   id: string
+  auth_user_id?: string | null
   name: string
   surname: string
   age_group: string
