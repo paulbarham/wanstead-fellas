@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Profile, Availability, FineType } from '../types'
 import { FINE_TYPES } from '../types'
-import { getNextThursdayDate, getMatchPhase, formatCountdown } from '../lib/time'
+import { getNextThursdayDate, getMatchPhase, getCountdownLabel } from '../lib/time'
 import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import InstallBanner from '../components/InstallBanner'
@@ -25,7 +25,7 @@ export default function TonightPage() {
   const navigate = useNavigate()
   const [nextThursday, setNextThursday] = useState(() => getNextThursdayDate())
   const [phase, setPhase] = useState(() => getMatchPhase(nextThursday))
-  const [countdown, setCountdown] = useState(() => formatCountdown(nextThursday))
+  const [countdownLabel, setCountdownLabel] = useState(() => getCountdownLabel(nextThursday))
   const [availability, setAvailability] = useState<Availability[]>([])
   const [players, setPlayers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,6 +35,7 @@ export default function TonightPage() {
   const [fineType, setFineType] = useState<FineType>('late')
   const [issuingFine, setIssuingFine] = useState(false)
   const [lastResult, setLastResult] = useState<LastResultSummary | null | undefined>(undefined)
+  const [removeConfirm, setRemoveConfirm] = useState<string | null>(null)
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -98,8 +99,8 @@ export default function TonightPage() {
       const thu = getNextThursdayDate()
       setNextThursday(thu)
       setPhase(getMatchPhase(thu))
-      setCountdown(formatCountdown(thu))
-    }, 1000)
+      setCountdownLabel(getCountdownLabel(thu))
+    }, 60000) // update every minute (label changes don't need per-second updates)
     return () => clearInterval(interval)
   }, [])
 
@@ -110,10 +111,8 @@ export default function TonightPage() {
     setToggling(true)
 
     if (myEntry) {
-      // Drop out
       await supabase.from('availability').delete().eq('id', myEntry.id)
 
-      // If they were confirmed, auto-promote first waiting player (FIFO)
       if (myEntry.status === 'confirmed') {
         const firstWaiting = [...waitingAvail]
           .filter(a => a.player_id !== profile.id)
@@ -123,16 +122,13 @@ export default function TonightPage() {
         }
       }
     } else {
-      // Sign up
       const playerType = profile.player_type ?? 'wtp'
 
       if (profile.is_admin || signedUpCount < SIGNUP_CAP) {
         await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'confirmed' })
       } else if (playerType === 'wtp') {
-        // Regular WTP: waitlist
         await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'waiting' })
       } else {
-        // Subscribed / WTP Priority: bump last confirmed WTP player (LIFO)
         const confirmedWtp = confirmedAvail
           .filter(a => {
             const p = players.find(pl => pl.id === a.player_id)
@@ -145,7 +141,6 @@ export default function TonightPage() {
           await supabase.from('availability').update({ status: 'waiting' }).eq('id', toBump.id)
           await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'confirmed' })
         } else {
-          // No WTP to bump — waitlist
           await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'waiting' })
         }
       }
@@ -177,6 +172,7 @@ export default function TonightPage() {
     } else {
       await supabase.from('availability').insert({ player_id: playerId, match_date: nextThursday, status: 'confirmed' })
     }
+    setRemoveConfirm(null)
     await fetchData()
   }
 
@@ -209,43 +205,38 @@ export default function TonightPage() {
   const formatLabel = signedUpCount >= 22 ? '11v11' : '4-Team Tournament'
 
   return (
-    <div className="px-4 pt-4 pb-4">
+    <div className="px-4 pt-4 pb-2">
 
       <InstallBanner />
 
-      {/* Date + countdown inline */}
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
-            Next Match
-          </p>
+      {/* Date + countdown */}
+      <div className="mb-3">
+        <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
+          Next Match
+        </p>
+        <div className="flex items-start justify-between">
           <h1 className="font-display text-2xl text-[#18201A] tracking-wide leading-tight">{dateLabel}</h1>
+          {phase === 'match_live' ? (
+            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: '#DC2626' }}>⚽ LIVE NOW</span>
+          ) : phase === 'post_match' ? (
+            <span className="flex-shrink-0 ml-3 text-xs" style={{ color: '#0D6B52' }}>Sign-ups open ✓</span>
+          ) : countdownLabel.tonight ? (
+            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: '#0D6B52' }}>
+              {countdownLabel.text}
+            </span>
+          ) : (
+            <span className="flex-shrink-0 ml-3 text-xs" style={{ color: '#9CA897' }}>
+              {countdownLabel.text}
+            </span>
+          )}
         </div>
-        {(phase === 'signup_open' || phase === 'signup_locked') && (
-          <div className="text-right flex-shrink-0 ml-3">
-            <p className="text-xs uppercase tracking-wider mb-0.5" style={{ color: '#9CA897' }}>Kick-off</p>
-            <p className="font-display text-lg text-[#18201A] tabular-nums leading-tight">{countdown}</p>
-          </div>
-        )}
       </div>
 
       {/* Phase banners */}
-      {phase === 'post_match' && (
-        <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
-          style={{ background: '#DCFCE7', color: '#0D6B52', border: '1px solid #0D6B52' }}>
-          Sign-ups for next week are now open! ⚽
-        </div>
-      )}
       {phase === 'signup_locked' && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
           style={{ background: '#FEF9C3', color: '#92400e', border: '1px solid #C9A227' }}>
           🔒 Sign-ups locked — see you Thursday!
-        </div>
-      )}
-      {phase === 'match_live' && (
-        <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
-          style={{ background: '#DCFCE7', color: '#0D6B52', border: '1px solid #0D6B52' }}>
-          🟢 Match is on right now!
         </div>
       )}
 
@@ -340,7 +331,7 @@ export default function TonightPage() {
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Who's In</p>
           {signedUpPlayers.length > 0 && (
-            <span className="text-xs" style={{ color: '#3a3a3a' }}>
+            <span className="text-xs" style={{ color: '#9CA897' }}>
               {signedUpPlayers.length} {signedUpPlayers.length === 1 ? 'player' : 'players'}
             </span>
           )}
@@ -348,7 +339,7 @@ export default function TonightPage() {
         {loading ? (
           <div className="text-sm py-2" style={{ color: '#9CA897' }}>Loading…</div>
         ) : signedUpPlayers.length === 0 ? (
-          <p className="text-sm py-4 text-center" style={{ color: '#444' }}>
+          <p className="text-sm py-4 text-center" style={{ color: '#647060' }}>
             No one signed up yet — be first!
           </p>
         ) : (
@@ -370,23 +361,46 @@ export default function TonightPage() {
                   )}
                 </span>
                 <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
+                {/* Fine button — subtle, admin only */}
                 {profile?.is_admin && (
                   <button
                     onClick={() => { setFineModal({ player: p }); setFineType('late') }}
-                    className="text-xs px-2 py-0.5 rounded-lg ml-1"
-                    style={{ color: '#C9A227', border: '1px solid #3a2a00' }}
+                    className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-30 hover:opacity-60 active:opacity-100 transition-opacity ml-1"
+                    style={{ color: '#647060' }}
+                    title="Issue fine"
                   >
                     £
                   </button>
                 )}
+                {/* Remove — requires inline confirmation */}
                 {profile?.is_admin && p.id !== profile.id && (
-                  <button
-                    onClick={() => adminTogglePlayer(p.id)}
-                    className="text-xs px-2 py-0.5 rounded-lg"
-                    style={{ color: '#DC2626', border: '1px solid #FECACA' }}
-                  >
-                    Remove
-                  </button>
+                  removeConfirm === p.id ? (
+                    <div className="flex items-center gap-1 ml-1">
+                      <span className="text-xs" style={{ color: '#DC2626' }}>Remove?</span>
+                      <button
+                        onClick={() => adminTogglePlayer(p.id)}
+                        className="text-xs px-1.5 py-0.5 rounded-lg font-semibold"
+                        style={{ color: '#DC2626', border: '1px solid #FECACA' }}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setRemoveConfirm(null)}
+                        className="text-xs px-1.5 py-0.5 rounded-lg"
+                        style={{ color: '#9CA897', border: '1px solid #E2E4DC' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setRemoveConfirm(p.id)}
+                      className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-40 hover:opacity-70 active:opacity-100 transition-opacity"
+                      style={{ color: '#9CA897' }}
+                    >
+                      ✕
+                    </button>
+                  )
                 )}
               </div>
             ))}
@@ -420,13 +434,33 @@ export default function TonightPage() {
                 </span>
                 <span className="text-xs" style={{ color: '#C9A227' }}>⏳</span>
                 {profile?.is_admin && p.id !== profile.id && (
-                  <button
-                    onClick={() => adminTogglePlayer(p.id)}
-                    className="text-xs px-2 py-0.5 rounded-lg ml-1"
-                    style={{ color: '#DC2626', border: '1px solid #FECACA' }}
-                  >
-                    Remove
-                  </button>
+                  removeConfirm === p.id ? (
+                    <div className="flex items-center gap-1 ml-1">
+                      <span className="text-xs" style={{ color: '#DC2626' }}>Remove?</span>
+                      <button
+                        onClick={() => adminTogglePlayer(p.id)}
+                        className="text-xs px-1.5 py-0.5 rounded-lg font-semibold"
+                        style={{ color: '#DC2626', border: '1px solid #FECACA' }}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setRemoveConfirm(null)}
+                        className="text-xs px-1.5 py-0.5 rounded-lg"
+                        style={{ color: '#9CA897', border: '1px solid #E2E4DC' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setRemoveConfirm(p.id)}
+                      className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-40 hover:opacity-70 active:opacity-100 transition-opacity"
+                      style={{ color: '#9CA897' }}
+                    >
+                      ✕
+                    </button>
+                  )
                 )}
               </div>
             ))}
@@ -437,7 +471,7 @@ export default function TonightPage() {
       {/* Quick fine modal */}
       {fineModal && (
         <div className="fixed inset-0 flex items-end justify-center z-50 px-4 pb-4"
-          style={{ background: 'rgba(0,0,0,0.85)' }}
+          style={{ background: 'rgba(0,0,0,0.6)' }}
           onClick={() => setFineModal(null)}>
           <div className="w-full rounded-2xl p-5"
             style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', maxWidth: 430 }}
@@ -454,7 +488,7 @@ export default function TonightPage() {
                   className="py-3 rounded-xl text-sm font-semibold"
                   style={{
                     background: fineType === t.value ? '#C9A227' : '#FFFFFF',
-                    color: fineType === t.value ? '#000' : '#888',
+                    color: fineType === t.value ? '#000' : '#647060',
                     border: `1px solid ${fineType === t.value ? '#C9A227' : '#E2E4DC'}`,
                   }}
                 >
@@ -519,47 +553,47 @@ export default function TonightPage() {
       {lastResult !== undefined && (
         <button
           onClick={() => navigate('/match')}
-          className="w-full text-left mt-2 p-4 rounded-2xl"
-          style={{ background: '#F2F3EE', border: '1px solid #FFFFFF' }}
+          className="w-full text-left p-4 rounded-2xl"
+          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#333' }}>
+            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
               Last Result
             </p>
             {lastResult && (
-              <span className="text-xs" style={{ color: '#333' }}>
+              <span className="text-xs" style={{ color: '#9CA897' }}>
                 {format(new Date(lastResult.matchDate + 'T12:00:00'), 'EEE do MMM')} ›
               </span>
             )}
           </div>
 
           {lastResult === null ? (
-            <p className="text-sm" style={{ color: '#3a3a3a' }}>
+            <p className="text-sm" style={{ color: '#647060' }}>
               No results posted yet — check back after Thursday ⚽
             </p>
           ) : (
             <>
-              <p className="text-xs mb-1.5" style={{ color: '#3a3a3a' }}>
+              <p className="text-xs mb-1.5" style={{ color: '#647060' }}>
                 {lastResult.format === 'tournament' || lastResult.format === '4-team'
                   ? '4-Team Tournament'
                   : '11v11'}
               </p>
               {lastResult.scorers && (
-                <p className="text-xs mb-1" style={{ color: '#444' }}>
+                <p className="text-xs mb-1" style={{ color: '#18201A' }}>
                   ⚽ {lastResult.scorers.length > 60
                     ? lastResult.scorers.slice(0, 60) + '…'
                     : lastResult.scorers}
                 </p>
               )}
               {lastResult.reportText && (
-                <p className="text-xs leading-relaxed" style={{ color: '#3a3a3a' }}>
+                <p className="text-xs leading-relaxed" style={{ color: '#647060' }}>
                   {lastResult.reportText.length > 100
                     ? lastResult.reportText.slice(0, 100) + '…'
                     : lastResult.reportText}
                 </p>
               )}
               {!lastResult.scorers && !lastResult.reportText && (
-                <p className="text-xs" style={{ color: '#3a3a3a' }}>Match played — tap to view result</p>
+                <p className="text-xs" style={{ color: '#647060' }}>Match played — tap to view result</p>
               )}
             </>
           )}

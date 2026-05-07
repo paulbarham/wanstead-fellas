@@ -82,3 +82,26 @@ export function formatCountdown(targetDate: string): string {
   }
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
+
+export function getCountdownLabel(thursdayDateStr: string): { text: string; tonight: boolean } {
+  const now = nowLondon()
+  const [ty, tm, td] = thursdayDateStr.split('-').map(Number)
+
+  // Same calendar day in London → TONIGHT
+  if (now.getFullYear() === ty && now.getMonth() + 1 === tm && now.getDate() === td) {
+    return { text: 'TONIGHT · Kick-off 9pm', tonight: true }
+  }
+
+  // Tomorrow in London
+  const tomorrow = new Date(now)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  if (tomorrow.getFullYear() === ty && tomorrow.getMonth() + 1 === tm && tomorrow.getDate() === td) {
+    return { text: 'Tomorrow · Kick-off 9pm', tonight: false }
+  }
+
+  // Days away (use calendar difference)
+  const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const thuMidnight = new Date(ty, tm - 1, td)
+  const days = Math.round((thuMidnight.getTime() - nowMidnight.getTime()) / 86400000)
+  return { text: `Thursday · ${days} day${days !== 1 ? 's' : ''} away`, tonight: false }
+}

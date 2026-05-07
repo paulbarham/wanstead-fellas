@@ -94,7 +94,7 @@ export default function TeamsPage() {
                 <div className="px-4 py-3 flex items-center justify-between"
                   style={{ background: color }}>
                   <div>
-                    <h2 className="font-display text-[#18201A] tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
+                    <h2 className="font-display text-white tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
                       {team.name}
                     </h2>
                     {team.captain && (
@@ -111,14 +111,14 @@ export default function TeamsPage() {
                       </span>
                     )}
                     <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
-                      style={{ background: 'rgba(0,0,0,0.35)', color: '#18201A', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      style={{ background: 'rgba(0,0,0,0.25)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.3)' }}>
                       {team.bibs ? '🟡 BIBS' : '⬜ SKINS'}
                     </span>
                   </div>
                 </div>
 
                 {/* Player pills */}
-                <div className="p-3 flex flex-wrap gap-1.5" style={{ background: '#111' }}>
+                <div className="p-3 flex flex-wrap gap-1.5" style={{ background: '#F7F8F5' }}>
                   {team.players.map(p => {
                     const isCap = p.id === team.captain_id
                     const isMe = p.id === profile?.id
@@ -127,9 +127,10 @@ export default function TeamsPage() {
                         key={p.id}
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium"
                         style={{
-                          background: isMe ? `${color}33` : isCap ? '#FFFFFF' : '#F7F8F5',
-                          color: isMe ? 'white' : isCap ? '#ddd' : '#999',
-                          border: `1px solid ${isMe ? color : isCap ? '#3e3e3e' : '#252525'}`,
+                          background: isMe ? `${color}20` : isCap ? '#FFFFFF' : '#FFFFFF',
+                          color: isMe ? color : isCap ? '#18201A' : '#647060',
+                          border: `1px solid ${isMe ? `${color}66` : isCap ? '#E2E4DC' : '#E2E4DC'}`,
+                          fontWeight: isMe || isCap ? 600 : 400,
                         }}
                       >
                         {p.surname}
