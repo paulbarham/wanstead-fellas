@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { format } from 'date-fns'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Profile, Availability, FineType } from '../types'
@@ -9,10 +10,19 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import InstallBanner from '../components/InstallBanner'
 
+interface LastResultSummary {
+  matchDate: string
+  format: string
+  reportText: string | null
+  scorers: string | null
+  highlights: string | null
+}
+
 const SIGNUP_CAP = 32
 
 export default function TonightPage() {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [nextThursday, setNextThursday] = useState(() => getNextThursdayDate())
   const [phase, setPhase] = useState(() => getMatchPhase(nextThursday))
   const [countdown, setCountdown] = useState(() => formatCountdown(nextThursday))
@@ -24,6 +34,7 @@ export default function TonightPage() {
   const [fineModal, setFineModal] = useState<{ player: Profile } | null>(null)
   const [fineType, setFineType] = useState<FineType>('late')
   const [issuingFine, setIssuingFine] = useState(false)
+  const [lastResult, setLastResult] = useState<LastResultSummary | null | undefined>(undefined)
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -53,6 +64,34 @@ export default function TonightPage() {
       .eq('parent_id', profile.id)
       .then(({ data }) => setChildIds((data || []).map((d: { child_id: string }) => d.child_id)))
   }, [profile?.id])
+
+  useEffect(() => {
+    async function fetchLastResult() {
+      const { data: matchRaw } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('status', 'completed')
+        .order('match_date', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (!matchRaw) { setLastResult(null); return }
+      const m = matchRaw as { id: string; match_date: string; format: string }
+      const { data: resultRaw } = await supabase
+        .from('results')
+        .select('*')
+        .eq('match_id', m.id)
+        .maybeSingle()
+      const r = resultRaw as { report_text: string | null; scorers: string | null; highlights: string | null } | null
+      setLastResult({
+        matchDate: m.match_date,
+        format: m.format,
+        reportText: r?.report_text ?? null,
+        scorers: r?.scorers ?? null,
+        highlights: r?.highlights ?? null,
+      })
+    }
+    fetchLastResult()
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -447,7 +486,7 @@ export default function TonightPage() {
 
       {/* Admin: not signed up */}
       {profile?.is_admin && notSignedUp.length > 0 && (
-        <div>
+        <div className="mb-4">
           <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: '#555' }}>
             Not In ({notSignedUp.length})
           </p>
@@ -474,6 +513,57 @@ export default function TonightPage() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Last Result card */}
+      {lastResult !== undefined && (
+        <button
+          onClick={() => navigate('/match')}
+          className="w-full text-left mt-2 p-4 rounded-2xl"
+          style={{ background: '#0d0d0d', border: '1px solid #1e1e1e' }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#333' }}>
+              Last Result
+            </p>
+            {lastResult && (
+              <span className="text-xs" style={{ color: '#333' }}>
+                {format(new Date(lastResult.matchDate + 'T12:00:00'), 'EEE do MMM')} ›
+              </span>
+            )}
+          </div>
+
+          {lastResult === null ? (
+            <p className="text-sm" style={{ color: '#3a3a3a' }}>
+              No results posted yet — check back after Thursday ⚽
+            </p>
+          ) : (
+            <>
+              <p className="text-xs mb-1.5" style={{ color: '#3a3a3a' }}>
+                {lastResult.format === 'tournament' || lastResult.format === '4-team'
+                  ? '4-Team Tournament'
+                  : '11v11'}
+              </p>
+              {lastResult.scorers && (
+                <p className="text-xs mb-1" style={{ color: '#444' }}>
+                  ⚽ {lastResult.scorers.length > 60
+                    ? lastResult.scorers.slice(0, 60) + '…'
+                    : lastResult.scorers}
+                </p>
+              )}
+              {lastResult.reportText && (
+                <p className="text-xs leading-relaxed" style={{ color: '#3a3a3a' }}>
+                  {lastResult.reportText.length > 100
+                    ? lastResult.reportText.slice(0, 100) + '…'
+                    : lastResult.reportText}
+                </p>
+              )}
+              {!lastResult.scorers && !lastResult.reportText && (
+                <p className="text-xs" style={{ color: '#3a3a3a' }}>Match played — tap to view result</p>
+              )}
+            </>
+          )}
+        </button>
       )}
     </div>
   )

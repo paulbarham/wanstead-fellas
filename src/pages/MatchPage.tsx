@@ -22,84 +22,101 @@ interface GroupRow {
   pts: number
 }
 
+async function loadMatchData(matchId: string): Promise<{
+  teams: Team[]
+  fixtures: FixtureWithTeams[]
+  result: Result | null
+}> {
+  const [{ data: td }, { data: fd }, { data: rd }] = await Promise.all([
+    supabase.from('teams').select('*').eq('match_id', matchId),
+    supabase.from('fixtures').select('*').eq('match_id', matchId),
+    supabase.from('results').select('*').eq('match_id', matchId).maybeSingle(),
+  ])
+  const teams = (td as Team[]) || []
+  const teamMap: Record<string, Team> = {}
+  for (const t of teams) teamMap[t.id] = t
+  const fixtures = ((fd as Fixture[]) || [])
+    .filter(f => teamMap[f.team1_id] && teamMap[f.team2_id])
+    .map(f => ({ ...f, team1: teamMap[f.team1_id], team2: teamMap[f.team2_id] }))
+  return { teams, fixtures, result: (rd as Result | null) }
+}
+
 export default function MatchPage() {
   const { profile } = useAuth()
   const nextThursday = getNextThursdayDate()
   const phase = getMatchPhase(nextThursday)
+
+  // Display: the most recent completed match
   const [match, setMatch] = useState<Match | null>(null)
-  const [isCurrentWeek, setIsCurrentWeek] = useState(false)
   const [teams, setTeams] = useState<Team[]>([])
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>([])
   const [result, setResult] = useState<Result | null>(null)
+
+  // Current week: used by the admin entry form
+  const [weekMatch, setWeekMatch] = useState<Match | null>(null)
+  const [weekTeams, setWeekTeams] = useState<Team[]>([])
+  const [weekFixtures, setWeekFixtures] = useState<FixtureWithTeams[]>([])
+  const [weekResult, setWeekResult] = useState<Result | null>(null)
+
   const [loading, setLoading] = useState(true)
 
   const fetchMatch = useCallback(async () => {
-    // Try this week's match first
-    const { data: weekMatch } = await supabase
+    // Always fetch this week's match (needed for admin form)
+    const { data: thisWeekRaw } = await supabase
       .from('matches')
       .select('*')
       .eq('match_date', nextThursday)
       .maybeSingle()
+    const thisWeek = thisWeekRaw as Match | null
+    setWeekMatch(thisWeek)
 
-    // Fall back to the most recent completed match if nothing this week
-    let matchData: Match | null = weekMatch as Match | null
-    if (!matchData) {
-      const { data: latest } = await supabase
+    // Display match: use this week only if completed, otherwise fall back to most recent completed
+    let displayMatch: Match | null = thisWeek?.status === 'completed' ? thisWeek : null
+    if (!displayMatch) {
+      const { data: latestRaw } = await supabase
         .from('matches')
         .select('*')
         .eq('status', 'completed')
         .order('match_date', { ascending: false })
         .limit(1)
         .maybeSingle()
-      matchData = latest as Match | null
-      setIsCurrentWeek(false)
-    } else {
-      setIsCurrentWeek(true)
+      displayMatch = latestRaw as Match | null
+    }
+    setMatch(displayMatch)
+
+    // Load display match data
+    if (displayMatch) {
+      const disp = await loadMatchData(displayMatch.id)
+      setTeams(disp.teams)
+      setFixtures(disp.fixtures)
+      setResult(disp.result)
+
+      // If this week's match differs from display, load it too (for admin form)
+      if (thisWeek && thisWeek.id !== displayMatch.id) {
+        const week = await loadMatchData(thisWeek.id)
+        setWeekTeams(week.teams)
+        setWeekFixtures(week.fixtures)
+        setWeekResult(week.result)
+      } else {
+        setWeekTeams(disp.teams)
+        setWeekFixtures(disp.fixtures)
+        setWeekResult(disp.result)
+      }
+    } else if (thisWeek) {
+      // No completed match exists yet — load week data for admin form
+      const week = await loadMatchData(thisWeek.id)
+      setWeekTeams(week.teams)
+      setWeekFixtures(week.fixtures)
+      setWeekResult(week.result)
     }
 
-    if (!matchData) { setLoading(false); return }
-    setMatch(matchData)
-
-    const { data: teamsData } = await supabase
-      .from('teams')
-      .select('*')
-      .eq('match_id', matchData.id)
-
-    setTeams((teamsData as Team[]) || [])
-
-    const { data: fixturesData } = await supabase
-      .from('fixtures')
-      .select('*')
-      .eq('match_id', matchData.id)
-
-    if (fixturesData && teamsData) {
-      const teamMap: Record<string, Team> = {}
-      for (const t of teamsData as Team[]) teamMap[t.id] = t
-
-      const enriched = (fixturesData as Fixture[])
-        .filter(f => teamMap[f.team1_id] && teamMap[f.team2_id])
-        .map(f => ({
-          ...f,
-          team1: teamMap[f.team1_id],
-          team2: teamMap[f.team2_id],
-        }))
-      setFixtures(enriched)
-    }
-
-    const { data: resultData } = await supabase
-      .from('results')
-      .select('*')
-      .eq('match_id', matchData.id)
-      .maybeSingle()
-
-    setResult((resultData as Result) || null)
     setLoading(false)
   }, [nextThursday])
 
   useEffect(() => { fetchMatch() }, [fetchMatch])
 
-  // Only show admin entry form for the current week's match during live/post phases
-  const canEnterResult = profile?.is_admin && isCurrentWeek && (phase === 'match_live' || phase === 'post_match')
+  // Admin entry form: show during live/post phase regardless of week match state
+  const canEnterResult = profile?.is_admin && (phase === 'match_live' || phase === 'post_match')
 
   if (loading) {
     return <div className="px-4 py-5 text-sm" style={{ color: '#888' }}>Loading...</div>
@@ -107,16 +124,17 @@ export default function MatchPage() {
 
   if (profile?.is_admin && canEnterResult) {
     return <AdminMatchEntry
-      match={match}
+      match={weekMatch}
       nextThursday={nextThursday}
-      teams={teams}
-      fixtures={fixtures}
-      result={result}
+      teams={weekTeams}
+      fixtures={weekFixtures}
+      result={weekResult}
       onSaved={fetchMatch}
     />
   }
 
-  const matchDateLabel = match && match.status !== 'upcoming'
+  const isCurrentWeek = match?.match_date === nextThursday
+  const matchDateLabel = match
     ? format(new Date(match.match_date + 'T12:00:00'), 'EEE do MMM yyyy')
     : null
 
@@ -132,7 +150,7 @@ export default function MatchPage() {
         )}
       </div>
 
-      {!match || match.status === 'upcoming' ? (
+      {!match ? (
         <div className="text-center py-12" style={{ color: '#555' }}>
           <p className="text-4xl mb-3">📊</p>
           <p className="font-medium text-white">No result yet</p>
