@@ -31,8 +31,14 @@ export default function Layout() {
   return (
     <div className="flex flex-col h-full" style={{ background: '#F2F3EE' }}>
       {/* Top bar */}
-      <header className="flex-shrink-0 flex items-center justify-between px-4 py-3"
-        style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E4DC', maxWidth: 430, width: '100%', margin: '0 auto' }}>
+      <header className="flex-shrink-0 flex items-center justify-between px-4"
+        style={{
+          background: '#FFFFFF',
+          borderBottom: '1px solid #E2E4DC',
+          maxWidth: 430, width: '100%', margin: '0 auto',
+          paddingTop: 'max(12px, calc(env(safe-area-inset-top) + 8px))',
+          paddingBottom: 12,
+        }}>
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: '#0D6B52' }}>
@@ -78,7 +84,7 @@ export default function Layout() {
 
       {/* Bottom nav */}
       <nav className="flex-shrink-0"
-        style={{ background: '#FFFFFF', borderTop: '1px solid #E2E4DC' }}>
+        style={{ background: '#FFFFFF', borderTop: '1px solid #E2E4DC', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex">
           {navItems.map(item => (
             <NavLink
