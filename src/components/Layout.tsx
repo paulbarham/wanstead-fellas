@@ -2,6 +2,16 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import PlayerAvatar from './PlayerAvatar'
 
+function InstagramIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  )
+}
+
 const BASE_NAV_ITEMS = [
   { to: '/', label: 'Tonight', icon: '⚽' },
   { to: '/teams', label: 'Teams', icon: '👥' },
@@ -24,11 +34,23 @@ export default function Layout() {
       <header className="flex-shrink-0 flex items-center justify-between px-4 py-3"
         style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E4DC', maxWidth: 430, width: '100%', margin: '0 auto' }}>
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: '#0D6B52' }}>
             <span className="font-display text-sm text-white">WF</span>
           </div>
-          <span className="font-display text-lg tracking-wide" style={{ color: '#18201A' }}>WANSTEAD FELLAS</span>
+          <div className="flex flex-col" style={{ gap: 2 }}>
+            <span className="font-display text-lg tracking-wide leading-none" style={{ color: '#18201A' }}>WANSTEAD FELLAS</span>
+            <a
+              href="https://www.instagram.com/wanstead_football_fellas"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 leading-none"
+              style={{ color: '#647060', textDecoration: 'none', fontSize: 10 }}
+            >
+              <InstagramIcon />
+              @wanstead_football_fellas
+            </a>
+          </div>
         </div>
 
         {/* Avatar — tappable, navigates to Profile */}

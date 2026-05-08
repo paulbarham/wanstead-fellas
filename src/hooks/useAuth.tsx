@@ -87,14 +87,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signUp(email: string, password: string, name: string, surname: string, age_group: string) {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { name, surname, age_group },
       },
     })
-    return { error: error as Error | null }
+
+    if (error) return { error: error as Error | null }
+
+    // Fallback: if the trigger didn't create a profile and we have a session,
+    // insert directly. Uses ON CONFLICT so safe to run even if trigger succeeded.
+    if (data.user && data.session) {
+      const { data: existing } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('auth_user_id', data.user.id)
+        .maybeSingle()
+
+      if (!existing) {
+        await supabase.from('profiles').insert({
+          auth_user_id: data.user.id,
+          name,
+          surname,
+          age_group,
+          player_type: 'wtp',
+          badges: [],
+          is_admin: false,
+        })
+      }
+    }
+
+    return { error: null }
   }
 
   async function signOut() {
