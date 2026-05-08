@@ -28,9 +28,9 @@ const STAT_LABELS: Record<string, string> = {
 }
 const ALL_BADGES: BadgeType[] = ['Super Sharp Shooter', 'Legend', 'Captain']
 const PLAYER_TYPE_OPTS: { type: PlayerType; label: string; color: string; bg: string }[] = [
-  { type: 'subscribed',   label: 'SUB',  color: '#0D6B52', bg: '#DCFCE7' },
-  { type: 'wtp_priority', label: 'WTP★', color: '#C9A227', bg: '#FEF9C3' },
-  { type: 'wtp',          label: 'WTP',  color: '#647060', bg: '#F2F3EE' },
+  { type: 'subscribed',   label: 'SUB',  color: 'var(--color-primary)', bg: 'var(--color-success-bg)' },
+  { type: 'wtp_priority', label: 'WTP★', color: 'var(--color-warning-text)', bg: 'var(--color-warning-bg)' },
+  { type: 'wtp',          label: 'WTP',  color: 'var(--color-text-muted)', bg: 'var(--color-bg)' },
 ]
 
 const BADGE_COLORS: Record<BadgeType, string> = {
@@ -59,13 +59,13 @@ export default function AdminPage() {
 
   return (
     <div className="px-4 pt-4 pb-4">
-      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
+      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-primary)' }}>
         Admin
       </p>
-      <h1 className="font-display text-2xl text-[#18201A] tracking-wide mb-3">DASHBOARD</h1>
+      <h1 className="font-display text-2xl text-[var(--color-text)] tracking-wide mb-3">DASHBOARD</h1>
 
       {/* Tab toggle */}
-      <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+      <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         {(['players', 'finance', 'families', 'feedback'] as const).map(t => (
           <button
             key={t}
@@ -177,7 +177,7 @@ function PlayersPanel() {
     await loadPlayers()
   }
 
-  if (loading) return <div className="text-sm py-4" style={{ color: '#647060' }}>Loading players…</div>
+  if (loading) return <div className="text-sm py-4" style={{ color: 'var(--color-text-muted)' }}>Loading players…</div>
 
   return (
     <>
@@ -189,7 +189,7 @@ function PlayersPanel() {
           const badges = (p.badges ?? []) as BadgeType[]
           return (
             <div key={p.id} className="rounded-2xl overflow-hidden"
-              style={{ background: '#FFFFFF', border: `1px solid ${isEditing ? '#0D6B52' : '#E2E4DC'}` }}>
+              style={{ background: 'var(--color-surface)', border: `1px solid ${isEditing ? '#0D6B52' : 'var(--color-border)'}` }}>
 
               {/* Player row */}
               <div
@@ -198,9 +198,9 @@ function PlayersPanel() {
               >
                 <PlayerAvatar profile={p} size={40} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#18201A]">{p.name} {p.surname}</p>
+                  <p className="text-sm font-semibold text-[var(--color-text)]">{p.name} {p.surname}</p>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                    <span className="text-xs" style={{ color: '#647060' }}>{p.age_group}</span>
+                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{p.age_group}</span>
 
                     {/* Player type badge / quick picker */}
                     <div onClick={e => e.stopPropagation()}>
@@ -239,21 +239,21 @@ function PlayersPanel() {
 
                     {badges.slice(0, 2).map(b => (
                       <span key={b} className="text-xs px-1.5 py-0.5 rounded font-medium"
-                        style={{ background: BADGE_COLORS[b], color: '#18201A', fontSize: '0.55rem' }}>
+                        style={{ background: BADGE_COLORS[b], color: 'var(--color-text)', fontSize: '0.55rem' }}>
                         {b}
                       </span>
                     ))}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="font-display text-xl" style={{ color: '#0D6B52' }}>{p.overall_rating}</span>
+                  <span className="font-display text-xl" style={{ color: 'var(--color-primary)' }}>{p.overall_rating}</span>
                   <span className="text-xs" style={{ color: '#9CA897' }}>{isEditing ? '▲' : '▼'}</span>
                 </div>
               </div>
 
               {/* Edit panel */}
               {isEditing && (
-                <div className="px-3 pb-3 space-y-4" style={{ borderTop: '1px solid #E2E4DC' }}>
+                <div className="px-3 pb-3 space-y-4" style={{ borderTop: '1px solid var(--color-border)' }}>
 
                   {/* Photo */}
                   <div className="pt-3 flex gap-2">
@@ -261,7 +261,7 @@ function PlayersPanel() {
                       onClick={() => triggerPhoto(p.id)}
                       disabled={uploadingFor === p.id}
                       className="flex-1 py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
-                      style={{ background: '#0D6B52', color: '#18201A' }}
+                      style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
                     >
                       {uploadingFor === p.id ? 'Uploading…' : p.photo_url ? 'Change Photo' : 'Upload Photo'}
                     </button>
@@ -269,7 +269,7 @@ function PlayersPanel() {
                       <button
                         onClick={() => deletePhoto(p.id)}
                         className="px-3 py-2 rounded-xl text-xs font-semibold"
-                        style={{ background: '#1a0808', color: '#DC2626', border: '1px solid #FECACA' }}
+                        style={{ background: '#1a0808', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                       >
                         Remove
                       </button>
@@ -278,12 +278,12 @@ function PlayersPanel() {
 
                   {/* Age group */}
                   <div className="flex items-center gap-3">
-                    <span className="text-xs w-20 flex-shrink-0" style={{ color: '#647060' }}>Age Group</span>
+                    <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>Age Group</span>
                     <select
                       value={editAgeGroup}
                       onChange={e => setEditAgeGroup(e.target.value)}
-                      className="flex-1 px-3 py-1.5 rounded-lg text-[#18201A] text-xs outline-none"
-                      style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                      className="flex-1 px-3 py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
+                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                     >
                       {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
@@ -293,7 +293,7 @@ function PlayersPanel() {
                   <div className="space-y-2.5">
                     {STAT_KEYS.map(key => (
                       <div key={key as string} className="flex items-center gap-3">
-                        <span className="text-xs w-20 flex-shrink-0" style={{ color: '#647060' }}>
+                        <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>
                           {STAT_LABELS[key as string]}
                         </span>
                         <input
@@ -303,7 +303,7 @@ function PlayersPanel() {
                           className="flex-1"
                           style={{ '--val': (editValues[key] as number) ?? 5, '--min': 1, '--max': 10 } as React.CSSProperties}
                         />
-                        <span className="text-xs flex-shrink-0 text-right text-[#18201A]" style={{ minWidth: 20 }}>
+                        <span className="text-xs flex-shrink-0 text-right text-[var(--color-text)]" style={{ minWidth: 20 }}>
                           {(editValues[key] as number) ?? 5}
                         </span>
                       </div>
@@ -312,7 +312,7 @@ function PlayersPanel() {
 
                   {/* Badges */}
                   <div>
-                    <p className="text-xs mb-2" style={{ color: '#647060' }}>Badges</p>
+                    <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>Badges</p>
                     <div className="flex flex-wrap gap-2">
                       {ALL_BADGES.map(badge => {
                         const has = badges.includes(badge)
@@ -322,9 +322,9 @@ function PlayersPanel() {
                             onClick={() => toggleBadge(p.id, badge)}
                             className="text-xs px-2.5 py-1 rounded-full font-medium"
                             style={{
-                              background: has ? BADGE_COLORS[badge] : '#FFFFFF',
+                              background: has ? BADGE_COLORS[badge] : 'var(--color-surface)',
                               color: has ? 'white' : '#666',
-                              border: `1px solid ${has ? BADGE_COLORS[badge] : '#E2E4DC'}`,
+                              border: `1px solid ${has ? BADGE_COLORS[badge] : 'var(--color-border)'}`,
                             }}
                           >
                             {badge}
@@ -340,14 +340,14 @@ function PlayersPanel() {
                       onClick={() => saveEdit(p.id)}
                       disabled={saving}
                       className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
-                      style={{ background: '#0D6B52', color: '#18201A' }}
+                      style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
                     >
                       {saving ? 'Saving…' : 'Save'}
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
                       className="px-4 py-2.5 rounded-xl text-sm"
-                      style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
+                      style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
                     >
                       Cancel
                     </button>
@@ -408,12 +408,12 @@ function FamiliesPanel() {
     await loadData()
   }
 
-  if (loading) return <div className="text-sm py-4" style={{ color: '#647060' }}>Loading…</div>
+  if (loading) return <div className="text-sm py-4" style={{ color: 'var(--color-text-muted)' }}>Loading…</div>
 
   return (
     <div className="space-y-4">
       {/* Add link */}
-      <div className="p-4 rounded-2xl space-y-2" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+      <div className="p-4 rounded-2xl space-y-2" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <p className="text-xs uppercase tracking-widest font-semibold mb-1" style={{ color: '#9CA897' }}>
           Add Family Link
         </p>
@@ -421,7 +421,7 @@ function FamiliesPanel() {
           value={parentId}
           onChange={e => setParentId(e.target.value)}
           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: parentId ? '#18201A' : '#9CA897' }}
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: parentId ? 'var(--color-text)' : '#9CA897' }}
         >
           <option value="">Select parent</option>
           {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
@@ -430,7 +430,7 @@ function FamiliesPanel() {
           value={childId}
           onChange={e => setChildId(e.target.value)}
           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: childId ? '#18201A' : '#9CA897' }}
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: childId ? 'var(--color-text)' : '#9CA897' }}
         >
           <option value="">Select child</option>
           {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
@@ -439,7 +439,7 @@ function FamiliesPanel() {
           onClick={addLink}
           disabled={adding || !parentId || !childId || parentId === childId}
           className="w-full py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-          style={{ background: '#0D6B52', color: '#FFFFFF' }}
+          style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}
         >
           {adding ? 'Adding…' : 'Add Link'}
         </button>
@@ -451,10 +451,10 @@ function FamiliesPanel() {
           Family Links ({links.length})
         </p>
         {links.length === 0 ? (
-          <div className="text-center py-8 px-4 rounded-2xl" style={{ background: '#F7F8F5', border: '1px solid #E2E4DC' }}>
+          <div className="text-center py-8 px-4 rounded-2xl" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
             <p className="text-3xl mb-3">👨‍👩‍👧</p>
-            <p className="text-sm font-semibold text-[#18201A] mb-1">No family links yet</p>
-            <p className="text-xs" style={{ color: '#647060' }}>Use the form above to link a parent to their child's profile.</p>
+            <p className="text-sm font-semibold text-[var(--color-text)] mb-1">No family links yet</p>
+            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Use the form above to link a parent to their child's profile.</p>
           </div>
         ) : (
           <div className="space-y-1.5">
@@ -462,15 +462,15 @@ function FamiliesPanel() {
               <div
                 key={link.id}
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
-                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
               >
-                <span className="text-sm font-medium text-[#18201A]">{link.parentName}</span>
+                <span className="text-sm font-medium text-[var(--color-text)]">{link.parentName}</span>
                 <span className="text-xs" style={{ color: '#9CA897' }}>→</span>
-                <span className="text-sm text-[#18201A] flex-1">{link.childName}</span>
+                <span className="text-sm text-[var(--color-text)] flex-1">{link.childName}</span>
                 <button
                   onClick={() => removeLink(link.id)}
                   className="text-xs px-2.5 py-1 rounded-lg flex-shrink-0"
-                  style={{ color: '#DC2626', border: '1px solid #FECACA' }}
+                  style={{ color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                 >
                   Remove
                 </button>
@@ -562,56 +562,56 @@ function FeedbackPanel() {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-[#18201A]">Submit Feedback</p>
+          <p className="text-sm font-semibold text-[var(--color-text)]">Submit Feedback</p>
           <button
             onClick={() => setShowSubmitForm(false)}
             className="text-xs px-3 py-1.5 rounded-lg"
-            style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
           >
             Cancel
           </button>
         </div>
 
         {fbError && (
-          <div className="p-3 rounded-lg text-sm" style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
+          <div className="p-3 rounded-lg text-sm" style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
             {fbError}
           </div>
         )}
 
         <form onSubmit={handleFbSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Category</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Category</label>
             <select
               value={fbCategory}
               onChange={e => setFbCategory(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
-              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+              className="w-full px-4 py-3 rounded-xl text-[var(--color-text)] text-sm outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
             >
               {FB_SUBMIT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             <p className="mt-1.5 text-xs" style={{ color: '#9CA897' }}>{FB_CATEGORY_HINTS[fbCategory]}</p>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Subject</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Subject</label>
             <input
               type="text"
               value={fbSubject}
               onChange={e => setFbSubject(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none"
-              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+              className="w-full px-4 py-3 rounded-xl text-[var(--color-text)] text-sm outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
               placeholder="One-line summary"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: '#647060' }}>Message</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Message</label>
             <textarea
               value={fbMessage}
               onChange={e => setFbMessage(e.target.value)}
               required
               rows={5}
-              className="w-full px-4 py-3 rounded-xl text-[#18201A] text-sm outline-none resize-none"
-              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+              className="w-full px-4 py-3 rounded-xl text-[var(--color-text)] text-sm outline-none resize-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
               placeholder="Tell us more..."
             />
           </div>
@@ -619,7 +619,7 @@ function FeedbackPanel() {
             type="submit"
             disabled={fbSubmitting}
             className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
-            style={{ background: '#0D6B52', color: '#18201A' }}
+            style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
           >
             {fbSubmitting ? 'Submitting...' : 'Submit Feedback'}
           </button>
@@ -635,13 +635,13 @@ function FeedbackPanel() {
         <button
           onClick={() => setShowSubmitForm(true)}
           className="px-3 py-1.5 rounded-xl text-xs font-semibold"
-          style={{ background: '#0D6B52', color: '#18201A' }}
+          style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
         >
           + Submit Feedback
         </button>
         {unreviewed > 0 && (
           <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-            style={{ background: '#FFFFFF', color: '#0D6B52', border: '1px solid #0D6B52' }}>
+            style={{ background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
             {unreviewed} new
           </span>
         )}
@@ -655,9 +655,9 @@ function FeedbackPanel() {
             onClick={() => setFilterCategory(c)}
             className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium"
             style={{
-              background: filterCategory === c ? '#0D6B52' : '#FFFFFF',
+              background: filterCategory === c ? '#0D6B52' : 'var(--color-surface)',
               color: filterCategory === c ? 'white' : '#666',
-              border: `1px solid ${filterCategory === c ? '#0D6B52' : '#E2E4DC'}`,
+              border: `1px solid ${filterCategory === c ? '#0D6B52' : 'var(--color-border)'}`,
             }}
           >
             {c}
@@ -673,7 +673,7 @@ function FeedbackPanel() {
             onClick={() => setFilterReviewed(v)}
             className="px-2.5 py-1 rounded-full text-xs font-medium capitalize"
             style={{
-              background: filterReviewed === v ? '#FFFFFF' : 'transparent',
+              background: filterReviewed === v ? 'var(--color-surface)' : 'transparent',
               color: filterReviewed === v ? 'white' : '#555',
               border: `1px solid ${filterReviewed === v ? '#3e3e3e' : 'transparent'}`,
             }}
@@ -684,7 +684,7 @@ function FeedbackPanel() {
       </div>
 
       {loading ? (
-        <p className="text-sm" style={{ color: '#647060' }}>Loading…</p>
+        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading…</p>
       ) : filtered.length === 0 ? (
         <div className="text-center py-10 text-sm" style={{ color: '#444' }}>
           No feedback here
@@ -694,18 +694,18 @@ function FeedbackPanel() {
           {filtered.map(item => (
             <div key={item.id} className="p-3.5 rounded-2xl"
               style={{
-                background: '#FFFFFF',
-                border: `1px solid ${item.reviewed ? '#252525' : '#0D6B52'}`,
+                background: 'var(--color-surface)',
+                border: `1px solid ${item.reviewed ? '#252525' : 'var(--color-primary)'}`,
                 opacity: item.reviewed ? 0.65 : 1,
               }}>
               <div className="flex items-start justify-between gap-2 mb-1.5">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                     <span className="text-xs px-1.5 py-0.5 rounded font-medium flex-shrink-0"
-                      style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
+                      style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
                       {item.category}
                     </span>
-                    <span className="font-semibold text-[#18201A] text-sm truncate">{item.subject}</span>
+                    <span className="font-semibold text-[var(--color-text)] text-sm truncate">{item.subject}</span>
                   </div>
                   <p className="text-xs" style={{ color: '#9CA897' }}>
                     {item.playerName ?? 'Unknown'} · {format(new Date(item.created_at), 'dd MMM HH:mm')}
@@ -715,9 +715,9 @@ function FeedbackPanel() {
                   onClick={() => toggleReviewed(item.id, item.reviewed)}
                   className="flex-shrink-0 text-xs px-2 py-1 rounded-lg font-medium"
                   style={{
-                    background: item.reviewed ? '#FFFFFF' : '#DCFCE7',
-                    color: item.reviewed ? '#9CA897' : '#0D6B52',
-                    border: `1px solid ${item.reviewed ? '#E2E4DC' : '#0D6B52'}`,
+                    background: item.reviewed ? 'var(--color-surface)' : 'var(--color-success-bg)',
+                    color: item.reviewed ? '#9CA897' : 'var(--color-primary)',
+                    border: `1px solid ${item.reviewed ? 'var(--color-border)' : 'var(--color-primary)'}`,
                   }}
                 >
                   {item.reviewed ? 'Done' : 'Mark done'}

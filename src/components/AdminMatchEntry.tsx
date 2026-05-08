@@ -142,8 +142,8 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   if (teams.length === 0) {
     return (
       <div className="px-4 py-5">
-        <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>Admin</p>
-        <h1 className="font-display text-3xl text-[#18201A] tracking-wide mb-5">MATCH ENTRY</h1>
+        <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: 'var(--color-primary)' }}>Admin</p>
+        <h1 className="font-display text-3xl text-[var(--color-text)] tracking-wide mb-5">MATCH ENTRY</h1>
         <div className="text-center py-8" style={{ color: '#9CA897' }}>
           <p>No teams published yet</p>
           <p className="text-sm mt-1">Publish teams first from the Teams tab</p>
@@ -154,25 +154,25 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
   return (
     <div className="px-4 py-5">
-      <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: '#0D6B52' }}>Admin</p>
-      <h1 className="font-display text-3xl text-[#18201A] tracking-wide mb-5">MATCH ENTRY</h1>
+      <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: 'var(--color-primary)' }}>Admin</p>
+      <h1 className="font-display text-3xl text-[var(--color-text)] tracking-wide mb-5">MATCH ENTRY</h1>
 
       {isElevenVEleven ? (
         // 11v11
         <div className="space-y-4">
           {fixtures.length > 0 ? (
-            <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
-              <h3 className="font-semibold text-[#18201A] mb-3">Score</h3>
+            <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+              <h3 className="font-semibold text-[var(--color-text)] mb-3">Score</h3>
               {fixtures.map(f => (
                 <div key={f.id} className="flex items-center gap-3">
-                  <span className="flex-1 text-right text-sm font-medium text-[#18201A]">{f.team1?.name}</span>
+                  <span className="flex-1 text-right text-sm font-medium text-[var(--color-text)]">{f.team1?.name}</span>
                   <input
                     type="number"
                     min={0}
                     value={f.score1 ?? ''}
                     onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
-                    className="w-12 text-center py-2 rounded-lg text-[#18201A] font-display text-xl outline-none"
-                    style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                    className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
+                    style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                   />
                   <span style={{ color: '#9CA897' }}>–</span>
                   <input
@@ -180,10 +180,10 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                     min={0}
                     value={f.score2 ?? ''}
                     onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
-                    className="w-12 text-center py-2 rounded-lg text-[#18201A] font-display text-xl outline-none"
-                    style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                    className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
+                    style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                   />
-                  <span className="flex-1 text-sm font-medium text-[#18201A]">{f.team2?.name}</span>
+                  <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{f.team2?.name}</span>
                 </div>
               ))}
             </div>
@@ -191,45 +191,45 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
             <button
               onClick={generateFixtures}
               className="w-full py-3 rounded-xl text-sm font-medium"
-              style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
+              style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
             >
               Generate Fixture
             </button>
           )}
 
-          <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
-            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: '#647060' }}>Scorers</label>
+          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Scorers</label>
             <input
               type="text"
               value={scorers}
               onChange={e => setScorers(e.target.value)}
               placeholder="Barham 2, Smith, Jones..."
-              className="w-full px-3 py-2 rounded-lg text-[#18201A] text-sm outline-none"
-              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
             />
           </div>
 
-          <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
-            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: '#647060' }}>Match Report</label>
+          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Match Report</label>
             <textarea
               value={reportText}
               onChange={e => setReportText(e.target.value)}
               rows={5}
               placeholder="Write the match report here..."
-              className="w-full px-3 py-2 rounded-lg text-[#18201A] text-sm outline-none resize-none"
-              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none resize-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
             />
           </div>
 
-          <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
-            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: '#647060' }}>Highlights</label>
+          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Highlights</label>
             <input
               type="text"
               value={highlights}
               onChange={e => setHighlights(e.target.value)}
               placeholder="Link or notes..."
-              className="w-full px-3 py-2 rounded-lg text-[#18201A] text-sm outline-none"
-              style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
             />
           </div>
         </div>
@@ -240,7 +240,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
             <button
               onClick={generateFixtures}
               className="w-full py-3 rounded-xl text-sm font-medium"
-              style={{ background: '#0D6B52', color: '#18201A' }}
+              style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
             >
               Generate Round-Robin Fixtures
             </button>
@@ -248,13 +248,13 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
           {/* Live table */}
           {fixtures.length > 0 && (
-            <div className="rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
-              <div className="px-4 py-3 border-b" style={{ borderColor: '#E2E4DC' }}>
-                <h3 className="font-semibold text-[#18201A] text-sm">Live Table</h3>
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+              <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                <h3 className="font-semibold text-[var(--color-text)] text-sm">Live Table</h3>
               </div>
               <table className="w-full text-xs">
                 <thead>
-                  <tr style={{ color: '#647060', background: '#F8F9F6', borderBottom: '1px solid #E2E4DC' }}>
+                  <tr style={{ color: 'var(--color-text-muted)', background: '#F8F9F6', borderBottom: '1px solid var(--color-border)' }}>
                     <th className="py-2 text-center font-medium" style={{ width: 28, paddingLeft: 12 }}>#</th>
                     <th className="py-2 text-left font-medium" style={{ paddingLeft: 8 }}>Team</th>
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>P</th>
@@ -262,20 +262,20 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>D</th>
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>L</th>
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 40 }}>GD</th>
-                    <th className="px-2 py-2 text-center font-bold" style={{ width: 40, color: '#18201A' }}>Pts</th>
+                    <th className="px-2 py-2 text-center font-bold" style={{ width: 40, color: 'var(--color-text)' }}>Pts</th>
                   </tr>
                 </thead>
                 <tbody>
                   {table.map((row, i) => (
-                    <tr key={row.team.id} style={{ background: i % 2 === 0 ? '#FFFFFF' : '#F2F3EE' }}>
+                    <tr key={row.team.id} style={{ background: i % 2 === 0 ? 'var(--color-surface)' : 'var(--color-bg)' }}>
                       <td className="py-2.5 text-center font-medium" style={{ paddingLeft: 12, color: '#9CA897' }}>{i + 1}</td>
-                      <td className="py-2.5 font-medium text-[#18201A]" style={{ paddingLeft: 8 }}>{row.team.name}</td>
-                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.played}</td>
-                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.won}</td>
-                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.drawn}</td>
-                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.lost}</td>
-                      <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
-                      <td className="px-2 py-2.5 text-center font-bold" style={{ color: '#18201A' }}>{row.pts}</td>
+                      <td className="py-2.5 font-medium text-[var(--color-text)]" style={{ paddingLeft: 8 }}>{row.team.name}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.played}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.won}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.drawn}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.lost}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
+                      <td className="px-2 py-2.5 text-center font-bold" style={{ color: 'var(--color-text)' }}>{row.pts}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -285,22 +285,22 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
           {/* Fixtures */}
           {fixtures.length > 0 && (
-            <div className="rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
-              <div className="px-4 py-3 border-b" style={{ borderColor: '#E2E4DC' }}>
-                <h3 className="font-semibold text-[#18201A] text-sm">Enter Scores</h3>
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+              <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                <h3 className="font-semibold text-[var(--color-text)] text-sm">Enter Scores</h3>
               </div>
-              <div className="divide-y" style={{ borderColor: '#E2E4DC' }}>
+              <div className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                 {fixtures.map(f => (
                   <div key={f.id} className="px-4 py-4 flex items-center gap-2">
-                    <span className="flex-1 text-xs text-right font-medium text-[#18201A]">{f.team1?.name}</span>
+                    <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{f.team1?.name}</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
                         min={0}
                         value={f.score1 ?? ''}
                         onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
-                        className="w-10 text-center py-1.5 rounded-lg text-[#18201A] font-display text-lg outline-none"
-                        style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                        className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
+                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                       />
                       <span style={{ color: '#B0B5AA', fontSize: 11, fontWeight: 500 }}>v</span>
                       <input
@@ -308,11 +308,11 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                         min={0}
                         value={f.score2 ?? ''}
                         onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
-                        className="w-10 text-center py-1.5 rounded-lg text-[#18201A] font-display text-lg outline-none"
-                        style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                        className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
+                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                       />
                     </div>
-                    <span className="flex-1 text-xs font-medium text-[#18201A]">{f.team2?.name}</span>
+                    <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{f.team2?.name}</span>
                   </div>
                 ))}
               </div>
@@ -327,7 +327,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
           onClick={saveResult}
           disabled={saving}
           className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
-          style={{ background: '#0D6B52', color: '#18201A' }}
+          style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
         >
           {saving ? 'Saving...' : 'Save Result'}
         </button>
@@ -336,8 +336,8 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
           onClick={copyToClipboard}
           className="w-full py-3 rounded-xl font-medium text-sm"
           style={{
-            background: '#FFFFFF',
-            color: copied ? '#0D6B52' : '#647060',
+            background: 'var(--color-surface)',
+            color: copied ? 'var(--color-primary)' : 'var(--color-text-muted)',
             border: `1px solid ${copied ? '#0D6B52' : '#8C9688'}`,
           }}
         >

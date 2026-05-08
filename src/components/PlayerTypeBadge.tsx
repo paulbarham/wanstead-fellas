@@ -1,9 +1,9 @@
 import type { PlayerType } from '../types'
 
 const BADGE: Record<PlayerType, { label: string; color: string; bg: string }> = {
-  subscribed: { label: 'SUB', color: '#0D6B52', bg: '#DCFCE7' },
-  wtp_priority: { label: 'WTP★', color: '#C9A227', bg: '#FEF9C3' },
-  wtp: { label: 'WTP', color: '#647060', bg: '#F2F3EE' },
+  subscribed: { label: 'SUB', color: 'var(--color-success-text)', bg: 'var(--color-success-bg)' },
+  wtp_priority: { label: 'WTP★', color: 'var(--color-warning-text)', bg: 'var(--color-warning-bg)' },
+  wtp: { label: 'WTP', color: 'var(--color-text-muted)', bg: 'var(--color-bg)' },
 }
 
 export default function PlayerTypeBadge({ type }: { type: PlayerType }) {

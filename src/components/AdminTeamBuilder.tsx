@@ -220,24 +220,24 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
 
   return (
     <div className="px-4 pt-4 pb-4">
-      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>Teams</p>
+      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-primary)' }}>Teams</p>
       <div className="flex items-center justify-between mb-1">
-        <h1 className="font-display text-2xl text-[#18201A] tracking-wide">TEAM BUILDER</h1>
-        <span className="text-xs px-2 py-1 rounded-full" style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
+        <h1 className="font-display text-2xl text-[var(--color-text)] tracking-wide">TEAM BUILDER</h1>
+        <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
           {availablePlayers.length} confirmed
         </span>
       </div>
 
       {published && draftTeams.length === 0 && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
-          style={{ background: '#DCFCE7', color: '#0D6B52', border: '1px solid #0D6B52' }}>
+          style={{ background: 'var(--color-success-bg)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
           ✓ Teams published and visible to players
         </div>
       )}
 
       {isOverCap && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
-          style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
+          style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
           ⚠ {totalPlayers} players — over the 32-player cap
         </div>
       )}
@@ -247,7 +247,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         onClick={autoBalance}
         disabled={availablePlayers.length < 2}
         className="w-full py-3.5 rounded-2xl font-semibold text-sm mb-3 disabled:opacity-40 transition-opacity"
-        style={{ background: '#0D6B52', color: '#FFFFFF' }}
+        style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}
       >
         ⚡ Auto-Balance Teams
       </button>
@@ -257,17 +257,17 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         <button
           onClick={() => setShowWeights(w => !w)}
           className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm"
-          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: '#647060' }}
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}
         >
           <span>⚙ Balance settings</span>
           <span style={{ fontSize: '0.6rem' }}>{showWeights ? '▲' : '▼'}</span>
         </button>
 
         {showWeights && (
-          <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+          <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
             {ATTR_LABELS.map(({ key, label }) => (
               <div key={key} className="flex items-center gap-3">
-                <span className="text-xs w-20 flex-shrink-0" style={{ color: '#647060' }}>{label}</span>
+                <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>{label}</span>
                 <input
                   type="range" min={0} max={5} step={0.5}
                   value={weights[key] || 0}
@@ -275,7 +275,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   className="flex-1"
                   style={{ '--val': weights[key] || 0, '--min': 0, '--max': 5 } as React.CSSProperties}
                 />
-                <span className="text-xs flex-shrink-0 text-right text-[#18201A]" style={{ minWidth: 28, paddingRight: 4 }}>{weights[key] || 0}</span>
+                <span className="text-xs flex-shrink-0 text-right text-[var(--color-text)]" style={{ minWidth: 28, paddingRight: 4 }}>{weights[key] || 0}</span>
               </div>
             ))}
           </div>
@@ -284,9 +284,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
 
       {/* Empty state */}
       {teamsToShow.length === 0 && (
-        <div className="p-6 rounded-2xl text-center" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        <div className="p-6 rounded-2xl text-center" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <p className="text-2xl mb-2">👥</p>
-          <p className="text-sm" style={{ color: '#647060' }}>
+          <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
             Tap Auto-Balance to generate teams based on signed-up players
           </p>
         </div>
@@ -301,7 +301,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full"
                   style={{ background: score >= 80 ? '#4ade80' : score >= 60 ? '#C9A227' : '#DC2626' }} />
-                <span className="text-xs" style={{ color: '#647060' }}>Balance: {score}%</span>
+                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Balance: {score}%</span>
                 {availablePlayers.length < 8 && (
                   <span className="text-xs" style={{ color: '#9CA897' }}>· improves with more players</span>
                 )}
@@ -329,12 +329,12 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                       )}
                     </div>
                     <span className="text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0"
-                      style={{ background: 'rgba(0,0,0,0.25)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.3)' }}>
+                      style={{ background: 'rgba(0,0,0,0.25)', color: 'var(--color-surface)', border: '1px solid rgba(255,255,255,0.3)' }}>
                       {team.bibs ? '🟡 BIBS' : '⬜ SKINS'}
                     </span>
                   </div>
 
-                  <div className="p-3 flex flex-wrap gap-1.5" style={{ background: '#F7F8F5' }}>
+                  <div className="p-3 flex flex-wrap gap-1.5" style={{ background: 'var(--color-surface-2)' }}>
                     {team.players.map(p => {
                       const isCap = p.id === team.captain?.id
                       return (
@@ -343,9 +343,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                           onClick={() => draftTeams.length > 0 && setSwapModal({ player: p, fromTeamIdx: teamIdx })}
                           className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-opacity"
                           style={{
-                            background: isCap ? `${color}20` : '#FFFFFF',
-                            color: isCap ? color : '#18201A',
-                            border: `1px solid ${isCap ? `${color}66` : '#E2E4DC'}`,
+                            background: isCap ? `${color}20` : 'var(--color-surface)',
+                            color: isCap ? color : 'var(--color-text)',
+                            border: `1px solid ${isCap ? `${color}66` : 'var(--color-border)'}`,
                             cursor: draftTeams.length > 0 ? 'pointer' : 'default',
                           }}
                         >
@@ -365,7 +365,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
               onClick={publish}
               disabled={publishing}
               className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 mb-4"
-              style={{ background: '#0D6B52', color: '#FFFFFF' }}
+              style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}
             >
               {publishing ? 'Publishing…' : published ? '↺ Re-publish Teams' : 'Publish Teams'}
             </button>
@@ -373,20 +373,20 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
 
           {/* Finalise & Export section */}
           {teamsToShow.length > 0 && (
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E2E4DC' }}>
-              <div className="px-4 py-3" style={{ background: '#FFFFFF', borderBottom: '1px solid #E2E4DC' }}>
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+              <div className="px-4 py-3" style={{ background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
                 <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
                   Finalise & Export
                 </p>
               </div>
-              <div className="p-4 space-y-2.5" style={{ background: '#F7F8F5' }}>
+              <div className="p-4 space-y-2.5" style={{ background: 'var(--color-surface-2)' }}>
                 <button
                   onClick={() => copyToClipboard(buildWhatsAppText(teamsToShow, nextThursday), 'whatsapp')}
                   className="w-full py-3 rounded-xl font-semibold text-sm"
                   style={{
-                    background: copied === 'whatsapp' ? '#DCFCE7' : '#FFFFFF',
-                    color: copied === 'whatsapp' ? '#0D6B52' : '#18201A',
-                    border: '1px solid #0D6B52',
+                    background: copied === 'whatsapp' ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                    color: copied === 'whatsapp' ? 'var(--color-primary)' : 'var(--color-text)',
+                    border: '1px solid var(--color-primary)',
                   }}
                 >
                   {copied === 'whatsapp' ? '✓ Copied!' : '📋 Copy Team Sheet for WhatsApp'}
@@ -395,9 +395,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   onClick={() => copyToClipboard(buildFlatList(teamsToShow), 'flat')}
                   className="w-full py-3 rounded-xl font-semibold text-sm"
                   style={{
-                    background: copied === 'flat' ? '#DCFCE7' : '#FFFFFF',
-                    color: copied === 'flat' ? '#0D6B52' : '#9CA897',
-                    border: '1px solid #E2E4DC',
+                    background: copied === 'flat' ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                    color: copied === 'flat' ? 'var(--color-primary)' : '#9CA897',
+                    border: '1px solid var(--color-border)',
                   }}
                 >
                   {copied === 'flat' ? '✓ Copied!' : '📝 Copy Flat Player List'}
@@ -414,12 +414,12 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
           style={{ background: 'rgba(0,0,0,0.85)' }}
           onClick={() => setSwapModal(null)}>
           <div className="w-full rounded-2xl p-5"
-            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', maxWidth: 430 }}
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', maxWidth: 430 }}
             onClick={e => e.stopPropagation()}>
-            <h3 className="font-semibold text-[#18201A] mb-0.5">
+            <h3 className="font-semibold text-[var(--color-text)] mb-0.5">
               Swap {swapModal.player.name} {swapModal.player.surname}
             </h3>
-            <p className="text-xs mb-4" style={{ color: '#647060' }}>Select a player to swap with</p>
+            <p className="text-xs mb-4" style={{ color: 'var(--color-text-muted)' }}>Select a player to swap with</p>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {draftTeams.map((team, teamIdx) => {
                 if (teamIdx === swapModal.fromTeamIdx) return null
@@ -429,11 +429,11 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                     key={p.id}
                     onClick={() => swapPlayers(swapModal.fromTeamIdx, swapModal.player, teamIdx, p)}
                     className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
-                    style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                    style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                   >
                     <PlayerAvatar profile={p} size={32} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-[#18201A]">{p.name} {p.surname}</p>
+                      <p className="text-sm font-medium text-[var(--color-text)]">{p.name} {p.surname}</p>
                       <p className="text-xs" style={{ color }}>{team.name}</p>
                     </div>
                   </button>
@@ -443,7 +443,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
             <button
               onClick={() => setSwapModal(null)}
               className="w-full mt-3 py-2.5 rounded-xl text-sm"
-              style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
+              style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
             >
               Cancel
             </button>

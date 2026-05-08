@@ -20,6 +20,40 @@
   --font-body: 'DM Sans', sans-serif;
 }
 
+:root {
+  --color-bg: #F2F3EE;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F7F8F5;
+  --color-border: #E2E4DC;
+  --color-text: #18201A;
+  --color-text-muted: #647060;
+  --color-primary: #0D6B52;
+  --color-success-bg: #DCFCE7;
+  --color-success-text: #0D6B52;
+  --color-warning-bg: #FEF9C3;
+  --color-warning-text: #C9A227;
+  --color-error-bg: #FEF2F2;
+  --color-error-text: #DC2626;
+  --color-error-border: #FECACA;
+}
+
+html.dark {
+  --color-bg: #0F1710;
+  --color-surface: #1A2B1C;
+  --color-surface-2: #1F3021;
+  --color-border: #2D4A2F;
+  --color-text: #E8F0E9;
+  --color-text-muted: #8FAF91;
+  --color-primary: #0D6B52;
+  --color-success-bg: #0D2B1E;
+  --color-success-text: #4ADE80;
+  --color-warning-bg: #2D1F00;
+  --color-warning-text: #FCD34D;
+  --color-error-bg: #2D0A0A;
+  --color-error-text: #FCA5A5;
+  --color-error-border: #7F1D1D;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -28,8 +62,8 @@
 
 html, body {
   height: 100%;
-  background-color: #F2F3EE;
-  color: #18201A;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -65,8 +99,8 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   background: linear-gradient(
     to right,
-    #0D6B52 calc((var(--val, 5) - var(--min, 1)) / (var(--max, 10) - var(--min, 1)) * 100%),
-    #E2E4DC 0%
+    var(--color-primary) calc((var(--val, 5) - var(--min, 1)) / (var(--max, 10) - var(--min, 1)) * 100%),
+    var(--color-border) 0%
   );
   height: 4px;
   border-radius: 2px;
@@ -75,8 +109,8 @@ input[type="range"]::-webkit-slider-runnable-track {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  background: #FFFFFF;
-  border: 2px solid #0D6B52;
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
   height: 18px;
   width: 18px;
   border-radius: 50%;
@@ -84,19 +118,19 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 input[type="range"]::-moz-range-track {
-  background: #E2E4DC;
+  background: var(--color-border);
   height: 4px;
   border-radius: 2px;
   border: none;
 }
 input[type="range"]::-moz-range-progress {
-  background: #0D6B52;
+  background: var(--color-primary);
   height: 4px;
   border-radius: 2px;
 }
 input[type="range"]::-moz-range-thumb {
-  background: #FFFFFF;
-  border: 2px solid #0D6B52;
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
   height: 18px;
   width: 18px;
   border-radius: 50%;

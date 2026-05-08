@@ -25,7 +25,7 @@ export default function PlayerAvatar({ profile, size = 40 }: Props) {
       style={{
         width: size,
         height: size,
-        background: '#0D6B52',
+        background: 'var(--color-primary)',
         color: 'white',
         fontSize: size * 0.35,
       }}

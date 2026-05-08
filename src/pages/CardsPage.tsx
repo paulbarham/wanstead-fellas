@@ -118,14 +118,14 @@ export default function CardsPage() {
     setSelected(prev => prev?.id === playerId ? { ...prev, photo_url: null } : prev)
   }
 
-  if (loading) return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading cards…</div>
+  if (loading) return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading cards…</div>
 
   return (
     <div className="px-4 pt-4 pb-6">
-      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: '#0D6B52' }}>
+      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-primary)' }}>
         Player Cards
       </p>
-      <h1 className="font-display text-2xl text-[#18201A] tracking-wide mb-4">TOP TRUMPS</h1>
+      <h1 className="font-display text-2xl text-[var(--color-text)] tracking-wide mb-4">TOP TRUMPS</h1>
 
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
 
@@ -153,32 +153,32 @@ export default function CardsPage() {
             <TopTrumpCard profile={selected} />
 
             {/* Actions beneath card */}
-            <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+            <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
 
               {/* Own card age group (non-admin) */}
               {selected.id === myProfile?.id && !isAdmin && (
                 <div className="flex items-center gap-2">
-                  <label className="text-xs flex-shrink-0" style={{ color: '#647060' }}>Age Group:</label>
+                  <label className="text-xs flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>Age Group:</label>
                   {editingId === 'agegroup' ? (
                     <>
                       <select
                         value={editAgeGroup}
                         onChange={e => setEditAgeGroup(e.target.value)}
-                        className="flex-1 px-2 py-1.5 rounded-lg text-[#18201A] text-xs outline-none"
-                        style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                        className="flex-1 px-2 py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
+                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                       >
                         {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                       </select>
                       <button onClick={() => { saveAgeGroup(selected.id); setEditingId(null) }}
                         className="text-xs px-2.5 py-1.5 rounded-lg font-semibold"
-                        style={{ background: '#0D6B52', color: '#18201A' }}>
+                        style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}>
                         Save
                       </button>
                     </>
                   ) : (
                     <button onClick={() => { setEditAgeGroup(selected.age_group ?? AGE_GROUP_DEFAULT); setEditingId('agegroup') }}
                       className="text-xs px-2.5 py-1.5 rounded-lg"
-                      style={{ color: '#0D6B52', border: '1px solid #0D6B52' }}>
+                      style={{ color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
                       {selected.age_group} · Edit
                     </button>
                   )}
@@ -192,7 +192,7 @@ export default function CardsPage() {
                     onClick={() => triggerPhotoUpload(selected.id)}
                     disabled={uploadingFor === selected.id}
                     className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
-                    style={{ background: '#0D6B52', color: '#FFFFFF' }}
+                    style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}
                   >
                     {uploadingFor === selected.id ? 'Uploading…' : selected.photo_url ? 'Change Photo' : 'Upload Photo'}
                   </button>
@@ -200,7 +200,7 @@ export default function CardsPage() {
                     <button
                       onClick={() => deletePhoto(selected.id)}
                       className="px-4 py-2.5 rounded-xl text-sm font-semibold"
-                      style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}
+                      style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                     >
                       Remove
                     </button>
@@ -212,7 +212,7 @@ export default function CardsPage() {
               {selected.id === myProfile?.id && (
                 <div>
                   {pwResetSent ? (
-                    <p className="text-xs text-center py-2" style={{ color: '#0D6B52' }}>
+                    <p className="text-xs text-center py-2" style={{ color: 'var(--color-primary)' }}>
                       Check your email for a password reset link.
                     </p>
                   ) : (
@@ -225,7 +225,7 @@ export default function CardsPage() {
                         setPwResetSent(true)
                       }}
                       className="w-full py-2.5 rounded-xl text-sm font-medium"
-                      style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
+                      style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
                     >
                       Change password
                     </button>
@@ -240,7 +240,7 @@ export default function CardsPage() {
                     <div className="space-y-2.5">
                       {STAT_KEYS.map(key => (
                         <div key={key as string} className="flex items-center gap-3">
-                          <span className="text-xs w-20 flex-shrink-0" style={{ color: '#647060' }}>
+                          <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>
                             {STAT_LABELS[key as string]}
                           </span>
                           <input
@@ -250,27 +250,27 @@ export default function CardsPage() {
                             className="flex-1"
                             style={{ '--val': (editValues[key] as number) ?? 5, '--min': 1, '--max': 10 } as React.CSSProperties}
                           />
-                          <span className="text-xs flex-shrink-0 text-right text-[#18201A]" style={{ minWidth: 20 }}>
+                          <span className="text-xs flex-shrink-0 text-right text-[var(--color-text)]" style={{ minWidth: 20 }}>
                             {(editValues[key] as number) ?? 5}
                           </span>
                         </div>
                       ))}
                       <button onClick={() => saveEdit(selected.id)}
                         className="w-full py-2.5 rounded-xl text-sm font-semibold"
-                        style={{ background: '#0D6B52', color: '#FFFFFF' }}>
+                        style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}>
                         Save Stats
                       </button>
                     </div>
                   ) : (
                     <button onClick={() => startEdit(selected)}
                       className="w-full py-2.5 rounded-xl text-sm font-medium"
-                      style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
+                      style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
                       Edit Stats
                     </button>
                   )}
 
                   <div>
-                    <p className="text-xs mb-2" style={{ color: '#647060' }}>Badges</p>
+                    <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>Badges</p>
                     <div className="flex flex-wrap gap-2">
                       {ALL_BADGES.map(badge => {
                         const has = (selected.badges ?? []).includes(badge)
@@ -278,9 +278,9 @@ export default function CardsPage() {
                           <button key={badge} onClick={() => toggleBadge(selected.id, badge)}
                             className="text-xs px-2.5 py-1 rounded-full font-medium"
                             style={{
-                              background: has ? BADGE_COLORS[badge] : '#FFFFFF',
+                              background: has ? BADGE_COLORS[badge] : 'var(--color-surface)',
                               color: has ? 'white' : '#666',
-                              border: `1px solid ${has ? BADGE_COLORS[badge] : '#E2E4DC'}`,
+                              border: `1px solid ${has ? BADGE_COLORS[badge] : 'var(--color-border)'}`,
                             }}>
                             {badge}
                           </button>
@@ -291,22 +291,22 @@ export default function CardsPage() {
 
                   {/* Age group (admin) */}
                   <div className="flex items-center gap-2">
-                    <label className="text-xs flex-shrink-0" style={{ color: '#647060' }}>Age Group:</label>
+                    <label className="text-xs flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>Age Group:</label>
                     {editingId === 'agegroup_admin' ? (
                       <>
                         <select value={editAgeGroup} onChange={e => setEditAgeGroup(e.target.value)}
-                          className="flex-1 px-2 py-1.5 rounded-lg text-[#18201A] text-xs outline-none"
-                          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+                          className="flex-1 px-2 py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
+                          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                           {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                         <button onClick={() => { saveAgeGroup(selected.id); setEditingId(null) }}
                           className="text-xs px-2.5 py-1.5 rounded-lg font-semibold"
-                          style={{ background: '#0D6B52', color: '#18201A' }}>Save</button>
+                          style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}>Save</button>
                       </>
                     ) : (
                       <button onClick={() => { setEditAgeGroup(selected.age_group ?? AGE_GROUP_DEFAULT); setEditingId('agegroup_admin') }}
                         className="text-xs px-2.5 py-1.5 rounded-lg"
-                        style={{ color: '#0D6B52', border: '1px solid #0D6B52' }}>
+                        style={{ color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
                         {selected.age_group} · Edit
                       </button>
                     )}
@@ -317,7 +317,7 @@ export default function CardsPage() {
               <button
                 onClick={() => { setSelected(null); setEditingId(null); setPwResetSent(false) }}
                 className="w-full py-2.5 rounded-xl text-sm"
-                style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
               >
                 Close
               </button>

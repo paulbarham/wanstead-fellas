@@ -211,17 +211,17 @@ export default function TonightPage() {
 
       {/* Date + countdown */}
       <div className="mb-3">
-        <p className="text-[10px] font-semibold uppercase mb-0.5" style={{ color: '#647060', letterSpacing: '0.8px' }}>
+        <p className="text-[10px] font-semibold uppercase mb-0.5" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
           Next Match
         </p>
         <div className="flex items-start justify-between">
-          <h1 className="font-display text-[#18201A] tracking-wide leading-tight" style={{ fontSize: '28px' }}>{dateLabel}</h1>
+          <h1 className="font-display text-[var(--color-text)] tracking-wide leading-tight" style={{ fontSize: '28px' }}>{dateLabel}</h1>
           {phase === 'match_live' ? (
-            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: '#DC2626' }}>⚽ LIVE NOW</span>
+            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: 'var(--color-error-text)' }}>⚽ LIVE NOW</span>
           ) : phase === 'post_match' ? (
-            <span className="flex-shrink-0 ml-3 text-xs" style={{ color: '#0D6B52' }}>Sign-ups open ✓</span>
+            <span className="flex-shrink-0 ml-3 text-xs" style={{ color: 'var(--color-primary)' }}>Sign-ups open ✓</span>
           ) : countdownLabel.tonight ? (
-            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: '#0D6B52' }}>
+            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: 'var(--color-primary)' }}>
               {countdownLabel.text}
             </span>
           ) : (
@@ -235,25 +235,25 @@ export default function TonightPage() {
       {/* Phase banners */}
       {phase === 'signup_locked' && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
-          style={{ background: '#FEF9C3', color: '#92400e', border: '1px solid #C9A227' }}>
+          style={{ background: 'var(--color-warning-bg)', color: '#92400e', border: '1px solid #C9A227' }}>
           🔒 Sign-ups locked — see you Thursday!
         </div>
       )}
 
       {/* Count + format bar */}
       <div className="flex items-center mb-3 px-4 py-3 rounded-2xl"
-        style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <div className="flex items-baseline gap-2 flex-1">
-          <span className="font-display text-5xl leading-none" style={{ color: '#0D6B52' }}>{signedUpCount}</span>
+          <span className="font-display text-5xl leading-none" style={{ color: 'var(--color-primary)' }}>{signedUpCount}</span>
           <span className="text-xs" style={{ color: '#9CA897' }}>signed up</span>
           {signedUpCount >= SIGNUP_CAP && (
-            <span className="text-xs font-semibold" style={{ color: '#DC2626' }}>FULL</span>
+            <span className="text-xs font-semibold" style={{ color: 'var(--color-error-text)' }}>FULL</span>
           )}
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
-          style={{ background: '#F7F8F5', border: '1px solid #E2E4DC' }}>
+          style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
           <span className="text-sm">⚽</span>
-          <span className="text-xs font-semibold text-[#18201A]">{formatLabel}</span>
+          <span className="text-xs font-semibold text-[var(--color-text)]">{formatLabel}</span>
         </div>
       </div>
 
@@ -265,16 +265,16 @@ export default function TonightPage() {
             disabled={toggling}
             className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
             style={{
-              background: isWaiting ? '#FEF9C3' : isIn ? '#DCFCE7' : '#0D6B52',
+              background: isWaiting ? 'var(--color-warning-bg)' : isIn ? 'var(--color-success-bg)' : 'var(--color-primary)',
               color: isWaiting ? '#92400e' : isIn ? '#0D6B52' : 'white',
-              border: isWaiting ? '2px solid #C9A227' : isIn ? '2px solid #0D6B52' : '2px solid transparent',
+              border: isWaiting ? '2px solid #C9A227' : isIn ? '2px solid var(--color-primary)' : '2px solid transparent',
             }}
           >
             {toggling ? '…' : isWaiting ? '⏳ On Waiting List — Tap to Remove' : isIn ? "✓ I'm In — Tap to Drop Out" : 'Mark Me In'}
           </button>
         ) : (
           <div className="w-full py-3 rounded-2xl text-center font-medium text-xs"
-            style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}>
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
             {phase === 'signup_locked' ? '🔒 Sign-ups are closed' : 'Sign-ups re-open after Thursday 10pm'}
           </div>
         )}
@@ -283,7 +283,7 @@ export default function TonightPage() {
       {/* My squad - linked children */}
       {linkedChildren.length > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#647060', letterSpacing: '0.8px' }}>
+          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
             My Squad
           </p>
           <div className="space-y-2">
@@ -295,10 +295,10 @@ export default function TonightPage() {
                 <div
                   key={child.id}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                  style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                 >
                   <PlayerAvatar profile={child} size={32} />
-                  <span className="flex-1 text-sm font-medium text-[#18201A]">
+                  <span className="flex-1 text-sm font-medium text-[var(--color-text)]">
                     {child.name} {child.surname}
                   </span>
                   {canToggle ? (
@@ -308,9 +308,9 @@ export default function TonightPage() {
                       className="text-xs px-4 py-2 rounded-xl font-semibold disabled:opacity-50 flex-shrink-0"
                       style={{
                         minHeight: 36,
-                        background: childIsWaiting ? '#FEF9C3' : childIsIn ? '#DCFCE7' : '#FFFFFF',
+                        background: childIsWaiting ? 'var(--color-warning-bg)' : childIsIn ? 'var(--color-success-bg)' : 'var(--color-surface)',
                         color: childIsWaiting ? '#92400e' : childIsIn ? '#0D6B52' : '#9CA897',
-                        border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#0D6B52' : '#E2E4DC'}`,
+                        border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#0D6B52' : 'var(--color-border)'}`,
                       }}
                     >
                       {childIsWaiting ? '⏳ Waiting' : childIsIn ? '✓ In' : 'Mark In'}
@@ -330,7 +330,7 @@ export default function TonightPage() {
       {/* Who's In */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-semibold uppercase" style={{ color: '#647060', letterSpacing: '0.8px' }}>Who's In</p>
+          <p className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>Who's In</p>
           {signedUpPlayers.length > 0 && (
             <span className="text-xs" style={{ color: '#9CA897' }}>
               {signedUpPlayers.length} {signedUpPlayers.length === 1 ? 'player' : 'players'}
@@ -340,7 +340,7 @@ export default function TonightPage() {
         {loading ? (
           <div className="text-sm py-2" style={{ color: '#9CA897' }}>Loading…</div>
         ) : signedUpPlayers.length === 0 ? (
-          <p className="text-sm py-4 text-center" style={{ color: '#647060' }}>
+          <p className="text-sm py-4 text-center" style={{ color: 'var(--color-text-muted)' }}>
             No one signed up yet — be first!
           </p>
         ) : (
@@ -350,15 +350,15 @@ export default function TonightPage() {
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
                 style={{
-                  background: p.id === profile?.id ? '#DCFCE7' : '#FFFFFF',
-                  border: `1px solid ${p.id === profile?.id ? '#0D6B52' : '#E2E4DC'}`,
+                  background: p.id === profile?.id ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                  border: `1px solid ${p.id === profile?.id ? '#0D6B52' : 'var(--color-border)'}`,
                 }}
               >
                 <PlayerAvatar profile={p} size={32} />
-                <span className="flex-1 text-sm font-medium text-[#18201A]">
+                <span className="flex-1 text-sm font-medium text-[var(--color-text)]">
                   {p.name} {p.surname}
                   {p.id === profile?.id && (
-                    <span className="ml-1.5 text-xs" style={{ color: '#0D6B52' }}>you</span>
+                    <span className="ml-1.5 text-xs" style={{ color: 'var(--color-primary)' }}>you</span>
                   )}
                 </span>
                 <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
@@ -367,7 +367,7 @@ export default function TonightPage() {
                   <button
                     onClick={() => { setFineModal({ player: p }); setFineType('late') }}
                     className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-30 hover:opacity-60 active:opacity-100 transition-opacity ml-1"
-                    style={{ color: '#647060' }}
+                    style={{ color: 'var(--color-text-muted)' }}
                     title="Issue fine"
                   >
                     £
@@ -377,18 +377,18 @@ export default function TonightPage() {
                 {profile?.is_admin && p.id !== profile.id && (
                   removeConfirm === p.id ? (
                     <div className="flex items-center gap-1 ml-1">
-                      <span className="text-xs" style={{ color: '#DC2626' }}>Remove?</span>
+                      <span className="text-xs" style={{ color: 'var(--color-error-text)' }}>Remove?</span>
                       <button
                         onClick={() => adminTogglePlayer(p.id)}
                         className="text-xs px-1.5 py-0.5 rounded-lg font-semibold"
-                        style={{ color: '#DC2626', border: '1px solid #FECACA' }}
+                        style={{ color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                       >
                         Yes
                       </button>
                       <button
                         onClick={() => setRemoveConfirm(null)}
                         className="text-xs px-1.5 py-0.5 rounded-lg"
-                        style={{ color: '#9CA897', border: '1px solid #E2E4DC' }}
+                        style={{ color: '#9CA897', border: '1px solid var(--color-border)' }}
                       >
                         Cancel
                       </button>
@@ -412,7 +412,7 @@ export default function TonightPage() {
       {/* Waiting list */}
       {waitingPlayers.length > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#647060', letterSpacing: '0.8px' }}>
+          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
             Waiting List ({waitingPlayers.length})
           </p>
           <div className="space-y-1.5">
@@ -421,34 +421,34 @@ export default function TonightPage() {
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
                 style={{
-                  background: p.id === profile?.id ? '#FEF9C3' : '#FFFFFF',
-                  border: `1px solid ${p.id === profile?.id ? '#C9A227' : '#E2E4DC'}`,
+                  background: p.id === profile?.id ? 'var(--color-warning-bg)' : 'var(--color-surface)',
+                  border: `1px solid ${p.id === profile?.id ? '#C9A227' : 'var(--color-border)'}`,
                 }}
               >
                 <span className="text-xs w-4 text-center" style={{ color: '#9CA897' }}>{i + 1}</span>
                 <PlayerAvatar profile={p} size={28} />
-                <span className="flex-1 text-sm font-medium" style={{ color: '#647060' }}>
+                <span className="flex-1 text-sm font-medium" style={{ color: 'var(--color-text-muted)' }}>
                   {p.name} {p.surname}
                   {p.id === profile?.id && (
-                    <span className="ml-1.5 text-xs" style={{ color: '#C9A227' }}>you</span>
+                    <span className="ml-1.5 text-xs" style={{ color: 'var(--color-warning-text)' }}>you</span>
                   )}
                 </span>
-                <span className="text-xs" style={{ color: '#C9A227' }}>⏳</span>
+                <span className="text-xs" style={{ color: 'var(--color-warning-text)' }}>⏳</span>
                 {profile?.is_admin && p.id !== profile.id && (
                   removeConfirm === p.id ? (
                     <div className="flex items-center gap-1 ml-1">
-                      <span className="text-xs" style={{ color: '#DC2626' }}>Remove?</span>
+                      <span className="text-xs" style={{ color: 'var(--color-error-text)' }}>Remove?</span>
                       <button
                         onClick={() => adminTogglePlayer(p.id)}
                         className="text-xs px-1.5 py-0.5 rounded-lg font-semibold"
-                        style={{ color: '#DC2626', border: '1px solid #FECACA' }}
+                        style={{ color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                       >
                         Yes
                       </button>
                       <button
                         onClick={() => setRemoveConfirm(null)}
                         className="text-xs px-1.5 py-0.5 rounded-lg"
-                        style={{ color: '#9CA897', border: '1px solid #E2E4DC' }}
+                        style={{ color: '#9CA897', border: '1px solid var(--color-border)' }}
                       >
                         Cancel
                       </button>
@@ -475,10 +475,10 @@ export default function TonightPage() {
           style={{ background: 'rgba(0,0,0,0.6)' }}
           onClick={() => setFineModal(null)}>
           <div className="w-full rounded-2xl p-5"
-            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', maxWidth: 430 }}
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', maxWidth: 430 }}
             onClick={e => e.stopPropagation()}>
-            <p className="text-xs uppercase tracking-widest mb-0.5" style={{ color: '#C9A227' }}>Issue Fine</p>
-            <p className="font-semibold text-[#18201A] mb-4">
+            <p className="text-xs uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-warning-text)' }}>Issue Fine</p>
+            <p className="font-semibold text-[var(--color-text)] mb-4">
               {fineModal.player.name} {fineModal.player.surname}
             </p>
             <div className="grid grid-cols-2 gap-2 mb-4">
@@ -488,9 +488,9 @@ export default function TonightPage() {
                   onClick={() => setFineType(t.value)}
                   className="py-3 rounded-xl text-sm font-semibold"
                   style={{
-                    background: fineType === t.value ? '#C9A227' : '#FFFFFF',
-                    color: fineType === t.value ? '#000' : '#647060',
-                    border: `1px solid ${fineType === t.value ? '#C9A227' : '#E2E4DC'}`,
+                    background: fineType === t.value ? '#C9A227' : 'var(--color-surface)',
+                    color: fineType === t.value ? 'var(--color-text)' : 'var(--color-text-muted)',
+                    border: `1px solid ${fineType === t.value ? '#C9A227' : 'var(--color-border)'}`,
                   }}
                 >
                   {t.label}<br />
@@ -503,14 +503,14 @@ export default function TonightPage() {
                 onClick={issueFine}
                 disabled={issuingFine}
                 className="flex-1 py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
-                style={{ background: '#C9A227', color: '#000' }}
+                style={{ background: 'var(--color-warning-text)', color: '#000' }}
               >
                 {issuingFine ? 'Issuing…' : `Issue £${FINE_TYPES.find(t => t.value === fineType)?.amount}`}
               </button>
               <button
                 onClick={() => setFineModal(null)}
                 className="px-4 py-3 rounded-xl text-sm"
-                style={{ background: '#FFFFFF', color: '#647060', border: '1px solid #E2E4DC' }}
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
               >
                 Cancel
               </button>
@@ -522,7 +522,7 @@ export default function TonightPage() {
       {/* Admin: not signed up */}
       {profile?.is_admin && notSignedUp.length > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: '#647060', letterSpacing: '0.8px' }}>
+          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
             Not In ({notSignedUp.length})
           </p>
           <div className="space-y-1.5">
@@ -530,17 +530,17 @@ export default function TonightPage() {
               <div
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
-                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
               >
                 <PlayerAvatar profile={p} size={32} />
-                <span className="flex-1 text-sm" style={{ color: '#647060' }}>
+                <span className="flex-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
                   {p.name} {p.surname}
                 </span>
                 <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
                 <button
                   onClick={() => adminTogglePlayer(p.id)}
                   className="text-xs px-3 py-1.5 rounded-lg font-medium ml-1 flex-shrink-0"
-                  style={{ minWidth: 52, color: '#0D6B52', border: '1px solid #0D6B52' }}
+                  style={{ minWidth: 52, color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
                 >
                   Add
                 </button>
@@ -555,10 +555,10 @@ export default function TonightPage() {
         <button
           onClick={() => navigate('/match')}
           className="w-full text-left p-5 rounded-2xl mt-5"
-          style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[10px] font-semibold uppercase" style={{ color: '#647060', letterSpacing: '0.8px' }}>
+            <p className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
               🏆 Last Result
             </p>
             {lastResult && (
@@ -569,32 +569,32 @@ export default function TonightPage() {
           </div>
 
           {lastResult === null ? (
-            <p className="text-sm" style={{ color: '#647060' }}>
+            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
               No results posted yet — check back after Thursday ⚽
             </p>
           ) : (
             <>
-              <p className="text-xs mb-1.5" style={{ color: '#647060' }}>
+              <p className="text-xs mb-1.5" style={{ color: 'var(--color-text-muted)' }}>
                 {lastResult.format === 'tournament' || lastResult.format === '4-team'
                   ? '4-Team Tournament'
                   : '11v11'}
               </p>
               {lastResult.scorers && (
-                <p className="text-xs mb-1" style={{ color: '#18201A' }}>
+                <p className="text-xs mb-1" style={{ color: 'var(--color-text)' }}>
                   ⚽ {lastResult.scorers.length > 60
                     ? lastResult.scorers.slice(0, 60) + '…'
                     : lastResult.scorers}
                 </p>
               )}
               {lastResult.reportText && (
-                <p className="text-xs leading-relaxed" style={{ color: '#647060' }}>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
                   {lastResult.reportText.length > 100
                     ? lastResult.reportText.slice(0, 100) + '…'
                     : lastResult.reportText}
                 </p>
               )}
               {!lastResult.scorers && !lastResult.reportText && (
-                <p className="text-xs" style={{ color: '#647060' }}>Match played — tap to view result</p>
+                <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Match played — tap to view result</p>
               )}
             </>
           )}

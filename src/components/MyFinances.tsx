@@ -45,7 +45,7 @@ export default function MyFinances({ profile }: Props) {
 
   if (loading) {
     return (
-      <div className="p-4 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+      <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <p className="text-xs uppercase tracking-widest mb-3 font-semibold" style={{ color: '#9CA897' }}>My Finances</p>
         <p className="text-sm" style={{ color: '#9CA897' }}>Loading…</p>
       </div>
@@ -54,22 +54,22 @@ export default function MyFinances({ profile }: Props) {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-medium uppercase tracking-widest" style={{ color: '#0D6B52' }}>My Finances</p>
+      <p className="text-xs font-medium uppercase tracking-widest" style={{ color: 'var(--color-primary)' }}>My Finances</p>
 
       {/* Outstanding balance */}
       <div className="p-4 rounded-2xl text-center"
         style={{
-          background: totalOwed > 0 ? '#1a0a0a' : '#DCFCE7',
-          border: `1px solid ${totalOwed > 0 ? '#FECACA' : '#0D6B52'}`,
+          background: totalOwed > 0 ? '#1a0a0a' : 'var(--color-success-bg)',
+          border: `1px solid ${totalOwed > 0 ? 'var(--color-error-border)' : 'var(--color-primary)'}`,
         }}>
-        <p className="text-xs uppercase tracking-widest mb-1" style={{ color: totalOwed > 0 ? '#DC2626' : '#0D6B52' }}>
+        <p className="text-xs uppercase tracking-widest mb-1" style={{ color: totalOwed > 0 ? '#DC2626' : 'var(--color-primary)' }}>
           Outstanding Balance
         </p>
-        <p className="font-display text-5xl leading-none" style={{ color: totalOwed > 0 ? '#DC2626' : '#0D6B52' }}>
+        <p className="font-display text-5xl leading-none" style={{ color: totalOwed > 0 ? '#DC2626' : 'var(--color-primary)' }}>
           £{totalOwed.toFixed(2)}
         </p>
         {totalOwed === 0 && (
-          <p className="text-xs mt-2" style={{ color: '#0D6B52' }}>All clear ✓</p>
+          <p className="text-xs mt-2" style={{ color: 'var(--color-primary)' }}>All clear ✓</p>
         )}
         <p className="text-xs mt-3" style={{ color: '#9CA897' }}>
           Payment due after the last Thursday of each month
@@ -78,15 +78,15 @@ export default function MyFinances({ profile }: Props) {
 
       {/* This month's WTP games */}
       {profile.player_type === 'wtp' && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <div className="px-4 py-3" style={{ borderBottom: thisMonthGames.length > 0 ? '1px solid #FFFFFF' : 'none' }}>
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
                 WTP Games This Month
               </p>
               <div className="flex items-center gap-2">
-                <span className="font-display text-xl" style={{ color: '#C9A227' }}>{thisMonthGames.length}</span>
-                <span className="text-xs" style={{ color: '#647060' }}>
+                <span className="font-display text-xl" style={{ color: 'var(--color-warning-text)' }}>{thisMonthGames.length}</span>
+                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
                   £{thisMonthGames.reduce((s, g) => s + Number(g.amount), 0).toFixed(2)}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export default function MyFinances({ profile }: Props) {
 
       {/* Outstanding fines */}
       {unpaidFines.length > 0 && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
             <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
               Outstanding Fines
@@ -127,15 +127,15 @@ export default function MyFinances({ profile }: Props) {
               style={{ borderTop: i > 0 ? '1px solid #FFFFFF' : 'none' }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-medium text-[#18201A]">{fineLabel(f.type)}</span>
-                  {f.notes && <p className="text-xs mt-0.5" style={{ color: '#647060' }}>{f.notes}</p>}
+                  <span className="text-sm font-medium text-[var(--color-text)]">{fineLabel(f.type)}</span>
+                  {f.notes && <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{f.notes}</p>}
                   {f.match_date && (
                     <p className="text-xs mt-0.5" style={{ color: '#9CA897' }}>
                       {format(new Date(f.match_date + 'T12:00:00'), 'EEE do MMM yyyy')}
                     </p>
                   )}
                 </div>
-                <span className="text-sm font-semibold" style={{ color: '#DC2626' }}>
+                <span className="text-sm font-semibold" style={{ color: 'var(--color-error-text)' }}>
                   £{Number(f.amount).toFixed(2)}
                 </span>
               </div>
@@ -145,7 +145,7 @@ export default function MyFinances({ profile }: Props) {
       )}
 
       {unpaidFines.length === 0 && unpaidGames.length === 0 && totalOwed === 0 && (
-        <div className="px-4 py-3 rounded-2xl text-sm text-center" style={{ color: '#9CA897', background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+        <div className="px-4 py-3 rounded-2xl text-sm text-center" style={{ color: '#9CA897', background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           No outstanding items
         </div>
       )}
@@ -156,26 +156,26 @@ export default function MyFinances({ profile }: Props) {
           <button
             onClick={() => setShowPaid(s => !s)}
             className="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm"
-            style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', color: '#9CA897' }}
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: '#9CA897' }}
           >
             <span>Paid items ({paidFines.length + paidGames.length})</span>
             <span style={{ fontSize: '0.6rem' }}>{showPaid ? '▲' : '▼'}</span>
           </button>
 
           {showPaid && (
-            <div className="mt-2 rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC', opacity: 0.6 }}>
+            <div className="mt-2 rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', opacity: 0.6 }}>
               {paidGames.map((g, i) => (
                 <div key={g.id} className="px-4 py-2.5 flex items-center justify-between"
                   style={{ borderTop: i > 0 ? '1px solid #FFFFFF' : 'none' }}>
                   <div>
-                    <span className="text-sm" style={{ color: '#647060' }}>WTP Game</span>
+                    <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>WTP Game</span>
                     <p className="text-xs" style={{ color: '#9CA897' }}>
                       {format(new Date(g.match_date + 'T12:00:00'), 'EEE do MMM yyyy')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm" style={{ color: '#9CA897' }}>£{Number(g.amount).toFixed(2)}</span>
-                    <span className="text-xs" style={{ color: '#0D6B52' }}>✓ paid</span>
+                    <span className="text-xs" style={{ color: 'var(--color-primary)' }}>✓ paid</span>
                   </div>
                 </div>
               ))}
@@ -184,7 +184,7 @@ export default function MyFinances({ profile }: Props) {
                   style={{ borderTop: (i > 0 || paidGames.length > 0) ? '1px solid #FFFFFF' : 'none' }}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-sm" style={{ color: '#647060' }}>{fineLabel(f.type)}</span>
+                      <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{fineLabel(f.type)}</span>
                       {f.match_date && (
                         <p className="text-xs" style={{ color: '#9CA897' }}>
                           {format(new Date(f.match_date + 'T12:00:00'), 'EEE do MMM yyyy')}
@@ -193,7 +193,7 @@ export default function MyFinances({ profile }: Props) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm" style={{ color: '#9CA897' }}>£{Number(f.amount).toFixed(2)}</span>
-                      <span className="text-xs" style={{ color: '#0D6B52' }}>✓ paid</span>
+                      <span className="text-xs" style={{ color: 'var(--color-primary)' }}>✓ paid</span>
                     </div>
                   </div>
                 </div>

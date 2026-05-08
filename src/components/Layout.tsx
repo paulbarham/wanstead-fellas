@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useTheme } from '../hooks/useTheme'
 import PlayerAvatar from './PlayerAvatar'
 
 function InstagramIcon() {
@@ -26,32 +27,33 @@ const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: '⚙️' }
 export default function Layout() {
   const { profile } = useAuth()
   const navigate = useNavigate()
+  const { theme, toggle } = useTheme()
   const navItems = profile?.is_admin ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#F2F3EE' }}>
+    <div className="flex flex-col h-full" style={{ background: 'var(--color-bg)' }}>
       {/* Top bar */}
       <header className="flex-shrink-0 flex items-center justify-between px-4"
         style={{
-          background: '#FFFFFF',
-          borderBottom: '1px solid #E2E4DC',
+          background: 'var(--color-surface)',
+          borderBottom: '1px solid var(--color-border)',
           maxWidth: 430, width: '100%', margin: '0 auto',
           paddingTop: 'max(12px, calc(env(safe-area-inset-top) + 8px))',
           paddingBottom: 12,
         }}>
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: '#0D6B52' }}>
+            style={{ background: 'var(--color-primary)' }}>
             <span className="font-display text-sm text-white">WF</span>
           </div>
           <div className="flex flex-col" style={{ gap: 2 }}>
-            <span className="font-display text-lg tracking-wide leading-none" style={{ color: '#18201A' }}>WANSTEAD FELLAS</span>
+            <span className="font-display text-lg tracking-wide leading-none" style={{ color: 'var(--color-text)' }}>WANSTEAD FELLAS</span>
             <a
               href="https://www.instagram.com/wanstead_football_fellas"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 leading-none"
-              style={{ color: '#647060', textDecoration: 'none', fontSize: 10 }}
+              style={{ color: 'var(--color-text-muted)', textDecoration: 'none', fontSize: 10 }}
             >
               <InstagramIcon />
               @wanstead_football_fellas
@@ -59,22 +61,41 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* Avatar — tappable, navigates to Profile */}
-        {profile && (
+        <div className="flex items-center gap-2">
+          {/* Theme toggle */}
           <button
-            onClick={() => navigate('/profile')}
-            className="rounded-full transition-opacity active:opacity-70"
+            onClick={toggle}
+            className="flex items-center justify-center transition-opacity active:opacity-70"
             style={{
-              padding: 2,
-              border: '2px solid #0D6B52',
+              width: 32, height: 32,
               borderRadius: '50%',
-              lineHeight: 0,
+              background: 'var(--color-surface-2, var(--color-bg))',
+              border: '1px solid var(--color-border)',
+              fontSize: 16,
+              lineHeight: 1,
             }}
-            aria-label="My profile"
+            aria-label="Toggle theme"
           >
-            <PlayerAvatar profile={profile} size={28} />
+            {theme === 'dark' ? '☀️' : '🌙'}
           </button>
-        )}
+
+          {/* Avatar — tappable, navigates to Profile */}
+          {profile && (
+            <button
+              onClick={() => navigate('/profile')}
+              className="rounded-full transition-opacity active:opacity-70"
+              style={{
+                padding: 2,
+                border: '2px solid var(--color-primary)',
+                borderRadius: '50%',
+                lineHeight: 0,
+              }}
+              aria-label="My profile"
+            >
+              <PlayerAvatar profile={profile} size={28} />
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Main content */}
@@ -84,7 +105,7 @@ export default function Layout() {
 
       {/* Bottom nav */}
       <nav className="flex-shrink-0"
-        style={{ background: '#FFFFFF', borderTop: '1px solid #E2E4DC', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex">
           {navItems.map(item => (
             <NavLink
@@ -93,8 +114,8 @@ export default function Layout() {
               end={item.to === '/'}
               className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors active:opacity-60"
               style={({ isActive }) => ({
-                color: isActive ? '#0D6B52' : '#9CA897',
-                borderTop: `2px solid ${isActive ? '#0D6B52' : 'transparent'}`,
+                color: isActive ? 'var(--color-primary)' : '#9CA897',
+                borderTop: `2px solid ${isActive ? 'var(--color-primary)' : 'transparent'}`,
               })}
             >
               <span className="text-base leading-none">{item.icon}</span>

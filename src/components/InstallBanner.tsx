@@ -49,9 +49,9 @@ export default function InstallBanner() {
 
   return (
     <div className="mx-0 mb-3 px-3 py-2.5 rounded-xl flex items-center gap-2"
-      style={{ background: '#DCFCE7', border: '1px solid #0D6B52' }}>
+      style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-primary)' }}>
       <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center"
-        style={{ background: '#0D6B52' }}>
+        style={{ background: 'var(--color-primary)' }}>
         <span className="font-display text-xs text-white">WF</span>
       </div>
       <p className="flex-1 text-xs" style={{ color: '#ccc' }}>
@@ -63,7 +63,7 @@ export default function InstallBanner() {
         <button
           onClick={install}
           className="text-xs font-semibold px-2.5 py-1 rounded-lg flex-shrink-0"
-          style={{ background: '#0D6B52', color: 'white' }}
+          style={{ background: 'var(--color-primary)', color: 'white' }}
         >
           Install
         </button>

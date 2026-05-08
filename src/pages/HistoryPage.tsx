@@ -10,7 +10,7 @@ interface MatchRecord {
   fixtures: (Fixture & { team1?: Team; team2?: Team })[]
 }
 
-const LABEL_STYLE = { color: '#647060', letterSpacing: '0.8px' } as const
+const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
 const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
@@ -23,7 +23,7 @@ function ScorersList({ scorers }: { scorers: string }) {
     if (parts.length > 1 && parts.every(p => p.includes(':'))) lines = parts
   }
   if (lines.length === 1 && !scorers.includes(':')) {
-    return <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>{scorers}</p>
+    return <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text)' }}>{scorers}</p>
   }
   return (
     <div className="space-y-1">
@@ -31,13 +31,13 @@ function ScorersList({ scorers }: { scorers: string }) {
         const colonIdx = line.indexOf(':')
         if (colonIdx > 0) {
           return (
-            <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>
+            <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text)' }}>
               <span style={{ fontWeight: 600 }}>{stripFC(line.slice(0, colonIdx).trim())}</span>
               {': '}{line.slice(colonIdx + 1).trim()}
             </p>
           )
         }
-        return <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>{line}</p>
+        return <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text)' }}>{line}</p>
       })}
     </div>
   )
@@ -95,18 +95,18 @@ export default function HistoryPage() {
   }, [])
 
   if (loading) {
-    return <div className="px-4 py-5 text-sm" style={{ color: '#647060' }}>Loading history...</div>
+    return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading history...</div>
   }
 
   return (
     <div className="px-4 py-5">
       <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Archive</p>
-      <h1 className="font-display text-[#18201A] tracking-wide mb-5" style={{ fontSize: '28px' }}>HISTORY</h1>
+      <h1 className="font-display text-[var(--color-text)] tracking-wide mb-5" style={{ fontSize: '28px' }}>HISTORY</h1>
 
       {records.length === 0 ? (
         <div className="text-center py-12" style={{ color: '#9CA897' }}>
           <p className="text-4xl mb-3">📅</p>
-          <p className="font-medium text-[#18201A]">No matches played yet</p>
+          <p className="font-medium text-[var(--color-text)]">No matches played yet</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -121,24 +121,24 @@ export default function HistoryPage() {
 
             return (
               <div key={match.id} className="rounded-2xl overflow-hidden"
-                style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button
                   className="w-full px-4 py-4 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs mb-1" style={{ color: '#647060' }}>{dateLabel}</p>
+                      <p className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
                       {isTwoTeam && mainFixture ? (
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-[#18201A] text-sm">{stripFC(mainFixture.team1?.name)}</span>
-                          <span className="font-display text-xl" style={{ color: '#0D6B52' }}>
+                          <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team1?.name)}</span>
+                          <span className="font-display text-xl" style={{ color: 'var(--color-primary)' }}>
                             {mainFixture.score1} – {mainFixture.score2}
                           </span>
-                          <span className="font-semibold text-[#18201A] text-sm">{stripFC(mainFixture.team2?.name)}</span>
+                          <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team2?.name)}</span>
                         </div>
                       ) : (
-                        <p className="font-semibold text-[#18201A] text-sm">
+                        <p className="font-semibold text-[var(--color-text)] text-sm">
                           4-Team Tournament · {teams.length} teams
                         </p>
                       )}
@@ -146,9 +146,9 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs px-2 py-1 rounded-md font-medium"
                         style={{
-                          background: isTwoTeam ? '#DCFCE7' : '#F7F8F5',
-                          color: isTwoTeam ? '#0D6B52' : '#647060',
-                          border: `1px solid ${isTwoTeam ? '#86EFAC' : '#E2E4DC'}`,
+                          background: isTwoTeam ? 'var(--color-success-bg)' : '#F7F8F5',
+                          color: isTwoTeam ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                          border: `1px solid ${isTwoTeam ? '#86EFAC' : 'var(--color-border)'}`,
                         }}>
                         {match.format}
                       </span>
@@ -158,7 +158,7 @@ export default function HistoryPage() {
                 </button>
 
                 {isExpanded && (
-                  <div style={{ borderTop: '1px solid #E2E4DC' }}>
+                  <div style={{ borderTop: '1px solid var(--color-border)' }}>
                     {result?.scorers && (
                       <div className="px-4 py-4" style={{ borderBottom: '1px solid #F2F3EE' }}>
                         <p className={LABEL_CLASS + ' mb-3'} style={LABEL_STYLE}>Scorers</p>
@@ -172,11 +172,11 @@ export default function HistoryPage() {
                         <div className="space-y-1.5">
                           {fixtures.map(f => (
                             <div key={f.id} className="flex items-center gap-3 text-xs">
-                              <span className="flex-1 text-right font-medium text-[#18201A]">{stripFC(f.team1?.name)}</span>
-                              <span className="font-display text-base tabular-nums" style={{ color: '#0D6B52' }}>
+                              <span className="flex-1 text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
+                              <span className="font-display text-base tabular-nums" style={{ color: 'var(--color-primary)' }}>
                                 {f.score1} – {f.score2}
                               </span>
-                              <span className="flex-1 font-medium text-[#18201A]">{stripFC(f.team2?.name)}</span>
+                              <span className="flex-1 font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
                             </div>
                           ))}
                         </div>
@@ -190,7 +190,7 @@ export default function HistoryPage() {
                           style={{
                             fontSize: '14px',
                             lineHeight: '1.6',
-                            color: '#647060',
+                            color: 'var(--color-text-muted)',
                             overflow: 'hidden',
                             display: '-webkit-box',
                             WebkitBoxOrient: 'vertical',
@@ -203,13 +203,13 @@ export default function HistoryPage() {
                           <button
                             onClick={(e) => toggleReport(match.id, e)}
                             className="text-xs mt-2 font-semibold"
-                            style={{ color: '#0D6B52' }}
+                            style={{ color: 'var(--color-primary)' }}
                           >
                             {isReportExpanded ? 'Read less ▲' : 'Read more ▼'}
                           </button>
                         )}
                         {result?.highlights && (
-                          <p className="text-xs mt-2 font-medium" style={{ color: '#0D6B52' }}>{result.highlights}</p>
+                          <p className="text-xs mt-2 font-medium" style={{ color: 'var(--color-primary)' }}>{result.highlights}</p>
                         )}
                       </div>
                     )}
