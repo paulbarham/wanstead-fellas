@@ -90,22 +90,29 @@ export default function TopTrumpCard({ profile, compact = false }: Props) {
         <div style={{
           position: 'absolute', top: 26, bottom: 44, left: 0, right: 0,
           overflow: 'hidden',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
           zIndex: 1,
         }}>
           {profile.photo_url ? (
-            <img src={profile.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={profile.photo_url} alt="" style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover',
+              borderRadius: 0,
+              display: 'block',
+            }} />
           ) : (
-            <span style={{
-              fontFamily: 'display',
-              fontSize: '3.2rem',
-              color: s.accent,
-              opacity: 0.45,
-              lineHeight: 1,
-              letterSpacing: '-0.02em',
-            }}>
-              {profile.name?.[0]}{profile.surname?.[0]}
-            </span>
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{
+                fontFamily: 'display',
+                fontSize: '3.2rem',
+                color: s.accent,
+                opacity: 0.45,
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+              }}>
+                {profile.name?.[0]}{profile.surname?.[0]}
+              </span>
+            </div>
           )}
         </div>
 

@@ -301,8 +301,9 @@ function PlayersPanel() {
                           value={(editValues[key] as number) ?? 5}
                           onChange={e => setEditValues(v => ({ ...v, [key]: parseInt(e.target.value) }))}
                           className="flex-1"
+                          style={{ '--val': (editValues[key] as number) ?? 5, '--min': 1, '--max': 10 } as React.CSSProperties}
                         />
-                        <span className="text-xs w-4 text-right text-[#18201A]">
+                        <span className="text-xs flex-shrink-0 text-right text-[#18201A]" style={{ minWidth: 20 }}>
                           {(editValues[key] as number) ?? 5}
                         </span>
                       </div>

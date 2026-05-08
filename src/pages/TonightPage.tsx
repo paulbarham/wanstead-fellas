@@ -198,14 +198,14 @@ export default function TonightPage() {
 
   const dateLabel = (() => {
     const [y, m, d] = nextThursday.split('-').map(Number)
-    return format(new Date(y, m - 1, d), 'EEEE do MMMM')
+    return format(new Date(y, m - 1, d), 'do MMMM')
   })()
 
   const canToggle = profile?.is_admin || (phase === 'signup_open' || phase === 'post_match')
   const formatLabel = signedUpCount >= 22 ? '11v11' : '4-Team Tournament'
 
   return (
-    <div className="px-4 pt-4 pb-2">
+    <div className="px-4 pt-4 pb-4">
 
       <InstallBanner />
 
@@ -305,8 +305,9 @@ export default function TonightPage() {
                     <button
                       onClick={() => toggleChildAvailability(child.id)}
                       disabled={toggling}
-                      className="text-xs px-3 py-1.5 rounded-xl font-semibold disabled:opacity-50"
+                      className="text-xs px-4 py-2 rounded-xl font-semibold disabled:opacity-50 flex-shrink-0"
                       style={{
+                        minHeight: 36,
                         background: childIsWaiting ? '#FEF9C3' : childIsIn ? '#DCFCE7' : '#FFFFFF',
                         color: childIsWaiting ? '#92400e' : childIsIn ? '#0D6B52' : '#9CA897',
                         border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#0D6B52' : '#E2E4DC'}`,
@@ -538,8 +539,8 @@ export default function TonightPage() {
                 <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
                 <button
                   onClick={() => adminTogglePlayer(p.id)}
-                  className="text-xs px-2 py-0.5 rounded-lg font-medium ml-1"
-                  style={{ color: '#0D6B52', border: '1px solid #0D6B52' }}
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium ml-1 flex-shrink-0"
+                  style={{ minWidth: 52, color: '#0D6B52', border: '1px solid #0D6B52' }}
                 >
                   Add
                 </button>
@@ -553,7 +554,7 @@ export default function TonightPage() {
       {lastResult !== undefined && (
         <button
           onClick={() => navigate('/match')}
-          className="w-full text-left p-5 rounded-2xl"
+          className="w-full text-left p-5 rounded-2xl mt-5"
           style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}
         >
           <div className="flex items-center justify-between mb-2">
@@ -562,7 +563,7 @@ export default function TonightPage() {
             </p>
             {lastResult && (
               <span className="text-xs" style={{ color: '#9CA897' }}>
-                {format(new Date(lastResult.matchDate + 'T12:00:00'), 'EEE do MMM')} ›
+                {format(new Date(lastResult.matchDate + 'T12:00:00'), 'do MMM')} ›
               </span>
             )}
           </div>

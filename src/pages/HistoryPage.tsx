@@ -12,29 +12,32 @@ interface MatchRecord {
 
 const LABEL_STYLE = { color: '#647060', letterSpacing: '0.8px' } as const
 const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
+const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 function ScorersList({ scorers }: { scorers: string }) {
-  const lines = scorers.split('\n').map(l => l.trim()).filter(Boolean)
-  if (lines.length <= 1 && !scorers.includes(':')) {
-    return <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>{scorers}</p>
+  let lines = scorers.split('\n').map(l => l.trim()).filter(Boolean)
+  if (lines.length === 1 && (scorers.match(/:/g) ?? []).length > 1) {
+    const parts = scorers
+      .split(/(?<=\S)\s+(?=[A-Z][a-z]+ [A-Z][a-z]+(?:\s+(?:FC|XI))?:)/)
+      .map(l => l.trim()).filter(Boolean)
+    if (parts.length > 1 && parts.every(p => p.includes(':'))) lines = parts
+  }
+  if (lines.length === 1 && !scorers.includes(':')) {
+    return <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>{scorers}</p>
   }
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {lines.map((line, i) => {
         const colonIdx = line.indexOf(':')
         if (colonIdx > 0) {
           return (
-            <div key={i}>
-              <p className={LABEL_CLASS} style={{ ...LABEL_STYLE, marginBottom: 2 }}>
-                {line.slice(0, colonIdx).trim()}
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>
-                {line.slice(colonIdx + 1).trim()}
-              </p>
-            </div>
+            <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>
+              <span style={{ fontWeight: 600 }}>{stripFC(line.slice(0, colonIdx).trim())}</span>
+              {': '}{line.slice(colonIdx + 1).trim()}
+            </p>
           )
         }
-        return <p key={i} style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>{line}</p>
+        return <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>{line}</p>
       })}
     </div>
   )
@@ -110,7 +113,7 @@ export default function HistoryPage() {
           {records.map(({ match, result, teams, fixtures }) => {
             const isExpanded = expanded === match.id
             const isReportExpanded = expandedReports.has(match.id)
-            const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'EEE do MMM yyyy')
+            const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy')
             const isTwoTeam = match.format !== 'tournament' && match.format !== '4-team'
             const mainFixture = isTwoTeam ? fixtures[0] : null
             const reportText = result?.report_text ?? null
@@ -128,11 +131,11 @@ export default function HistoryPage() {
                       <p className="text-xs mb-1" style={{ color: '#647060' }}>{dateLabel}</p>
                       {isTwoTeam && mainFixture ? (
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-[#18201A] text-sm">{mainFixture.team1?.name}</span>
+                          <span className="font-semibold text-[#18201A] text-sm">{stripFC(mainFixture.team1?.name)}</span>
                           <span className="font-display text-xl" style={{ color: '#0D6B52' }}>
                             {mainFixture.score1} – {mainFixture.score2}
                           </span>
-                          <span className="font-semibold text-[#18201A] text-sm">{mainFixture.team2?.name}</span>
+                          <span className="font-semibold text-[#18201A] text-sm">{stripFC(mainFixture.team2?.name)}</span>
                         </div>
                       ) : (
                         <p className="font-semibold text-[#18201A] text-sm">
@@ -169,11 +172,11 @@ export default function HistoryPage() {
                         <div className="space-y-1.5">
                           {fixtures.map(f => (
                             <div key={f.id} className="flex items-center gap-3 text-xs">
-                              <span className="flex-1 text-right font-medium text-[#18201A]">{f.team1?.name}</span>
+                              <span className="flex-1 text-right font-medium text-[#18201A]">{stripFC(f.team1?.name)}</span>
                               <span className="font-display text-base tabular-nums" style={{ color: '#0D6B52' }}>
                                 {f.score1} – {f.score2}
                               </span>
-                              <span className="flex-1 font-medium text-[#18201A]">{f.team2?.name}</span>
+                              <span className="flex-1 font-medium text-[#18201A]">{stripFC(f.team2?.name)}</span>
                             </div>
                           ))}
                         </div>

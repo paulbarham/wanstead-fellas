@@ -60,32 +60,45 @@ input[type="range"] {
   background: transparent;
   cursor: pointer;
   width: 100%;
-  accent-color: #0D6B52;
+  height: 20px;
 }
-input[type="range"]::-webkit-slider-track {
-  background: #E2E4DC;
+input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    #0D6B52 calc((var(--val, 5) - var(--min, 1)) / (var(--max, 10) - var(--min, 1)) * 100%),
+    #E2E4DC 0%
+  );
   height: 4px;
   border-radius: 2px;
+  border: none;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   background: #FFFFFF;
   border: 2px solid #0D6B52;
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   border-radius: 50%;
-  margin-top: -6px;
+  margin-top: -7px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 input[type="range"]::-moz-range-track {
   background: #E2E4DC;
+  height: 4px;
+  border-radius: 2px;
+  border: none;
+}
+input[type="range"]::-moz-range-progress {
+  background: #0D6B52;
   height: 4px;
   border-radius: 2px;
 }
 input[type="range"]::-moz-range-thumb {
   background: #FFFFFF;
   border: 2px solid #0D6B52;
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }

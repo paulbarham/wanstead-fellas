@@ -24,29 +24,32 @@ interface GroupRow {
 
 const LABEL_STYLE = { color: '#647060', letterSpacing: '0.8px' } as const
 const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
+const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 function ScorersList({ scorers }: { scorers: string }) {
-  const lines = scorers.split('\n').map(l => l.trim()).filter(Boolean)
-  if (lines.length <= 1 && !scorers.includes(':')) {
-    return <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#18201A' }}>{scorers}</p>
+  let lines = scorers.split('\n').map(l => l.trim()).filter(Boolean)
+  if (lines.length === 1 && (scorers.match(/:/g) ?? []).length > 1) {
+    const parts = scorers
+      .split(/(?<=\S)\s+(?=[A-Z][a-z]+ [A-Z][a-z]+(?:\s+(?:FC|XI))?:)/)
+      .map(l => l.trim()).filter(Boolean)
+    if (parts.length > 1 && parts.every(p => p.includes(':'))) lines = parts
+  }
+  if (lines.length === 1 && !scorers.includes(':')) {
+    return <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>{scorers}</p>
   }
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-1">
       {lines.map((line, i) => {
         const colonIdx = line.indexOf(':')
         if (colonIdx > 0) {
           return (
-            <div key={i}>
-              <p className={LABEL_CLASS} style={{ ...LABEL_STYLE, marginBottom: 3 }}>
-                {line.slice(0, colonIdx).trim()}
-              </p>
-              <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>
-                {line.slice(colonIdx + 1).trim()}
-              </p>
-            </div>
+            <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>
+              <span style={{ fontWeight: 600 }}>{stripFC(line.slice(0, colonIdx).trim())}</span>
+              {': '}{line.slice(colonIdx + 1).trim()}
+            </p>
           )
         }
-        return <p key={i} style={{ fontSize: '14px', lineHeight: '1.5', color: '#18201A' }}>{line}</p>
+        return <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: '#18201A' }}>{line}</p>
       })}
     </div>
   )
@@ -156,7 +159,7 @@ export default function MatchPage() {
   }
 
   const matchDateLabel = match
-    ? format(new Date(match.match_date + 'T12:00:00'), 'EEE do MMM yyyy')
+    ? format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy')
     : null
 
   return (
@@ -203,13 +206,13 @@ function ElevenVElevenView({ result, fixtures }: {
           style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
           <div className="px-5 pt-5 pb-4">
             <div className="flex items-center justify-between gap-3 mb-4">
-              <span className="font-semibold text-[#18201A] text-sm flex-1 text-right leading-tight">{main.team1?.name}</span>
+              <span className="font-semibold text-[#18201A] text-sm flex-1 text-right leading-tight">{stripFC(main.team1?.name)}</span>
               <div className="flex items-center gap-3">
                 <span className="font-display text-6xl text-[#18201A] leading-none">{main.score1 ?? '–'}</span>
                 <span className="font-display text-2xl leading-none" style={{ color: '#647060' }}>–</span>
                 <span className="font-display text-6xl text-[#18201A] leading-none">{main.score2 ?? '–'}</span>
               </div>
-              <span className="font-semibold text-[#18201A] text-sm flex-1 leading-tight">{main.team2?.name}</span>
+              <span className="font-semibold text-[#18201A] text-sm flex-1 leading-tight">{stripFC(main.team2?.name)}</span>
             </div>
             {winner && (
               <p className="text-center text-xs font-medium" style={{ color: '#0D6B52' }}>
@@ -233,7 +236,7 @@ function ElevenVElevenView({ result, fixtures }: {
       {result?.report_text && (
         <div className="p-5 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
           <p className={LABEL_CLASS + ' mb-3'} style={LABEL_STYLE}>Match Report</p>
-          <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#647060' }}>{result.report_text}</p>
+          <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#647060' }}>{result.report_text}</p>
         </div>
       )}
     </div>
@@ -258,7 +261,8 @@ function FourTeamView({ result, teams, fixtures }: {
         <table className="w-full text-xs">
           <thead>
             <tr style={{ color: '#647060' }}>
-              <th className="px-4 py-2 text-left font-medium">Team</th>
+              <th className="py-2 text-center font-medium" style={{ width: 36, paddingLeft: 8, paddingRight: 4 }}>#</th>
+              <th className="py-2 text-left font-medium" style={{ paddingRight: 4 }}>Team</th>
               <th className="px-2 py-2 font-medium">P</th>
               <th className="px-2 py-2 font-medium">W</th>
               <th className="px-2 py-2 font-medium">D</th>
@@ -272,10 +276,12 @@ function FourTeamView({ result, teams, fixtures }: {
               const isLeader = i === 0 && row.pts > 0
               return (
                 <tr key={row.team.id} style={{ borderTop: '1px solid #F2F3EE' }}>
-                  <td className="px-4 py-2.5 font-medium text-[#18201A]">
-                    <span className="mr-2 text-xs" style={{ color: isLeader ? '#0D6B52' : '#9CA897' }}>{i + 1}</span>
-                    {row.team.name}
-                    {isLeader && <span className="ml-2 text-xs" style={{ color: '#0D6B52' }}>★</span>}
+                  <td className="py-2.5 text-center font-medium" style={{ width: 36, paddingLeft: 8, paddingRight: 4, color: isLeader ? '#0D6B52' : '#9CA897' }}>
+                    {i + 1}
+                  </td>
+                  <td className="py-2.5 font-medium text-[#18201A]" style={{ paddingRight: 4 }}>
+                    {stripFC(row.team.name)}
+                    {isLeader && <span className="ml-1.5 text-xs" style={{ color: '#0D6B52' }}>★</span>}
                   </td>
                   <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.played}</td>
                   <td className="px-2 py-2.5 text-center" style={{ color: '#647060' }}>{row.won}</td>
@@ -300,13 +306,13 @@ function FourTeamView({ result, teams, fixtures }: {
           {fixtures.map((f, i) => (
             <div key={f.id} className="px-4 py-3 flex items-center gap-2"
               style={{ borderTop: i > 0 ? '1px solid #F2F3EE' : 'none' }}>
-              <span className="flex-1 text-xs text-right font-medium text-[#18201A]">{f.team1?.name}</span>
+              <span className="flex-1 text-xs text-right font-medium text-[#18201A]">{stripFC(f.team1?.name)}</span>
               <div className="flex items-center gap-2 px-3">
                 <span className="font-display text-2xl text-[#18201A]">{f.score1 ?? '–'}</span>
                 <span className="text-xs" style={{ color: '#647060' }}>–</span>
                 <span className="font-display text-2xl text-[#18201A]">{f.score2 ?? '–'}</span>
               </div>
-              <span className="flex-1 text-xs font-medium text-[#18201A]">{f.team2?.name}</span>
+              <span className="flex-1 text-xs font-medium text-[#18201A]">{stripFC(f.team2?.name)}</span>
             </div>
           ))}
         </div>
@@ -325,9 +331,9 @@ function FourTeamView({ result, teams, fixtures }: {
         <div className="p-5 rounded-2xl" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
           <p className={LABEL_CLASS + ' mb-3'} style={LABEL_STYLE}>
             Match Report
-            {winner && <span className="ml-2 normal-case font-normal" style={{ color: '#0D6B52' }}>· {winner.team.name} win</span>}
+            {winner && <span className="ml-2 normal-case font-normal" style={{ color: '#0D6B52' }}>· {stripFC(winner.team.name)} win</span>}
           </p>
-          <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#647060' }}>{result.report_text}</p>
+          <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#647060' }}>{result.report_text}</p>
           {result.highlights && (
             <p className="text-xs mt-3 font-medium" style={{ color: '#0D6B52' }}>{result.highlights}</p>
           )}

@@ -11,7 +11,9 @@ export function cropAndResizeImage(file: File): Promise<Blob> {
 
       const size = Math.min(img.width, img.height)
       const sx = (img.width - size) / 2
-      const sy = (img.height - size) / 2
+      // Bias crop toward top: centre the crop at 33% of image height to capture faces
+      const idealCenterY = img.height * 0.33
+      const sy = Math.max(0, Math.min(idealCenterY - size / 2, img.height - size))
 
       ctx.drawImage(img, sx, sy, size, size, 0, 0, 400, 400)
       URL.revokeObjectURL(url)

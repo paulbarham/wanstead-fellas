@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import type { Profile, Match, Team } from '../types'
 import PlayerAvatar from './PlayerAvatar'
+
+const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 interface TeamDraft {
   id?: string
@@ -56,7 +58,7 @@ function pickCaptain(players: Profile[]): Profile {
 }
 
 function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
-  const dateLabel = format(new Date(nextThursday + 'T12:00:00'), 'EEEE do MMMM')
+  const dateLabel = format(new Date(nextThursday + 'T12:00:00'), 'do MMMM')
   const formatLabel = teams.length >= 3 ? '4-Team Tournament' : '11v11'
 
   let text = `🏆 WANSTEAD FELLAS — THURSDAY NIGHT FOOTBALL\n`
@@ -271,13 +273,24 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   value={weights[key] || 0}
                   onChange={e => setWeights(w => ({ ...w, [key]: parseFloat(e.target.value) }))}
                   className="flex-1"
+                  style={{ '--val': weights[key] || 0, '--min': 0, '--max': 5 } as React.CSSProperties}
                 />
-                <span className="text-xs w-5 text-right text-[#18201A]">{weights[key] || 0}</span>
+                <span className="text-xs flex-shrink-0 text-right text-[#18201A]" style={{ minWidth: 28, paddingRight: 4 }}>{weights[key] || 0}</span>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Empty state */}
+      {teamsToShow.length === 0 && (
+        <div className="p-6 rounded-2xl text-center" style={{ background: '#FFFFFF', border: '1px solid #E2E4DC' }}>
+          <p className="text-2xl mb-2">👥</p>
+          <p className="text-sm" style={{ color: '#647060' }}>
+            Tap Auto-Balance to generate teams based on signed-up players
+          </p>
+        </div>
+      )}
 
       {/* Team cards */}
       {teamsToShow.length > 0 && (
@@ -307,7 +320,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                     style={{ background: color }}>
                     <div>
                       <h3 className="font-display text-white tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
-                        {team.name}
+                        {stripFC(team.name)}
                       </h3>
                       {team.captain && (
                         <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>
