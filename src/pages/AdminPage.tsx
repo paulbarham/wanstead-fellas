@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import type { Profile, Feedback, BadgeType } from '../types'
+import type { Profile, Feedback, BadgeType, PlayerType } from '../types'
 import PlayerAvatar from '../components/PlayerAvatar'
+import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import AdminFinancePanel from '../components/AdminFinancePanel'
 
@@ -26,6 +27,12 @@ const STAT_LABELS: Record<string, string> = {
   wr: 'Work Rate', cunt: 'Cuntiness', overall_rating: 'Overall',
 }
 const ALL_BADGES: BadgeType[] = ['Super Sharp Shooter', 'Legend', 'Captain']
+const PLAYER_TYPE_OPTS: { type: PlayerType; label: string; color: string; bg: string }[] = [
+  { type: 'subscribed',   label: 'SUB',  color: '#0D6B52', bg: '#DCFCE7' },
+  { type: 'wtp_priority', label: 'WTP★', color: '#C9A227', bg: '#FEF9C3' },
+  { type: 'wtp',          label: 'WTP',  color: '#647060', bg: '#F2F3EE' },
+]
+
 const BADGE_COLORS: Record<BadgeType, string> = {
   'Super Sharp Shooter': '#C0392B',
   'Legend': '#B7860B',
@@ -90,6 +97,7 @@ function PlayersPanel() {
   const [editAgeGroup, setEditAgeGroup] = useState('')
   const [uploadingFor, setUploadingFor] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [typePickerId, setTypePickerId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileInputPlayerId = useRef<string | null>(null)
 
@@ -117,6 +125,13 @@ function PlayersPanel() {
     await loadPlayers()
     setSaving(false)
     setEditingId(null)
+  }
+
+  async function updatePlayerType(id: string, type: PlayerType) {
+    await supabase.from('profiles').update({ player_type: type }).eq('id', id)
+    if (id === myProfile?.id) await refreshProfile()
+    setTypePickerId(null)
+    await loadPlayers()
   }
 
   async function toggleBadge(playerId: string, badge: BadgeType) {
@@ -177,15 +192,51 @@ function PlayersPanel() {
               style={{ background: '#FFFFFF', border: `1px solid ${isEditing ? '#0D6B52' : '#E2E4DC'}` }}>
 
               {/* Player row */}
-              <button
+              <div
                 onClick={() => startEdit(p)}
-                className="w-full flex items-center gap-3 px-3 py-3 text-left"
+                className="w-full flex items-center gap-3 px-3 py-3 cursor-pointer"
               >
                 <PlayerAvatar profile={p} size={40} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#18201A]">{p.name} {p.surname}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                     <span className="text-xs" style={{ color: '#647060' }}>{p.age_group}</span>
+
+                    {/* Player type badge / quick picker */}
+                    <div onClick={e => e.stopPropagation()}>
+                      {typePickerId === p.id ? (
+                        <div className="flex gap-1 items-center">
+                          {PLAYER_TYPE_OPTS.map(opt => (
+                            <button
+                              key={opt.type}
+                              onClick={() => updatePlayerType(p.id, opt.type)}
+                              style={{
+                                fontSize: '0.55rem',
+                                fontWeight: 700,
+                                letterSpacing: '0.05em',
+                                padding: '1px 5px',
+                                borderRadius: 4,
+                                background: opt.bg,
+                                color: opt.color,
+                                border: `1px solid ${opt.color}55`,
+                                opacity: p.player_type === opt.type ? 1 : 0.45,
+                              }}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => setTypePickerId(null)}
+                            style={{ fontSize: '0.6rem', color: '#9CA897', padding: '1px 3px' }}
+                          >✕</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setTypePickerId(p.id)}>
+                          <PlayerTypeBadge type={p.player_type} />
+                        </button>
+                      )}
+                    </div>
+
                     {badges.slice(0, 2).map(b => (
                       <span key={b} className="text-xs px-1.5 py-0.5 rounded font-medium"
                         style={{ background: BADGE_COLORS[b], color: '#18201A', fontSize: '0.55rem' }}>
@@ -198,7 +249,7 @@ function PlayersPanel() {
                   <span className="font-display text-xl" style={{ color: '#0D6B52' }}>{p.overall_rating}</span>
                   <span className="text-xs" style={{ color: '#9CA897' }}>{isEditing ? '▲' : '▼'}</span>
                 </div>
-              </button>
+              </div>
 
               {/* Edit panel */}
               {isEditing && (
