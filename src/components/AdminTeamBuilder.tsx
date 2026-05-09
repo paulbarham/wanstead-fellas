@@ -33,7 +33,7 @@ const ATTR_LABELS: { key: keyof Profile; label: string }[] = [
   { key: 'wr', label: 'Work Rate' },
 ]
 
-const TEAM_COLORS = ['#0D6B52', '#1d4ed8', '#b45309', '#9f1239']
+const TEAM_COLORS = ['#1E3A5F', '#14532D', '#7C2D12', '#4C1D95']
 
 function calcWeightedScore(player: Profile, weights: Record<string, number>): number {
   return ATTR_LABELS.reduce((sum, { key }) => sum + (player[key] as number) * (weights[key] || 0), 0)
@@ -219,7 +219,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const isOverCap = totalPlayers > 32
 
   return (
-    <div className="px-4 pt-4 pb-4">
+    <div className="px-4 pt-4" style={{ paddingBottom: 0 }}>
       <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-primary)' }}>Teams</p>
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-display text-2xl text-[var(--color-text)] tracking-wide">TEAM BUILDER</h1>
@@ -313,28 +313,59 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
             {teamsToShow.map((team, teamIdx) => {
               const color = TEAM_COLORS[teamIdx % TEAM_COLORS.length]
               return (
-                <div key={team.id ?? teamIdx} className="rounded-2xl overflow-hidden"
-                  style={{ border: `1px solid ${color}55` }}>
+                <div key={team.id ?? teamIdx}
+                  style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${color}55` }}>
 
-                  <div className="px-4 py-3 flex items-center justify-between"
-                    style={{ background: color }}>
-                    <div>
-                      <h3 className="font-display text-white tracking-wide" style={{ fontSize: '1.05rem', lineHeight: 1.1 }}>
+                  {/* Coloured header — full-width band, 16px padding all sides */}
+                  <div
+                    style={{
+                      background: color,
+                      padding: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 12,
+                    }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 className="font-display"
+                        style={{
+                          fontSize: 24,
+                          lineHeight: 1.05,
+                          color: '#FFFFFF',
+                          letterSpacing: '0.02em',
+                          wordBreak: 'normal',
+                          overflowWrap: 'break-word',
+                        }}>
                         {stripFC(team.name)}
                       </h3>
                       {team.captain && (
-                        <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                        <p style={{
+                          fontSize: 12,
+                          color: 'rgba(255,255,255,0.7)',
+                          marginTop: 4,
+                          lineHeight: 1.2,
+                        }}>
                           © {team.captain.name} {team.captain.surname}
                         </p>
                       )}
                     </div>
-                    <span className="text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0"
-                      style={{ background: 'rgba(0,0,0,0.25)', color: 'var(--color-surface)', border: '1px solid rgba(255,255,255,0.3)' }}>
-                      {team.bibs ? '🟡 BIBS' : '⬜ SKINS'}
+                    <span style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: '0.6px',
+                      padding: '4px 10px',
+                      borderRadius: 999,
+                      background: team.bibs ? '#F59E0B' : '#3B82F6',
+                      color: '#FFFFFF',
+                      flexShrink: 0,
+                    }}>
+                      {team.bibs ? 'BIBS' : 'SKINS'}
                     </span>
                   </div>
 
-                  <div className="p-3 flex flex-wrap gap-1.5" style={{ background: 'var(--color-surface-2)' }}>
+                  <div className="flex flex-wrap gap-1.5"
+                    style={{ background: 'var(--color-surface-2)', padding: 16 }}>
+
                     {team.players.map(p => {
                       const isCap = p.id === team.captain?.id
                       return (
@@ -373,34 +404,70 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
 
           {/* Finalise & Export section */}
           {teamsToShow.length > 0 && (
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-              <div className="px-4 py-3" style={{ background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
-                <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
-                  Finalise & Export
-                </p>
-              </div>
-              <div className="p-4 space-y-2.5" style={{ background: 'var(--color-surface-2)' }}>
+            <div style={{ marginTop: 8, paddingBottom: 16 }}>
+              {/* Subtle divider */}
+              <div style={{ height: 1, background: 'var(--color-border)', marginBottom: 16 }} />
+
+              <p
+                className="font-semibold"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-text-muted)',
+                  marginBottom: 12,
+                }}
+              >
+                Finalise & Export
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {/* Primary: WhatsApp */}
                 <button
                   onClick={() => copyToClipboard(buildWhatsAppText(teamsToShow, nextThursday), 'whatsapp')}
-                  className="w-full py-3 rounded-xl font-semibold text-sm"
                   style={{
-                    background: copied === 'whatsapp' ? 'var(--color-success-bg)' : 'var(--color-surface)',
-                    color: copied === 'whatsapp' ? 'var(--color-primary)' : 'var(--color-text)',
-                    border: '1px solid var(--color-primary)',
+                    width: '100%',
+                    padding: '14px 16px',
+                    borderRadius: 12,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    background: copied === 'whatsapp' ? 'var(--color-success-bg)' : 'var(--color-primary)',
+                    color: copied === 'whatsapp' ? 'var(--color-success-text)' : '#FFFFFF',
+                    border: 'none',
                   }}
                 >
-                  {copied === 'whatsapp' ? '✓ Copied!' : '📋 Copy Team Sheet for WhatsApp'}
+                  <span aria-hidden="true" style={{ fontSize: 16, lineHeight: 1 }}>
+                    {copied === 'whatsapp' ? '✓' : '📋'}
+                  </span>
+                  {copied === 'whatsapp' ? 'Copied!' : 'Copy team sheet for WhatsApp'}
                 </button>
+
+                {/* Secondary: Flat list */}
                 <button
                   onClick={() => copyToClipboard(buildFlatList(teamsToShow), 'flat')}
-                  className="w-full py-3 rounded-xl font-semibold text-sm"
                   style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    borderRadius: 12,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
                     background: copied === 'flat' ? 'var(--color-success-bg)' : 'var(--color-surface)',
-                    color: copied === 'flat' ? 'var(--color-primary)' : '#9CA897',
+                    color: copied === 'flat' ? 'var(--color-success-text)' : 'var(--color-text)',
                     border: '1px solid var(--color-border)',
                   }}
                 >
-                  {copied === 'flat' ? '✓ Copied!' : '📝 Copy Flat Player List'}
+                  <span aria-hidden="true" style={{ fontSize: 16, lineHeight: 1 }}>
+                    {copied === 'flat' ? '✓' : '📝'}
+                  </span>
+                  {copied === 'flat' ? 'Copied!' : 'Copy flat player list'}
                 </button>
               </div>
             </div>

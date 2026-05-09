@@ -100,17 +100,14 @@ export default function MatchPage() {
     const thisWeek = thisWeekRaw as Match | null
     setWeekMatch(thisWeek)
 
-    let displayMatch: Match | null = thisWeek?.status === 'completed' ? thisWeek : null
-    if (!displayMatch) {
-      const { data: latestRaw } = await supabase
-        .from('matches')
-        .select('*')
-        .eq('status', 'completed')
-        .order('match_date', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      displayMatch = latestRaw as Match | null
-    }
+    const { data: latestRaw } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('status', 'completed')
+      .order('match_date', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const displayMatch = latestRaw as Match | null
     setMatch(displayMatch)
 
     if (displayMatch) {
