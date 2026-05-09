@@ -24,30 +24,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  async function fetchProfile(userId: string, userEmail?: string): Promise<Profile | null> {
-    const { data, error } = await supabase
+  async function fetchProfile(authUser: User): Promise<Profile | null> {
+    const { data } = await supabase
       .from('profiles')
       .select('*')
-      .eq('auth_user_id', userId)
-      .single()
+      .eq('auth_user_id', authUser.id)
+      .maybeSingle()
 
-    if (error || !data) {
-      console.error('fetchProfile error:', error)
+    if (data) {
+      // Promote to admin if email matches but flag not yet set
+      if (authUser.email === ADMIN_EMAIL && !data.is_admin) {
+        await supabase.from('profiles').update({ is_admin: true }).eq('auth_user_id', authUser.id)
+        data.is_admin = true
+      }
+      return data as Profile
+    }
+
+    // Self-heal: no profile row. The DB trigger may have silently failed
+    // (or the user signed up before the trigger existed). Recreate from the
+    // auth user's signup metadata so the user isn't locked out.
+    const meta = (authUser.user_metadata ?? {}) as { name?: string; surname?: string; age_group?: string }
+    const { data: created, error: createErr } = await supabase
+      .from('profiles')
+      .insert({
+        auth_user_id: authUser.id,
+        name: meta.name ?? '',
+        surname: meta.surname ?? '',
+        age_group: meta.age_group ?? 'adult',
+        player_type: 'wtp',
+        badges: [],
+        is_admin: authUser.email === ADMIN_EMAIL,
+      })
+      .select('*')
+      .maybeSingle()
+
+    if (createErr) {
+      console.error('Profile self-heal failed:', createErr)
       return null
     }
-
-    // Promote to admin if email matches but flag not yet set
-    if (userEmail === ADMIN_EMAIL && !data.is_admin) {
-      await supabase.from('profiles').update({ is_admin: true }).eq('auth_user_id', userId)
-      data.is_admin = true
-    }
-
-    return data as Profile
+    return (created as Profile) ?? null
   }
 
   async function refreshProfile() {
     if (user) {
-      const data = await fetchProfile(user.id, user.email ?? undefined)
+      const data = await fetchProfile(user)
       setProfile(data)
     }
   }
@@ -66,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         // Call setProfile and setLoading together so React batches them into one
         // render — prevents Layout from seeing loading=false with profile=null.
-        fetchProfile(session.user.id, session.user.email ?? undefined)
+        fetchProfile(session.user)
           .then(data => {
             setProfile(data)
             setLoading(false)
@@ -95,10 +115,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     })
 
-    if (error) return { error: error as Error | null }
+    if (error) {
+      // "Database error saving new user" comes from the handle_new_user
+      // trigger crashing. Wrap it in something the user can act on.
+      const friendly = /database error/i.test(error.message)
+        ? 'Sign up failed. Please try again — if it keeps happening, contact the organiser.'
+        : error.message
+      return { error: new Error(friendly) }
+    }
 
-    // Fallback: if the trigger didn't create a profile and we have a session,
-    // insert directly. Uses ON CONFLICT so safe to run even if trigger succeeded.
+    // Fallback: if we already have a session, make sure the profile row exists
+    // (trigger may have silently failed). Without a session (email-confirmation
+    // flow) the profile gets created later via fetchProfile self-heal.
     if (data.user && data.session) {
       const { data: existing } = await supabase
         .from('profiles')
@@ -107,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .maybeSingle()
 
       if (!existing) {
-        await supabase.from('profiles').insert({
+        const { error: insertErr } = await supabase.from('profiles').insert({
           auth_user_id: data.user.id,
           name,
           surname,
@@ -116,6 +144,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           badges: [],
           is_admin: false,
         })
+        if (insertErr) {
+          return { error: new Error('Account created but profile setup failed. Please contact the organiser.') }
+        }
       }
     }
 

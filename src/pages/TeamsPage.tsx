@@ -161,22 +161,49 @@ export default function TeamsPage() {
 
                   {team.players.map(p => {
                     const isCap = p.id === team.captain_id
-                    const pillText = theme === 'dark' ? '#FFFFFF' : color
+                    const isDark = theme === 'dark'
+                    // Dark: captain bg = white@20%, others = team@15%, text = white.
+                    // Light: captain bg = team@20%, others = team@10%, text = team colour.
+                    const pillBg = isDark
+                      ? (isCap ? 'rgba(255,255,255,0.20)' : `${color}26`)
+                      : (isCap ? `${color}33` : `${color}1A`)
+                    const pillText = isDark ? '#FFFFFF' : color
                     return (
                       <div
                         key={p.id}
-                        className="inline-flex items-center gap-1 rounded-lg"
+                        className="inline-flex items-center gap-1.5 rounded-lg"
                         style={{
-                          background: `${color}${isCap ? '40' : '26'}`,
+                          background: pillBg,
                           color: pillText,
-                          border: `${isCap ? '2px' : '1px'} solid ${color}66`,
-                          padding: '5px 8px',
+                          border: `1px solid ${color}80`,
+                          padding: '6px 10px',
                           fontSize: 12,
                           fontWeight: isCap ? 600 : 500,
+                          maxWidth: '100%',
                         }}
                       >
-                        {p.surname}
-                        {isCap && <span style={{ color: pillText, fontSize: '0.7rem', marginLeft: 2 }}>©</span>}
+                        {isCap && (
+                          <span
+                            aria-hidden
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 14,
+                              height: 14,
+                              borderRadius: '50%',
+                              background: '#FFFFFF',
+                              color,
+                              fontSize: 9,
+                              fontWeight: 700,
+                              lineHeight: 1,
+                              flexShrink: 0,
+                            }}
+                          >
+                            ©
+                          </span>
+                        )}
+                        <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{p.surname}</span>
                       </div>
                     )
                   })}
