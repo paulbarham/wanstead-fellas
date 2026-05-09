@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { useTheme } from '../hooks/useTheme'
 import { supabase } from '../lib/supabase'
 import type { Profile, Team, TeamPlayer, Match } from '../types'
 import { getNextThursdayDate } from '../lib/time'
@@ -16,6 +17,7 @@ const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 export default function TeamsPage() {
   const { profile } = useAuth()
+  const { theme } = useTheme()
   const [match, setMatch] = useState<Match | null>(null)
   const [teams, setTeams] = useState<TeamWithPlayers[]>([])
   const [loading, setLoading] = useState(true)
@@ -159,13 +161,14 @@ export default function TeamsPage() {
 
                   {team.players.map(p => {
                     const isCap = p.id === team.captain_id
+                    const pillText = theme === 'dark' ? '#FFFFFF' : color
                     return (
                       <div
                         key={p.id}
                         className="inline-flex items-center gap-1 rounded-lg"
                         style={{
                           background: `${color}${isCap ? '40' : '26'}`,
-                          color: '#FFFFFF',
+                          color: pillText,
                           border: `${isCap ? '2px' : '1px'} solid ${color}66`,
                           padding: '5px 8px',
                           fontSize: 12,
@@ -173,7 +176,7 @@ export default function TeamsPage() {
                         }}
                       >
                         {p.surname}
-                        {isCap && <span style={{ color: '#FFFFFF', fontSize: '0.7rem', marginLeft: 2 }}>©</span>}
+                        {isCap && <span style={{ color: pillText, fontSize: '0.7rem', marginLeft: 2 }}>©</span>}
                       </div>
                     )
                   })}
