@@ -155,24 +155,25 @@ export default function TeamsPage() {
 
                 {/* Player pills */}
                 <div className="flex flex-wrap gap-1.5"
-                  style={{ background: 'var(--color-surface-2)', padding: 16 }}>
+                  style={{ background: 'var(--color-team-card-body)', padding: 16 }}>
 
                   {team.players.map(p => {
                     const isCap = p.id === team.captain_id
-                    const isMe = p.id === profile?.id
                     return (
                       <div
                         key={p.id}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium"
+                        className="inline-flex items-center gap-1 rounded-lg"
                         style={{
-                          background: isMe ? `${color}20` : isCap ? 'var(--color-surface)' : 'var(--color-surface)',
-                          color: isMe ? color : isCap ? 'var(--color-text)' : 'var(--color-text-muted)',
-                          border: `1px solid ${isMe ? `${color}66` : isCap ? 'var(--color-border)' : 'var(--color-border)'}`,
-                          fontWeight: isMe || isCap ? 600 : 400,
+                          background: `${color}${isCap ? '40' : '26'}`,
+                          color: '#FFFFFF',
+                          border: `${isCap ? '2px' : '1px'} solid ${color}66`,
+                          padding: '5px 8px',
+                          fontSize: 12,
+                          fontWeight: isCap ? 600 : 500,
                         }}
                       >
                         {p.surname}
-                        {isCap && <span style={{ color, fontSize: '0.65rem', marginLeft: 2 }}>©</span>}
+                        {isCap && <span style={{ color: '#FFFFFF', fontSize: '0.7rem', marginLeft: 2 }}>©</span>}
                       </div>
                     )
                   })}

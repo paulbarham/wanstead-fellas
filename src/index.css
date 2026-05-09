@@ -35,6 +35,7 @@
   --color-error-bg: #FEF2F2;
   --color-error-text: #DC2626;
   --color-error-border: #FECACA;
+  --color-team-card-body: #F8FAF8;
 }
 
 html.dark {
@@ -52,6 +53,7 @@ html.dark {
   --color-error-bg: #2D0A0A;
   --color-error-text: #FCA5A5;
   --color-error-border: #7F1D1D;
+  --color-team-card-body: #1A2B1C;
 }
 
 * {
