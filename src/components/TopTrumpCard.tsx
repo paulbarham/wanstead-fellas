@@ -143,12 +143,12 @@ export default function TopTrumpCard({ profile, compact = false }: Props) {
   }
 
   // ── Full card (modal view) ────────────────────────────────────────────────
-  const stats = [
+  const stats: Array<{ label: string; value: number; displayValue?: string; formula?: string }> = [
     { label: 'AGE', value: 0, displayValue: profile.age_group ?? '—' },
-    { label: 'STR', value: calcStrength(profile) },
+    { label: 'STR', value: calcStrength(profile), formula: 'phy + ag ÷ 2' },
     { label: 'SPD', value: profile.sp },
-    { label: 'TEAM', value: calcTeamPlayer(profile) },
-    { label: 'TECH', value: calcTechnical(profile) },
+    { label: 'TEAM', value: calcTeamPlayer(profile), formula: 'ps + wr + cp ÷ 3' },
+    { label: 'TECH', value: calcTechnical(profile), formula: 'sk + ps + cp ÷ 3' },
     { label: 'C*NT', value: profile.cunt },
   ]
 
@@ -254,14 +254,25 @@ export default function TopTrumpCard({ profile, compact = false }: Props) {
               {stat.displayValue ? (
                 <p style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700 }}>{stat.displayValue}</p>
               ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <div style={{ flex: 1, height: 4, background: `${s.accent}33`, borderRadius: 2 }}>
-                    <div style={{ width: `${stat.value * 10}%`, height: '100%', background: s.accent, borderRadius: 2 }} />
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <div style={{ flex: 1, height: 4, background: `${s.accent}33`, borderRadius: 2 }}>
+                      <div style={{ width: `${stat.value * 10}%`, height: '100%', background: s.accent, borderRadius: 2 }} />
+                    </div>
+                    <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 700, minWidth: 12, textAlign: 'right' }}>
+                      {stat.value}
+                    </span>
                   </div>
-                  <span style={{ color: 'white', fontSize: '0.85rem', fontWeight: 700, minWidth: 12, textAlign: 'right' }}>
-                    {stat.value}
-                  </span>
-                </div>
+                  {stat.formula && (
+                    <p style={{
+                      color: 'rgba(255,255,255,0.45)',
+                      fontSize: '0.5rem', fontWeight: 600,
+                      letterSpacing: '0.04em', marginTop: 3, lineHeight: 1,
+                    }}>
+                      {stat.formula}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           ))}

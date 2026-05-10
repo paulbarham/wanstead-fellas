@@ -150,7 +150,7 @@ export default function CardsPage() {
             style={{ maxWidth: 430, maxHeight: '92vh' }}
             onClick={e => e.stopPropagation()}
           >
-            <TopTrumpCard profile={selected} />
+            <TopTrumpCard profile={editingId === selected.id ? { ...selected, ...editValues } as Profile : selected} />
 
             {/* Actions beneath card */}
             <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
