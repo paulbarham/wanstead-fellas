@@ -10,26 +10,26 @@ const BADGE_STYLES: Record<BadgeType, { bg: string; color: string }> = {
 
 const TIER_STYLES = {
   gold: {
-    bg: 'linear-gradient(160deg, #1a1430 0%, #2d1f5e 50%, #1a0e3a 100%)',
+    bg: 'linear-gradient(135deg, #0d0b1f 0%, #1a1245 50%, #2d1b69 100%)',
     accent: '#C9A227',
     label: 'GOLD',
     textColor: '#000',
   },
   silver: {
-    bg: 'linear-gradient(160deg, #0d1829 0%, #1a2840 50%, #0a1220 100%)',
+    bg: 'linear-gradient(135deg, #0a1929 0%, #17344f 50%, #1e4060 100%)',
     accent: '#9BAAB5',
     label: 'SILVER',
     textColor: '#000',
   },
   bronze: {
-    bg: 'linear-gradient(160deg, #1a0e08 0%, #2e1a0e 50%, #1a0e05 100%)',
+    bg: 'linear-gradient(135deg, #1a0f03 0%, #3a1f08 50%, #5c3010 100%)',
     accent: '#A0714F',
     label: 'BRONZE',
     textColor: '#fff',
   },
   standard: {
-    bg: 'linear-gradient(160deg, #0d0d0d 0%, #1a1a1a 50%, #0a0a0a 100%)',
-    accent: '#7a7a7a',
+    bg: 'linear-gradient(135deg, #111111 0%, #1c1c1c 50%, #222222 100%)',
+    accent: '#6B7280',
     label: 'STD',
     textColor: '#fff',
   },
