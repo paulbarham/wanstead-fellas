@@ -9,6 +9,7 @@ import { getNextThursdayDate, getMatchPhase, getCountdownLabel } from '../lib/ti
 import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import InstallBanner from '../components/InstallBanner'
+import WeatherCard from '../components/WeatherCard'
 
 interface LastResultSummary {
   matchDate: string
@@ -231,6 +232,8 @@ export default function TonightPage() {
           )}
         </div>
       </div>
+
+      <WeatherCard />
 
       {/* Phase banners */}
       {phase === 'signup_locked' && (
