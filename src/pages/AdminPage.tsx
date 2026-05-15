@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import type { Profile, Feedback, BadgeType, PlayerType } from '../types'
+import type { Profile, Feedback, BadgeType, PlayerType, PlayerPosition } from '../types'
+import { CLUBS } from '../lib/clubs'
 import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import AdminFinancePanel from '../components/AdminFinancePanel'
+import AdminCsvImport from '../components/AdminCsvImport'
 
 interface LinkedProfileRow {
   id: string
@@ -26,6 +28,17 @@ const STAT_LABELS: Record<string, string> = {
   ps: 'Passing', ag: 'Aggression', phy: 'Physicality', cp: 'Composure',
   wr: 'Work Rate', cunt: 'Cuntiness', overall_rating: 'Overall',
 }
+const CARD_STAT_KEYS: (keyof Profile)[] = ['card_pace', 'card_shooting', 'card_passing', 'card_dribbling', 'card_defence', 'card_physicality']
+const GK_STAT_KEYS: (keyof Profile)[] = ['gk_pace', 'gk_reflexes', 'gk_handling', 'gk_distribution', 'gk_positioning', 'gk_physicality']
+const CARD_STAT_LABELS: Record<string, string> = {
+  card_pace: 'Pace', card_shooting: 'Shooting', card_passing: 'Passing',
+  card_dribbling: 'Dribbling', card_defence: 'Defence', card_physicality: 'Physicality',
+  gk_pace: 'GK Pace', gk_reflexes: 'Reflexes', gk_handling: 'Handling',
+  gk_distribution: 'Distribution', gk_positioning: 'Positioning', gk_physicality: 'GK Physicality',
+}
+const POSITIONS: PlayerPosition[] = ['GK', 'DF', 'MF', 'ST']
+const STRIP_IF_NULL = new Set<string>([...CARD_STAT_KEYS, ...GK_STAT_KEYS].map(String))
+
 const ALL_BADGES: BadgeType[] = ['Super Sharp Shooter', 'Legend', 'Captain']
 const PLAYER_TYPE_OPTS: { type: PlayerType; label: string; color: string; bg: string }[] = [
   { type: 'subscribed',   label: 'SUB',  color: 'var(--color-primary)', bg: 'var(--color-success-bg)' },
@@ -112,15 +125,23 @@ function PlayersPanel() {
   function startEdit(p: Profile) {
     if (editingId === p.id) { setEditingId(null); return }
     setEditingId(p.id)
-    const vals: Record<string, number> = {}
-    for (const k of STAT_KEYS) vals[k as string] = p[k] as number
-    setEditValues(vals as Partial<Profile>)
+    const vals: Partial<Profile> = {}
+    for (const k of STAT_KEYS) (vals as Record<string, unknown>)[k as string] = p[k]
+    for (const k of [...CARD_STAT_KEYS, ...GK_STAT_KEYS]) (vals as Record<string, unknown>)[k as string] = p[k]
+    vals.position = p.position
+    vals.favourite_club = p.favourite_club
+    setEditValues(vals)
     setEditAgeGroup(p.age_group ?? AGE_GROUP_DEFAULT)
   }
 
   async function saveEdit(id: string) {
     setSaving(true)
-    await supabase.from('profiles').update({ ...editValues, age_group: editAgeGroup }).eq('id', id)
+    const payload: Record<string, unknown> = { age_group: editAgeGroup }
+    for (const [k, v] of Object.entries(editValues)) {
+      if (STRIP_IF_NULL.has(k) && (v === null || v === undefined)) continue
+      payload[k] = v
+    }
+    await supabase.from('profiles').update(payload).eq('id', id)
     if (id === myProfile?.id) await refreshProfile()
     await loadPlayers()
     setSaving(false)
@@ -182,6 +203,10 @@ function PlayersPanel() {
   return (
     <>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+
+      <div className="mb-3">
+        <AdminCsvImport players={players} onImported={loadPlayers} />
+      </div>
 
       <div className="space-y-2">
         {players.map(p => {
@@ -308,6 +333,87 @@ function PlayersPanel() {
                         </span>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Card design — position, club, new stats */}
+                  <div className="space-y-2.5 pt-1" style={{ borderTop: '1px dashed var(--color-border)' }}>
+                    <p className="text-xs pt-2 font-semibold" style={{ color: 'var(--color-text-muted)' }}>Card Design</p>
+
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>Position</span>
+                      <select
+                        value={editValues.position ?? ''}
+                        onChange={e => setEditValues(v => ({ ...v, position: (e.target.value || null) as PlayerPosition | null }))}
+                        className="flex-1 px-3 py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
+                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                      >
+                        <option value="">—</option>
+                        {POSITIONS.map(pos => <option key={pos} value={pos}>{pos}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>Club</span>
+                      <select
+                        value={editValues.favourite_club ?? ''}
+                        onChange={e => setEditValues(v => ({ ...v, favourite_club: e.target.value || null }))}
+                        className="flex-1 px-3 py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
+                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                      >
+                        <option value="">None</option>
+                        <optgroup label="Premier League">
+                          {CLUBS.filter(c => c.league === 'premier_league').map(c => (
+                            <option key={c.slug} value={c.slug}>{c.display_name}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Championship">
+                          {CLUBS.filter(c => c.league === 'championship').map(c => (
+                            <option key={c.slug} value={c.slug}>{c.display_name}</option>
+                          ))}
+                        </optgroup>
+                      </select>
+                    </div>
+
+                    {CARD_STAT_KEYS.map(key => (
+                      <div key={key as string} className="flex items-center gap-3">
+                        <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>
+                          {CARD_STAT_LABELS[key as string]}
+                        </span>
+                        <input
+                          type="range" min={1} max={10}
+                          value={(editValues[key] as number | null) ?? 5}
+                          onChange={e => setEditValues(v => ({ ...v, [key]: parseInt(e.target.value) }))}
+                          className="flex-1"
+                          style={{ '--val': (editValues[key] as number | null) ?? 5, '--min': 1, '--max': 10 } as React.CSSProperties}
+                        />
+                        <span className="text-xs flex-shrink-0 text-right text-[var(--color-text)]" style={{ minWidth: 20 }}>
+                          {(editValues[key] as number | null) ?? '—'}
+                        </span>
+                      </div>
+                    ))}
+
+                    {editValues.position === 'GK' && (
+                      <div className="space-y-2.5 mt-1 pt-2" style={{ borderTop: '1px dashed var(--color-border)' }}>
+                        <p className="text-xs font-semibold" style={{ color: 'var(--color-text-muted)' }}>Goalkeeper Stats</p>
+                        {GK_STAT_KEYS.map(key => (
+                          <div key={key as string} className="flex items-center gap-3">
+                            <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>
+                              {CARD_STAT_LABELS[key as string]}
+                            </span>
+                            <input
+                              type="range" min={1} max={10}
+                              value={(editValues[key] as number | null) ?? 5}
+                              onChange={e => setEditValues(v => ({ ...v, [key]: parseInt(e.target.value) }))}
+                              className="flex-1"
+                              style={{ '--val': (editValues[key] as number | null) ?? 5, '--min': 1, '--max': 10 } as React.CSSProperties}
+                            />
+                            <span className="text-xs flex-shrink-0 text-right text-[var(--color-text)]" style={{ minWidth: 20 }}>
+                              {(editValues[key] as number | null) ?? '—'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Badges */}

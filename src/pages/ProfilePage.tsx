@@ -7,6 +7,7 @@ import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
 import type { Profile } from '../types'
+import { CLUBS } from '../lib/clubs'
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
 
@@ -83,6 +84,7 @@ export default function ProfilePage() {
   const [name, setName] = useState(profile?.name ?? '')
   const [surname, setSurname] = useState(profile?.surname ?? '')
   const [ageGroup, setAgeGroup] = useState(profile?.age_group ?? '20–29')
+  const [club, setClub] = useState(profile?.favourite_club ?? '')
   const parsedDob = parseDob(profile?.dob)
   const [dobDay, setDobDay] = useState(parsedDob.day)
   const [dobMonth, setDobMonth] = useState(parsedDob.month)
@@ -129,7 +131,7 @@ export default function ProfilePage() {
 
   if (!profile) return null
 
-  const previewProfile = { ...profile, name, surname, age_group: ageGroup }
+  const previewProfile = { ...profile, name, surname, age_group: ageGroup, favourite_club: club || null }
 
   // Fetch linked children once on mount
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -154,7 +156,7 @@ export default function ProfilePage() {
     setSaveError('')
     const { error } = await supabase
       .from('profiles')
-      .update({ name, surname, age_group: ageGroup, dob: composeDob(dobDay, dobMonth, dobYear) })
+      .update({ name, surname, age_group: ageGroup, dob: composeDob(dobDay, dobMonth, dobYear), favourite_club: club || null })
       .eq('id', profile!.id)
     setSaving(false)
     if (error) {
@@ -443,6 +445,28 @@ export default function ProfilePage() {
             style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
           >
             {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+          </select>
+        </div>
+
+        {/* Favourite club */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Who do you support?</label>
+          <select
+            value={club} onChange={e => setClub(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl text-[var(--color-text)] text-sm outline-none"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+          >
+            <option value="">None</option>
+            <optgroup label="Premier League">
+              {CLUBS.filter(c => c.league === 'premier_league').map(c => (
+                <option key={c.slug} value={c.slug}>{c.display_name}</option>
+              ))}
+            </optgroup>
+            <optgroup label="Championship">
+              {CLUBS.filter(c => c.league === 'championship').map(c => (
+                <option key={c.slug} value={c.slug}>{c.display_name}</option>
+              ))}
+            </optgroup>
           </select>
         </div>
 
