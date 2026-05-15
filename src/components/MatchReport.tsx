@@ -1,14 +1,23 @@
 import type { Result, ReportNoteItem, TeamAward } from '../types'
 import { hasStructuredReport } from '../lib/report'
 
-const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
-const LABEL_CLASS = 'text-[10px] font-semibold uppercase mb-2'
 const BODY_STYLE = { fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text-muted)' } as const
+
+function SectionHeader({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <span className="h-3 w-1 rounded-full" style={{ background: 'var(--color-primary)' }} />
+      <h4 className="text-xs font-bold uppercase" style={{ color: 'var(--color-primary)', letterSpacing: '1.2px' }}>
+        {label}
+      </h4>
+    </div>
+  )
+}
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <section>
-      <p className={LABEL_CLASS} style={LABEL_STYLE}>{label}</p>
+    <section className="pt-5 mt-5" style={{ borderTop: '1px solid var(--color-border)' }}>
+      <SectionHeader label={label} />
       {children}
     </section>
   )
@@ -64,9 +73,9 @@ export default function MatchReport({ result }: { result: Result }) {
   const hasAwards = awards.some(([, a]) => a)
 
   return (
-    <div className="space-y-5">
+    <div>
       {result.summary && (
-        <p className="text-sm font-medium" style={{ color: 'var(--color-text)', lineHeight: '1.5' }}>
+        <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text)', lineHeight: '1.5' }}>
           {result.summary}
         </p>
       )}
@@ -156,7 +165,7 @@ export default function MatchReport({ result }: { result: Result }) {
       )}
 
       {result.closer && (
-        <p className="text-sm font-semibold text-center pt-1" style={{ color: 'var(--color-primary)' }}>
+        <p className="text-sm font-semibold text-center pt-5 mt-5" style={{ color: 'var(--color-primary)', borderTop: '1px solid var(--color-border)' }}>
           {result.closer}
         </p>
       )}
