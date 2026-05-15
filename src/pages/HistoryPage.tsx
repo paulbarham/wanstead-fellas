@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import type { Match, Result, Team, Fixture } from '../types'
 import MatchReport from '../components/MatchReport'
+import SectionHeader from '../components/SectionHeader'
 import { hasReportContent, hasStructuredReport } from '../lib/report'
 
 interface MatchRecord {
@@ -106,7 +107,7 @@ export default function HistoryPage() {
       <h1 className="font-display text-[var(--color-text)] tracking-wide mb-5" style={{ fontSize: '28px' }}>HISTORY</h1>
 
       {records.length === 0 ? (
-        <div className="text-center py-12" style={{ color: '#9CA897' }}>
+        <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
           <p className="text-4xl mb-3">📅</p>
           <p className="font-medium text-[var(--color-text)]">No matches played yet</p>
         </div>
@@ -135,7 +136,7 @@ export default function HistoryPage() {
                       {isTwoTeam && mainFixture ? (
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team1?.name)}</span>
-                          <span className="font-display text-xl" style={{ color: 'var(--color-primary)' }}>
+                          <span className="font-display text-xl" style={{ color: 'var(--color-accent)' }}>
                             {mainFixture.score1} – {mainFixture.score2}
                           </span>
                           <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team2?.name)}</span>
@@ -149,13 +150,13 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs px-2 py-1 rounded-md font-medium"
                         style={{
-                          background: isTwoTeam ? 'var(--color-success-bg)' : '#F7F8F5',
-                          color: isTwoTeam ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                          border: `1px solid ${isTwoTeam ? '#86EFAC' : 'var(--color-border)'}`,
+                          background: isTwoTeam ? 'var(--color-success-bg)' : 'var(--color-surface-2)',
+                          color: isTwoTeam ? 'var(--color-success-text)' : 'var(--color-text-muted)',
+                          border: `1px solid ${isTwoTeam ? 'var(--color-success-text)' : 'var(--color-border)'}`,
                         }}>
                         {match.format}
                       </span>
-                      <span className="text-xs" style={{ color: '#9CA897' }}>{isExpanded ? '▲' : '▼'}</span>
+                      <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{isExpanded ? '▲' : '▼'}</span>
                     </div>
                   </div>
                 </button>
@@ -163,20 +164,20 @@ export default function HistoryPage() {
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid var(--color-border)' }}>
                     {result?.scorers && (
-                      <div className="px-4 py-4" style={{ borderBottom: '1px solid #F2F3EE' }}>
-                        <p className={LABEL_CLASS + ' mb-3'} style={LABEL_STYLE}>Scorers</p>
+                      <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <SectionHeader label="Scorers" withDivider />
                         <ScorersList scorers={result.scorers} />
                       </div>
                     )}
 
                     {!isTwoTeam && fixtures.length > 0 && (
-                      <div className="px-4 py-4" style={{ borderBottom: '1px solid #F2F3EE' }}>
-                        <p className={LABEL_CLASS + ' mb-2'} style={LABEL_STYLE}>Results</p>
+                      <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <SectionHeader label="Results" withDivider />
                         <div className="space-y-1.5">
                           {fixtures.map(f => (
                             <div key={f.id} className="flex items-center gap-3 text-xs">
                               <span className="flex-1 text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
-                              <span className="font-display text-base tabular-nums" style={{ color: 'var(--color-primary)' }}>
+                              <span className="font-display text-base tabular-nums" style={{ color: 'var(--color-accent)' }}>
                                 {f.score1} – {f.score2}
                               </span>
                               <span className="flex-1 font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
@@ -188,7 +189,7 @@ export default function HistoryPage() {
 
                     {hasReportContent(result) && result && (
                       <div className="px-4 py-4">
-                        <p className={LABEL_CLASS + ' mb-2'} style={LABEL_STYLE}>Report</p>
+                        <SectionHeader label="Match Report" withDivider />
                         {structuredReport ? (
                           <MatchReport result={result} />
                         ) : (
@@ -211,13 +212,13 @@ export default function HistoryPage() {
                           <button
                             onClick={(e) => toggleReport(match.id, e)}
                             className="text-xs mt-2 font-semibold"
-                            style={{ color: 'var(--color-primary)' }}
+                            style={{ color: 'var(--color-accent)' }}
                           >
                             {isReportExpanded ? 'Read less ▲' : 'Read more ▼'}
                           </button>
                         )}
                         {result?.highlights && (
-                          <p className="text-xs mt-2 font-medium" style={{ color: 'var(--color-primary)' }}>{result.highlights}</p>
+                          <p className="text-xs mt-2 font-medium" style={{ color: 'var(--color-accent)' }}>{result.highlights}</p>
                         )}
                       </div>
                     )}

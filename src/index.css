@@ -28,6 +28,7 @@
   --color-text: #18201A;
   --color-text-muted: #647060;
   --color-primary: #0D6B52;
+  --color-accent: #0D6B52;
   --color-success-bg: #DCFCE7;
   --color-success-text: #0D6B52;
   --color-warning-bg: #FEF9C3;
@@ -46,6 +47,7 @@ html.dark {
   --color-text: #E8F0E9;
   --color-text-muted: #8FAF91;
   --color-primary: #0D6B52;
+  --color-accent: #4ADE80;
   --color-success-bg: #0D2B1E;
   --color-success-text: #4ADE80;
   --color-warning-bg: #2D1F00;

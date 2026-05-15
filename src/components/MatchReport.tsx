@@ -1,23 +1,15 @@
 import type { Result, ReportNoteItem, TeamAward } from '../types'
 import { hasStructuredReport } from '../lib/report'
+import SectionHeader from './SectionHeader'
 
 const BODY_STYLE = { fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text-muted)' } as const
-
-function SectionHeader({ label }: { label: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="h-3 w-1 rounded-full" style={{ background: 'var(--color-primary)' }} />
-      <h4 className="text-xs font-bold uppercase" style={{ color: 'var(--color-primary)', letterSpacing: '1.2px' }}>
-        {label}
-      </h4>
-    </div>
-  )
-}
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <section className="pt-5 mt-5" style={{ borderTop: '1px solid var(--color-border)' }}>
-      <SectionHeader label={label} />
+      <div className="mb-3">
+        <SectionHeader label={label} />
+      </div>
       {children}
     </section>
   )
@@ -45,7 +37,7 @@ function NoteList({ items }: { items: ReportNoteItem[] }) {
 function Award({ label, award }: { label: string; award: TeamAward }) {
   return (
     <div>
-      <p className="text-xs font-semibold" style={{ color: 'var(--color-primary)' }}>
+      <p className="text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>
         {label}{award.title ? ` · ${award.title}` : ''}
       </p>
       {award.players && (
@@ -81,7 +73,7 @@ export default function MatchReport({ result }: { result: Result }) {
       )}
 
       {predictions && predictions.rows?.length > 0 && (
-        <Section label="Predictions">
+        <Section label="Predicted vs. Actual">
           <div className="overflow-hidden rounded-xl" style={{ border: '1px solid var(--color-border)' }}>
             <table className="w-full text-xs">
               <thead>
@@ -93,10 +85,10 @@ export default function MatchReport({ result }: { result: Result }) {
               </thead>
               <tbody>
                 {predictions.rows.map((row, i) => (
-                  <tr key={i} style={{ borderTop: '1px solid #F2F3EE' }}>
+                  <tr key={i} style={{ borderTop: '1px solid var(--color-border)' }}>
                     <td className="px-3 py-2 font-medium text-[var(--color-text)]">{row.position}</td>
                     <td className="px-3 py-2" style={{ color: 'var(--color-text-muted)' }}>{row.predicted}</td>
-                    <td className="px-3 py-2 font-medium" style={{ color: 'var(--color-primary)' }}>{row.actual}</td>
+                    <td className="px-3 py-2 font-medium" style={{ color: 'var(--color-accent)' }}>{row.actual}</td>
                   </tr>
                 ))}
               </tbody>
@@ -122,7 +114,7 @@ export default function MatchReport({ result }: { result: Result }) {
 
       {player_of_tournament?.name && (
         <Section label="Player of the Tournament">
-          <p className="text-sm font-semibold" style={{ color: 'var(--color-primary)' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>
             {player_of_tournament.name}
           </p>
           {player_of_tournament.note && <p style={{ ...BODY_STYLE, marginTop: 2 }}>{player_of_tournament.note}</p>}
@@ -141,13 +133,13 @@ export default function MatchReport({ result }: { result: Result }) {
           )}
           {fines_admin.redemption && <p style={{ ...BODY_STYLE, marginTop: 8 }}>{fines_admin.redemption}</p>}
           {fines_admin.footer && (
-            <p className="text-xs mt-2" style={{ color: '#9CA897', fontStyle: 'italic' }}>{fines_admin.footer}</p>
+            <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)', fontStyle: 'italic' }}>{fines_admin.footer}</p>
           )}
         </Section>
       )}
 
       {banter && banter.length > 0 && (
-        <Section label="Banter">
+        <Section label="Banter & Incidents">
           <NoteList items={banter} />
         </Section>
       )}
@@ -165,7 +157,7 @@ export default function MatchReport({ result }: { result: Result }) {
       )}
 
       {result.closer && (
-        <p className="text-sm font-semibold text-center pt-5 mt-5" style={{ color: 'var(--color-primary)', borderTop: '1px solid var(--color-border)' }}>
+        <p className="text-sm font-semibold text-center pt-5 mt-5" style={{ color: 'var(--color-accent)', borderTop: '1px solid var(--color-border)' }}>
           {result.closer}
         </p>
       )}
