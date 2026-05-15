@@ -1,4 +1,4 @@
-const CACHE = 'wf-v1'
+const CACHE = 'wf-v2'
 const SHELL = ['/', '/index.html']
 
 self.addEventListener('install', event => {
@@ -22,11 +22,21 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return
   if (url.hostname.includes('supabase')) return
 
+  // Network-first for the app document so new builds are always picked up.
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).catch(() => caches.match('/')))
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          const clone = response.clone()
+          caches.open(CACHE).then(c => c.put('/', clone))
+          return response
+        })
+        .catch(() => caches.match('/'))
+    )
     return
   }
 
+  // Hashed static assets are immutable — safe to serve cache-first.
   event.respondWith(
     caches.match(request).then(cached => {
       if (cached) return cached
