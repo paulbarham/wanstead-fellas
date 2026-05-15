@@ -50,6 +50,32 @@ export const CLUBS: Club[] = [
   { slug: 'wrexham', display_name: 'Wrexham', league: 'championship', primary_color: '#E31B23', secondary_color: '#FFFFFF', glyph: 'wales' },
 ]
 
+// Real crest URLs (TheSportsDB CDN). Partial set — clubs not listed fall back
+// to the generated shield in ClubBadge. Complete as more are resolved.
+const TSDB = 'https://r2.thesportsdb.com/images/media/team/badge/'
+export const BADGE_URLS: Record<string, string> = {
+  arsenal: TSDB + 'uyhbfe1612467038.png',
+  aston_villa: TSDB + 'jykrpv1717309891.png',
+  bournemouth: TSDB + 'y08nak1534071116.png',
+  brentford: TSDB + 'grv1aw1546453779.png',
+  brighton: TSDB + 'ywypts1448810904.png',
+  burnley: TSDB + 'ql7nl31686893820.png',
+  chelsea: TSDB + 'yvwvtu1448813215.png',
+  crystal_palace: TSDB + 'ia6i3m1656014992.png',
+  everton: TSDB + 'eqayrf1523184794.png',
+  fulham: TSDB + 'xwwvyt1448811086.png',
+  birmingham: TSDB + 'wufs551672950865.png',
+  blackburn: TSDB + 'rvryut1448810814.png',
+  bristol_city: TSDB + '0ejxwz1601721013.png',
+  charlton: TSDB + 'o08wvi1635872307.png',
+  coventry: TSDB + 'uxyqys1424033798.png',
+  derby: TSDB + 'jioo4z1557155744.png',
+  hull: TSDB + 'fbqqda1601726113.png',
+  ipswich: TSDB + 'mdj1ey1634670785.png',
+  leicester: TSDB + 'xtxwtu1448813356.png',
+  middlesbrough: TSDB + '9xcx0p1770828600.png',
+}
+
 export const CLUBS_BY_SLUG: Record<string, Club> = Object.fromEntries(CLUBS.map(c => [c.slug, c]))
 
 export function getClub(slug: string | null | undefined): Club | null {

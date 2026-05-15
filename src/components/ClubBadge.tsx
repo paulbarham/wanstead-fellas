@@ -1,4 +1,6 @@
-import { getClub } from '../lib/clubs'
+import { useState } from 'react'
+import { getClub, BADGE_URLS } from '../lib/clubs'
+import type { Club } from '../types'
 
 // Abstract, generic motifs — deliberately NOT reproductions of trademarked
 // crests. Colour + simple shape recognition only. Glyphs not in this map fall
@@ -31,16 +33,7 @@ function initials(name: string): string {
   return words.map(w => w[0]).join('').slice(0, 4).toUpperCase()
 }
 
-export default function ClubBadge({
-  slug,
-  size = 26,
-}: {
-  slug: string | null | undefined
-  size?: number
-}) {
-  const club = getClub(slug)
-  if (!club) return null
-
+function ShieldBadge({ club, size }: { club: Club; size: number }) {
   const h = Math.round(size * (30 / 26))
   const glyph = GLYPHS[club.glyph]
   // Pick a foreground that contrasts the primary fill.
@@ -75,4 +68,34 @@ export default function ClubBadge({
       </svg>
     </span>
   )
+}
+
+export default function ClubBadge({
+  slug,
+  size = 26,
+}: {
+  slug: string | null | undefined
+  size?: number
+}) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const club = getClub(slug)
+  if (!club) return null
+
+  const url = slug ? BADGE_URLS[slug] : undefined
+  if (url && !imgFailed) {
+    return (
+      <span title={club.display_name} style={{ display: 'inline-flex', flexShrink: 0, lineHeight: 0 }}>
+        <img
+          src={url}
+          alt={club.display_name}
+          width={size}
+          height={Math.round(size * (30 / 26))}
+          onError={() => setImgFailed(true)}
+          style={{ objectFit: 'contain', display: 'block' }}
+        />
+      </span>
+    )
+  }
+
+  return <ShieldBadge club={club} size={size} />
 }
