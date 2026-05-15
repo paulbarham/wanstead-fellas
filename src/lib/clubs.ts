@@ -54,6 +54,7 @@ export const CLUBS: Club[] = [
 // to the generated shield in ClubBadge. Complete as more are resolved.
 const TSDB = 'https://r2.thesportsdb.com/images/media/team/badge/'
 const LK = 'https://raw.githubusercontent.com/luukhopman/football-logos/master/logos/England%20-%20Premier%20League/'
+const WM = 'https://upload.wikimedia.org/wikipedia/en/thumb/'
 export const BADGE_URLS: Record<string, string> = {
   arsenal: TSDB + 'uyhbfe1612467038.png',
   aston_villa: TSDB + 'jykrpv1717309891.png',
@@ -86,6 +87,21 @@ export const BADGE_URLS: Record<string, string> = {
   tottenham: LK + 'Tottenham%20Hotspur.png',
   west_ham: LK + 'West%20Ham%20United.png',
   wolves: LK + 'Wolverhampton%20Wanderers.png',
+  // EFL crests via Wikipedia canonical lead-image (Wikimedia upload CDN)
+  millwall: WM + '9/98/Millwall_FC_crest.svg/330px-Millwall_FC_crest.svg.png',
+  norwich: WM + '1/17/Norwich_City_FC_logo.svg/250px-Norwich_City_FC_logo.svg.png',
+  oxford: WM + '3/3e/Oxford_United_FC_logo.svg/330px-Oxford_United_FC_logo.svg.png',
+  portsmouth: WM + '3/38/Portsmouth_FC_logo.svg/330px-Portsmouth_FC_logo.svg.png',
+  preston: WM + '8/82/Preston_North_End_FC.svg/330px-Preston_North_End_FC.svg.png',
+  qpr: WM + '3/31/Queens_Park_Rangers_crest.svg/330px-Queens_Park_Rangers_crest.svg.png',
+  sheff_united: WM + '9/9c/Sheffield_United_FC_logo.svg/330px-Sheffield_United_FC_logo.svg.png',
+  sheff_wed: WM + '8/88/Sheffield_Wednesday_badge.svg/330px-Sheffield_Wednesday_badge.svg.png',
+  southampton: WM + 'c/c9/FC_Southampton.svg/330px-FC_Southampton.svg.png',
+  stoke: WM + '5/5e/Stoke_City_FC_crest_2001.svg/330px-Stoke_City_FC_crest_2001.svg.png',
+  swansea: WM + 'f/f9/Swansea_City_AFC_logo.svg/330px-Swansea_City_AFC_logo.svg.png',
+  watford: WM + 'e/e2/Watford.svg/330px-Watford.svg.png',
+  wba: WM + '8/8b/West_Bromwich_Albion.svg/330px-West_Bromwich_Albion.svg.png',
+  wrexham: WM + '0/0d/Wrexham_A.F.C._Logo.svg/330px-Wrexham_A.F.C._Logo.svg.png',
 }
 
 export const CLUBS_BY_SLUG: Record<string, Club> = Object.fromEntries(CLUBS.map(c => [c.slug, c]))
