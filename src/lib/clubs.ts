@@ -53,6 +53,7 @@ export const CLUBS: Club[] = [
 // Real crest URLs (TheSportsDB CDN). Partial set — clubs not listed fall back
 // to the generated shield in ClubBadge. Complete as more are resolved.
 const TSDB = 'https://r2.thesportsdb.com/images/media/team/badge/'
+const LK = 'https://raw.githubusercontent.com/luukhopman/football-logos/master/logos/England%20-%20Premier%20League/'
 export const BADGE_URLS: Record<string, string> = {
   arsenal: TSDB + 'uyhbfe1612467038.png',
   aston_villa: TSDB + 'jykrpv1717309891.png',
@@ -74,6 +75,17 @@ export const BADGE_URLS: Record<string, string> = {
   ipswich: TSDB + 'mdj1ey1634670785.png',
   leicester: TSDB + 'xtxwtu1448813356.png',
   middlesbrough: TSDB + '9xcx0p1770828600.png',
+  // Current Premier League crests via luukhopman/football-logos raw CDN
+  leeds: LK + 'Leeds%20United.png',
+  liverpool: LK + 'Liverpool%20FC.png',
+  man_city: LK + 'Manchester%20City.png',
+  man_utd: LK + 'Manchester%20United.png',
+  newcastle: LK + 'Newcastle%20United.png',
+  nottingham_forest: LK + 'Nottingham%20Forest.png',
+  sunderland: LK + 'Sunderland%20AFC.png',
+  tottenham: LK + 'Tottenham%20Hotspur.png',
+  west_ham: LK + 'West%20Ham%20United.png',
+  wolves: LK + 'Wolverhampton%20Wanderers.png',
 }
 
 export const CLUBS_BY_SLUG: Record<string, Club> = Object.fromEntries(CLUBS.map(c => [c.slug, c]))
