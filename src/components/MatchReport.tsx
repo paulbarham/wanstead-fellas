@@ -158,20 +158,14 @@ export default function MatchReport({ result }: { result: Result }) {
         </Section>
       )}
 
-      {result.conclusion && (
+      {(result.conclusion || result.closer) && (
         <Section label="Conclusion">
           <ul className="space-y-1.5">
-            {splitPoints(result.conclusion).map((line, i) => (
+            {splitPoints([result.conclusion, result.closer].filter(Boolean).join('\n')).map((line, i) => (
               <li key={i} style={BODY_STYLE}>{line}</li>
             ))}
           </ul>
         </Section>
-      )}
-
-      {result.closer && (
-        <p className="text-sm font-semibold text-center pt-5 mt-5" style={{ color: 'var(--color-accent)', borderTop: '1px solid var(--color-border)' }}>
-          {result.closer}
-        </p>
       )}
     </div>
   )
