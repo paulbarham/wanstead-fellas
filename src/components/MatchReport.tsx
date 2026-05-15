@@ -4,6 +4,14 @@ import SectionHeader from './SectionHeader'
 
 const BODY_STYLE = { fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text-muted)' } as const
 
+function splitPoints(text: string): string[] {
+  return text
+    .split('\n')
+    .flatMap(line => line.split(/(?<=[.!?])\s+(?=[A-Z0-9])/))
+    .map(s => s.trim())
+    .filter(Boolean)
+}
+
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <section className="pt-5 mt-5" style={{ borderTop: '1px solid var(--color-border)' }}>
@@ -152,7 +160,11 @@ export default function MatchReport({ result }: { result: Result }) {
 
       {result.conclusion && (
         <Section label="Conclusion">
-          <p style={{ ...BODY_STYLE, whiteSpace: 'pre-wrap' }}>{result.conclusion}</p>
+          <ul className="space-y-1.5">
+            {splitPoints(result.conclusion).map((line, i) => (
+              <li key={i} style={BODY_STYLE}>{line}</li>
+            ))}
+          </ul>
         </Section>
       )}
 
