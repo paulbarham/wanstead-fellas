@@ -64,12 +64,63 @@ export interface Fixture {
   score2: number | null
 }
 
+export interface PredictionRow {
+  position: string
+  predicted: string
+  actual: string
+}
+
+export interface ReportPredictions {
+  rows: PredictionRow[]
+  note?: string | null
+}
+
+export interface ReportNoteItem {
+  label?: string | null
+  player?: string | null
+  note?: string | null
+}
+
+export interface TeamAward {
+  title?: string | null
+  players?: string | null
+  note?: string | null
+}
+
+export interface ReportTeamAwards {
+  defensive?: TeamAward | null
+  safe_hands?: TeamAward | null
+  forward?: TeamAward | null
+}
+
+export interface ReportFinesAdmin {
+  headline?: string | null
+  items?: string[] | null
+  redemption?: string | null
+  footer?: string | null
+}
+
+export interface ReportPlayerOfTournament {
+  name?: string | null
+  note?: string | null
+}
+
 export interface Result {
   id: string
   match_id: string
   report_text: string | null
   scorers: string | null
   highlights: string | null
+  summary: string | null
+  predictions: ReportPredictions | null
+  key_highlights: ReportNoteItem[] | null
+  team_awards: ReportTeamAwards | null
+  fines_admin: ReportFinesAdmin | null
+  banter: ReportNoteItem[] | null
+  app_watch: ReportNoteItem[] | null
+  player_of_tournament: ReportPlayerOfTournament | null
+  conclusion: string | null
+  closer: string | null
   created_at: string
 }
 

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import type { Match, Result, Team, Fixture } from '../types'
+import MatchReport from '../components/MatchReport'
+import { hasReportContent, hasStructuredReport } from '../lib/report'
 
 interface MatchRecord {
   match: Match
@@ -117,7 +119,8 @@ export default function HistoryPage() {
             const isTwoTeam = match.format !== 'tournament' && match.format !== '4-team'
             const mainFixture = isTwoTeam ? fixtures[0] : null
             const reportText = result?.report_text ?? null
-            const reportIsLong = reportText && reportText.length > 200
+            const structuredReport = hasStructuredReport(result)
+            const reportIsLong = !structuredReport && reportText && reportText.length > 200
 
             return (
               <div key={match.id} className="rounded-2xl overflow-hidden"
@@ -183,22 +186,27 @@ export default function HistoryPage() {
                       </div>
                     )}
 
-                    {reportText && (
+                    {hasReportContent(result) && result && (
                       <div className="px-4 py-4">
                         <p className={LABEL_CLASS + ' mb-2'} style={LABEL_STYLE}>Report</p>
-                        <p
-                          style={{
-                            fontSize: '14px',
-                            lineHeight: '1.6',
-                            color: 'var(--color-text-muted)',
-                            overflow: 'hidden',
-                            display: '-webkit-box',
-                            WebkitBoxOrient: 'vertical',
-                            WebkitLineClamp: isReportExpanded ? 'unset' : 3,
-                          } as React.CSSProperties}
-                        >
-                          {reportText}
-                        </p>
+                        {structuredReport ? (
+                          <MatchReport result={result} />
+                        ) : (
+                          <div
+                            style={{
+                              fontSize: '14px',
+                              lineHeight: '1.6',
+                              color: 'var(--color-text-muted)',
+                              whiteSpace: 'pre-wrap',
+                              overflow: 'hidden',
+                              display: '-webkit-box',
+                              WebkitBoxOrient: 'vertical',
+                              WebkitLineClamp: isReportExpanded ? 'unset' : 3,
+                            } as React.CSSProperties}
+                          >
+                            {reportText}
+                          </div>
+                        )}
                         {reportIsLong && (
                           <button
                             onClick={(e) => toggleReport(match.id, e)}

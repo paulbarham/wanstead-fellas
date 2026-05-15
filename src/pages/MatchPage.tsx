@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Result } from '../types'
 import { getNextThursdayDate, getMatchPhase } from '../lib/time'
 import AdminMatchEntry from '../components/AdminMatchEntry'
+import MatchReport from '../components/MatchReport'
+import { hasReportContent } from '../lib/report'
 
 interface FixtureWithTeams extends Fixture {
   team1: Team
@@ -230,10 +232,10 @@ function ElevenVElevenView({ result, fixtures }: {
         </div>
       )}
 
-      {result?.report_text && (
+      {hasReportContent(result) && result && (
         <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <p className={LABEL_CLASS + ' mb-3'} style={LABEL_STYLE}>Match Report</p>
-          <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text-muted)' }}>{result.report_text}</p>
+          <MatchReport result={result} />
         </div>
       )}
     </div>
@@ -324,13 +326,13 @@ function FourTeamView({ result, teams, fixtures }: {
       )}
 
       {/* Match report */}
-      {result?.report_text && (
+      {hasReportContent(result) && result && (
         <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <p className={LABEL_CLASS + ' mb-3'} style={LABEL_STYLE}>
             Match Report
             {winner && <span className="ml-2 normal-case font-normal" style={{ color: 'var(--color-primary)' }}>· {stripFC(winner.team.name)} win</span>}
           </p>
-          <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text-muted)' }}>{result.report_text}</p>
+          <MatchReport result={result} />
           {result.highlights && (
             <p className="text-xs mt-3 font-medium" style={{ color: 'var(--color-primary)' }}>{result.highlights}</p>
           )}
