@@ -1,5 +1,20 @@
 export type PlayerType = 'subscribed' | 'wtp_priority' | 'wtp'
 
+export type PlayerPosition = 'GK' | 'DF' | 'MF' | 'ST'
+
+export type CuntTier = 'saint' | 'gentleman' | 'scamp' | 'nuisance' | 'cunt'
+
+export type League = 'premier_league' | 'championship'
+
+export interface Club {
+  slug: string
+  display_name: string
+  league: League
+  primary_color: string
+  secondary_color: string
+  glyph: string
+}
+
 export interface Profile {
   id: string
   auth_user_id?: string | null
@@ -23,6 +38,22 @@ export interface Profile {
   is_admin: boolean
   player_type: PlayerType
   created_at: string
+  // Phase 2 card stats (nullable — older profiles may be blank)
+  card_pace: number | null
+  card_shooting: number | null
+  card_passing: number | null
+  card_dribbling: number | null
+  card_defence: number | null
+  card_physicality: number | null
+  gk_pace: number | null
+  gk_reflexes: number | null
+  gk_handling: number | null
+  gk_distribution: number | null
+  gk_positioning: number | null
+  gk_physicality: number | null
+  favourite_club: string | null
+  position: PlayerPosition | null
+  cunt_tier: CuntTier | null
 }
 
 export interface Availability {

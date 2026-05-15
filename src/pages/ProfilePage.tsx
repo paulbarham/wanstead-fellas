@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import { cropAndResizeImage } from '../lib/imageUtils'
-import TopTrumpCard from '../components/TopTrumpCard'
+import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
 import type { Profile } from '../types'
@@ -346,6 +346,11 @@ export default function ProfilePage() {
         badges: [],
         is_admin: false,
         created_at: new Date().toISOString(),
+        card_pace: null, card_shooting: null, card_passing: null,
+        card_dribbling: null, card_defence: null, card_physicality: null,
+        gk_pace: null, gk_reflexes: null, gk_handling: null,
+        gk_distribution: null, gk_positioning: null, gk_physicality: null,
+        favourite_club: null, position: null, cunt_tier: null,
       }
       setLinkedChildren(prev => [...prev, newChild])
       closeAddForm()
@@ -376,7 +381,7 @@ export default function ProfilePage() {
 
       {/* Top Trump card preview */}
       <div className="mb-8">
-        <TopTrumpCard profile={previewProfile} />
+        <PlayerCard profile={previewProfile} />
       </div>
 
       {/* Edit form */}
@@ -562,7 +567,7 @@ export default function ProfilePage() {
               <button onClick={() => setSelectedChild(null)} className="text-sm" style={{ color: 'var(--color-text-muted)' }}>✕</button>
             </div>
 
-            <TopTrumpCard profile={{ ...selectedChild, name: childName, surname: childSurname, age_group: childAgeGroup }} />
+            <PlayerCard profile={{ ...selectedChild, name: childName, surname: childSurname, age_group: childAgeGroup }} />
 
             {/* Photo */}
             <div className="mt-4 flex gap-2">

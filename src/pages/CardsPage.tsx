@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Profile, BadgeType } from '../types'
 import { cropAndResizeImage } from '../lib/imageUtils'
-import TopTrumpCard from '../components/TopTrumpCard'
+import PlayerCard from '../components/PlayerCard'
 
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
@@ -133,7 +133,7 @@ export default function CardsPage() {
       <div className="grid grid-cols-2 gap-2">
         {players.map(p => (
           <button key={p.id} onClick={() => openCard(p)} className="text-left" style={{ display: 'block' }}>
-            <TopTrumpCard profile={p} compact />
+            <PlayerCard profile={p} compact />
           </button>
         ))}
       </div>
@@ -150,7 +150,7 @@ export default function CardsPage() {
             style={{ maxWidth: 430, maxHeight: '92vh' }}
             onClick={e => e.stopPropagation()}
           >
-            <TopTrumpCard profile={editingId === selected.id ? { ...selected, ...editValues } as Profile : selected} />
+            <PlayerCard profile={editingId === selected.id ? { ...selected, ...editValues } as Profile : selected} />
 
             {/* Actions beneath card */}
             <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
