@@ -334,9 +334,6 @@ function FourTeamView({ result, teams, fixtures }: {
             {winner && <span className="text-xs font-medium shrink-0" style={{ color: 'var(--color-accent)' }}>{stripFC(winner.team.name)} win</span>}
           </div>
           <MatchReport result={result} />
-          {result.highlights && (
-            <p className="text-xs mt-3 font-medium" style={{ color: 'var(--color-accent)' }}>{result.highlights}</p>
-          )}
         </div>
       )}
     </div>

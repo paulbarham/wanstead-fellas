@@ -217,9 +217,6 @@ export default function HistoryPage() {
                             {isReportExpanded ? 'Read less ▲' : 'Read more ▼'}
                           </button>
                         )}
-                        {result?.highlights && (
-                          <p className="text-xs mt-2 font-medium" style={{ color: 'var(--color-accent)' }}>{result.highlights}</p>
-                        )}
                       </div>
                     )}
                   </div>
