@@ -41,7 +41,7 @@ export default function CuntinessBadge({
         fontSize,
       }}
     >
-      <span>CUNT</span>
+      <span>CUNTINESS</span>
       <span style={{ fontSize: '1.05em' }}>{value}</span>
       <span style={{ fontSize: '0.8em', opacity: 0.7, fontWeight: 700 }}>/10</span>
     </span>
