@@ -7,8 +7,6 @@ import type { Profile, FineType } from '../types'
 type Mode = 'all' | 'season'
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'surname' | 'photo_url'>
 
-const CURRENT_YEAR = new Date().getFullYear()
-
 const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
 const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
 
@@ -172,11 +170,15 @@ export default function StatsPage() {
     return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</div>
   }
 
+  // NOTE: "This Season" currently mirrors "All Time" — season filtering is
+  // intentionally a no-op until a season boundary is defined. The toggle is
+  // kept so real season splits can be switched back on later.
+
   // Top scorers
   const scorerRows = scorers
     .map(s => ({
       profile: profiles[s.player_id],
-      value: scorerMode === 'season' ? (s.goals_this_season ?? 0) : s.total_goals,
+      value: s.total_goals,
     }))
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value)
@@ -185,16 +187,13 @@ export default function StatsPage() {
   const appsRows = appearances
     .map(a => ({
       profile: profiles[a.player_id],
-      value: appsMode === 'season' ? (a.appearances_this_season ?? 0) : a.appearances,
+      value: a.appearances,
     }))
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value)
 
   // Fines
   const finesFiltered = fines.filter(f => {
-    if (finesMode === 'season') {
-      if (!f.match_date || new Date(f.match_date).getFullYear() !== CURRENT_YEAR) return false
-    }
     if (finesType !== 'all' && f.type !== finesType) return false
     return true
   })
@@ -210,10 +209,9 @@ export default function StatsPage() {
     .sort((a, b) => b.total - a.total)
 
   // Awards
-  function awardRows(rows: AwardRow[], mode: Mode) {
+  function awardRows(rows: AwardRow[]) {
     const agg: Record<string, { count: number; override: boolean }> = {}
     for (const r of rows) {
-      if (mode === 'season' && (!r.match_date || new Date(r.match_date).getFullYear() !== CURRENT_YEAR)) continue
       const a = (agg[r.player_id] ??= { count: 0, override: false })
       a.count += 1
       if (r.is_admin_override) a.override = true
@@ -226,8 +224,8 @@ export default function StatsPage() {
       }))
       .sort((a, b) => b.value - a.value)
   }
-  const motmRows = awardRows(motm, motmMode)
-  const dotdRows = awardRows(dotd, dotdMode)
+  const motmRows = awardRows(motm)
+  const dotdRows = awardRows(dotd)
 
   return (
     <div className="px-4 py-5">
