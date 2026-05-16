@@ -541,6 +541,21 @@ export default function ProfilePage() {
         )}
       </div>
 
+      {/* Feedback */}
+      <div className="p-4 rounded-2xl mb-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+        <p className="text-sm font-semibold text-[var(--color-text)] mb-1">Feedback</p>
+        <p className="text-xs mb-3" style={{ color: '#9CA897' }}>
+          Bug, idea, or general thoughts on the app? Let us know.
+        </p>
+        <button
+          onClick={() => navigate('/feedback')}
+          className="px-4 py-2 rounded-xl text-sm font-semibold"
+          style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+        >
+          Send Feedback
+        </button>
+      </div>
+
       {/* Password reset */}
       <div className="p-4 rounded-2xl mb-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <p className="text-sm font-semibold text-[var(--color-text)] mb-1">Password</p>

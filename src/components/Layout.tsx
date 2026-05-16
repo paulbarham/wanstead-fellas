@@ -19,7 +19,7 @@ const BASE_NAV_ITEMS = [
   { to: '/match', label: 'Match', icon: '📊' },
   { to: '/history', label: 'History', icon: '📅' },
   { to: '/cards', label: 'Cards', icon: '🃏' },
-  { to: '/feedback', label: 'Feedback', icon: '💬' },
+  { to: '/stats', label: 'Stats', icon: '📈' },
 ]
 
 const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: '⚙️' }

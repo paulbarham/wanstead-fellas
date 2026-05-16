@@ -8,6 +8,7 @@ import AdminMatchEntry from '../components/AdminMatchEntry'
 import MatchReport from '../components/MatchReport'
 import SectionHeader from '../components/SectionHeader'
 import { hasReportContent } from '../lib/report'
+import MotmVotingCard from '../components/MotmVotingCard'
 
 interface FixtureWithTeams extends Fixture {
   team1: Team
@@ -171,6 +172,8 @@ export default function MatchPage() {
           <span className="text-xs pb-0.5" style={{ color: 'var(--color-text-muted)' }}>{matchDateLabel}</span>
         )}
       </div>
+
+      <MotmVotingCard />
 
       {!match ? (
         <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>

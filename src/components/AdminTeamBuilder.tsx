@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
+import { getVotingWindow } from '../lib/time'
 import type { Profile, Match, Team } from '../types'
 import PlayerAvatar from './PlayerAvatar'
 
@@ -185,6 +186,14 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         )
       }
     }
+    // Open the MOTM/DOTD voting window for this match (10pm match night →
+    // 9am next day). Preserves results_published if the row already exists.
+    const { opens_at, closes_at } = getVotingWindow(nextThursday)
+    await supabase.from('voting_windows').upsert(
+      { match_id: matchId, opens_at, closes_at },
+      { onConflict: 'match_id' },
+    )
+
     // Auto-create WTP game entries for all WTP players in the published teams
     const allPlayers = draftTeams.flatMap(t => t.players)
     const wtpPlayers = allPlayers.filter(p => (p.player_type ?? 'wtp') === 'wtp')

@@ -61,6 +61,14 @@ export function getMatchPhase(thursdayDateStr: string): MatchPhase {
   return 'post_match'
 }
 
+// Voting opens 10pm on match night, closes 9am the next day (Europe/London).
+export function getVotingWindow(matchDateStr: string): { opens_at: string; closes_at: string } {
+  const [y, m, d] = matchDateStr.split('-').map(Number)
+  const opens = fromZonedTime(new Date(y, m - 1, d, 22, 0, 0, 0), TZ)
+  const closes = fromZonedTime(new Date(y, m - 1, d + 1, 9, 0, 0, 0), TZ)
+  return { opens_at: opens.toISOString(), closes_at: closes.toISOString() }
+}
+
 export function formatCountdown(targetDate: string): string {
   const now = new Date()
   const [y, m, d] = targetDate.split('-').map(Number)

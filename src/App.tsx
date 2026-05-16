@@ -9,6 +9,7 @@ import MatchPage from './pages/MatchPage'
 import HistoryPage from './pages/HistoryPage'
 import CardsPage from './pages/CardsPage'
 import FeedbackPage from './pages/FeedbackPage'
+import StatsPage from './pages/StatsPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
 
@@ -39,6 +40,7 @@ function ProtectedRoutes() {
         <Route path="match" element={<MatchPage />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="cards" element={<CardsPage />} />
+        <Route path="stats" element={<StatsPage />} />
         <Route path="feedback" element={<FeedbackPage />} />
         <Route path="admin" element={<AdminPage />} />
         <Route path="profile" element={<ProfilePage />} />

@@ -201,6 +201,50 @@ export interface LinkedProfile {
   created_at: string
 }
 
+export type AwardType = 'motm' | 'dotd'
+
+export interface Vote {
+  id: string
+  match_id: string
+  award_type: AwardType
+  voter_id: string
+  nominee_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface AwardResult {
+  id: string
+  match_id: string
+  award_type: AwardType
+  player_id: string
+  vote_count: number
+  total_votes: number
+  is_shared: boolean
+  is_admin_override: boolean
+  published_at: string
+}
+
+export interface VotingWindow {
+  match_id: string
+  opens_at: string
+  closes_at: string
+  results_published: boolean
+  created_at: string
+}
+
+export interface TopScorerRow {
+  player_id: string
+  total_goals: number
+  goals_this_season: number | null
+}
+
+export interface AppearanceRow {
+  player_id: string
+  appearances: number
+  appearances_this_season: number | null
+}
+
 export type BadgeType = 'Super Sharp Shooter' | 'Legend' | 'Captain'
 
 export type TierType = 'gold' | 'silver' | 'bronze' | 'standard'
