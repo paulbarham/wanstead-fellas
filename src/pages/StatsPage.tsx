@@ -4,16 +4,24 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import { FINE_TYPES } from '../types'
 import type { Profile, FineType } from '../types'
 
-type Mode = 'all' | 'season'
+type Mode = 'all' | 'month'
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'surname' | 'photo_url'>
+
+// Current calendar month, e.g. "2026-05". "This Month" shows only matches
+// whose date falls in this month; at month rollover it naturally resets and
+// everything stays available under "All Time".
+const NOW = new Date()
+const CUR_MONTH = `${NOW.getFullYear()}-${String(NOW.getMonth() + 1).padStart(2, '0')}`
+const inMode = (mode: Mode, date: string | null | undefined) =>
+  mode === 'all' || (!!date && date.slice(0, 7) === CUR_MONTH)
 
 const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
 const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
 
-function SeasonToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
+function PeriodToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
   return (
     <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-      {(['season', 'all'] as Mode[]).map(m => (
+      {(['month', 'all'] as Mode[]).map(m => (
         <button
           key={m}
           onClick={() => setMode(m)}
@@ -23,7 +31,7 @@ function SeasonToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => voi
             color: mode === m ? '#FFFFFF' : 'var(--color-text-muted)',
           }}
         >
-          {m === 'season' ? 'This Season' : 'All Time'}
+          {m === 'month' ? 'This Month' : 'All Time'}
         </button>
       ))}
     </div>
@@ -106,6 +114,13 @@ function RankedList({
   )
 }
 
+interface GoalRow {
+  player_id: string
+  goals_count: number
+  own_goal: boolean
+  match_date: string | null
+}
+
 interface FineRow {
   player_id: string
   type: FineType
@@ -120,47 +135,64 @@ interface AwardRow {
   match_date: string | null
 }
 
+interface AppRow {
+  player_id: string
+  match_id: string
+  match_date: string | null
+}
+
 export default function StatsPage() {
   const [loading, setLoading] = useState(true)
   const [profiles, setProfiles] = useState<Record<string, ProfileLite>>({})
-  const [scorers, setScorers] = useState<{ player_id: string; total_goals: number; goals_this_season: number | null }[]>([])
-  const [appearances, setAppearances] = useState<{ player_id: string; appearances: number; appearances_this_season: number | null }[]>([])
+  const [goals, setGoals] = useState<GoalRow[]>([])
+  const [apps, setApps] = useState<AppRow[]>([])
   const [fines, setFines] = useState<FineRow[]>([])
   const [motm, setMotm] = useState<AwardRow[]>([])
   const [dotd, setDotd] = useState<AwardRow[]>([])
 
-  const [scorerMode, setScorerMode] = useState<Mode>('season')
-  const [appsMode, setAppsMode] = useState<Mode>('season')
-  const [finesMode, setFinesMode] = useState<Mode>('season')
+  const [scorerMode, setScorerMode] = useState<Mode>('month')
+  const [appsMode, setAppsMode] = useState<Mode>('month')
+  const [finesMode, setFinesMode] = useState<Mode>('month')
   const [finesType, setFinesType] = useState<FineType | 'all'>('all')
-  const [motmMode, setMotmMode] = useState<Mode>('season')
-  const [dotdMode, setDotdMode] = useState<Mode>('season')
+  const [motmMode, setMotmMode] = useState<Mode>('month')
+  const [dotdMode, setDotdMode] = useState<Mode>('month')
 
   useEffect(() => {
     async function load() {
-      const [ps, ts, ap, fn, aw, ms] = await Promise.all([
+      const [ps, gl, fn, aw, ms, tm, tp] = await Promise.all([
         supabase.from('profiles').select('id, name, surname, photo_url'),
-        supabase.from('top_scorers').select('player_id, total_goals, goals_this_season'),
-        supabase.from('appearances').select('player_id, appearances, appearances_this_season'),
+        supabase.from('goals').select('player_id, goals_count, own_goal, match_id'),
         supabase.from('fines').select('player_id, type, amount, paid, match_date'),
         supabase.from('award_results').select('player_id, award_type, is_admin_override, match_id'),
         supabase.from('matches').select('id, match_date'),
+        supabase.from('teams').select('id, match_id'),
+        supabase.from('team_players').select('team_id, player_id'),
       ])
       const matchDate: Record<string, string | null> = {}
       for (const m of (ms.data as { id: string; match_date: string | null }[]) || []) matchDate[m.id] = m.match_date
+      const teamMatch: Record<string, string> = {}
+      for (const t of (tm.data as { id: string; match_id: string }[]) || []) teamMatch[t.id] = t.match_id
+
       const pMap: Record<string, ProfileLite> = {}
       for (const p of (ps.data as ProfileLite[]) || []) pMap[p.id] = p
       setProfiles(pMap)
-      setScorers((ts.data as typeof scorers) || [])
-      setAppearances((ap.data as typeof appearances) || [])
+
+      setGoals(((gl.data as { player_id: string; goals_count: number; own_goal: boolean; match_id: string }[]) || [])
+        .map(g => ({ player_id: g.player_id, goals_count: g.goals_count, own_goal: g.own_goal, match_date: matchDate[g.match_id] ?? null })))
+
       setFines((fn.data as FineRow[]) || [])
+
       const awards = (aw.data as { player_id: string; award_type: string; is_admin_override: boolean; match_id: string }[]) || []
       const norm = (t: string): AwardRow[] =>
-        awards
-          .filter(a => a.award_type === t)
+        awards.filter(a => a.award_type === t)
           .map(a => ({ player_id: a.player_id, is_admin_override: a.is_admin_override, match_date: matchDate[a.match_id] ?? null }))
       setMotm(norm('motm'))
       setDotd(norm('dotd'))
+
+      setApps(((tp.data as { team_id: string; player_id: string }[]) || [])
+        .map(r => ({ player_id: r.player_id, match_id: teamMatch[r.team_id], match_date: matchDate[teamMatch[r.team_id]] ?? null }))
+        .filter(r => r.match_id))
+
       setLoading(false)
     }
     load()
@@ -170,35 +202,37 @@ export default function StatsPage() {
     return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</div>
   }
 
-  // NOTE: "This Season" currently mirrors "All Time" — season filtering is
-  // intentionally a no-op until a season boundary is defined. The toggle is
-  // kept so real season splits can be switched back on later.
+  const periodNote = (mode: Mode, noun: string) =>
+    mode === 'month' ? `No ${noun} this month.` : `No ${noun} recorded yet.`
 
-  // Top scorers
-  const scorerRows = scorers
-    .map(s => ({
-      profile: profiles[s.player_id],
-      value: s.total_goals,
-    }))
+  // Top scorers — sum goals_count (own goals excluded) for the period.
+  const scorerAgg: Record<string, number> = {}
+  for (const g of goals) {
+    if (g.own_goal) continue
+    if (!inMode(scorerMode, g.match_date)) continue
+    scorerAgg[g.player_id] = (scorerAgg[g.player_id] ?? 0) + g.goals_count
+  }
+  const scorerRows = Object.entries(scorerAgg)
+    .map(([pid, v]) => ({ profile: profiles[pid], value: v }))
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value)
 
-  // Appearances
-  const appsRows = appearances
-    .map(a => ({
-      profile: profiles[a.player_id],
-      value: a.appearances,
-    }))
+  // Appearances — distinct matches a player was rostered for in the period.
+  const appAgg: Record<string, Set<string>> = {}
+  for (const a of apps) {
+    if (!inMode(appsMode, a.match_date)) continue
+    ;(appAgg[a.player_id] ??= new Set()).add(a.match_id)
+  }
+  const appsRows = Object.entries(appAgg)
+    .map(([pid, set]) => ({ profile: profiles[pid], value: set.size }))
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value)
 
   // Fines
-  const finesFiltered = fines.filter(f => {
-    if (finesType !== 'all' && f.type !== finesType) return false
-    return true
-  })
   const fineAgg: Record<string, { paid: number; unpaid: number }> = {}
-  for (const f of finesFiltered) {
+  for (const f of fines) {
+    if (finesType !== 'all' && f.type !== finesType) continue
+    if (!inMode(finesMode, f.match_date)) continue
     const a = (fineAgg[f.player_id] ??= { paid: 0, unpaid: 0 })
     if (f.paid) a.paid += Number(f.amount)
     else a.unpaid += Number(f.amount)
@@ -209,9 +243,10 @@ export default function StatsPage() {
     .sort((a, b) => b.total - a.total)
 
   // Awards
-  function awardRows(rows: AwardRow[]) {
+  function awardRows(rows: AwardRow[], mode: Mode) {
     const agg: Record<string, { count: number; override: boolean }> = {}
     for (const r of rows) {
+      if (!inMode(mode, r.match_date)) continue
       const a = (agg[r.player_id] ??= { count: 0, override: false })
       a.count += 1
       if (r.is_admin_override) a.override = true
@@ -224,8 +259,8 @@ export default function StatsPage() {
       }))
       .sort((a, b) => b.value - a.value)
   }
-  const motmRows = awardRows(motm)
-  const dotdRows = awardRows(dotd)
+  const motmRows = awardRows(motm, motmMode)
+  const dotdRows = awardRows(dotd, dotdMode)
 
   return (
     <div className="px-4 py-5">
@@ -235,10 +270,10 @@ export default function StatsPage() {
       {/* Top Scorers */}
       <Panel title="Top Scorers" icon="⚽" defaultOpen>
         <div className="flex justify-end pt-3 -mb-1">
-          <SeasonToggle mode={scorerMode} setMode={setScorerMode} />
+          <PeriodToggle mode={scorerMode} setMode={setScorerMode} />
         </div>
         {scorerRows.length === 0 ? (
-          <EmptyState text="No goals recorded yet." />
+          <EmptyState text={periodNote(scorerMode, 'goals')} />
         ) : (
           <RankedList rows={scorerRows} unit="goals" />
         )}
@@ -266,10 +301,10 @@ export default function StatsPage() {
               )
             })}
           </div>
-          <SeasonToggle mode={finesMode} setMode={setFinesMode} />
+          <PeriodToggle mode={finesMode} setMode={setFinesMode} />
         </div>
         {fineRows.length === 0 ? (
-          <EmptyState text="No fines recorded for this period." />
+          <EmptyState text={periodNote(finesMode, 'fines')} />
         ) : (
           <div className="pt-3 space-y-1.5">
             {fineRows.map((r, i) => (
@@ -296,10 +331,10 @@ export default function StatsPage() {
       {/* MOTM */}
       <Panel title="Man of the Match" icon="🏆">
         <div className="flex justify-end pt-3 -mb-1">
-          <SeasonToggle mode={motmMode} setMode={setMotmMode} />
+          <PeriodToggle mode={motmMode} setMode={setMotmMode} />
         </div>
         {motmRows.length === 0 ? (
-          <EmptyState text="No awards yet — voting starts next match." />
+          <EmptyState text={motmMode === 'month' ? 'No awards this month.' : 'No awards yet — voting starts next match.'} />
         ) : (
           <RankedList rows={motmRows} unit="awards" />
         )}
@@ -308,10 +343,10 @@ export default function StatsPage() {
       {/* DOTD */}
       <Panel title="Dick of the Day" icon="🤡">
         <div className="flex justify-end pt-3 -mb-1">
-          <SeasonToggle mode={dotdMode} setMode={setDotdMode} />
+          <PeriodToggle mode={dotdMode} setMode={setDotdMode} />
         </div>
         {dotdRows.length === 0 ? (
-          <EmptyState text="No awards yet — voting starts next match." />
+          <EmptyState text={dotdMode === 'month' ? 'No awards this month.' : 'No awards yet — voting starts next match.'} />
         ) : (
           <RankedList rows={dotdRows} unit="awards" />
         )}
@@ -320,7 +355,7 @@ export default function StatsPage() {
       {/* Appearances */}
       <Panel title="Appearances" icon="📋">
         <div className="flex justify-end pt-3 -mb-1">
-          <SeasonToggle mode={appsMode} setMode={setAppsMode} />
+          <PeriodToggle mode={appsMode} setMode={setAppsMode} />
         </div>
         {appsRows.length === 0 ? (
           <EmptyState text="No appearance data yet — tracked from upcoming matches onward." />
