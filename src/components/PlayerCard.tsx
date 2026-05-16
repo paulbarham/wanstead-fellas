@@ -16,23 +16,27 @@ type Stat = { label: string; value: number | null }
 function statsFor(p: Profile): Stat[] {
   const isGK = p.position === 'GK'
   const hasGk = p.gk_pace != null || p.gk_reflexes != null || p.gk_handling != null
+  // New signups / My-Squad children have no card_* values yet — fall back to
+  // overall_rating so the card shows a sensible baseline instead of "—".
+  // Any admin-set value overrides this automatically.
+  const base = p.overall_rating ?? 7
   if (isGK && hasGk) {
     return [
-      { label: 'PAC', value: p.gk_pace },
-      { label: 'REF', value: p.gk_reflexes },
-      { label: 'HAN', value: p.gk_handling },
-      { label: 'POS', value: p.gk_positioning },
-      { label: 'DIS', value: p.gk_distribution },
-      { label: 'PHY', value: p.gk_physicality },
+      { label: 'PAC', value: p.gk_pace ?? base },
+      { label: 'REF', value: p.gk_reflexes ?? base },
+      { label: 'HAN', value: p.gk_handling ?? base },
+      { label: 'POS', value: p.gk_positioning ?? base },
+      { label: 'DIS', value: p.gk_distribution ?? base },
+      { label: 'PHY', value: p.gk_physicality ?? base },
     ]
   }
   return [
-    { label: 'PAC', value: p.card_pace },
-    { label: 'DRI', value: p.card_dribbling },
-    { label: 'SHO', value: p.card_shooting },
-    { label: 'DEF', value: p.card_defence },
-    { label: 'PAS', value: p.card_passing },
-    { label: 'PHY', value: p.card_physicality },
+    { label: 'PAC', value: p.card_pace ?? base },
+    { label: 'DRI', value: p.card_dribbling ?? base },
+    { label: 'SHO', value: p.card_shooting ?? base },
+    { label: 'DEF', value: p.card_defence ?? base },
+    { label: 'PAS', value: p.card_passing ?? base },
+    { label: 'PHY', value: p.card_physicality ?? base },
   ]
 }
 
