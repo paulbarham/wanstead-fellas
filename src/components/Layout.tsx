@@ -41,13 +41,13 @@ export default function Layout() {
           paddingTop: 'max(12px, calc(env(safe-area-inset-top) + 8px))',
           paddingBottom: 12,
         }}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: 'var(--color-primary)' }}>
             <span className="font-display text-sm text-white">WF</span>
           </div>
-          <div className="flex flex-col" style={{ gap: 2 }}>
-            <span className="font-display text-lg tracking-wide leading-none" style={{ color: 'var(--color-text)' }}>WANSTEAD FELLAS</span>
+          <div className="flex flex-col min-w-0" style={{ gap: 2 }}>
+            <span className="font-display text-lg tracking-wide leading-none truncate" style={{ color: 'var(--color-text)' }}>WANSTEAD FELLAS</span>
             <a
               href="https://www.instagram.com/wanstead_football_fellas"
               target="_blank"
@@ -61,7 +61,7 @@ export default function Layout() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0 pl-2">
           {/* Theme toggle */}
           <button
             onClick={toggle}
@@ -99,7 +99,7 @@ export default function Layout() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto" style={{ maxWidth: 430, width: '100%', margin: '0 auto' }}>
+      <main className="flex-1 overflow-y-auto" style={{ maxWidth: 430, width: '100%', margin: '0 auto', overflowX: 'hidden' }}>
         <Outlet />
       </main>
 
