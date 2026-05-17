@@ -127,7 +127,7 @@ export default function HistoryPage() {
               <div key={match.id} className="rounded-2xl overflow-hidden"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button
-                  className="w-full px-4 py-5 text-left"
+                  className="w-full px-5 py-5 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
                   <div className="flex items-center justify-between gap-4">
@@ -164,14 +164,14 @@ export default function HistoryPage() {
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid var(--color-border)' }}>
                     {result?.scorers && (
-                      <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
                         <SectionHeader label="Scorers" withDivider />
                         <ScorersList scorers={result.scorers} />
                       </div>
                     )}
 
                     {!isTwoTeam && fixtures.length > 0 && (
-                      <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
                         <SectionHeader label="Results" withDivider />
                         <div className="space-y-1.5">
                           {fixtures.map(f => (
@@ -188,7 +188,7 @@ export default function HistoryPage() {
                     )}
 
                     {hasReportContent(result) && result && (
-                      <div className="px-4 py-4">
+                      <div className="px-5 py-4">
                         <SectionHeader label="Match Report" withDivider />
                         {structuredReport ? (
                           <MatchReport result={result} />
