@@ -112,7 +112,7 @@ export default function HistoryPage() {
           <p className="font-medium text-[var(--color-text)]">No matches played yet</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {records.map(({ match, result, teams, fixtures }) => {
             const isExpanded = expanded === match.id
             const isReportExpanded = expandedReports.has(match.id)
@@ -127,12 +127,12 @@ export default function HistoryPage() {
               <div key={match.id} className="rounded-2xl overflow-hidden"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button
-                  className="w-full px-4 py-4 text-left"
+                  className="w-full px-4 py-5 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs mb-1 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
+                      <p className="text-xs mb-2 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
                       {isTwoTeam && mainFixture ? (
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="font-semibold text-[var(--color-text)] text-sm truncate">{stripFC(mainFixture.team1?.name)}</span>
