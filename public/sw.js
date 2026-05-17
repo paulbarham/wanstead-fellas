@@ -1,5 +1,5 @@
-const CACHE = 'wf-v2'
-const SHELL = ['/', '/index.html']
+const CACHE = 'wf-v3'
+const SHELL = ['/']
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)))
