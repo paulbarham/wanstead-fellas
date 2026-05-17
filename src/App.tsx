@@ -53,7 +53,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div style={{ maxWidth: 430, margin: '0 auto', height: '100%', position: 'relative' }}>
+        <div style={{ width: '100%', maxWidth: 430, margin: '0 auto', height: '100%', position: 'relative', overflowX: 'hidden' }}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
