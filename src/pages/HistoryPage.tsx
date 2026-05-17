@@ -130,24 +130,24 @@ export default function HistoryPage() {
                   className="w-full px-4 py-4 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs mb-1 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
                       {isTwoTeam && mainFixture ? (
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team1?.name)}</span>
-                          <span className="font-display text-xl" style={{ color: 'var(--color-accent)' }}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-semibold text-[var(--color-text)] text-sm truncate">{stripFC(mainFixture.team1?.name)}</span>
+                          <span className="font-display text-xl shrink-0 whitespace-nowrap" style={{ color: 'var(--color-accent)' }}>
                             {mainFixture.score1} – {mainFixture.score2}
                           </span>
-                          <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team2?.name)}</span>
+                          <span className="font-semibold text-[var(--color-text)] text-sm truncate">{stripFC(mainFixture.team2?.name)}</span>
                         </div>
                       ) : (
-                        <p className="font-semibold text-[var(--color-text)] text-sm">
+                        <p className="font-semibold text-[var(--color-text)] text-sm truncate">
                           4-Team Tournament · {teams.length} teams
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span className="text-xs px-2 py-1 rounded-md font-medium"
                         style={{
                           background: isTwoTeam ? 'var(--color-success-bg)' : 'var(--color-surface-2)',
