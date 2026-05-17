@@ -112,7 +112,7 @@ export default function HistoryPage() {
           <p className="font-medium text-[var(--color-text)]">No matches played yet</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {records.map(({ match, result, teams, fixtures }) => {
             const isExpanded = expanded === match.id
             const isReportExpanded = expandedReports.has(match.id)
@@ -127,36 +127,38 @@ export default function HistoryPage() {
               <div key={match.id} className="rounded-2xl overflow-hidden"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button
-                  className="w-full px-4 py-4 text-left"
+                  className="w-full px-5 py-5 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
-                      {isTwoTeam && mainFixture ? (
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team1?.name)}</span>
-                          <span className="font-display text-xl" style={{ color: 'var(--color-accent)' }}>
-                            {mainFixture.score1} – {mainFixture.score2}
-                          </span>
-                          <span className="font-semibold text-[var(--color-text)] text-sm">{stripFC(mainFixture.team2?.name)}</span>
-                        </div>
-                      ) : (
-                        <p className="font-semibold text-[var(--color-text)] text-sm">
-                          4-Team Tournament · {teams.length} teams
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs px-2 py-1 rounded-md font-medium"
-                        style={{
-                          background: isTwoTeam ? 'var(--color-success-bg)' : 'var(--color-surface-2)',
-                          color: isTwoTeam ? 'var(--color-success-text)' : 'var(--color-text-muted)',
-                          border: `1px solid ${isTwoTeam ? 'var(--color-success-text)' : 'var(--color-border)'}`,
-                        }}>
-                        {match.format}
-                      </span>
-                      <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{isExpanded ? '▲' : '▼'}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs mb-2 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        {isTwoTeam && mainFixture ? (
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-semibold text-[var(--color-text)] text-sm truncate min-w-0">{stripFC(mainFixture.team1?.name)}</span>
+                            <span className="font-display text-xl shrink-0 whitespace-nowrap" style={{ color: 'var(--color-accent)' }}>
+                              {mainFixture.score1} – {mainFixture.score2}
+                            </span>
+                            <span className="font-semibold text-[var(--color-text)] text-sm truncate min-w-0">{stripFC(mainFixture.team2?.name)}</span>
+                          </div>
+                        ) : (
+                          <p className="font-semibold text-[var(--color-text)] text-sm truncate">
+                            4-Team Tournament · {teams.length} teams
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs px-2 py-1 rounded-md font-medium"
+                          style={{
+                            background: isTwoTeam ? 'var(--color-success-bg)' : 'var(--color-surface-2)',
+                            color: isTwoTeam ? 'var(--color-success-text)' : 'var(--color-text-muted)',
+                            border: `1px solid ${isTwoTeam ? 'var(--color-success-text)' : 'var(--color-border)'}`,
+                          }}>
+                          {match.format}
+                        </span>
+                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{isExpanded ? '▲' : '▼'}</span>
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -164,14 +166,14 @@ export default function HistoryPage() {
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid var(--color-border)' }}>
                     {result?.scorers && (
-                      <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
                         <SectionHeader label="Scorers" withDivider />
                         <ScorersList scorers={result.scorers} />
                       </div>
                     )}
 
                     {!isTwoTeam && fixtures.length > 0 && (
-                      <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
                         <SectionHeader label="Results" withDivider />
                         <div className="space-y-1.5">
                           {fixtures.map(f => (
@@ -188,7 +190,7 @@ export default function HistoryPage() {
                     )}
 
                     {hasReportContent(result) && result && (
-                      <div className="px-4 py-4">
+                      <div className="px-5 py-4">
                         <SectionHeader label="Match Report" withDivider />
                         {structuredReport ? (
                           <MatchReport result={result} />
