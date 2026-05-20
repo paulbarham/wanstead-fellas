@@ -432,25 +432,30 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5"
-                    style={{ background: 'var(--color-surface-2)', padding: 16 }}>
-
-                    {team.players.map(p => {
+                  <div style={{ background: 'var(--color-surface-2)' }}>
+                    {team.players.map((p, idx) => {
                       const isCap = p.id === team.captain?.id
                       return (
                         <button
                           key={p.id}
                           onClick={() => draftTeams.length > 0 && setSwapModal({ player: p, fromTeamIdx: teamIdx })}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-opacity"
+                          className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-left transition-opacity"
                           style={{
-                            background: isCap ? `${color}20` : 'var(--color-surface)',
-                            color: isCap ? color : 'var(--color-text)',
-                            border: `1px solid ${isCap ? `${color}66` : 'var(--color-border)'}`,
+                            background: isCap ? `${color}1A` : 'transparent',
+                            color: 'var(--color-text)',
+                            borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
                             cursor: draftTeams.length > 0 ? 'pointer' : 'default',
                           }}
                         >
-                          {p.surname}
-                          {isCap && <span style={{ color, opacity: 0.8, marginLeft: 2 }}>©</span>}
+                          <span className="truncate font-medium">{p.name} {p.surname}</span>
+                          {isCap && (
+                            <span
+                              className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap"
+                              style={{ color, letterSpacing: '0.8px' }}
+                            >
+                              © Captain
+                            </span>
+                          )}
                         </button>
                       )
                     })}
