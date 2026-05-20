@@ -10,6 +10,7 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import InstallBanner from '../components/InstallBanner'
 import WeatherCard from '../components/WeatherCard'
+import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
 
 interface LastResultSummary {
   matchDate: string
@@ -197,13 +198,27 @@ export default function TonightPage() {
   const waitingPlayers = players.filter(p => waitingAvail.some(a => a.player_id === p.id))
   const notSignedUp = players.filter(p => !availability.some(a => a.player_id === p.id))
 
+  const matchConfig = pickConfig(signedUpCount)
+  const candidatesForSplit = signedUpPlayers.map(p => {
+    const av = confirmedAvail.find(a => a.player_id === p.id)
+    return { player: p, createdAt: av?.created_at ?? '' }
+  })
+  const { playing: playingPlayersRaw, reserves: deferredRaw } = splitPlayingAndReserves(
+    candidatesForSplit,
+    matchConfig?.total ?? signedUpCount,
+  )
+  const playingPlayers = playingPlayersRaw.map(c => c.player)
+  const deferredPlayers = deferredRaw.map(c => c.player)
+  const reservePlayers = [...deferredPlayers, ...waitingPlayers]
+
   const dateLabel = (() => {
     const [y, m, d] = nextThursday.split('-').map(Number)
     return format(new Date(y, m - 1, d), 'do MMMM')
   })()
 
   const canToggle = profile?.is_admin || (phase === 'signup_open' || phase === 'post_match')
-  const formatLabel = signedUpCount >= 22 ? '11v11' : '4-Team Tournament'
+  const formatLabel = formatLabelFor(matchConfig)
+  const teamCountLabel = matchConfig ? `${matchConfig.numTeams} teams` : null
 
   return (
     <div className="px-4 pt-4 pb-4">
@@ -253,12 +268,24 @@ export default function TonightPage() {
             <span className="text-xs font-semibold" style={{ color: 'var(--color-error-text)' }}>FULL</span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+        <div className="flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg"
           style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
-          <span className="text-sm">⚽</span>
-          <span className="text-xs font-semibold text-[var(--color-text)]">{formatLabel}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm">⚽</span>
+            <span className="text-xs font-semibold text-[var(--color-text)]">{formatLabel}</span>
+          </div>
+          {teamCountLabel && (
+            <span className="text-[10px]" style={{ color: '#9CA897' }}>{teamCountLabel}</span>
+          )}
         </div>
       </div>
+
+      {deferredPlayers.length > 0 && (
+        <div className="mb-3 px-3 py-2 rounded-xl text-xs text-center"
+          style={{ background: 'var(--color-warning-bg)', color: '#92400e', border: '1px solid #C9A227' }}>
+          {playingPlayers.length} playing · {deferredPlayers.length} moved to reserves
+        </div>
+      )}
 
       {/* In/Out toggle */}
       <div className="mb-4">
@@ -334,21 +361,21 @@ export default function TonightPage() {
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <p className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>Who's In</p>
-          {signedUpPlayers.length > 0 && (
+          {playingPlayers.length > 0 && (
             <span className="text-xs" style={{ color: '#9CA897' }}>
-              {signedUpPlayers.length} {signedUpPlayers.length === 1 ? 'player' : 'players'}
+              {playingPlayers.length} {playingPlayers.length === 1 ? 'player' : 'players'}
             </span>
           )}
         </div>
         {loading ? (
           <div className="text-sm py-2" style={{ color: '#9CA897' }}>Loading…</div>
-        ) : signedUpPlayers.length === 0 ? (
+        ) : playingPlayers.length === 0 ? (
           <p className="text-sm py-4 text-center" style={{ color: 'var(--color-text-muted)' }}>
             No one signed up yet — be first!
           </p>
         ) : (
           <div className="space-y-1.5">
-            {signedUpPlayers.map(p => (
+            {playingPlayers.map(p => (
               <div
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
@@ -412,14 +439,14 @@ export default function TonightPage() {
         )}
       </div>
 
-      {/* Waiting list */}
-      {waitingPlayers.length > 0 && (
+      {/* Reserves */}
+      {reservePlayers.length > 0 && (
         <div className="mb-4">
           <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
-            Waiting List ({waitingPlayers.length})
+            Reserves ({reservePlayers.length})
           </p>
           <div className="space-y-1.5">
-            {waitingPlayers.map((p, i) => (
+            {reservePlayers.map((p, i) => (
               <div
                 key={p.id}
                 className="flex items-center gap-3 px-3 py-2 rounded-xl"
@@ -580,7 +607,7 @@ export default function TonightPage() {
               <p className="text-xs mb-1.5" style={{ color: 'var(--color-text-muted)' }}>
                 {lastResult.format === 'tournament' || lastResult.format === '4-team'
                   ? '4-Team Tournament'
-                  : '11v11'}
+                  : lastResult.format}
               </p>
               {lastResult.scorers && (
                 <p className="text-xs mb-1" style={{ color: 'var(--color-text)' }}>

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { getVotingWindow } from '../lib/time'
 import type { Profile, Match, Team } from '../types'
 import PlayerAvatar from './PlayerAvatar'
+import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
 
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
@@ -60,7 +61,9 @@ function pickCaptain(players: Profile[]): Profile {
 
 function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
   const dateLabel = format(new Date(nextThursday + 'T12:00:00'), 'do MMMM')
-  const formatLabel = teams.length >= 3 ? '4-Team Tournament' : '11v11'
+  const totalPlayers = teams.reduce((sum, t) => sum + t.players.length, 0)
+  const cfg = pickConfig(totalPlayers)
+  const formatLabel = `${formatLabelFor(cfg)}${cfg ? ` · ${cfg.numTeams} teams` : ''}`
 
   let text = `🏆 WANSTEAD FELLAS — THURSDAY NIGHT FOOTBALL\n`
   text += `📅 ${dateLabel} | ${formatLabel} | 9–10pm\n`
@@ -85,6 +88,7 @@ function buildFlatList(teams: TeamDraft[]): string {
 
 export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, onPublished }: Props) {
   const [availablePlayers, setAvailablePlayers] = useState<Profile[]>([])
+  const [signupTimes, setSignupTimes] = useState<Record<string, string>>({})
   const [weights, setWeights] = useState<Record<string, number>>(() =>
     Object.fromEntries(ATTR_LABELS.map(a => [a.key, 1]))
   )
@@ -101,24 +105,35 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
     async function load() {
       const { data: avail } = await supabase
         .from('availability')
-        .select('player_id')
+        .select('player_id, created_at')
         .eq('match_date', nextThursday)
         .eq('status', 'confirmed')
       if (!avail || avail.length === 0) return
-      const ids = avail.map((a: { player_id: string }) => a.player_id)
+      const rows = avail as { player_id: string; created_at: string }[]
+      const ids = rows.map(a => a.player_id)
+      const times: Record<string, string> = {}
+      for (const r of rows) times[r.player_id] = r.created_at
       const { data: profs } = await supabase.from('profiles').select('*').in('id', ids)
       setAvailablePlayers((profs as Profile[]) || [])
+      setSignupTimes(times)
     }
     load()
   }, [nextThursday])
 
   function autoBalance() {
-    const numTeams = availablePlayers.length >= 22 ? 2 : 4
-    const groups = snakeDraft(availablePlayers, numTeams, weights)
-    const bibsPattern = numTeams === 2 ? [true, false] : [true, false, true, false]
+    const cfg = pickConfig(availablePlayers.length)
+    if (!cfg) {
+      alert(`Need at least 10 confirmed players to generate teams (currently ${availablePlayers.length}).`)
+      return
+    }
+    const candidates = availablePlayers.map(p => ({ player: p, createdAt: signupTimes[p.id] ?? '' }))
+    const { playing } = splitPlayingAndReserves(candidates, cfg.total)
+    const playingProfiles = playing.map(c => c.player)
+    const groups = snakeDraft(playingProfiles, cfg.numTeams, weights)
+    const bibsPattern = cfg.numTeams === 2 ? [true, false] : [true, false, true, false]
     const teams: TeamDraft[] = groups.map((players, i) => {
       const captain = pickCaptain(players)
-      return { name: `${captain.name} ${captain.surname} ${numTeams === 2 ? 'XI' : 'FC'}`, bibs: bibsPattern[i], captain, players }
+      return { name: `${captain.name} ${captain.surname} ${cfg.numTeams === 2 ? 'XI' : 'FC'}`, bibs: bibsPattern[i], captain, players }
     })
     setDraftTeams(teams)
     setPublished(false)
@@ -160,7 +175,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
     if (!matchId) {
       const { data: newMatch } = await supabase
         .from('matches')
-        .insert({ match_date: nextThursday, format: draftTeams.length >= 3 ? 'tournament' : '11v11', status: 'published' })
+        .insert({ match_date: nextThursday, format: formatLabelFor(pickConfig(draftTeams.reduce((s, t) => s + t.players.length, 0))), status: 'published' })
         .select().single()
       matchId = newMatch?.id
     } else {
