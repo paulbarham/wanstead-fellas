@@ -117,7 +117,7 @@ export default function HistoryPage() {
             const isExpanded = expanded === match.id
             const isReportExpanded = expandedReports.has(match.id)
             const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy')
-            const isTwoTeam = match.format !== 'tournament' && match.format !== '4-team'
+            const isTwoTeam = teams.length <= 2 && match.format !== 'tournament' && match.format !== '4-team'
             const mainFixture = isTwoTeam ? fixtures[0] : null
             const reportText = result?.report_text ?? null
             const structuredReport = hasStructuredReport(result)
