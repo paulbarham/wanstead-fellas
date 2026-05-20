@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
-import { getVotingWindow } from '../lib/time'
+import { getVotingWindow, canGenerateTeams } from '../lib/time'
 import type { Profile, Match, Team } from '../types'
 import PlayerAvatar from './PlayerAvatar'
 import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
@@ -14,17 +14,6 @@ interface TeamDraft {
   bibs: boolean
   captain?: Profile
   players: Profile[]
-}
-
-const draftStorageKey = (date: string) => `wf-draft-teams-${date}`
-
-function readStoredDraft(date: string): TeamDraft[] {
-  try {
-    const raw = localStorage.getItem(draftStorageKey(date))
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as TeamDraft[]) : []
-  } catch { return [] }
 }
 
 interface Props {
@@ -103,22 +92,45 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const [weights, setWeights] = useState<Record<string, number>>(() =>
     Object.fromEntries(ATTR_LABELS.map(a => [a.key, 1]))
   )
-  const [draftTeams, setDraftTeamsState] = useState<TeamDraft[]>(() => readStoredDraft(nextThursday))
+  const [draftTeams, setDraftTeamsState] = useState<TeamDraft[]>([])
   const setDraftTeams: React.Dispatch<React.SetStateAction<TeamDraft[]>> = useCallback(updater => {
     setDraftTeamsState(prev => {
       const next = typeof updater === 'function'
         ? (updater as (p: TeamDraft[]) => TeamDraft[])(prev)
         : updater
-      try {
-        if (next.length === 0) localStorage.removeItem(draftStorageKey(nextThursday))
-        else localStorage.setItem(draftStorageKey(nextThursday), JSON.stringify(next))
-      } catch {}
+      void (async () => {
+        if (next.length === 0) {
+          await supabase.from('team_drafts').delete().eq('match_date', nextThursday)
+        } else {
+          await supabase
+            .from('team_drafts')
+            .upsert({ match_date: nextThursday, draft: next }, { onConflict: 'match_date' })
+        }
+      })()
       return next
     })
   }, [nextThursday])
 
   useEffect(() => {
-    setDraftTeamsState(readStoredDraft(nextThursday))
+    let cancelled = false
+    async function hydrate() {
+      const { data } = await supabase
+        .from('team_drafts')
+        .select('draft')
+        .eq('match_date', nextThursday)
+        .maybeSingle()
+      if (cancelled) return
+      setDraftTeamsState(data && Array.isArray(data.draft) ? (data.draft as TeamDraft[]) : [])
+    }
+    hydrate()
+    return () => { cancelled = true }
+  }, [nextThursday])
+
+  const [canGenerate, setCanGenerate] = useState(() => canGenerateTeams(nextThursday))
+  useEffect(() => {
+    setCanGenerate(canGenerateTeams(nextThursday))
+    const id = setInterval(() => setCanGenerate(canGenerateTeams(nextThursday)), 60000)
+    return () => clearInterval(id)
   }, [nextThursday])
   const [swapModal, setSwapModal] = useState<{ player: Profile; fromTeamIdx: number } | null>(null)
   const [publishing, setPublishing] = useState(false)
@@ -296,12 +308,18 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
       {/* Auto-balance button */}
       <button
         onClick={autoBalance}
-        disabled={availablePlayers.length < 2}
-        className="w-full py-3.5 rounded-2xl font-semibold text-sm mb-3 disabled:opacity-40 transition-opacity"
+        disabled={availablePlayers.length < 2 || !canGenerate}
+        className="w-full py-3.5 rounded-2xl font-semibold text-sm mb-1 disabled:opacity-40 transition-opacity"
         style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}
       >
         ⚡ Auto-Balance Teams
       </button>
+      {!canGenerate && (
+        <p className="text-xs mb-3 text-center" style={{ color: 'var(--color-text-muted)' }}>
+          Team generation opens Wed 10pm (signup close) and locks 30 min before kick-off.
+        </p>
+      )}
+      {canGenerate && <div className="mb-2" />}
 
       {/* Balance settings */}
       <div className="mb-4">

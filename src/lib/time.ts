@@ -61,6 +61,23 @@ export function getMatchPhase(thursdayDateStr: string): MatchPhase {
   return 'post_match'
 }
 
+// Team generation is permitted once signups close (Wed 10pm London) and locks
+// 30 minutes before kick-off (Thu 8:30pm London) so teams can't be reshuffled
+// at the last minute.
+export function canGenerateTeams(thursdayDateStr: string): boolean {
+  const now = new Date()
+  const [ty, tm, td] = thursdayDateStr.split('-').map(Number)
+  const opensAt = fromZonedTime(
+    setMilliseconds(setSeconds(setMinutes(setHours(new Date(ty, tm - 1, td - 1), 22), 0), 0), 0),
+    TZ,
+  )
+  const closesAt = fromZonedTime(
+    setMilliseconds(setSeconds(setMinutes(setHours(new Date(ty, tm - 1, td), 20), 30), 0), 0),
+    TZ,
+  )
+  return !isBefore(now, opensAt) && isBefore(now, closesAt)
+}
+
 // Voting opens 10pm on match night, closes 9am the next day (Europe/London).
 export function getVotingWindow(matchDateStr: string): { opens_at: string; closes_at: string } {
   const [y, m, d] = matchDateStr.split('-').map(Number)
