@@ -399,24 +399,21 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                       <h3 className="font-display"
                         style={{
                           fontSize: 24,
-                          lineHeight: 1.05,
+                          lineHeight: 1.1,
                           color: '#FFFFFF',
                           letterSpacing: '0.02em',
                           wordBreak: 'normal',
                           overflowWrap: 'break-word',
                         }}>
-                        {stripFC(team.name)}
+                        {team.captain ? (
+                          <>
+                            <span style={{ marginRight: 6 }}>©</span>
+                            {team.captain.name} {team.captain.surname}
+                          </>
+                        ) : (
+                          stripFC(team.name)
+                        )}
                       </h3>
-                      {team.captain && (
-                        <p style={{
-                          fontSize: 12,
-                          color: 'rgba(255,255,255,0.7)',
-                          marginTop: 4,
-                          lineHeight: 1.2,
-                        }}>
-                          © {team.captain.name} {team.captain.surname}
-                        </p>
-                      )}
                     </div>
                     <span style={{
                       fontSize: 11,
@@ -433,32 +430,21 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   </div>
 
                   <div style={{ background: 'var(--color-surface-2)' }}>
-                    {team.players.map((p, idx) => {
-                      const isCap = p.id === team.captain?.id
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => draftTeams.length > 0 && setSwapModal({ player: p, fromTeamIdx: teamIdx })}
-                          className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-left transition-opacity"
-                          style={{
-                            background: isCap ? `${color}1A` : 'transparent',
-                            color: 'var(--color-text)',
-                            borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
-                            cursor: draftTeams.length > 0 ? 'pointer' : 'default',
-                          }}
-                        >
-                          <span className="truncate font-medium">{p.name} {p.surname}</span>
-                          {isCap && (
-                            <span
-                              className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap"
-                              style={{ color, letterSpacing: '0.8px' }}
-                            >
-                              © Captain
-                            </span>
-                          )}
-                        </button>
-                      )
-                    })}
+                    {team.players.map((p, idx) => (
+                      <button
+                        key={p.id}
+                        onClick={() => draftTeams.length > 0 && setSwapModal({ player: p, fromTeamIdx: teamIdx })}
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-left transition-opacity"
+                        style={{
+                          background: 'transparent',
+                          color: 'var(--color-text)',
+                          borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
+                          cursor: draftTeams.length > 0 ? 'pointer' : 'default',
+                        }}
+                      >
+                        <span className="truncate font-medium">{p.name} {p.surname}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )
