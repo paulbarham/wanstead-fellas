@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { getVotingWindow } from '../lib/time'
@@ -14,6 +14,17 @@ interface TeamDraft {
   bibs: boolean
   captain?: Profile
   players: Profile[]
+}
+
+const draftStorageKey = (date: string) => `wf-draft-teams-${date}`
+
+function readStoredDraft(date: string): TeamDraft[] {
+  try {
+    const raw = localStorage.getItem(draftStorageKey(date))
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? (parsed as TeamDraft[]) : []
+  } catch { return [] }
 }
 
 interface Props {
@@ -92,7 +103,23 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const [weights, setWeights] = useState<Record<string, number>>(() =>
     Object.fromEntries(ATTR_LABELS.map(a => [a.key, 1]))
   )
-  const [draftTeams, setDraftTeams] = useState<TeamDraft[]>([])
+  const [draftTeams, setDraftTeamsState] = useState<TeamDraft[]>(() => readStoredDraft(nextThursday))
+  const setDraftTeams: React.Dispatch<React.SetStateAction<TeamDraft[]>> = useCallback(updater => {
+    setDraftTeamsState(prev => {
+      const next = typeof updater === 'function'
+        ? (updater as (p: TeamDraft[]) => TeamDraft[])(prev)
+        : updater
+      try {
+        if (next.length === 0) localStorage.removeItem(draftStorageKey(nextThursday))
+        else localStorage.setItem(draftStorageKey(nextThursday), JSON.stringify(next))
+      } catch {}
+      return next
+    })
+  }, [nextThursday])
+
+  useEffect(() => {
+    setDraftTeamsState(readStoredDraft(nextThursday))
+  }, [nextThursday])
   const [swapModal, setSwapModal] = useState<{ player: Profile; fromTeamIdx: number } | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [published, setPublished] = useState(publishedTeams.length > 0)
