@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Result } from '../types'
-import { getNextThursdayDate, getMatchPhase } from '../lib/time'
+import { getNextThursdayDate } from '../lib/time'
 import AdminMatchEntry from '../components/AdminMatchEntry'
 import MatchReport from '../components/MatchReport'
 import SectionHeader from '../components/SectionHeader'
@@ -81,7 +81,6 @@ async function loadMatchData(matchId: string): Promise<{
 export default function MatchPage() {
   const { profile } = useAuth()
   const nextThursday = getNextThursdayDate()
-  const phase = getMatchPhase(nextThursday)
 
   const [match, setMatch] = useState<Match | null>(null)
   const [teams, setTeams] = useState<Team[]>([])
@@ -96,10 +95,16 @@ export default function MatchPage() {
   const [loading, setLoading] = useState(true)
 
   const fetchMatch = useCallback(async () => {
+    // "This week" for admin entry = latest unfinished (published) match. This
+    // survives the rollover after Thu 22:00 London when getNextThursday()
+    // advances to next week's Thursday — we still surface tonight's match so
+    // results can be entered.
     const { data: thisWeekRaw } = await supabase
       .from('matches')
       .select('*')
-      .eq('match_date', nextThursday)
+      .eq('status', 'published')
+      .order('match_date', { ascending: false })
+      .limit(1)
       .maybeSingle()
     const thisWeek = thisWeekRaw as Match | null
     setWeekMatch(thisWeek)
@@ -142,7 +147,7 @@ export default function MatchPage() {
 
   useEffect(() => { fetchMatch() }, [fetchMatch])
 
-  const canEnterResult = profile?.is_admin && (phase === 'match_live' || phase === 'post_match')
+  const canEnterResult = !!profile?.is_admin && !!weekMatch
 
   if (loading) {
     return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</div>
