@@ -154,14 +154,21 @@ export default function MatchPage() {
   }
 
   if (profile?.is_admin && canEnterResult) {
-    return <AdminMatchEntry
-      match={weekMatch}
-      nextThursday={nextThursday}
-      teams={weekTeams}
-      fixtures={weekFixtures}
-      result={weekResult}
-      onSaved={fetchMatch}
-    />
+    return (
+      <>
+        <div className="px-4 pt-4">
+          <MotmVotingCard />
+        </div>
+        <AdminMatchEntry
+          match={weekMatch}
+          nextThursday={nextThursday}
+          teams={weekTeams}
+          fixtures={weekFixtures}
+          result={weekResult}
+          onSaved={fetchMatch}
+        />
+      </>
+    )
   }
 
   const matchDateLabel = match
