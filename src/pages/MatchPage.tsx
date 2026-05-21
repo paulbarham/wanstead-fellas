@@ -93,6 +93,7 @@ export default function MatchPage() {
   const [weekResult, setWeekResult] = useState<Result | null>(null)
 
   const [loading, setLoading] = useState(true)
+  const [editingResult, setEditingResult] = useState(false)
 
   const fetchMatch = useCallback(async () => {
     // "This week" for admin entry = latest unfinished (published) match. This
@@ -171,6 +172,33 @@ export default function MatchPage() {
     )
   }
 
+  if (profile?.is_admin && editingResult && match) {
+    return (
+      <>
+        <div className="px-4 pt-4 flex items-center justify-between">
+          <button
+            onClick={() => setEditingResult(false)}
+            className="text-xs font-medium"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            ← Cancel
+          </button>
+          <span className="text-[10px] uppercase font-semibold tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
+            Editing Result
+          </span>
+        </div>
+        <AdminMatchEntry
+          match={match}
+          nextThursday={nextThursday}
+          teams={teams}
+          fixtures={fixtures}
+          result={result}
+          onSaved={() => { setEditingResult(false); fetchMatch() }}
+        />
+      </>
+    )
+  }
+
   const matchDateLabel = match
     ? format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy')
     : null
@@ -180,9 +208,20 @@ export default function MatchPage() {
       <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Match</p>
       <div className="flex items-end justify-between mb-5">
         <h1 className="font-display text-[var(--color-text)] tracking-wide" style={{ fontSize: '28px' }}>RESULTS</h1>
-        {matchDateLabel && (
-          <span className="text-xs pb-0.5" style={{ color: 'var(--color-text-muted)' }}>{matchDateLabel}</span>
-        )}
+        <div className="flex items-center gap-2 pb-0.5">
+          {matchDateLabel && (
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{matchDateLabel}</span>
+          )}
+          {profile?.is_admin && match && (
+            <button
+              onClick={() => setEditingResult(true)}
+              className="text-xs font-medium px-2 py-1 rounded-lg"
+              style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+            >
+              ✎ Edit
+            </button>
+          )}
+        </div>
       </div>
 
       <MotmVotingCard />
