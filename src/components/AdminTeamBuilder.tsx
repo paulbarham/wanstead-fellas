@@ -135,6 +135,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const [swapModal, setSwapModal] = useState<{ player: Profile; fromTeamIdx: number } | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [published, setPublished] = useState(publishedTeams.length > 0)
+  const [republishConfirm, setRepublishConfirm] = useState(false)
   const [showWeights, setShowWeights] = useState(false)
   const [copied, setCopied] = useState<'whatsapp' | 'flat' | null>(null)
 
@@ -452,14 +453,41 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
           </div>
 
           {draftTeams.length > 0 && (
-            <button
-              onClick={publish}
-              disabled={publishing}
-              className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 mb-4"
-              style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}
-            >
-              {publishing ? 'Publishing…' : published ? '↺ Re-publish Teams' : 'Publish Teams'}
-            </button>
+            republishConfirm ? (
+              <div className="mb-4 px-3 py-3 rounded-xl text-xs space-y-2"
+                style={{ background: 'var(--color-warning-bg)', color: '#92400e', border: '1px solid #C9A227' }}>
+                <p className="font-medium">
+                  Re-publish replaces the current teams. Any existing fixtures and scores for this match will be deleted, and goal team attributions will be cleared.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => { setRepublishConfirm(false); await publish() }}
+                    disabled={publishing}
+                    className="flex-1 py-2 rounded-lg font-semibold text-xs disabled:opacity-50"
+                    style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
+                  >
+                    {publishing ? 'Publishing…' : 'Yes, re-publish'}
+                  </button>
+                  <button
+                    onClick={() => setRepublishConfirm(false)}
+                    disabled={publishing}
+                    className="flex-1 py-2 rounded-lg text-xs disabled:opacity-50"
+                    style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => { if (published) setRepublishConfirm(true); else publish() }}
+                disabled={publishing}
+                className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 mb-4"
+                style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}
+              >
+                {publishing ? 'Publishing…' : published ? '↺ Re-publish Teams' : 'Publish Teams'}
+              </button>
+            )
           )}
 
           {/* Finalise & Export section */}
