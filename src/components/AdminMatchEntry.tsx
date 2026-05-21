@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Result } from '../types'
 
@@ -56,6 +56,10 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   const [highlights, setHighlights] = useState(initialResult?.highlights ?? '')
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [fixturesError, setFixturesError] = useState<string | null>(null)
+  const [regenConfirm, setRegenConfirm] = useState(false)
+  const generatingRef = useRef(false)
 
   const table = buildTable(teams, fixtures)
 
@@ -79,30 +83,75 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     onSaved()
   }
 
+  function roundRobinRows(matchId: string): { match_id: string; team1_id: string; team2_id: string }[] {
+    const rows: { match_id: string; team1_id: string; team2_id: string }[] = []
+    for (let i = 0; i < teams.length; i++) {
+      for (let j = i + 1; j < teams.length; j++) {
+        rows.push({ match_id: matchId, team1_id: teams[i].id, team2_id: teams[j].id })
+      }
+    }
+    return rows
+  }
+
   async function generateFixtures() {
     if (!match?.id || teams.length < 2) return
-    // Generate round-robin fixtures
-    const teamList = [...teams]
-    const pairs: { t1: Team; t2: Team }[] = []
-    for (let i = 0; i < teamList.length; i++) {
-      for (let j = i + 1; j < teamList.length; j++) {
-        pairs.push({ t1: teamList[i], t2: teamList[j] })
+    if (generatingRef.current) return
+    generatingRef.current = true
+    setGenerating(true)
+    setFixturesError(null)
+
+    try {
+      const { data: existing, error: checkErr } = await supabase
+        .from('fixtures')
+        .select('id')
+        .eq('match_id', match.id)
+        .limit(1)
+      if (checkErr) throw checkErr
+      if (existing && existing.length > 0) {
+        setFixturesError('Fixtures already generated for this match — use Regenerate to replace.')
+        return
       }
-    }
-    for (const pair of pairs) {
-      const exists = fixtures.find(f =>
-        (f.team1_id === pair.t1.id && f.team2_id === pair.t2.id) ||
-        (f.team1_id === pair.t2.id && f.team2_id === pair.t1.id)
-      )
-      if (!exists) {
-        await supabase.from('fixtures').insert({
-          match_id: match.id,
-          team1_id: pair.t1.id,
-          team2_id: pair.t2.id,
-        })
+
+      const { error: insertErr } = await supabase.from('fixtures').insert(roundRobinRows(match.id))
+      if (insertErr) {
+        if (insertErr.code === '23505') {
+          setFixturesError('Fixtures already generated for this match — use Regenerate to replace.')
+        } else {
+          setFixturesError(`Couldn't generate fixtures: ${insertErr.message}`)
+        }
+        return
       }
+      onSaved()
+    } finally {
+      generatingRef.current = false
+      setGenerating(false)
     }
-    onSaved()
+  }
+
+  async function regenerateFixtures() {
+    if (!match?.id || teams.length < 2) return
+    if (generatingRef.current) return
+    generatingRef.current = true
+    setGenerating(true)
+    setFixturesError(null)
+    setRegenConfirm(false)
+
+    try {
+      const { error: delErr } = await supabase.from('fixtures').delete().eq('match_id', match.id)
+      if (delErr) {
+        setFixturesError(`Couldn't clear existing fixtures: ${delErr.message}`)
+        return
+      }
+      const { error: insertErr } = await supabase.from('fixtures').insert(roundRobinRows(match.id))
+      if (insertErr) {
+        setFixturesError(`Couldn't regenerate fixtures: ${insertErr.message}`)
+        return
+      }
+      onSaved()
+    } finally {
+      generatingRef.current = false
+      setGenerating(false)
+    }
   }
 
   function copyToClipboard() {
@@ -190,10 +239,11 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
           ) : (
             <button
               onClick={generateFixtures}
-              className="w-full py-3 rounded-xl text-sm font-medium"
+              disabled={generating}
+              className="w-full py-3 rounded-xl text-sm font-medium disabled:opacity-50"
               style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
             >
-              Generate Fixture
+              {generating ? 'Generating…' : 'Generate Fixture'}
             </button>
           )}
 
@@ -236,13 +286,21 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
       ) : (
         // 4-team tournament
         <div className="space-y-4">
+          {fixturesError && (
+            <div className="px-3 py-2 rounded-xl text-xs font-medium"
+              style={{ background: 'var(--color-warning-bg)', color: '#92400e', border: '1px solid #C9A227' }}>
+              {fixturesError}
+            </div>
+          )}
+
           {fixtures.length === 0 && (
             <button
               onClick={generateFixtures}
-              className="w-full py-3 rounded-xl text-sm font-medium"
+              disabled={generating}
+              className="w-full py-3 rounded-xl text-sm font-medium disabled:opacity-50"
               style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
             >
-              Generate Round-Robin Fixtures
+              {generating ? 'Generating…' : 'Generate Round-Robin Fixtures'}
             </button>
           )}
 
@@ -317,6 +375,42 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                 ))}
               </div>
             </div>
+          )}
+
+          {fixtures.length > 0 && (
+            regenConfirm ? (
+              <div className="px-3 py-3 rounded-xl text-xs space-y-2"
+                style={{ background: 'var(--color-warning-bg)', color: '#92400e', border: '1px solid #C9A227' }}>
+                <p className="font-medium">Replace existing fixtures? Any scores entered will be lost.</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={regenerateFixtures}
+                    disabled={generating}
+                    className="flex-1 py-2 rounded-lg font-semibold text-xs disabled:opacity-50"
+                    style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
+                  >
+                    {generating ? 'Regenerating…' : 'Yes, replace'}
+                  </button>
+                  <button
+                    onClick={() => setRegenConfirm(false)}
+                    disabled={generating}
+                    className="flex-1 py-2 rounded-lg text-xs disabled:opacity-50"
+                    style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setRegenConfirm(true)}
+                disabled={generating}
+                className="w-full py-2 rounded-xl text-xs font-medium disabled:opacity-50"
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+              >
+                Regenerate Fixtures
+              </button>
+            )
           )}
         </div>
       )}
