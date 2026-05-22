@@ -110,14 +110,29 @@ export default function MatchPage() {
     const thisWeek = thisWeekRaw as Match | null
     setWeekMatch(thisWeek)
 
+    // Display the latest completed match that actually has a written report.
+    // Skipping empties means a stub result (created when the admin closes a
+    // match but hasn't typed the report yet) doesn't replace the previous
+    // week's fully-written report on the Match tab. The embedded `!inner`
+    // join filters out matches whose only result row has null or '' text.
     const { data: latestRaw } = await supabase
       .from('matches')
-      .select('*')
+      .select('id, match_date, format, status, created_at, results!inner(report_text)')
       .eq('status', 'completed')
+      .not('results.report_text', 'is', null)
+      .neq('results.report_text', '')
       .order('match_date', { ascending: false })
       .limit(1)
       .maybeSingle()
-    const displayMatch = latestRaw as Match | null
+    const displayMatch: Match | null = latestRaw
+      ? {
+          id: latestRaw.id,
+          match_date: latestRaw.match_date,
+          format: latestRaw.format,
+          status: latestRaw.status,
+          created_at: latestRaw.created_at,
+        }
+      : null
     setMatch(displayMatch)
 
     if (displayMatch) {
