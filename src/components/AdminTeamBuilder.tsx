@@ -135,6 +135,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const [swapModal, setSwapModal] = useState<{ player: Profile; fromTeamIdx: number } | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [published, setPublished] = useState(publishedTeams.length > 0)
+  const [publishError, setPublishError] = useState<string | null>(null)
   const [republishConfirm, setRepublishConfirm] = useState(false)
   const [showWeights, setShowWeights] = useState(false)
   const [copied, setCopied] = useState<'whatsapp' | 'flat' | null>(null)
@@ -211,57 +212,72 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   async function publish() {
     if (draftTeams.length === 0) return
     setPublishing(true)
-    let matchId = match?.id
-    if (!matchId) {
-      const { data: newMatch } = await supabase
-        .from('matches')
-        .insert({ match_date: nextThursday, format: formatLabelFor(pickConfig(draftTeams.reduce((s, t) => s + t.players.length, 0))), status: 'published' })
-        .select().single()
-      matchId = newMatch?.id
-    } else {
-      await supabase.from('matches').update({ status: 'published' }).eq('id', matchId)
-    }
-    if (!matchId) { setPublishing(false); return }
+    setPublishError(null)
+    try {
+      let matchId = match?.id
+      if (!matchId) {
+        const { data: newMatch, error: matchErr } = await supabase
+          .from('matches')
+          .insert({ match_date: nextThursday, format: formatLabelFor(pickConfig(draftTeams.reduce((s, t) => s + t.players.length, 0))), status: 'published' })
+          .select().single()
+        if (matchErr) throw new Error(`Couldn't create match: ${matchErr.message}`)
+        matchId = newMatch?.id
+      } else {
+        const { error: updErr } = await supabase.from('matches').update({ status: 'published' }).eq('id', matchId)
+        if (updErr) throw new Error(`Couldn't mark match published: ${updErr.message}`)
+      }
+      if (!matchId) throw new Error("Couldn't determine match id after upsert")
 
-    const { data: oldTeams } = await supabase.from('teams').select('id').eq('match_id', matchId)
-    if (oldTeams && oldTeams.length > 0) {
-      const oldIds = oldTeams.map((t: { id: string }) => t.id)
-      await supabase.from('team_players').delete().in('team_id', oldIds)
-      await supabase.from('teams').delete().eq('match_id', matchId)
-    }
+      const { data: oldTeams, error: oldTeamsErr } = await supabase.from('teams').select('id').eq('match_id', matchId)
+      if (oldTeamsErr) throw new Error(`Couldn't read existing teams: ${oldTeamsErr.message}`)
+      if (oldTeams && oldTeams.length > 0) {
+        const oldIds = oldTeams.map((t: { id: string }) => t.id)
+        const { error: tpDelErr } = await supabase.from('team_players').delete().in('team_id', oldIds)
+        if (tpDelErr) throw new Error(`Couldn't clear old team_players: ${tpDelErr.message}`)
+        const { error: tDelErr } = await supabase.from('teams').delete().eq('match_id', matchId)
+        if (tDelErr) throw new Error(`Couldn't clear old teams: ${tDelErr.message}`)
+      }
 
-    for (const team of draftTeams) {
-      const { data: teamRow } = await supabase
-        .from('teams')
-        .insert({ match_id: matchId, name: team.name, captain_id: team.captain?.id ?? null, bibs: team.bibs })
-        .select().single()
-      if (teamRow) {
-        await supabase.from('team_players').insert(
+      for (const team of draftTeams) {
+        const { data: teamRow, error: teamErr } = await supabase
+          .from('teams')
+          .insert({ match_id: matchId, name: team.name, captain_id: team.captain?.id ?? null, bibs: team.bibs })
+          .select().single()
+        if (teamErr || !teamRow) throw new Error(`Couldn't save team "${team.name}": ${teamErr?.message ?? 'no row returned'}`)
+        const { error: tpErr } = await supabase.from('team_players').insert(
           team.players.map(p => ({ team_id: teamRow.id, player_id: p.id }))
         )
+        if (tpErr) throw new Error(`Couldn't save players for "${team.name}": ${tpErr.message}`)
       }
-    }
-    // Open the MOTM/DOTD voting window for this match (10pm match night →
-    // 9am next day). Preserves results_published if the row already exists.
-    const { opens_at, closes_at } = getVotingWindow(nextThursday)
-    await supabase.from('voting_windows').upsert(
-      { match_id: matchId, opens_at, closes_at },
-      { onConflict: 'match_id' },
-    )
-
-    // Auto-create WTP game entries for all WTP players in the published teams
-    const allPlayers = draftTeams.flatMap(t => t.players)
-    const wtpPlayers = allPlayers.filter(p => (p.player_type ?? 'wtp') === 'wtp')
-    if (wtpPlayers.length > 0) {
-      await supabase.from('wtp_games').upsert(
-        wtpPlayers.map(p => ({ player_id: p.id, match_date: nextThursday, amount: 5.00 })),
-        { onConflict: 'player_id,match_date' }
+      // Open the MOTM/DOTD voting window for this match (10pm match night →
+      // 9am next day). Preserves results_published if the row already exists.
+      const { opens_at, closes_at } = getVotingWindow(nextThursday)
+      const { error: vwErr } = await supabase.from('voting_windows').upsert(
+        { match_id: matchId, opens_at, closes_at },
+        { onConflict: 'match_id' },
       )
-    }
+      if (vwErr) throw new Error(`Couldn't open voting window: ${vwErr.message}`)
 
-    setPublished(true)
-    setPublishing(false)
-    onPublished()
+      // Auto-create WTP game entries for all WTP players in the published teams
+      const allPlayers = draftTeams.flatMap(t => t.players)
+      const wtpPlayers = allPlayers.filter(p => (p.player_type ?? 'wtp') === 'wtp')
+      if (wtpPlayers.length > 0) {
+        const { error: wtpErr } = await supabase.from('wtp_games').upsert(
+          wtpPlayers.map(p => ({ player_id: p.id, match_date: nextThursday, amount: 5.00 })),
+          { onConflict: 'player_id,match_date' }
+        )
+        if (wtpErr) throw new Error(`Couldn't create WTP entries: ${wtpErr.message}`)
+      }
+
+      setPublished(true)
+      onPublished()
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('Publish teams failed:', e)
+      setPublishError(msg)
+    } finally {
+      setPublishing(false)
+    }
   }
 
   async function copyToClipboard(text: string, type: 'whatsapp' | 'flat') {
@@ -451,6 +467,13 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
               )
             })}
           </div>
+
+          {publishError && (
+            <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
+              style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
+              ⚠ Publish failed — nothing saved. {publishError}
+            </div>
+          )}
 
           {draftTeams.length > 0 && (
             republishConfirm ? (

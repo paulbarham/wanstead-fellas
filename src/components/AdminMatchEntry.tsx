@@ -55,6 +55,8 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   const [scorers, setScorers] = useState(initialResult?.scorers ?? '')
   const [highlights, setHighlights] = useState(initialResult?.highlights ?? '')
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [scoreError, setScoreError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [fixturesError, setFixturesError] = useState<string | null>(null)
@@ -65,22 +67,42 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
   async function updateFixtureScore(fixtureId: string, field: 'score1' | 'score2', value: string) {
     const num = value === '' ? null : parseInt(value)
-    await supabase.from('fixtures').update({ [field]: num }).eq('id', fixtureId)
+    const prevFixture = fixtures.find(f => f.id === fixtureId)
     setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, [field]: num } : f))
+    setScoreError(null)
+    const { error } = await supabase.from('fixtures').update({ [field]: num }).eq('id', fixtureId)
+    if (error) {
+      console.error('Score update failed:', error)
+      setScoreError(`Score not saved: ${error.message}`)
+      if (prevFixture) {
+        setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, [field]: prevFixture[field] } : f))
+      }
+    }
   }
 
   async function saveResult() {
     if (!match?.id) return
     setSaving(true)
-    const payload = { match_id: match.id, report_text: reportText, scorers, highlights }
-    if (initialResult?.id) {
-      await supabase.from('results').update(payload).eq('id', initialResult.id)
-    } else {
-      await supabase.from('results').insert(payload)
+    setSaveError(null)
+    try {
+      const payload = { match_id: match.id, report_text: reportText, scorers, highlights }
+      if (initialResult?.id) {
+        const { error } = await supabase.from('results').update(payload).eq('id', initialResult.id)
+        if (error) throw new Error(`Couldn't update result: ${error.message}`)
+      } else {
+        const { error } = await supabase.from('results').insert(payload)
+        if (error) throw new Error(`Couldn't save result: ${error.message}`)
+      }
+      const { error: matchErr } = await supabase.from('matches').update({ status: 'completed' }).eq('id', match.id)
+      if (matchErr) throw new Error(`Couldn't mark match completed: ${matchErr.message}`)
+      onSaved()
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('Save result failed:', e)
+      setSaveError(msg)
+    } finally {
+      setSaving(false)
     }
-    await supabase.from('matches').update({ status: 'completed' }).eq('id', match.id)
-    setSaving(false)
-    onSaved()
   }
 
   function roundRobinRows(matchId: string): { match_id: string; team1_id: string; team2_id: string }[] {
@@ -417,6 +439,18 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
       {/* Actions */}
       <div className="mt-4 space-y-2 pb-4">
+        {scoreError && (
+          <div className="px-3 py-2 rounded-xl text-xs font-medium"
+            style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
+            ⚠ {scoreError}
+          </div>
+        )}
+        {saveError && (
+          <div className="px-3 py-2 rounded-xl text-xs font-medium"
+            style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
+            ⚠ Result not saved. {saveError}
+          </div>
+        )}
         <button
           onClick={saveResult}
           disabled={saving}
