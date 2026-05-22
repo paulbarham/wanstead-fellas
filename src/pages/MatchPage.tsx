@@ -113,26 +113,33 @@ export default function MatchPage() {
     // Display the latest completed match that actually has a written report.
     // Skipping empties means a stub result (created when the admin closes a
     // match but hasn't typed the report yet) doesn't replace the previous
-    // week's fully-written report on the Match tab. The embedded `!inner`
-    // join filters out matches whose only result row has null or '' text.
-    const { data: latestRaw } = await supabase
+    // week's fully-written report on the Match tab. We fetch the most recent
+    // completed matches, look at their results, and pick the newest match
+    // whose report_text is non-empty. Two-step (rather than an embedded
+    // !inner filter) so we don't depend on PostgREST embedded-filter quirks
+    // around empty-string comparisons.
+    const { data: recentRaw } = await supabase
       .from('matches')
-      .select('id, match_date, format, status, created_at, results!inner(report_text)')
+      .select('*')
       .eq('status', 'completed')
-      .not('results.report_text', 'is', null)
-      .neq('results.report_text', '')
       .order('match_date', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    const displayMatch: Match | null = latestRaw
-      ? {
-          id: latestRaw.id,
-          match_date: latestRaw.match_date,
-          format: latestRaw.format,
-          status: latestRaw.status,
-          created_at: latestRaw.created_at,
-        }
-      : null
+      .limit(10)
+    const recent = (recentRaw as Match[] | null) ?? []
+    let displayMatch: Match | null = null
+    if (recent.length > 0) {
+      const { data: resultsRaw } = await supabase
+        .from('results')
+        .select('match_id, report_text')
+        .in('match_id', recent.map(m => m.id))
+      const reportByMatchId = new Map<string, string>()
+      for (const r of (resultsRaw as { match_id: string; report_text: string | null }[] | null) ?? []) {
+        const text = (r.report_text ?? '').trim()
+        if (text.length > 0) reportByMatchId.set(r.match_id, text)
+      }
+      // `recent` is already date-desc, so the first hit is the newest match
+      // with a written report.
+      displayMatch = recent.find(m => reportByMatchId.has(m.id)) ?? null
+    }
     setMatch(displayMatch)
 
     if (displayMatch) {
