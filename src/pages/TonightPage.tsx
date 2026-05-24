@@ -199,16 +199,16 @@ export default function TonightPage() {
   const notSignedUp = players.filter(p => !availability.some(a => a.player_id === p.id))
 
   const matchConfig = pickConfig(signedUpCount)
+  const signupClosed = phase !== 'signup_open' && phase !== 'post_match'
   const candidatesForSplit = signedUpPlayers.map(p => {
     const av = confirmedAvail.find(a => a.player_id === p.id)
     return { player: p, createdAt: av?.created_at ?? '' }
   })
-  const { playing: playingPlayersRaw, reserves: deferredRaw } = splitPlayingAndReserves(
-    candidatesForSplit,
-    matchConfig?.total ?? signedUpCount,
-  )
-  const playingPlayers = playingPlayersRaw.map(c => c.player)
-  const deferredPlayers = deferredRaw.map(c => c.player)
+  const splitResult = signupClosed
+    ? splitPlayingAndReserves(candidatesForSplit, matchConfig?.total ?? signedUpCount)
+    : { playing: candidatesForSplit, reserves: [] }
+  const playingPlayers = splitResult.playing.map(c => c.player)
+  const deferredPlayers = splitResult.reserves.map(c => c.player)
   const reservePlayers = [...deferredPlayers, ...waitingPlayers]
 
   const dateLabel = (() => {
