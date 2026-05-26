@@ -4,7 +4,7 @@ export type PlayerPosition = 'GK' | 'DF' | 'MF' | 'ST'
 
 export type CuntTier = 'saint' | 'gentleman' | 'scamp' | 'nuisance' | 'cunt'
 
-export type League = 'premier_league' | 'championship'
+export type League = 'premier_league' | 'championship' | 'league_one'
 
 export interface Club {
   slug: string
