@@ -58,6 +58,7 @@ export const CLUBS: Club[] = [
 const TSDB = 'https://r2.thesportsdb.com/images/media/team/badge/'
 const LK = 'https://raw.githubusercontent.com/luukhopman/football-logos/master/logos/England%20-%20Premier%20League/'
 const WM = 'https://upload.wikimedia.org/wikipedia/en/thumb/'
+const WMFP = 'https://en.wikipedia.org/wiki/Special:FilePath/'
 export const BADGE_URLS: Record<string, string> = {
   arsenal: TSDB + 'uyhbfe1612467038.png',
   aston_villa: TSDB + 'jykrpv1717309891.png',
@@ -105,6 +106,11 @@ export const BADGE_URLS: Record<string, string> = {
   watford: WM + 'e/e2/Watford.svg/330px-Watford.svg.png',
   wba: WM + '8/8b/West_Bromwich_Albion.svg/330px-West_Bromwich_Albion.svg.png',
   wrexham: WM + '0/0d/Wrexham_A.F.C._Logo.svg/330px-Wrexham_A.F.C._Logo.svg.png',
+  // Promoted from League One 2025/26 — Special:FilePath resolves the file
+  // server-side so we don't have to guess the upload hash directory.
+  cardiff: WMFP + 'Cardiff_City_crest.svg',
+  bolton:  WMFP + 'Bolton_Wanderers_F.C._logo.svg',
+  lincoln: WMFP + 'Lincoln_City_F.C._logo.svg',
 }
 
 export const CLUBS_BY_SLUG: Record<string, Club> = Object.fromEntries(CLUBS.map(c => [c.slug, c]))
