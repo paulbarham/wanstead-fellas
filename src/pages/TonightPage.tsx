@@ -194,7 +194,11 @@ export default function TonightPage() {
 
   const linkedChildren = players.filter(p => childIds.includes(p.id))
 
-  const signedUpPlayers = players.filter(p => confirmedAvail.some(a => a.player_id === p.id))
+  const byName = (a: Profile, b: Profile) =>
+    `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
+  const signedUpPlayers = players
+    .filter(p => confirmedAvail.some(a => a.player_id === p.id))
+    .sort(byName)
   const waitingPlayers = players.filter(p => waitingAvail.some(a => a.player_id === p.id))
   const notSignedUp = players.filter(p => !availability.some(a => a.player_id === p.id))
 
