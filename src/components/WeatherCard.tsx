@@ -157,8 +157,9 @@ export default function WeatherCard() {
         setFailed(false)
         setLoading(false)
       })
-      .catch(() => {
+      .catch(err => {
         if (cancelled) return
+        console.error('WeatherCard fetch failed:', err)
         setFailed(true)
         setLoading(false)
       })
@@ -179,11 +180,35 @@ export default function WeatherCard() {
     return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [targetDate])
 
-  if (failed) return null
-
   const [y, m, d] = targetDate.split('-').map(Number)
   const headerLabel =
     format(new Date(y, m - 1, d), 'EEE d MMM').toUpperCase() + ' · 9PM KICK-OFF'
+
+  if (failed) {
+    return (
+      <div
+        className="mb-3 px-4 py-3 rounded-2xl flex items-center justify-between gap-3"
+        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+      >
+        <div>
+          <p className="text-[10px] font-semibold uppercase mb-1"
+            style={{ color: TEXT_DIM, letterSpacing: '0.8px' }}>
+            {headerLabel}
+          </p>
+          <p className="text-xs" style={{ color: TEXT_MUTED }}>
+            Forecast unavailable
+          </p>
+        </div>
+        <button
+          onClick={() => { setFailed(false); setRefreshTick(t => t + 1) }}
+          className="text-xs font-medium px-3 py-1.5 rounded-lg"
+          style={{ background: CARD_BORDER, color: '#FFFFFF', border: 'none' }}
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
 
   const accentRain = !!data && data.precipitationProbability >= 60
   const Icon = data ? pickIcon(data.weatherCode, isDarkSeason(targetDate)) : Cloud
