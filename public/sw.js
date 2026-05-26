@@ -1,4 +1,4 @@
-const CACHE = 'wf-v3'
+const CACHE = 'wf-v4'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
@@ -21,6 +21,9 @@ self.addEventListener('fetch', event => {
 
   if (request.method !== 'GET') return
   if (url.hostname.includes('supabase')) return
+  // Always go to network for the weather API — the URL doesn't change but
+  // the returned forecast does, so any cache hit goes stale within hours.
+  if (url.hostname.includes('open-meteo.com')) return
 
   // Network-first for the app document so new builds are always picked up.
   if (request.mode === 'navigate') {
