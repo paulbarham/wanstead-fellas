@@ -202,8 +202,12 @@ export default function TonightPage() {
   const signedUpPlayers = players
     .filter(p => confirmedAvail.some(a => a.player_id === p.id))
     .sort(byName)
-  const waitingPlayers = players.filter(p => waitingAvail.some(a => a.player_id === p.id))
-  const notSignedUp = players.filter(p => !availability.some(a => a.player_id === p.id))
+  const waitingPlayers = players
+    .filter(p => waitingAvail.some(a => a.player_id === p.id))
+    .sort(byName)
+  const notSignedUp = players
+    .filter(p => !availability.some(a => a.player_id === p.id))
+    .sort(byName)
 
   const matchConfig = pickConfig(signedUpCount)
   const signupClosed = phase !== 'signup_open' && phase !== 'post_match'
