@@ -107,6 +107,7 @@ export default function ProfilePage() {
   const [childName, setChildName] = useState('')
   const [childSurname, setChildSurname] = useState('')
   const [childAgeGroup, setChildAgeGroup] = useState('')
+  const [childClub, setChildClub] = useState('')
   const [childDobDay, setChildDobDay] = useState('')
   const [childDobMonth, setChildDobMonth] = useState('')
   const [childDobYear, setChildDobYear] = useState('')
@@ -217,6 +218,7 @@ export default function ProfilePage() {
     setChildName(child.name ?? '')
     setChildSurname(child.surname ?? '')
     setChildAgeGroup(child.age_group ?? '20–29')
+    setChildClub(child.favourite_club ?? '')
     const dp = parseDob(child.dob)
     setChildDobDay(dp.day)
     setChildDobMonth(dp.month)
@@ -266,8 +268,9 @@ export default function ProfilePage() {
       surname: childSurname,
       age_group: childAgeGroup,
       dob,
+      favourite_club: childClub || null,
     }).eq('id', selectedChild.id)
-    const updated = { ...selectedChild, name: childName, surname: childSurname, age_group: childAgeGroup, dob }
+    const updated = { ...selectedChild, name: childName, surname: childSurname, age_group: childAgeGroup, dob, favourite_club: childClub || null }
     setSelectedChild(updated)
     setLinkedChildren(prev => prev.map(c => c.id === selectedChild!.id ? updated : c))
     setChildSaving(false)
@@ -606,7 +609,7 @@ export default function ProfilePage() {
               <button onClick={() => setSelectedChild(null)} className="text-sm" style={{ color: 'var(--color-text-muted)' }}>✕</button>
             </div>
 
-            <PlayerCard profile={{ ...selectedChild, name: childName, surname: childSurname, age_group: childAgeGroup }} />
+            <PlayerCard profile={{ ...selectedChild, name: childName, surname: childSurname, age_group: childAgeGroup, favourite_club: childClub || null }} />
 
             {/* Photo */}
             <div className="mt-4 flex gap-2">
@@ -661,6 +664,28 @@ export default function ProfilePage() {
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
               >
                 {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </div>
+
+            {/* Favourite club */}
+            <div className="mt-3">
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Who do they support?</label>
+              <select
+                value={childClub} onChange={e => setChildClub(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl text-[var(--color-text)] text-sm outline-none"
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+              >
+                <option value="">None</option>
+                <optgroup label="Premier League">
+                  {CLUBS.filter(c => c.league === 'premier_league').map(c => (
+                    <option key={c.slug} value={c.slug}>{c.display_name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Championship">
+                  {CLUBS.filter(c => c.league === 'championship').map(c => (
+                    <option key={c.slug} value={c.slug}>{c.display_name}</option>
+                  ))}
+                </optgroup>
               </select>
             </div>
 
