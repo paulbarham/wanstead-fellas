@@ -53,7 +53,10 @@ export default function TonightPage() {
       supabase.from('profiles').select('id, name, surname, photo_url, overall_rating, badges, player_type'),
     ])
     setAvailability((avail as Availability[]) || [])
-    setPlayers((profs as Profile[]) || [])
+    const sorted = ((profs as Profile[]) || []).sort((a, b) =>
+      `${a.surname}${a.name}`.localeCompare(`${b.surname}${b.name}`)
+    )
+    setPlayers(sorted)
     setLoading(false)
   }, [nextThursday])
 
