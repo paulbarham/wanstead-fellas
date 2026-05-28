@@ -94,7 +94,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   const [reportText, setReportText] = useState(initialResult?.report_text ?? '')
   const [highlights, setHighlights] = useState(initialResult?.highlights ?? '')
   const [roster, setRoster] = useState<RosterPlayer[]>([])
-  const [scorerRows, setScorerRows] = useState<ScorerRow[]>([])
+  const [fixtureScorers, setFixtureScorers] = useState<Record<string, ScorerRow[]>>({})
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [scoreError, setScoreError] = useState<string | null>(null)
@@ -124,25 +124,119 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
       const { data: g } = await supabase
         .from('goals')
-        .select('player_id, goals_count, own_goal')
+        .select('player_id, goals_count, own_goal, fixture_id')
         .eq('match_id', match!.id)
       if (cancelled) return
-      const goalRows = ((g as { player_id: string; goals_count: number; own_goal: boolean }[]) || [])
-        .map(r => ({ rowId: crypto.randomUUID(), player_id: r.player_id, goals_count: r.goals_count, own_goal: r.own_goal }))
-      setScorerRows(goalRows)
+      const byFixture: Record<string, ScorerRow[]> = {}
+      for (const r of (g as { player_id: string; goals_count: number; own_goal: boolean; fixture_id: string | null }[]) || []) {
+        const key = r.fixture_id ?? '__unattributed__'
+        if (!byFixture[key]) byFixture[key] = []
+        byFixture[key].push({ rowId: crypto.randomUUID(), player_id: r.player_id, goals_count: r.goals_count, own_goal: r.own_goal })
+      }
+      setFixtureScorers(byFixture)
     }
     load()
     return () => { cancelled = true }
   }, [match?.id, teams])
 
-  function addScorer() {
-    setScorerRows(prev => [...prev, { rowId: crypto.randomUUID(), player_id: '', goals_count: 1, own_goal: false }])
+  function addScorer(fixtureId: string) {
+    setFixtureScorers(prev => ({
+      ...prev,
+      [fixtureId]: [...(prev[fixtureId] ?? []), { rowId: crypto.randomUUID(), player_id: '', goals_count: 1, own_goal: false }],
+    }))
   }
-  function updateScorer(rowId: string, patch: Partial<ScorerRow>) {
-    setScorerRows(prev => prev.map(r => r.rowId === rowId ? { ...r, ...patch } : r))
+  function updateScorer(fixtureId: string, rowId: string, patch: Partial<ScorerRow>) {
+    setFixtureScorers(prev => ({
+      ...prev,
+      [fixtureId]: (prev[fixtureId] ?? []).map(r => r.rowId === rowId ? { ...r, ...patch } : r),
+    }))
   }
-  function removeScorer(rowId: string) {
-    setScorerRows(prev => prev.filter(r => r.rowId !== rowId))
+  function removeScorer(fixtureId: string, rowId: string) {
+    setFixtureScorers(prev => ({
+      ...prev,
+      [fixtureId]: (prev[fixtureId] ?? []).filter(r => r.rowId !== rowId),
+    }))
+  }
+
+  function renderFixtureScorers(fixtureId: string, team1?: Team, team2?: Team) {
+    const rows = fixtureScorers[fixtureId] ?? []
+    const team1Players = roster.filter(p => p.team_id === team1?.id)
+    const team2Players = roster.filter(p => p.team_id === team2?.id)
+    return (
+      <div className="mt-3 pl-1 space-y-1.5">
+        {rows.map(row => (
+          <div key={row.rowId} className="flex items-center gap-2">
+            <select
+              value={row.player_id}
+              onChange={e => updateScorer(fixtureId, row.rowId, { player_id: e.target.value })}
+              className="flex-1 min-w-0 px-2 py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+            >
+              <option value="">— scorer —</option>
+              {team1 && team1Players.length > 0 && (
+                <optgroup label={stripFC(team1.name)}>
+                  {team1Players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
+                </optgroup>
+              )}
+              {team2 && team2Players.length > 0 && (
+                <optgroup label={stripFC(team2.name)}>
+                  {team2Players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
+                </optgroup>
+              )}
+            </select>
+            <input
+              type="number"
+              min={1}
+              value={row.goals_count}
+              onChange={e => updateScorer(fixtureId, row.rowId, { goals_count: parseInt(e.target.value || '1', 10) })}
+              className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+            />
+            <button
+              type="button"
+              onClick={() => updateScorer(fixtureId, row.rowId, { own_goal: !row.own_goal })}
+              className="text-[10px] font-semibold px-1.5 py-1.5 rounded-lg"
+              style={{
+                background: row.own_goal ? 'var(--color-warning-bg)' : 'var(--color-surface)',
+                color: row.own_goal ? 'var(--color-warning-text)' : 'var(--color-text-muted)',
+                border: `1px solid ${row.own_goal ? '#C9A227' : 'var(--color-border)'}`,
+              }}
+              aria-label="Toggle own goal"
+            >
+              OG
+            </button>
+            <button
+              type="button"
+              onClick={() => removeScorer(fixtureId, row.rowId)}
+              className="text-xs px-1.5 py-1.5 rounded-lg"
+              style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+              aria-label="Remove scorer"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => addScorer(fixtureId)}
+          className="w-full py-1.5 rounded-lg text-[11px] font-medium"
+          style={{ background: 'transparent', color: 'var(--color-text-muted)', border: '1px dashed var(--color-border)' }}
+        >
+          + Add scorer
+        </button>
+      </div>
+    )
+  }
+
+  function flattenScorers(): { fixture_id: string | null; row: ScorerRow }[] {
+    const out: { fixture_id: string | null; row: ScorerRow }[] = []
+    for (const [fxId, rows] of Object.entries(fixtureScorers)) {
+      for (const row of rows) {
+        if (!row.player_id || row.goals_count <= 0) continue
+        out.push({ fixture_id: fxId === '__unattributed__' ? null : fxId, row })
+      }
+    }
+    return out
   }
 
   async function updateFixtureScore(fixtureId: string, field: 'score1' | 'score2', value: string) {
@@ -165,8 +259,8 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     setSaving(true)
     setSaveError(null)
     try {
-      const validScorers = scorerRows.filter(r => r.player_id && r.goals_count > 0)
-      const scorersText = scorerSummary(validScorers, roster)
+      const validScorers = flattenScorers()
+      const scorersText = scorerSummary(validScorers.map(v => v.row), roster)
       const payload = { match_id: match.id, report_text: reportText, scorers: scorersText, highlights }
       if (initialResult?.id) {
         const { error } = await supabase.from('results').update(payload).eq('id', initialResult.id)
@@ -179,8 +273,9 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
       const { error: delErr } = await supabase.from('goals').delete().eq('match_id', match.id)
       if (delErr) throw new Error(`Couldn't clear old goals: ${delErr.message}`)
       if (validScorers.length > 0) {
-        const goalRows = validScorers.map(r => ({
+        const goalRows = validScorers.map(({ fixture_id, row: r }) => ({
           match_id: match.id,
+          fixture_id,
           player_id: r.player_id,
           team_id: roster.find(p => p.id === r.player_id)?.team_id ?? null,
           goals_count: r.goals_count,
@@ -286,7 +381,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     const lines = [
       `⚽ WF Match Report`,
       `${main?.team1?.name ?? ''} ${score} ${main?.team2?.name ?? ''}`,
-      scorerSummary(scorerRows, roster) ? `\nScorers: ${scorerSummary(scorerRows, roster)}` : '',
+      scorerSummary(flattenScorers().map(v => v.row), roster) ? `\nScorers: ${scorerSummary(flattenScorers().map(v => v.row), roster)}` : '',
       reportText ? `\n${reportText}` : '',
     ]
     return lines.filter(Boolean).join('\n')
@@ -332,26 +427,29 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
             <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <h3 className="font-semibold text-[var(--color-text)] mb-3">Score</h3>
               {fixtures.map(f => (
-                <div key={f.id} className="flex items-center gap-3">
-                  <span className="flex-1 text-right text-sm font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={f.score1 ?? ''}
-                    onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
-                    className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
-                    style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                  />
-                  <span style={{ color: '#9CA897' }}>–</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={f.score2 ?? ''}
-                    onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
-                    className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
-                    style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                  />
-                  <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
+                <div key={f.id}>
+                  <div className="flex items-center gap-3">
+                    <span className="flex-1 text-right text-sm font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={f.score1 ?? ''}
+                      onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
+                      className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
+                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                    />
+                    <span style={{ color: '#9CA897' }}>–</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={f.score2 ?? ''}
+                      onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
+                      className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
+                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                    />
+                    <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
+                  </div>
+                  {renderFixtureScorers(f.id, f.team1, f.team2)}
                 </div>
               ))}
             </div>
@@ -432,28 +530,31 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               </div>
               <div className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                 {fixtures.map(f => (
-                  <div key={f.id} className="px-4 py-4 flex items-center gap-2">
-                    <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
+                  <div key={f.id} className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min={0}
-                        value={f.score1 ?? ''}
-                        onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
-                        className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
-                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                      />
-                      <span style={{ color: '#B0B5AA', fontSize: 11, fontWeight: 500 }}>v</span>
-                      <input
-                        type="number"
-                        min={0}
-                        value={f.score2 ?? ''}
-                        onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
-                        className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
-                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                      />
+                      <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          value={f.score1 ?? ''}
+                          onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
+                          className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
+                          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                        />
+                        <span style={{ color: '#B0B5AA', fontSize: 11, fontWeight: 500 }}>v</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={f.score2 ?? ''}
+                          onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
+                          className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
+                          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                        />
+                      </div>
+                      <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
                     </div>
-                    <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
+                    {renderFixtureScorers(f.id, f.team1, f.team2)}
                   </div>
                 ))}
               </div>
@@ -499,68 +600,6 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
       )}
 
       <div className="space-y-4 mt-4">
-        <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-          <label className="block text-xs uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>Scorers</label>
-          {scorerRows.length === 0 && (
-            <p className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>No goals yet — add scorers to feed the stats page.</p>
-          )}
-          <div className="space-y-2">
-            {scorerRows.map(row => (
-              <div key={row.rowId} className="flex items-center gap-2">
-                <select
-                  value={row.player_id}
-                  onChange={e => updateScorer(row.rowId, { player_id: e.target.value })}
-                  className="flex-1 min-w-0 px-2 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
-                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                >
-                  <option value="">— player —</option>
-                  {roster.map(p => (
-                    <option key={p.id} value={p.id}>{p.name} {p.surname}</option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  min={1}
-                  value={row.goals_count}
-                  onChange={e => updateScorer(row.rowId, { goals_count: parseInt(e.target.value || '1', 10) })}
-                  className="w-12 text-center px-1 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
-                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => updateScorer(row.rowId, { own_goal: !row.own_goal })}
-                  className="text-[10px] font-semibold px-2 py-2 rounded-lg"
-                  style={{
-                    background: row.own_goal ? 'var(--color-warning-bg)' : 'var(--color-surface)',
-                    color: row.own_goal ? 'var(--color-warning-text)' : 'var(--color-text-muted)',
-                    border: `1px solid ${row.own_goal ? '#C9A227' : 'var(--color-border)'}`,
-                  }}
-                  aria-label="Toggle own goal"
-                >
-                  OG
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removeScorer(row.rowId)}
-                  className="text-sm px-2 py-2 rounded-lg"
-                  style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
-                  aria-label="Remove scorer"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={addScorer}
-            className="mt-3 w-full py-2 rounded-lg text-xs font-medium"
-            style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px dashed var(--color-border)' }}
-          >
-            + Add scorer
-          </button>
-        </div>
-
         <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Match Report</label>
           <textarea
