@@ -2,6 +2,8 @@ import { useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Result } from '../types'
 
+const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
+
 interface FixtureWithTeams extends Fixture {
   team1: Team
   team2: Team
@@ -236,7 +238,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               <h3 className="font-semibold text-[var(--color-text)] mb-3">Score</h3>
               {fixtures.map(f => (
                 <div key={f.id} className="flex items-center gap-3">
-                  <span className="flex-1 text-right text-sm font-medium text-[var(--color-text)]">{f.team1?.name}</span>
+                  <span className="flex-1 text-right text-sm font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
                   <input
                     type="number"
                     min={0}
@@ -254,7 +256,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                     className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
                     style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                   />
-                  <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{f.team2?.name}</span>
+                  <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
                 </div>
               ))}
             </div>
@@ -349,7 +351,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                   {table.map((row, i) => (
                     <tr key={row.team.id} style={{ background: i % 2 === 0 ? 'var(--color-surface)' : 'var(--color-bg)' }}>
                       <td className="py-2.5 text-center font-medium" style={{ paddingLeft: 12, color: '#9CA897' }}>{i + 1}</td>
-                      <td className="py-2.5 font-medium text-[var(--color-text)]" style={{ paddingLeft: 8 }}>{row.team.name}</td>
+                      <td className="py-2.5 font-medium text-[var(--color-text)]" style={{ paddingLeft: 8 }}>{stripFC(row.team.name)}</td>
                       <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.played}</td>
                       <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.won}</td>
                       <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.drawn}</td>
@@ -372,7 +374,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               <div className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                 {fixtures.map(f => (
                   <div key={f.id} className="px-4 py-4 flex items-center gap-2">
-                    <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{f.team1?.name}</span>
+                    <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
@@ -392,7 +394,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                         style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
                       />
                     </div>
-                    <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{f.team2?.name}</span>
+                    <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
                   </div>
                 ))}
               </div>
