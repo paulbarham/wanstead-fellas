@@ -124,41 +124,40 @@ export default function HistoryPage() {
             const reportIsLong = !structuredReport && reportText && reportText.length > 200
 
             return (
-              <div key={match.id} className="rounded-2xl overflow-hidden"
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+              <div key={match.id}>
+                <p className="text-sm font-medium mb-1.5 px-2" style={{ color: 'var(--color-text)' }}>{dateLabel}</p>
+                <div className="rounded-2xl overflow-hidden"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button
-                  className="w-full px-7 py-5 text-left"
+                  className="w-full px-5 py-4 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium mb-2 whitespace-nowrap pl-1" style={{ color: 'var(--color-text)' }}>{dateLabel}</p>
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        {isTwoTeam && mainFixture ? (
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="font-semibold text-[var(--color-text)] text-sm truncate min-w-0">{stripFC(mainFixture.team1?.name)}</span>
-                            <span className="font-display text-xl shrink-0 whitespace-nowrap" style={{ color: 'var(--color-accent)' }}>
-                              {mainFixture.score1} – {mainFixture.score2}
-                            </span>
-                            <span className="font-semibold text-[var(--color-text)] text-sm truncate min-w-0">{stripFC(mainFixture.team2?.name)}</span>
-                          </div>
-                        ) : (
-                          <p className="font-semibold text-[var(--color-text)] text-sm truncate">
-                            4-Team Tournament · {teams.length} teams
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs px-2 py-1 rounded-md font-medium"
-                          style={{
-                            background: isTwoTeam ? 'var(--color-success-bg)' : 'var(--color-surface-2)',
-                            color: isTwoTeam ? 'var(--color-success-text)' : 'var(--color-text-muted)',
-                            border: `1px solid ${isTwoTeam ? 'var(--color-success-text)' : 'var(--color-border)'}`,
-                          }}>
-                          {match.format}
-                        </span>
-                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{isExpanded ? '▲' : '▼'}</span>
-                      </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      {isTwoTeam && mainFixture ? (
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-semibold text-[var(--color-text)] text-sm truncate min-w-0">{stripFC(mainFixture.team1?.name)}</span>
+                          <span className="font-display text-xl shrink-0 whitespace-nowrap" style={{ color: 'var(--color-accent)' }}>
+                            {mainFixture.score1} – {mainFixture.score2}
+                          </span>
+                          <span className="font-semibold text-[var(--color-text)] text-sm truncate min-w-0">{stripFC(mainFixture.team2?.name)}</span>
+                        </div>
+                      ) : (
+                        <p className="font-semibold text-[var(--color-text)] text-sm truncate">
+                          4-Team Tournament · {teams.length} teams
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs px-2 py-1 rounded-md font-medium"
+                        style={{
+                          background: isTwoTeam ? 'var(--color-success-bg)' : 'var(--color-surface-2)',
+                          color: isTwoTeam ? 'var(--color-success-text)' : 'var(--color-text-muted)',
+                          border: `1px solid ${isTwoTeam ? 'var(--color-success-text)' : 'var(--color-border)'}`,
+                        }}>
+                        {match.format}
+                      </span>
+                      <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{isExpanded ? '▲' : '▼'}</span>
                     </div>
                   </div>
                 </button>
@@ -223,6 +222,7 @@ export default function HistoryPage() {
                     )}
                   </div>
                 )}
+                </div>
               </div>
             )
           })}
