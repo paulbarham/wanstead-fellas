@@ -102,7 +102,7 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="px-4 py-5">
+    <div className="px-5 py-5">
       <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Archive</p>
       <h1 className="font-display text-[var(--color-text)] tracking-wide mb-5" style={{ fontSize: '28px' }}>HISTORY</h1>
 
@@ -127,7 +127,7 @@ export default function HistoryPage() {
               <div key={match.id} className="rounded-2xl overflow-hidden"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button
-                  className="w-full px-6 py-5 text-left"
+                  className="w-full px-7 py-5 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
                   <div className="min-w-0">
