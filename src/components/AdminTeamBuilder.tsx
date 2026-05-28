@@ -5,6 +5,7 @@ import { getVotingWindow, canGenerateTeams } from '../lib/time'
 import type { Profile, Match, Team } from '../types'
 import PlayerAvatar from './PlayerAvatar'
 import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
+import { fetchWeather, weatherEmoji, weatherLabel, type WeatherData } from '../lib/weather'
 
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
@@ -62,7 +63,102 @@ function pickCaptain(players: Profile[]): Profile {
 const byName = (a: Profile, b: Profile) =>
   `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
 
-function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
+const ATTR_TAGLINE: Record<string, string> = {
+  sp: 'Pace to burn',
+  sk: 'Silkiest technicians on the pitch',
+  st: 'Will still be running in injury time',
+  tk: 'Iron defensive unit',
+  ps: 'Best passing side on the night',
+  ag: 'Going to leave a few in',
+  phy: 'Physical mismatch in their favour',
+  cp: 'Coolest heads when it tightens up',
+  wr: 'Engine room mileage',
+}
+
+function predictTable(teams: TeamDraft[], weights: Record<string, number>) {
+  const stats = teams.map(team => {
+    const total = team.players.reduce((s, p) => s + calcWeightedScore(p, weights), 0)
+    const attrAvgs: Record<string, number> = {}
+    for (const { key } of ATTR_LABELS) {
+      const sum = team.players.reduce((acc, p) => acc + (p[key] as number), 0)
+      attrAvgs[key as string] = sum / Math.max(1, team.players.length)
+    }
+    return { team, total, attrAvgs }
+  })
+  stats.sort((a, b) => b.total - a.total)
+
+  return stats.map((s, idx) => {
+    let bestKey = 'sp'
+    let bestDiff = -Infinity
+    for (const { key } of ATTR_LABELS) {
+      const mine = s.attrAvgs[key as string]
+      const others = stats
+        .filter((_, i) => i !== idx)
+        .reduce((acc, t) => acc + t.attrAvgs[key as string], 0) / Math.max(1, stats.length - 1)
+      const diff = mine - others
+      if (diff > bestDiff) { bestDiff = diff; bestKey = key as string }
+    }
+    return { team: s.team, reasoning: ATTR_TAGLINE[bestKey] ?? 'Solid all-round' }
+  })
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
+
+function buildTalkingPoints(teams: TeamDraft[]): string[] {
+  const flat = teams.flatMap(t => t.players.map(p => ({ player: p, team: t })))
+  if (flat.length === 0) return []
+  const captains = teams.map(t => t.captain).filter(Boolean) as Profile[]
+  const fullName = (p: Profile) => `${p.name} ${p.surname}`
+  const pool: string[] = []
+
+  const cuntiest = [...flat].sort((a, b) => b.player.cunt - a.player.cunt)[0]
+  if (cuntiest) pool.push(`Designated cunt of the night: ${fullName(cuntiest.player)} — he knows what he did.`)
+
+  if (captains.length >= 2) {
+    const topCap = [...captains].sort((a, b) => b.overall_rating - a.overall_rating)[0]
+    const lowCap = [...captains].sort((a, b) => a.overall_rating - b.overall_rating)[0]
+    if (topCap) pool.push(`Captain banker: ${fullName(topCap)}. The other three are playing for second.`)
+    if (lowCap && lowCap.id !== topCap?.id) {
+      pool.push(`If ${fullName(lowCap)}'s lot wins it, scenes. Captain rating ${lowCap.overall_rating} — a proper heist.`)
+    }
+  }
+
+  const fightiest = [...flat].sort((a, b) => b.player.ag - a.player.ag)[0]
+  if (fightiest) pool.push(`Refs already taking note of ${fullName(fightiest.player)}. Bring shin pads, lads.`)
+
+  const sniper = [...flat].sort((a, b) => (b.player.sp + b.player.sk) - (a.player.sp + a.player.sk))[0]
+  if (sniper) pool.push(`${fullName(sniper.player)} on golden boot watch — just put it on his head.`)
+
+  const lazy = [...flat].sort((a, b) => a.player.wr - b.player.wr)[0]
+  if (lazy) pool.push(`${fullName(lazy.player)} on tracking-back watch. Spoiler: he's not.`)
+
+  const passer = [...flat].sort((a, b) => b.player.ps - a.player.ps)[0]
+  if (passer) pool.push(`Give it to ${fullName(passer.player)} and let him think for the rest of you.`)
+
+  const composed = [...flat].sort((a, b) => a.player.cp - b.player.cp)[0]
+  if (composed) pool.push(`${fullName(composed.player)} stepping up to a penalty: pray.`)
+
+  const wtps = flat.filter(({ player }) => (player.player_type ?? 'wtp') === 'wtp')
+  if (wtps.length >= 3) {
+    pool.push(`${wtps.length} casuals making the cut tonight — subs better be on it or there'll be questions in the AGM.`)
+  }
+
+  return shuffle(pool).slice(0, 4)
+}
+
+function buildWhatsAppText(
+  teams: TeamDraft[],
+  nextThursday: string,
+  weights: Record<string, number>,
+  weather: WeatherData | null,
+): string {
   const dateLabel = format(new Date(nextThursday + 'T12:00:00'), 'do MMMM')
   const totalPlayers = teams.reduce((sum, t) => sum + t.players.length, 0)
   const cfg = pickConfig(totalPlayers)
@@ -71,6 +167,10 @@ function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
   let text = `🏆 WANSTEAD FELLAS — THURSDAY NIGHT FOOTBALL\n`
   text += `📅 ${dateLabel} | ${formatLabel} | 9–10pm\n`
 
+  if (weather) {
+    text += `\n${weatherEmoji(weather.weatherCode)} Forecast: ${weatherLabel(weather.weatherCode)} · ${weather.temperatureC}°C · ${weather.windSpeedMph}mph wind · ${weather.precipitationProbability}% rain\n`
+  }
+
   for (const team of teams) {
     text += `\n*${team.name}* ${team.bibs ? '🟡 BIBS' : '⬜ NO BIBS'}\n`
     for (const p of [...team.players].sort(byName)) {
@@ -78,8 +178,21 @@ function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
     }
   }
 
-  const total = teams.reduce((sum, t) => sum + t.players.length, 0)
-  text += `\nTotal players: ${total}\nSee you Thursday! ⚽`
+  if (teams.length >= 2) {
+    const table = predictTable(teams, weights)
+    text += `\n📊 LIKELY FINAL TABLE\n`
+    table.forEach((row, i) => {
+      text += `${i + 1}. ${row.team.name} — ${row.reasoning}\n`
+    })
+  }
+
+  const banter = buildTalkingPoints(teams)
+  if (banter.length > 0) {
+    text += `\n💬 TALKING POINTS\n`
+    for (const point of banter) text += `• ${point}\n`
+  }
+
+  text += `\nTotal players: ${totalPlayers}\nSee you Thursday! ⚽`
   return text
 }
 
@@ -136,6 +249,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
     return () => clearInterval(id)
   }, [nextThursday])
   const [swapModal, setSwapModal] = useState<{ player: Profile; fromTeamIdx: number } | null>(null)
+  const [weather, setWeather] = useState<WeatherData | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [published, setPublished] = useState(publishedTeams.length > 0)
   const [publishError, setPublishError] = useState<string | null>(null)
@@ -144,6 +258,14 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const [copied, setCopied] = useState<'whatsapp' | 'flat' | null>(null)
 
   useEffect(() => { setPublished(publishedTeams.length > 0) }, [publishedTeams])
+
+  useEffect(() => {
+    let cancelled = false
+    fetchWeather(nextThursday)
+      .then(data => { if (!cancelled) setWeather(data) })
+      .catch(err => { console.error('AdminTeamBuilder weather fetch failed:', err) })
+    return () => { cancelled = true }
+  }, [nextThursday])
 
   useEffect(() => {
     async function load() {
@@ -538,7 +660,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {/* Primary: WhatsApp */}
                 <button
-                  onClick={() => copyToClipboard(buildWhatsAppText(teamsToShow, nextThursday), 'whatsapp')}
+                  onClick={() => copyToClipboard(buildWhatsAppText(teamsToShow, nextThursday, weights, weather), 'whatsapp')}
                   style={{
                     width: '100%',
                     padding: '14px 16px',

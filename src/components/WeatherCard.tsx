@@ -12,13 +12,7 @@ import {
   CloudMoon,
 } from 'lucide-react'
 import { getNextThursdayDate } from '../lib/time'
-
-interface WeatherData {
-  temperatureC: number
-  windSpeedMph: number
-  precipitationProbability: number
-  weatherCode: number
-}
+import { fetchWeather, type WeatherData } from '../lib/weather'
 
 interface CachedEntry {
   date: string
@@ -57,26 +51,6 @@ function writeCache(date: string, data: WeatherData) {
     localStorage.setItem(cacheKey(date), JSON.stringify(entry))
   } catch {
     // localStorage may be unavailable or full — fine to skip
-  }
-}
-
-async function fetchWeather(date: string): Promise<WeatherData> {
-  const url =
-    'https://api.open-meteo.com/v1/forecast?latitude=51.5772&longitude=0.0288' +
-    '&hourly=temperature_2m,precipitation_probability,weathercode,windspeed_10m' +
-    '&timezone=Europe/London&forecast_days=8'
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  const times = json?.hourly?.time as string[] | undefined
-  if (!times) throw new Error('No hourly data')
-  const idx = times.indexOf(`${date}T21:00`)
-  if (idx < 0) throw new Error('9pm slot missing')
-  return {
-    temperatureC: Math.round(json.hourly.temperature_2m[idx]),
-    windSpeedMph: Math.round(json.hourly.windspeed_10m[idx] * 0.621371),
-    precipitationProbability: Math.round(json.hourly.precipitation_probability[idx]),
-    weatherCode: json.hourly.weathercode[idx],
   }
 }
 
