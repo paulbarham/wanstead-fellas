@@ -1,8 +1,46 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import type { Match, Team, Fixture, Result } from '../types'
+import type { Match, Team, Fixture, Profile, Result } from '../types'
 
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
+
+interface RosterPlayer {
+  id: string
+  name: string
+  surname: string
+  team_id: string
+}
+
+interface ScorerRow {
+  rowId: string
+  player_id: string
+  goals_count: number
+  own_goal: boolean
+}
+
+function scorerSummary(rows: ScorerRow[], roster: RosterPlayer[]): string {
+  const tally: Record<string, number> = {}
+  for (const r of rows) {
+    if (r.own_goal || !r.player_id || r.goals_count <= 0) continue
+    tally[r.player_id] = (tally[r.player_id] ?? 0) + r.goals_count
+  }
+  const ogTally: Record<string, number> = {}
+  for (const r of rows) {
+    if (!r.own_goal || !r.player_id || r.goals_count <= 0) continue
+    ogTally[r.player_id] = (ogTally[r.player_id] ?? 0) + r.goals_count
+  }
+  const parts = Object.entries(tally).map(([pid, n]) => {
+    const p = roster.find(x => x.id === pid)
+    const label = p ? `${p.name} ${p.surname}` : 'Unknown'
+    return n > 1 ? `${label} ${n}` : label
+  })
+  const ogParts = Object.entries(ogTally).map(([pid, n]) => {
+    const p = roster.find(x => x.id === pid)
+    const label = p ? `${p.name} ${p.surname}` : 'Unknown'
+    return n > 1 ? `${label} ${n} OG` : `${label} OG`
+  })
+  return [...parts, ...ogParts].join(', ')
+}
 
 interface FixtureWithTeams extends Fixture {
   team1: Team
@@ -54,8 +92,9 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   const isElevenVEleven = match?.format === '11v11' || teams.length <= 2
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>(initialFixtures)
   const [reportText, setReportText] = useState(initialResult?.report_text ?? '')
-  const [scorers, setScorers] = useState(initialResult?.scorers ?? '')
   const [highlights, setHighlights] = useState(initialResult?.highlights ?? '')
+  const [roster, setRoster] = useState<RosterPlayer[]>([])
+  const [scorerRows, setScorerRows] = useState<ScorerRow[]>([])
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [scoreError, setScoreError] = useState<string | null>(null)
@@ -66,6 +105,45 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   const generatingRef = useRef(false)
 
   const table = buildTable(teams, fixtures)
+
+  useEffect(() => {
+    if (!match?.id) return
+    const teamIds = teams.map(t => t.id)
+    if (teamIds.length === 0) { setRoster([]); return }
+    let cancelled = false
+    async function load() {
+      const { data: tp } = await supabase
+        .from('team_players')
+        .select('team_id, player_id, profiles!inner(id, name, surname)')
+        .in('team_id', teamIds)
+      if (cancelled) return
+      const rows = ((tp as unknown as { team_id: string; profiles: Pick<Profile, 'id' | 'name' | 'surname'> }[]) || [])
+        .map(r => ({ id: r.profiles.id, name: r.profiles.name, surname: r.profiles.surname, team_id: r.team_id }))
+        .sort((a, b) => `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' }))
+      setRoster(rows)
+
+      const { data: g } = await supabase
+        .from('goals')
+        .select('player_id, goals_count, own_goal')
+        .eq('match_id', match!.id)
+      if (cancelled) return
+      const goalRows = ((g as { player_id: string; goals_count: number; own_goal: boolean }[]) || [])
+        .map(r => ({ rowId: crypto.randomUUID(), player_id: r.player_id, goals_count: r.goals_count, own_goal: r.own_goal }))
+      setScorerRows(goalRows)
+    }
+    load()
+    return () => { cancelled = true }
+  }, [match?.id, teams])
+
+  function addScorer() {
+    setScorerRows(prev => [...prev, { rowId: crypto.randomUUID(), player_id: '', goals_count: 1, own_goal: false }])
+  }
+  function updateScorer(rowId: string, patch: Partial<ScorerRow>) {
+    setScorerRows(prev => prev.map(r => r.rowId === rowId ? { ...r, ...patch } : r))
+  }
+  function removeScorer(rowId: string) {
+    setScorerRows(prev => prev.filter(r => r.rowId !== rowId))
+  }
 
   async function updateFixtureScore(fixtureId: string, field: 'score1' | 'score2', value: string) {
     const num = value === '' ? null : parseInt(value)
@@ -87,7 +165,9 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     setSaving(true)
     setSaveError(null)
     try {
-      const payload = { match_id: match.id, report_text: reportText, scorers, highlights }
+      const validScorers = scorerRows.filter(r => r.player_id && r.goals_count > 0)
+      const scorersText = scorerSummary(validScorers, roster)
+      const payload = { match_id: match.id, report_text: reportText, scorers: scorersText, highlights }
       if (initialResult?.id) {
         const { error } = await supabase.from('results').update(payload).eq('id', initialResult.id)
         if (error) throw new Error(`Couldn't update result: ${error.message}`)
@@ -95,6 +175,21 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
         const { error } = await supabase.from('results').insert(payload)
         if (error) throw new Error(`Couldn't save result: ${error.message}`)
       }
+
+      const { error: delErr } = await supabase.from('goals').delete().eq('match_id', match.id)
+      if (delErr) throw new Error(`Couldn't clear old goals: ${delErr.message}`)
+      if (validScorers.length > 0) {
+        const goalRows = validScorers.map(r => ({
+          match_id: match.id,
+          player_id: r.player_id,
+          team_id: roster.find(p => p.id === r.player_id)?.team_id ?? null,
+          goals_count: r.goals_count,
+          own_goal: r.own_goal,
+        }))
+        const { error: insErr } = await supabase.from('goals').insert(goalRows)
+        if (insErr) throw new Error(`Couldn't save goals: ${insErr.message}`)
+      }
+
       const { error: matchErr } = await supabase.from('matches').update({ status: 'completed' }).eq('id', match.id)
       if (matchErr) throw new Error(`Couldn't mark match completed: ${matchErr.message}`)
       onSaved()
@@ -191,7 +286,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     const lines = [
       `⚽ WF Match Report`,
       `${main?.team1?.name ?? ''} ${score} ${main?.team2?.name ?? ''}`,
-      scorers ? `\nScorers: ${scorers}` : '',
+      scorerSummary(scorerRows, roster) ? `\nScorers: ${scorerSummary(scorerRows, roster)}` : '',
       reportText ? `\n${reportText}` : '',
     ]
     return lines.filter(Boolean).join('\n')
@@ -270,42 +365,6 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               {generating ? 'Generating…' : 'Generate Fixture'}
             </button>
           )}
-
-          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Scorers</label>
-            <input
-              type="text"
-              value={scorers}
-              onChange={e => setScorers(e.target.value)}
-              placeholder="Barham 2, Smith, Jones..."
-              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-            />
-          </div>
-
-          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Match Report</label>
-            <textarea
-              value={reportText}
-              onChange={e => setReportText(e.target.value)}
-              rows={5}
-              placeholder="Write the match report here..."
-              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none resize-none"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-            />
-          </div>
-
-          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Highlights</label>
-            <input
-              type="text"
-              value={highlights}
-              onChange={e => setHighlights(e.target.value)}
-              placeholder="Link or notes..."
-              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-            />
-          </div>
         </div>
       ) : (
         // 4-team tournament
@@ -438,6 +497,94 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
           )}
         </div>
       )}
+
+      <div className="space-y-4 mt-4">
+        <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <label className="block text-xs uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>Scorers</label>
+          {scorerRows.length === 0 && (
+            <p className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>No goals yet — add scorers to feed the stats page.</p>
+          )}
+          <div className="space-y-2">
+            {scorerRows.map(row => (
+              <div key={row.rowId} className="flex items-center gap-2">
+                <select
+                  value={row.player_id}
+                  onChange={e => updateScorer(row.rowId, { player_id: e.target.value })}
+                  className="flex-1 min-w-0 px-2 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                >
+                  <option value="">— player —</option>
+                  {roster.map(p => (
+                    <option key={p.id} value={p.id}>{p.name} {p.surname}</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  min={1}
+                  value={row.goals_count}
+                  onChange={e => updateScorer(row.rowId, { goals_count: parseInt(e.target.value || '1', 10) })}
+                  className="w-12 text-center px-1 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => updateScorer(row.rowId, { own_goal: !row.own_goal })}
+                  className="text-[10px] font-semibold px-2 py-2 rounded-lg"
+                  style={{
+                    background: row.own_goal ? 'var(--color-warning-bg)' : 'var(--color-surface)',
+                    color: row.own_goal ? 'var(--color-warning-text)' : 'var(--color-text-muted)',
+                    border: `1px solid ${row.own_goal ? '#C9A227' : 'var(--color-border)'}`,
+                  }}
+                  aria-label="Toggle own goal"
+                >
+                  OG
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeScorer(row.rowId)}
+                  className="text-sm px-2 py-2 rounded-lg"
+                  style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+                  aria-label="Remove scorer"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={addScorer}
+            className="mt-3 w-full py-2 rounded-lg text-xs font-medium"
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px dashed var(--color-border)' }}
+          >
+            + Add scorer
+          </button>
+        </div>
+
+        <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Match Report</label>
+          <textarea
+            value={reportText}
+            onChange={e => setReportText(e.target.value)}
+            rows={5}
+            placeholder="Write the match report here..."
+            className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none resize-none"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+          />
+        </div>
+
+        <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Highlights</label>
+          <input
+            type="text"
+            value={highlights}
+            onChange={e => setHighlights(e.target.value)}
+            placeholder="Link or notes..."
+            className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+          />
+        </div>
+      </div>
 
       {/* Actions */}
       <div className="mt-4 space-y-2 pb-4">
