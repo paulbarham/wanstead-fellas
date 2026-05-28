@@ -59,6 +59,9 @@ function pickCaptain(players: Profile[]): Profile {
   return top3[Math.floor(Math.random() * top3.length)]
 }
 
+const byName = (a: Profile, b: Profile) =>
+  `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
+
 function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
   const dateLabel = format(new Date(nextThursday + 'T12:00:00'), 'do MMMM')
   const totalPlayers = teams.reduce((sum, t) => sum + t.players.length, 0)
@@ -70,7 +73,7 @@ function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
 
   for (const team of teams) {
     text += `\n*${team.name}* ${team.bibs ? '🟡 BIBS' : '⬜ NO BIBS'}\n`
-    for (const p of team.players) {
+    for (const p of [...team.players].sort(byName)) {
       text += `${p.name} ${p.surname}\n`
     }
   }
@@ -82,7 +85,7 @@ function buildWhatsAppText(teams: TeamDraft[], nextThursday: string): string {
 
 function buildFlatList(teams: TeamDraft[]): string {
   const all = teams.flatMap(t => t.players)
-  const sorted = [...all].sort((a, b) => `${a.surname}${a.name}`.localeCompare(`${b.surname}${b.name}`))
+  const sorted = [...all].sort(byName)
   return sorted.map(p => `${p.name} ${p.surname}`).join('\n')
 }
 
@@ -447,7 +450,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                   </div>
 
                   <div style={{ background: 'var(--color-surface-2)' }}>
-                    {team.players.map((p, idx) => (
+                    {[...team.players].sort(byName).map((p, idx) => (
                       <button
                         key={p.id}
                         onClick={() => draftTeams.length > 0 && setSwapModal({ player: p, fromTeamIdx: teamIdx })}
@@ -602,7 +605,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
               {draftTeams.map((team, teamIdx) => {
                 if (teamIdx === swapModal.fromTeamIdx) return null
                 const color = TEAM_COLORS[teamIdx % TEAM_COLORS.length]
-                return team.players.map(p => (
+                return [...team.players].sort(byName).map(p => (
                   <button
                     key={p.id}
                     onClick={() => swapPlayers(swapModal.fromTeamIdx, swapModal.player, teamIdx, p)}

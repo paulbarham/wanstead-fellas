@@ -159,7 +159,9 @@ export default function TeamsPage() {
                 <div className="flex flex-wrap gap-1.5"
                   style={{ background: 'var(--color-team-card-body)', padding: 16 }}>
 
-                  {team.players.map(p => {
+                  {[...team.players].sort((a, b) =>
+                    `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
+                  ).map(p => {
                     const isCap = p.id === team.captain_id
                     const isDark = theme === 'dark'
                     // Dark: captain bg = white@20%, others = team@15%, text = white.
