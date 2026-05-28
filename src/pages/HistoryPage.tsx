@@ -127,7 +127,7 @@ export default function HistoryPage() {
               <div key={match.id} className="rounded-2xl overflow-hidden"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button
-                  className="w-full px-5 py-5 text-left"
+                  className="w-full px-6 py-5 text-left"
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
                   <div className="min-w-0">
