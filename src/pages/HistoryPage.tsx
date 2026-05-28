@@ -131,7 +131,7 @@ export default function HistoryPage() {
                   onClick={() => setExpanded(isExpanded ? null : match.id)}
                 >
                   <div className="min-w-0">
-                    <p className="text-xs mb-2 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{dateLabel}</p>
+                    <p className="text-sm font-medium mb-2 whitespace-nowrap pl-1" style={{ color: 'var(--color-text)' }}>{dateLabel}</p>
                     <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         {isTwoTeam && mainFixture ? (
