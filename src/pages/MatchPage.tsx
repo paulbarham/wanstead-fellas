@@ -37,6 +37,24 @@ interface FixtureScorer {
   own_goal: boolean
 }
 
+function aggregateScorers(scorers: FixtureScorer[]): FixtureScorer[] {
+  const map = new Map<string, FixtureScorer>()
+  for (const s of scorers) {
+    const key = `${s.player_name}|${s.team_id}|${s.own_goal ? 'og' : 'reg'}`
+    const existing = map.get(key)
+    if (existing) existing.goals_count += s.goals_count
+    else map.set(key, { ...s })
+  }
+  return Array.from(map.values())
+}
+
+function renderScorerLabel(s: FixtureScorer): string {
+  if (s.own_goal && s.goals_count > 1) return `${s.player_name} (${s.goals_count} OG)`
+  if (s.own_goal) return `${s.player_name} (OG)`
+  if (s.goals_count > 1) return `${s.player_name} (${s.goals_count})`
+  return s.player_name
+}
+
 async function loadMatchData(matchId: string): Promise<{
   teams: Team[]
   fixtures: FixtureWithTeams[]
@@ -294,20 +312,18 @@ function ElevenVElevenView({ result, fixtures, scorersByFixture }: {
           </div>
 
           {(() => {
-            const fixtureScorers = scorersByFixture[main.id] ?? []
+            const fixtureScorers = aggregateScorers(scorersByFixture[main.id] ?? [])
             if (fixtureScorers.length === 0) return null
             const team1Scorers = fixtureScorers.filter(s => s.team_id === main.team1_id)
             const team2Scorers = fixtureScorers.filter(s => s.team_id === main.team2_id)
-            const renderScorer = (s: FixtureScorer) =>
-              `${s.player_name}${s.goals_count > 1 ? ` ×${s.goals_count}` : ''}${s.own_goal ? ' (OG)' : ''}`
             return (
               <div className="px-5 py-4 flex items-start gap-3" style={{ borderTop: '1px solid var(--color-border)' }}>
                 <div className="flex-1 text-right text-xs leading-snug" style={{ color: 'var(--color-text-muted)' }}>
-                  {team1Scorers.map(renderScorer).join(', ') || '—'}
+                  {team1Scorers.map(renderScorerLabel).join(', ') || '—'}
                 </div>
                 <span style={{ width: 24 }} />
                 <div className="flex-1 text-xs leading-snug" style={{ color: 'var(--color-text-muted)' }}>
-                  {team2Scorers.map(renderScorer).join(', ') || '—'}
+                  {team2Scorers.map(renderScorerLabel).join(', ') || '—'}
                 </div>
               </div>
             )
@@ -387,11 +403,9 @@ function FourTeamView({ result, teams, fixtures, scorersByFixture }: {
         </div>
         <div>
           {fixtures.map((f, i) => {
-            const fixtureScorers = scorersByFixture[f.id] ?? []
+            const fixtureScorers = aggregateScorers(scorersByFixture[f.id] ?? [])
             const team1Scorers = fixtureScorers.filter(s => s.team_id === f.team1_id)
             const team2Scorers = fixtureScorers.filter(s => s.team_id === f.team2_id)
-            const renderScorer = (s: FixtureScorer) =>
-              `${s.player_name}${s.goals_count > 1 ? ` ×${s.goals_count}` : ''}${s.own_goal ? ' (OG)' : ''}`
             return (
               <div key={f.id} className="px-4 py-3"
                 style={{ borderTop: i > 0 ? '1px solid var(--color-border)' : 'none' }}>
@@ -407,11 +421,11 @@ function FourTeamView({ result, teams, fixtures, scorersByFixture }: {
                 {fixtureScorers.length > 0 && (
                   <div className="flex items-start gap-2 mt-1.5">
                     <span className="flex-1 text-[11px] text-right leading-snug" style={{ color: 'var(--color-text-muted)' }}>
-                      {team1Scorers.map(renderScorer).join(', ') || '—'}
+                      {team1Scorers.map(renderScorerLabel).join(', ') || '—'}
                     </span>
                     <span className="px-3" style={{ width: 76 }} />
                     <span className="flex-1 text-[11px] leading-snug" style={{ color: 'var(--color-text-muted)' }}>
-                      {team2Scorers.map(renderScorer).join(', ') || '—'}
+                      {team2Scorers.map(renderScorerLabel).join(', ') || '—'}
                     </span>
                   </div>
                 )}
