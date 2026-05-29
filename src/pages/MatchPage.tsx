@@ -30,44 +30,27 @@ const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' }
 const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
-function ScorersList({ scorers }: { scorers: string }) {
-  let lines = scorers.split('\n').map(l => l.trim()).filter(Boolean)
-  if (lines.length === 1 && (scorers.match(/:/g) ?? []).length > 1) {
-    const parts = scorers
-      .split(/(?<=\S)\s+(?=[A-Z][a-z]+ [A-Z][a-z]+(?:\s+(?:FC|XI))?:)/)
-      .map(l => l.trim()).filter(Boolean)
-    if (parts.length > 1 && parts.every(p => p.includes(':'))) lines = parts
-  }
-  if (lines.length === 1 && !scorers.includes(':')) {
-    return <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text)' }}>{scorers}</p>
-  }
-  return (
-    <div className="space-y-1">
-      {lines.map((line, i) => {
-        const colonIdx = line.indexOf(':')
-        if (colonIdx > 0) {
-          return (
-            <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text)' }}>
-              <span style={{ fontWeight: 600 }}>{stripFC(line.slice(0, colonIdx).trim())}</span>
-              {': '}{line.slice(colonIdx + 1).trim()}
-            </p>
-          )
-        }
-        return <p key={i} style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text)' }}>{line}</p>
-      })}
-    </div>
-  )
+interface FixtureScorer {
+  player_name: string
+  team_id: string
+  goals_count: number
+  own_goal: boolean
 }
 
 async function loadMatchData(matchId: string): Promise<{
   teams: Team[]
   fixtures: FixtureWithTeams[]
   result: Result | null
+  scorersByFixture: Record<string, FixtureScorer[]>
 }> {
-  const [{ data: td }, { data: fd }, { data: rd }] = await Promise.all([
+  const [{ data: td }, { data: fd }, { data: rd }, { data: gd }] = await Promise.all([
     supabase.from('teams').select('*').eq('match_id', matchId),
     supabase.from('fixtures').select('*').eq('match_id', matchId),
     supabase.from('results').select('*').eq('match_id', matchId).maybeSingle(),
+    supabase
+      .from('goals')
+      .select('fixture_id, team_id, goals_count, own_goal, profiles:player_id(name, surname)')
+      .eq('match_id', matchId),
   ])
   const teams = (td as Team[]) || []
   const teamMap: Record<string, Team> = {}
@@ -75,7 +58,28 @@ async function loadMatchData(matchId: string): Promise<{
   const fixtures = ((fd as Fixture[]) || [])
     .filter(f => teamMap[f.team1_id] && teamMap[f.team2_id])
     .map(f => ({ ...f, team1: teamMap[f.team1_id], team2: teamMap[f.team2_id] }))
-  return { teams, fixtures, result: (rd as Result | null) }
+
+  const scorersByFixture: Record<string, FixtureScorer[]> = {}
+  type GoalRow = {
+    fixture_id: string | null
+    team_id: string | null
+    goals_count: number
+    own_goal: boolean
+    profiles: { name: string; surname: string } | null
+  }
+  for (const g of ((gd as unknown as GoalRow[]) || [])) {
+    if (!g.fixture_id || !g.team_id || !g.profiles) continue
+    const player_name = `${g.profiles.name} ${g.profiles.surname}`
+    if (!scorersByFixture[g.fixture_id]) scorersByFixture[g.fixture_id] = []
+    scorersByFixture[g.fixture_id].push({
+      player_name,
+      team_id: g.team_id,
+      goals_count: g.goals_count,
+      own_goal: g.own_goal,
+    })
+  }
+
+  return { teams, fixtures, result: (rd as Result | null), scorersByFixture }
 }
 
 export default function MatchPage() {
@@ -86,6 +90,7 @@ export default function MatchPage() {
   const [teams, setTeams] = useState<Team[]>([])
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>([])
   const [result, setResult] = useState<Result | null>(null)
+  const [scorersByFixture, setScorersByFixture] = useState<Record<string, FixtureScorer[]>>({})
 
   const [weekMatch, setWeekMatch] = useState<Match | null>(null)
   const [weekTeams, setWeekTeams] = useState<Team[]>([])
@@ -133,6 +138,7 @@ export default function MatchPage() {
       setTeams(disp.teams)
       setFixtures(disp.fixtures)
       setResult(disp.result)
+      setScorersByFixture(disp.scorersByFixture)
 
       if (thisWeek && thisWeek.id !== displayMatch.id) {
         const week = await loadMatchData(thisWeek.id)
@@ -241,18 +247,19 @@ export default function MatchPage() {
           <p className="text-sm mt-1">Results posted after the match</p>
         </div>
       ) : (teams.length > 2 || match.format === 'tournament' || match.format === '4-team') ? (
-        <FourTeamView result={result} teams={teams} fixtures={fixtures} />
+        <FourTeamView result={result} teams={teams} fixtures={fixtures} scorersByFixture={scorersByFixture} />
       ) : (
-        <ElevenVElevenView result={result} teams={teams} fixtures={fixtures} />
+        <ElevenVElevenView result={result} teams={teams} fixtures={fixtures} scorersByFixture={scorersByFixture} />
       )}
     </div>
   )
 }
 
-function ElevenVElevenView({ result, fixtures }: {
+function ElevenVElevenView({ result, fixtures, scorersByFixture }: {
   result: Result | null
   teams?: Team[]
   fixtures: FixtureWithTeams[]
+  scorersByFixture: Record<string, FixtureScorer[]>
 }) {
   const main = fixtures[0]
   const winner = main?.score1 != null && main?.score2 != null
@@ -286,12 +293,25 @@ function ElevenVElevenView({ result, fixtures }: {
             )}
           </div>
 
-          {result?.scorers && (
-            <div className="px-5 py-4" style={{ borderTop: '1px solid var(--color-border)' }}>
-              <SectionHeader label="Scorers" withDivider />
-              <ScorersList scorers={result.scorers} />
-            </div>
-          )}
+          {(() => {
+            const fixtureScorers = scorersByFixture[main.id] ?? []
+            if (fixtureScorers.length === 0) return null
+            const team1Scorers = fixtureScorers.filter(s => s.team_id === main.team1_id)
+            const team2Scorers = fixtureScorers.filter(s => s.team_id === main.team2_id)
+            const renderScorer = (s: FixtureScorer) =>
+              `${s.player_name}${s.goals_count > 1 ? ` ×${s.goals_count}` : ''}${s.own_goal ? ' (OG)' : ''}`
+            return (
+              <div className="px-5 py-4 flex items-start gap-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                <div className="flex-1 text-right text-xs leading-snug" style={{ color: 'var(--color-text-muted)' }}>
+                  {team1Scorers.map(renderScorer).join(', ') || '—'}
+                </div>
+                <span style={{ width: 24 }} />
+                <div className="flex-1 text-xs leading-snug" style={{ color: 'var(--color-text-muted)' }}>
+                  {team2Scorers.map(renderScorer).join(', ') || '—'}
+                </div>
+              </div>
+            )
+          })()}
         </div>
       )}
 
@@ -305,10 +325,11 @@ function ElevenVElevenView({ result, fixtures }: {
   )
 }
 
-function FourTeamView({ result, teams, fixtures }: {
+function FourTeamView({ result, teams, fixtures, scorersByFixture }: {
   result: Result | null
   teams: Team[]
   fixtures: FixtureWithTeams[]
+  scorersByFixture: Record<string, FixtureScorer[]>
 }) {
   const table = buildTable(teams, fixtures)
   const winner = table[0]
@@ -365,28 +386,40 @@ function FourTeamView({ result, teams, fixtures }: {
           <SectionHeader label="Results" />
         </div>
         <div>
-          {fixtures.map((f, i) => (
-            <div key={f.id} className="px-4 py-3 flex items-center gap-2"
-              style={{ borderTop: i > 0 ? '1px solid var(--color-border)' : 'none' }}>
-              <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
-              <div className="flex items-center gap-2 px-3">
-                <span className="font-display text-2xl text-[var(--color-text)]">{f.score1 ?? '–'}</span>
-                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>–</span>
-                <span className="font-display text-2xl text-[var(--color-text)]">{f.score2 ?? '–'}</span>
+          {fixtures.map((f, i) => {
+            const fixtureScorers = scorersByFixture[f.id] ?? []
+            const team1Scorers = fixtureScorers.filter(s => s.team_id === f.team1_id)
+            const team2Scorers = fixtureScorers.filter(s => s.team_id === f.team2_id)
+            const renderScorer = (s: FixtureScorer) =>
+              `${s.player_name}${s.goals_count > 1 ? ` ×${s.goals_count}` : ''}${s.own_goal ? ' (OG)' : ''}`
+            return (
+              <div key={f.id} className="px-4 py-3"
+                style={{ borderTop: i > 0 ? '1px solid var(--color-border)' : 'none' }}>
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
+                  <div className="flex items-center gap-2 px-3">
+                    <span className="font-display text-2xl text-[var(--color-text)]">{f.score1 ?? '–'}</span>
+                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>–</span>
+                    <span className="font-display text-2xl text-[var(--color-text)]">{f.score2 ?? '–'}</span>
+                  </div>
+                  <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
+                </div>
+                {fixtureScorers.length > 0 && (
+                  <div className="flex items-start gap-2 mt-1.5">
+                    <span className="flex-1 text-[11px] text-right leading-snug" style={{ color: 'var(--color-text-muted)' }}>
+                      {team1Scorers.map(renderScorer).join(', ') || '—'}
+                    </span>
+                    <span className="px-3" style={{ width: 76 }} />
+                    <span className="flex-1 text-[11px] leading-snug" style={{ color: 'var(--color-text-muted)' }}>
+                      {team2Scorers.map(renderScorer).join(', ') || '—'}
+                    </span>
+                  </div>
+                )}
               </div>
-              <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
-
-      {/* Scorers */}
-      {result?.scorers && (
-        <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-          <SectionHeader label="Scorers" withDivider />
-          <ScorersList scorers={result.scorers} />
-        </div>
-      )}
 
       {/* Match report */}
       {hasReportContent(result) && result && (
