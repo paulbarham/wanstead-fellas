@@ -331,15 +331,45 @@ export default function MotmVotingCard() {
               {breakdown ? 'Hide vote breakdown' : 'Admin: who voted for whom'}
             </button>
             {breakdown && (
-              <div className="mt-3 space-y-1">
+              <div className="mt-3">
                 {breakdown.length === 0 ? (
                   <p className="text-[11px]" style={{ color: '#9CA897' }}>No votes cast.</p>
-                ) : breakdown.map((b, i) => (
-                  <p key={i} className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-                    <span className="uppercase" style={{ color: '#9CA897' }}>{b.award_type}</span>{' · '}
-                    {b.voter_name} → <span className="text-[var(--color-text)]">{b.nominee_name}</span>
-                  </p>
-                ))}
+                ) : (
+                  (() => {
+                    const byVoter = new Map<string, { voter: string; motm: string; dotd: string }>()
+                    for (const b of breakdown) {
+                      const row = byVoter.get(b.voter_name) ?? { voter: b.voter_name, motm: '—', dotd: '—' }
+                      if (b.award_type === 'motm') row.motm = b.nominee_name
+                      else if (b.award_type === 'dotd') row.dotd = b.nominee_name
+                      byVoter.set(b.voter_name, row)
+                    }
+                    const rows = Array.from(byVoter.values()).sort((a, b) =>
+                      a.voter.localeCompare(b.voter, undefined, { sensitivity: 'base' })
+                    )
+                    return (
+                      <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+                        <table className="w-full text-[11px]">
+                          <thead>
+                            <tr style={{ color: '#9CA897', background: 'var(--color-surface)' }}>
+                              <th className="px-2 py-1.5 text-left font-semibold uppercase" style={{ letterSpacing: '0.6px' }}>Voter</th>
+                              <th className="px-2 py-1.5 text-left font-semibold uppercase" style={{ letterSpacing: '0.6px' }}>MOTM</th>
+                              <th className="px-2 py-1.5 text-left font-semibold uppercase" style={{ letterSpacing: '0.6px' }}>DOTD</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rows.map((r, i) => (
+                              <tr key={r.voter} style={{ borderTop: '1px solid var(--color-border)', background: i % 2 === 0 ? 'transparent' : 'var(--color-surface)' }}>
+                                <td className="px-2 py-1.5 font-medium" style={{ color: 'var(--color-text)' }}>{r.voter}</td>
+                                <td className="px-2 py-1.5" style={{ color: r.motm === '—' ? '#9CA897' : 'var(--color-text)' }}>{r.motm}</td>
+                                <td className="px-2 py-1.5" style={{ color: r.dotd === '—' ? '#9CA897' : 'var(--color-text)' }}>{r.dotd}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )
+                  })()
+                )}
               </div>
             )}
           </div>
