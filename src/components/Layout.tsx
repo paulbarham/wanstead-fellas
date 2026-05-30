@@ -20,6 +20,7 @@ const BASE_NAV_ITEMS = [
   { to: '/history', label: 'History', icon: '📅' },
   { to: '/cards', label: 'Cards', icon: '🃏' },
   { to: '/stats', label: 'Stats', icon: '📈' },
+  { to: '/pods', label: 'Pods', icon: '🎧' },
 ]
 
 const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: '⚙️' }
