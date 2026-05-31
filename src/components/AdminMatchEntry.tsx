@@ -239,6 +239,41 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     return out
   }
 
+  function ScoreStepper({ fixtureId, field, value }: { fixtureId: string; field: 'score1' | 'score2'; value: number | null }) {
+    const current = value ?? 0
+    return (
+      <div
+        className="flex items-center gap-1.5 rounded-lg px-1.5 py-1"
+        style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}
+      >
+        <button
+          type="button"
+          onClick={() => updateFixtureScore(fixtureId, field, String(Math.max(0, current - 1)))}
+          className="w-7 h-7 rounded flex items-center justify-center"
+          style={{ color: 'var(--tt-yellow)', fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, background: 'transparent' }}
+          aria-label="Decrement"
+        >
+          −
+        </button>
+        <span
+          className="text-center"
+          style={{ color: 'var(--tt-yellow)', fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 700, minWidth: 18 }}
+        >
+          {current}
+        </span>
+        <button
+          type="button"
+          onClick={() => updateFixtureScore(fixtureId, field, String(current + 1))}
+          className="w-7 h-7 rounded flex items-center justify-center"
+          style={{ color: 'var(--tt-yellow)', fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, background: 'transparent' }}
+          aria-label="Increment"
+        >
+          +
+        </button>
+      </div>
+    )
+  }
+
   async function updateFixtureScore(fixtureId: string, field: 'score1' | 'score2', value: string) {
     const num = value === '' ? null : parseInt(value)
     const prevFixture = fixtures.find(f => f.id === fixtureId)
@@ -428,26 +463,12 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               <h3 className="font-semibold text-[var(--color-text)] mb-3">Score</h3>
               {fixtures.map(f => (
                 <div key={f.id}>
-                  <div className="flex items-center gap-3">
-                    <span className="flex-1 text-right text-sm font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
-                    <input
-                      type="number"
-                      min={0}
-                      value={f.score1 ?? ''}
-                      onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
-                      className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
-                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                    />
-                    <span style={{ color: '#9CA897' }}>–</span>
-                    <input
-                      type="number"
-                      min={0}
-                      value={f.score2 ?? ''}
-                      onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
-                      className="w-12 text-center py-2 rounded-lg text-[var(--color-text)] font-display text-xl outline-none"
-                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                    />
-                    <span className="flex-1 text-sm font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
+                  <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)' }}>
+                    <span className="flex-1 text-right text-sm" style={{ color: 'var(--color-text)' }}>{stripFC(f.team1?.name)}</span>
+                    <ScoreStepper fixtureId={f.id} field="score1" value={f.score1} />
+                    <span style={{ color: 'var(--color-text-muted)' }}>v</span>
+                    <ScoreStepper fixtureId={f.id} field="score2" value={f.score2} />
+                    <span className="flex-1 text-sm" style={{ color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                   </div>
                   {renderFixtureScorers(f.id, f.team1, f.team2)}
                 </div>
@@ -531,28 +552,12 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
               <div className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                 {fixtures.map(f => (
                   <div key={f.id} className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={0}
-                          value={f.score1 ?? ''}
-                          onChange={e => updateFixtureScore(f.id, 'score1', e.target.value)}
-                          className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
-                          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                        />
-                        <span style={{ color: '#B0B5AA', fontSize: 11, fontWeight: 500 }}>v</span>
-                        <input
-                          type="number"
-                          min={0}
-                          value={f.score2 ?? ''}
-                          onChange={e => updateFixtureScore(f.id, 'score2', e.target.value)}
-                          className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] font-display text-lg outline-none"
-                          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-                        />
-                      </div>
-                      <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
+                    <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)' }}>
+                      <span className="flex-1 text-right text-xs" style={{ color: 'var(--color-text)' }}>{stripFC(f.team1?.name)}</span>
+                      <ScoreStepper fixtureId={f.id} field="score1" value={f.score1} />
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>v</span>
+                      <ScoreStepper fixtureId={f.id} field="score2" value={f.score2} />
+                      <span className="flex-1 text-xs" style={{ color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                     </div>
                     {renderFixtureScorers(f.id, f.team1, f.team2)}
                   </div>
@@ -642,10 +647,18 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
         <button
           onClick={saveResult}
           disabled={saving}
-          className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50"
-          style={{ background: 'var(--color-primary)', color: 'var(--color-text)' }}
+          className="w-full py-3 rounded-xl disabled:opacity-50"
+          style={{
+            background: 'transparent',
+            color: 'var(--tt-yellow)',
+            border: '1px solid var(--tt-yellow)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+          }}
         >
-          {saving ? 'Saving...' : 'Save Result'}
+          {saving ? 'SAVING…' : '▶ SAVE RESULT'}
         </button>
 
         <button

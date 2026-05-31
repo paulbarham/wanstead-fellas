@@ -7,7 +7,6 @@ import type { Profile, Availability, FineType } from '../types'
 import { FINE_TYPES } from '../types'
 import { getNextThursdayDate, getMatchPhase, getCountdownLabel } from '../lib/time'
 import PlayerAvatar from '../components/PlayerAvatar'
-import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import InstallBanner from '../components/InstallBanner'
 import WeatherCard from '../components/WeatherCard'
 import CeefaxHeader from '../components/CeefaxHeader'
@@ -425,67 +424,76 @@ export default function TonightPage() {
             No one signed up yet — be first!
           </p>
         ) : (
-          <div className="space-y-1.5">
-            {playingPlayers.map(p => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl"
-                style={{
-                  background: p.id === profile?.id ? 'var(--color-success-bg)' : 'var(--color-surface)',
-                  border: `1px solid ${p.id === profile?.id ? '#0D6B52' : 'var(--color-border)'}`,
-                }}
-              >
-                <PlayerAvatar profile={p} size={32} />
-                <span className="flex-1 text-sm font-medium text-[var(--color-text)]">
-                  {p.name} {p.surname}
-                  {p.id === profile?.id && (
-                    <span className="ml-1.5 text-xs" style={{ color: 'var(--color-primary)' }}>you</span>
-                  )}
-                </span>
-                <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
-                {/* Fine button — subtle, admin only */}
-                {profile?.is_admin && (
-                  <button
-                    onClick={() => { setFineModal({ player: p }); setFineType('late') }}
-                    className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-30 hover:opacity-60 active:opacity-100 transition-opacity ml-1"
-                    style={{ color: 'var(--color-text-muted)' }}
-                    title="Issue fine"
-                  >
-                    £
-                  </button>
-                )}
-                {/* Remove — requires inline confirmation */}
-                {profile?.is_admin && p.id !== profile.id && (
-                  removeConfirm === p.id ? (
-                    <div className="flex items-center gap-1 ml-1">
-                      <span className="text-xs" style={{ color: 'var(--color-error-text)' }}>Remove?</span>
-                      <button
-                        onClick={() => adminTogglePlayer(p.id)}
-                        className="text-xs px-1.5 py-0.5 rounded-lg font-semibold"
-                        style={{ color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
-                      >
-                        Yes
-                      </button>
-                      <button
-                        onClick={() => setRemoveConfirm(null)}
-                        className="text-xs px-1.5 py-0.5 rounded-lg"
-                        style={{ color: '#9CA897', border: '1px solid var(--color-border)' }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+            {playingPlayers.map((p, idx) => {
+              const isMe = p.id === profile?.id
+              const playerType = p.player_type ?? 'wtp'
+              const tagLabel = playerType === 'subscribed' ? 'SUB' : playerType === 'wtp_priority' ? 'WTP*' : 'WTP'
+              const tagColor = playerType === 'subscribed' ? 'var(--tt-green)' : playerType === 'wtp_priority' ? 'var(--tt-cyan)' : 'var(--tt-yellow)'
+              return (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-2 px-3 py-2"
+                  style={{
+                    background: isMe ? 'var(--color-success-bg)' : 'transparent',
+                    borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 13,
+                  }}
+                >
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 11, width: 22 }}>
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <span className="flex-1 truncate" style={{ color: 'var(--color-text)' }}>
+                    {p.name} {p.surname}
+                    {isMe && (
+                      <span className="ml-1.5 text-[10px]" style={{ color: 'var(--tt-yellow)', letterSpacing: '0.06em' }}>YOU</span>
+                    )}
+                  </span>
+                  <span style={{ color: tagColor, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', minWidth: 32, textAlign: 'right' }}>
+                    {tagLabel}
+                  </span>
+                  {profile?.is_admin && (
                     <button
-                      onClick={() => setRemoveConfirm(p.id)}
-                      className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-40 hover:opacity-70 active:opacity-100 transition-opacity"
-                      style={{ color: '#9CA897' }}
+                      onClick={() => { setFineModal({ player: p }); setFineType('late') }}
+                      className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-40 hover:opacity-100 transition-opacity"
+                      style={{ color: 'var(--color-text-muted)' }}
+                      title="Issue fine"
                     >
-                      ✕
+                      £
                     </button>
-                  )
-                )}
-              </div>
-            ))}
+                  )}
+                  {profile?.is_admin && !isMe && (
+                    removeConfirm === p.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => adminTogglePlayer(p.id)}
+                          className="text-[10px] px-1.5 py-0.5 rounded font-semibold"
+                          style={{ color: 'var(--tt-red)', border: '1px solid var(--tt-red)' }}
+                        >
+                          REMOVE
+                        </button>
+                        <button
+                          onClick={() => setRemoveConfirm(null)}
+                          className="text-[10px] px-1.5 py-0.5 rounded"
+                          style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setRemoveConfirm(p.id)}
+                        className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-40 hover:opacity-100 transition-opacity"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        ✕
+                      </button>
+                    )
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
@@ -504,56 +512,61 @@ export default function TonightPage() {
           >
             ▶ Reserves · {reservePlayers.length}
           </p>
-          <div className="space-y-1.5">
-            {reservePlayers.map((p, i) => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl"
-                style={{
-                  background: p.id === profile?.id ? 'var(--color-warning-bg)' : 'var(--color-surface)',
-                  border: `1px solid ${p.id === profile?.id ? '#C9A227' : 'var(--color-border)'}`,
-                }}
-              >
-                <span className="text-xs w-4 text-center" style={{ color: '#9CA897' }}>{i + 1}</span>
-                <PlayerAvatar profile={p} size={28} />
-                <span className="flex-1 text-sm font-medium" style={{ color: 'var(--color-text-muted)' }}>
-                  {p.name} {p.surname}
-                  {p.id === profile?.id && (
-                    <span className="ml-1.5 text-xs" style={{ color: 'var(--color-warning-text)' }}>you</span>
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+            {reservePlayers.map((p, idx) => {
+              const isMe = p.id === profile?.id
+              return (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-2 px-3 py-2"
+                  style={{
+                    background: isMe ? 'var(--color-warning-bg)' : 'transparent',
+                    borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 13,
+                  }}
+                >
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 11, width: 22 }}>
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <span className="flex-1 truncate" style={{ color: 'var(--color-text-muted)' }}>
+                    {p.name} {p.surname}
+                    {isMe && (
+                      <span className="ml-1.5 text-[10px]" style={{ color: 'var(--tt-magenta)', letterSpacing: '0.06em' }}>YOU</span>
+                    )}
+                  </span>
+                  <span style={{ color: 'var(--tt-magenta)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>RES</span>
+                  {profile?.is_admin && !isMe && (
+                    removeConfirm === p.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => adminTogglePlayer(p.id)}
+                          className="text-[10px] px-1.5 py-0.5 rounded font-semibold"
+                          style={{ color: 'var(--tt-red)', border: '1px solid var(--tt-red)' }}
+                        >
+                          REMOVE
+                        </button>
+                        <button
+                          onClick={() => setRemoveConfirm(null)}
+                          className="text-[10px] px-1.5 py-0.5 rounded"
+                          style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setRemoveConfirm(p.id)}
+                        className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-40 hover:opacity-100 transition-opacity"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        ✕
+                      </button>
+                    )
                   )}
-                </span>
-                <span className="text-xs" style={{ color: 'var(--color-warning-text)' }}>⏳</span>
-                {profile?.is_admin && p.id !== profile.id && (
-                  removeConfirm === p.id ? (
-                    <div className="flex items-center gap-1 ml-1">
-                      <span className="text-xs" style={{ color: 'var(--color-error-text)' }}>Remove?</span>
-                      <button
-                        onClick={() => adminTogglePlayer(p.id)}
-                        className="text-xs px-1.5 py-0.5 rounded-lg font-semibold"
-                        style={{ color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
-                      >
-                        Yes
-                      </button>
-                      <button
-                        onClick={() => setRemoveConfirm(null)}
-                        className="text-xs px-1.5 py-0.5 rounded-lg"
-                        style={{ color: '#9CA897', border: '1px solid var(--color-border)' }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setRemoveConfirm(p.id)}
-                      className="text-xs w-5 h-5 flex items-center justify-center rounded opacity-40 hover:opacity-70 active:opacity-100 transition-opacity"
-                      style={{ color: '#9CA897' }}
-                    >
-                      ✕
-                    </button>
-                  )
-                )}
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
@@ -622,27 +635,40 @@ export default function TonightPage() {
           >
             ▶ Not In · {notSignedUp.length}
           </p>
-          <div className="space-y-1.5">
-            {notSignedUp.map(p => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl"
-                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-              >
-                <PlayerAvatar profile={p} size={32} />
-                <span className="flex-1 text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                  {p.name} {p.surname}
-                </span>
-                <PlayerTypeBadge type={p.player_type ?? 'wtp'} />
-                <button
-                  onClick={() => adminTogglePlayer(p.id)}
-                  className="text-xs px-3 py-1.5 rounded-lg font-medium ml-1 flex-shrink-0"
-                  style={{ minWidth: 52, color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+            {notSignedUp.map((p, idx) => {
+              const playerType = p.player_type ?? 'wtp'
+              const tagLabel = playerType === 'subscribed' ? 'SUB' : playerType === 'wtp_priority' ? 'WTP*' : 'WTP'
+              const tagColor = playerType === 'subscribed' ? 'var(--tt-green)' : playerType === 'wtp_priority' ? 'var(--tt-cyan)' : 'var(--tt-yellow)'
+              return (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-2 px-3 py-2"
+                  style={{
+                    borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 13,
+                  }}
                 >
-                  Add
-                </button>
-              </div>
-            ))}
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 11, width: 22 }}>
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <span className="flex-1 truncate" style={{ color: 'var(--color-text-muted)' }}>
+                    {p.name} {p.surname}
+                  </span>
+                  <span style={{ color: tagColor, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>
+                    {tagLabel}
+                  </span>
+                  <button
+                    onClick={() => adminTogglePlayer(p.id)}
+                    className="text-[10px] px-2 py-1 rounded font-semibold"
+                    style={{ color: 'var(--tt-green)', border: '1px solid var(--tt-green)', letterSpacing: '0.06em' }}
+                  >
+                    ADD
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

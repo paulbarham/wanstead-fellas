@@ -115,10 +115,12 @@ export default function HistoryPage() {
         </div>
       ) : (
         <div className="space-y-5">
-          {records.map(({ match, result, teams, fixtures }) => {
+          {records.map(({ match, result, teams, fixtures }, recordIdx) => {
             const isExpanded = expanded === match.id
             const isReportExpanded = expandedReports.has(match.id)
-            const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy')
+            const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy').toUpperCase()
+            const weekNum = records.length - recordIdx
+            const pageId = `P${400 + weekNum} · WK${weekNum}`
             const isTwoTeam = teams.length <= 2 && match.format !== 'tournament' && match.format !== '4-team'
             const mainFixture = isTwoTeam ? fixtures[0] : null
             const reportText = result?.report_text ?? null
@@ -127,7 +129,29 @@ export default function HistoryPage() {
 
             return (
               <div key={match.id}>
-                <p className="text-sm font-medium mb-1.5 px-2" style={{ color: 'var(--color-text)' }}>{dateLabel}</p>
+                <div className="mb-1.5 px-2 flex items-baseline gap-2">
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--tt-cyan)',
+                      fontSize: 11,
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {pageId}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--color-text)',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {dateLabel}
+                  </span>
+                </div>
                 <div className="rounded-2xl overflow-hidden"
                   style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                 <button

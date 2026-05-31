@@ -76,36 +76,54 @@ function EmptyState({ text }: { text: string }) {
 
 function RankedList({
   rows,
-  unit,
 }: {
   rows: { profile: ProfileLite | undefined; value: number; note?: string }[]
-  unit: string
+  unit?: string
 }) {
   let lastValue = Number.NaN
   let lastRank = 0
   return (
-    <div className="pt-3 space-y-1.5">
+    <div className="pt-2 rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
       {rows.map((r, i) => {
         const rank = r.value === lastValue ? lastRank : i + 1
         lastValue = r.value
         lastRank = rank
+        const isTop = rank === 1
         return (
-          <div key={r.profile?.id ?? i} className="flex items-center gap-3 py-1.5">
+          <div
+            key={r.profile?.id ?? i}
+            className="flex items-center gap-3 px-3 py-2"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 13,
+              borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
+              background: isTop ? 'var(--color-warning-bg)' : 'transparent',
+            }}
+          >
             <span
-              className="font-display text-sm w-6 text-center flex-shrink-0"
-              style={{ color: rank <= 3 ? 'var(--color-primary)' : '#9CA897' }}
+              style={{
+                color: isTop ? 'var(--tt-yellow)' : 'var(--color-text-muted)',
+                fontSize: 11,
+                fontWeight: isTop ? 700 : 400,
+                width: 22,
+              }}
             >
-              {rank}
+              {String(rank).padStart(2, '0')}
             </span>
-            {r.profile ? <PlayerAvatar profile={r.profile} size={32} /> : <div style={{ width: 32 }} />}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[var(--color-text)] truncate">
+              <p className="truncate" style={{ color: isTop ? 'var(--tt-yellow)' : 'var(--color-text)', fontWeight: isTop ? 700 : 400 }}>
                 {r.profile ? `${r.profile.name} ${r.profile.surname}` : 'Unknown player'}
               </p>
-              {r.note && <p className="text-[11px]" style={{ color: '#9CA897' }}>{r.note}</p>}
+              {r.note && <p style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>{r.note}</p>}
             </div>
-            <span className="font-display text-lg text-[var(--color-text)] flex-shrink-0">{r.value}</span>
-            <span className="text-[10px] uppercase flex-shrink-0" style={{ color: '#9CA897', letterSpacing: '0.5px' }}>{unit}</span>
+            <span
+              style={{
+                fontWeight: 700,
+                color: isTop ? 'var(--tt-yellow)' : 'var(--tt-cyan)',
+              }}
+            >
+              {r.value}
+            </span>
           </div>
         )
       })}

@@ -286,23 +286,23 @@ function ElevenVElevenView({ result, fixtures, scorersByFixture }: {
       {main && (
         <div className="rounded-2xl overflow-hidden"
           style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-          <div className="px-5 pt-5 pb-4">
+          <div className="px-5 pt-5 pb-4" style={{ fontFamily: 'var(--font-mono)' }}>
             <div className="flex items-center justify-between gap-3 mb-4">
-              <span className="font-semibold text-[var(--color-text)] text-sm flex-1 text-right leading-tight">{stripFC(main.team1?.name)}</span>
+              <span className="flex-1 text-right" style={{ fontSize: 14, color: 'var(--color-text)' }}>{stripFC(main.team1?.name)}</span>
               <div className="flex items-center gap-3">
-                <span className="font-display text-6xl text-[var(--color-text)] leading-none">{main.score1 ?? '–'}</span>
-                <span className="font-display text-2xl leading-none" style={{ color: 'var(--color-text-muted)' }}>–</span>
-                <span className="font-display text-6xl text-[var(--color-text)] leading-none">{main.score2 ?? '–'}</span>
+                <span style={{ color: 'var(--tt-yellow)', fontSize: 48, fontWeight: 700, lineHeight: 1 }}>{main.score1 ?? '–'}</span>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: 20 }}>–</span>
+                <span style={{ color: 'var(--tt-yellow)', fontSize: 48, fontWeight: 700, lineHeight: 1 }}>{main.score2 ?? '–'}</span>
               </div>
-              <span className="font-semibold text-[var(--color-text)] text-sm flex-1 leading-tight">{stripFC(main.team2?.name)}</span>
+              <span className="flex-1" style={{ fontSize: 14, color: 'var(--color-text)' }}>{stripFC(main.team2?.name)}</span>
             </div>
             {winner && (
-              <p className="text-center text-xs font-medium" style={{ color: 'var(--color-primary)' }}>
-                {winner} win
+              <p className="text-center" style={{ color: 'var(--tt-yellow)', fontSize: 11, letterSpacing: '0.1em' }}>
+                ▶ {winner?.toString().toUpperCase()} WIN
               </p>
             )}
             {!winner && main.score1 != null && (
-              <p className="text-center text-xs" style={{ color: 'var(--color-text-muted)' }}>Draw</p>
+              <p className="text-center" style={{ color: 'var(--color-text-muted)', fontSize: 11, letterSpacing: '0.1em' }}>▶ DRAW</p>
             )}
           </div>
 
@@ -352,38 +352,40 @@ function FourTeamView({ result, teams, fixtures, scorersByFixture }: {
         <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <SectionHeader label="Group Table" />
         </div>
-        <table className="w-full text-xs">
+        <table className="w-full" style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
           <thead>
-            <tr style={{ color: 'var(--color-text-muted)' }}>
-              <th className="py-2 text-center font-medium" style={{ width: 36, paddingLeft: 8, paddingRight: 4 }}>#</th>
-              <th className="py-2 text-left font-medium" style={{ paddingRight: 4 }}>Team</th>
-              <th className="px-2 py-2 font-medium">P</th>
-              <th className="px-2 py-2 font-medium">W</th>
-              <th className="px-2 py-2 font-medium">D</th>
-              <th className="px-2 py-2 font-medium">L</th>
-              <th className="px-2 py-2 font-medium">GD</th>
-              <th className="px-2 py-2 font-medium" style={{ color: 'var(--color-primary)' }}>Pts</th>
+            <tr style={{ color: 'var(--tt-cyan)' }}>
+              <th className="py-2 text-center font-semibold" style={{ width: 32, paddingLeft: 8, paddingRight: 4, letterSpacing: '0.06em' }}>#</th>
+              <th className="py-2 text-left font-semibold" style={{ paddingRight: 4, letterSpacing: '0.06em' }}>TEAM</th>
+              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>P</th>
+              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>W</th>
+              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>D</th>
+              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>L</th>
+              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>GD</th>
+              <th className="px-2 py-2 font-semibold" style={{ color: 'var(--tt-yellow)', letterSpacing: '0.06em' }}>PTS</th>
             </tr>
           </thead>
           <tbody>
             {table.map((row, i) => {
               const isLeader = i === 0 && row.pts > 0
+              const cellColor = isLeader ? 'var(--tt-yellow)' : 'var(--color-text)'
+              const mutedColor = isLeader ? 'var(--tt-yellow)' : 'var(--color-text-muted)'
               return (
                 <tr key={row.team.id} style={{ borderTop: '1px solid var(--color-border)' }}>
-                  <td className="py-2.5 text-center font-medium" style={{ width: 36, paddingLeft: 8, paddingRight: 4, color: isLeader ? 'var(--color-accent)' : 'var(--color-text-muted)' }}>
+                  <td className="py-2.5 text-center" style={{ width: 32, paddingLeft: 8, paddingRight: 4, color: mutedColor, fontWeight: isLeader ? 700 : 400 }}>
                     {i + 1}
                   </td>
-                  <td className="py-2.5 font-medium text-[var(--color-text)]" style={{ paddingRight: 4 }}>
+                  <td className="py-2.5" style={{ paddingRight: 4, color: cellColor, fontWeight: isLeader ? 700 : 400 }}>
                     {stripFC(row.team.name)}
-                    {isLeader && <span className="ml-1.5 text-xs" style={{ color: 'var(--color-primary)' }}>★</span>}
                   </td>
-                  <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.played}</td>
-                  <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.won}</td>
-                  <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.drawn}</td>
-                  <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.lost}</td>
-                  <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
-                  <td className="px-2 py-2.5 text-center font-bold"
-                    style={{ color: isLeader ? 'var(--color-accent)' : 'var(--color-text-muted)' }}>{row.pts}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.played}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.won}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.drawn}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.lost}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: isLeader ? 'var(--tt-yellow)' : 'var(--tt-cyan)', fontWeight: 700 }}>
+                    {row.pts}
+                  </td>
                 </tr>
               )
             })}
@@ -404,22 +406,22 @@ function FourTeamView({ result, teams, fixtures, scorersByFixture }: {
             return (
               <div key={f.id} className="px-4 py-3"
                 style={{ borderTop: i > 0 ? '1px solid var(--color-border)' : 'none' }}>
-                <div className="flex items-center gap-2">
-                  <span className="flex-1 text-xs text-right font-medium text-[var(--color-text)]">{stripFC(f.team1?.name)}</span>
-                  <div className="flex items-center gap-2 px-3">
-                    <span className="font-display text-2xl text-[var(--color-text)]">{f.score1 ?? '–'}</span>
-                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>–</span>
-                    <span className="font-display text-2xl text-[var(--color-text)]">{f.score2 ?? '–'}</span>
+                <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)' }}>
+                  <span className="flex-1 text-right" style={{ fontSize: 13, color: 'var(--color-text)' }}>{stripFC(f.team1?.name)}</span>
+                  <div className="flex items-center gap-2 px-2">
+                    <span style={{ color: 'var(--tt-yellow)', fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{f.score1 ?? '–'}</span>
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>–</span>
+                    <span style={{ color: 'var(--tt-yellow)', fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{f.score2 ?? '–'}</span>
                   </div>
-                  <span className="flex-1 text-xs font-medium text-[var(--color-text)]">{stripFC(f.team2?.name)}</span>
+                  <span className="flex-1" style={{ fontSize: 13, color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                 </div>
                 {fixtureScorers.length > 0 && (
-                  <div className="flex items-start gap-2 mt-1.5">
-                    <span className="flex-1 text-[11px] text-right leading-snug" style={{ color: 'var(--color-text-muted)' }}>
+                  <div className="flex items-start gap-2 mt-1.5" style={{ fontFamily: 'var(--font-mono)' }}>
+                    <span className="flex-1 text-right leading-snug" style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>
                       {team1Scorers.map(renderScorerLabel).join(', ') || '—'}
                     </span>
-                    <span className="px-3" style={{ width: 76 }} />
-                    <span className="flex-1 text-[11px] leading-snug" style={{ color: 'var(--color-text-muted)' }}>
+                    <span className="px-2" style={{ width: 68 }} />
+                    <span className="flex-1 leading-snug" style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>
                       {team2Scorers.map(renderScorerLabel).join(', ') || '—'}
                     </span>
                   </div>

@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { useTheme } from '../hooks/useTheme'
 import { supabase } from '../lib/supabase'
 import type { Profile, Team, TeamPlayer, Match } from '../types'
 import { getNextThursdayDate } from '../lib/time'
@@ -12,13 +11,10 @@ interface TeamWithPlayers extends Team {
   captain: Profile | null
 }
 
-const TEAM_COLORS = ['#1E3A5F', '#14532D', '#7C2D12', '#4C1D95']
-
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 export default function TeamsPage() {
   const { profile } = useAuth()
-  const { theme } = useTheme()
   const [match, setMatch] = useState<Match | null>(null)
   const [teams, setTeams] = useState<TeamWithPlayers[]>([])
   const [loading, setLoading] = useState(true)
@@ -91,125 +87,76 @@ export default function TeamsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {teams.map((team, idx) => {
-            const color = TEAM_COLORS[idx % TEAM_COLORS.length]
+          {teams.map((team) => {
             const isMyTeam = team.players.some(p => p.id === profile?.id)
+            const sortedPlayers = [...team.players].sort((a, b) =>
+              `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
+            )
             return (
               <div key={team.id}
-                style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${color}55` }}>
+                className="rounded-xl overflow-hidden"
+                style={{ border: '1px solid var(--color-border)' }}>
 
-                {/* Coloured header — full-width band, 16px padding all sides */}
+                {/* Header band */}
                 <div
-                  style={{
-                    background: color,
-                    padding: 16,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 12,
-                  }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h2 className="font-display"
-                      style={{
-                        fontSize: 24,
-                        lineHeight: 1.05,
-                        color: '#FFFFFF',
-                        letterSpacing: '0.02em',
-                        wordBreak: 'normal',
-                        overflowWrap: 'break-word',
-                      }}>
-                      {stripFC(team.name)}
-                    </h2>
-                    {team.captain && (
-                      <p style={{
-                        fontSize: 12,
-                        color: 'rgba(255,255,255,0.7)',
-                        marginTop: 4,
-                        lineHeight: 1.2,
-                      }}>
-                        © {team.captain.name} {team.captain.surname}
-                      </p>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                  className="flex items-center justify-between gap-3 px-4 py-3"
+                  style={{ background: 'var(--color-surface-2)', borderBottom: '1px solid var(--color-border)' }}
+                >
+                  <h2
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--tt-yellow)',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    © {team.captain ? `${team.captain.name} ${team.captain.surname}` : stripFC(team.name)}
+                  </h2>
+                  <div className="flex items-center gap-2">
                     {isMyTeam && (
                       <span style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        letterSpacing: '0.5px',
-                        padding: '4px 8px',
-                        borderRadius: 999,
-                        background: 'rgba(255,255,255,0.22)',
-                        color: '#FFFFFF',
+                        fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+                        padding: '2px 6px', borderRadius: 3, background: 'var(--tt-green)', color: '#fff',
                       }}>
                         YOU
                       </span>
                     )}
                     <span style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: '0.6px',
-                      padding: '4px 10px',
-                      borderRadius: 999,
-                      background: team.bibs ? '#F59E0B' : '#3B82F6',
-                      color: '#FFFFFF',
+                      fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+                      padding: '2px 6px', borderRadius: 3,
+                      background: team.bibs ? 'var(--tt-yellow)' : 'var(--color-text)',
+                      color: team.bibs ? '#000' : 'var(--color-surface)',
                     }}>
                       {team.bibs ? 'BIBS' : 'SKINS'}
                     </span>
                   </div>
                 </div>
 
-                {/* Player pills */}
-                <div className="flex flex-wrap gap-1.5"
-                  style={{ background: 'var(--color-team-card-body)', padding: 16 }}>
-
-                  {[...team.players].sort((a, b) =>
-                    `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
-                  ).map(p => {
+                {/* Mono roster */}
+                <div>
+                  {sortedPlayers.map((p, i) => {
                     const isCap = p.id === team.captain_id
-                    const isDark = theme === 'dark'
-                    // Dark: captain bg = white@20%, others = team@15%, text = white.
-                    // Light: captain bg = team@20%, others = team@10%, text = team colour.
-                    const pillBg = isDark
-                      ? (isCap ? 'rgba(255,255,255,0.20)' : `${color}26`)
-                      : (isCap ? `${color}33` : `${color}1A`)
-                    const pillText = isDark ? '#FFFFFF' : color
                     return (
                       <div
                         key={p.id}
-                        className="inline-flex items-center gap-1.5 rounded-lg"
+                        className="flex items-center gap-2 px-4 py-2"
                         style={{
-                          background: pillBg,
-                          color: pillText,
-                          border: `1px solid ${color}80`,
-                          padding: '6px 10px',
-                          fontSize: 12,
-                          fontWeight: isCap ? 600 : 500,
-                          maxWidth: '100%',
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: 13,
+                          borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
                         }}
                       >
+                        <span style={{ color: 'var(--color-text-muted)', fontSize: 11, width: 22 }}>
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <span className="flex-1 truncate" style={{ color: isCap ? 'var(--tt-yellow)' : 'var(--color-text)' }}>
+                          {p.name} {p.surname}
+                        </span>
                         {isCap && (
-                          <span
-                            aria-hidden
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: 14,
-                              height: 14,
-                              borderRadius: '50%',
-                              background: '#FFFFFF',
-                              color,
-                              fontSize: 9,
-                              fontWeight: 700,
-                              lineHeight: 1,
-                              flexShrink: 0,
-                            }}
-                          >
-                            ©
-                          </span>
+                          <span style={{ color: 'var(--tt-yellow)', fontSize: 12, fontWeight: 700 }}>©</span>
                         )}
-                        <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{p.surname}</span>
                       </div>
                     )
                   })}
