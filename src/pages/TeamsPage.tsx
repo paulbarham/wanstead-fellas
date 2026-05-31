@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import type { Profile, Team, TeamPlayer, Match } from '../types'
 import { getNextThursdayDate } from '../lib/time'
 import AdminTeamBuilder from '../components/AdminTeamBuilder'
+import CeefaxHeader from '../components/CeefaxHeader'
 
 interface TeamWithPlayers extends Team {
   players: Profile[]
@@ -76,8 +77,11 @@ export default function TeamsPage() {
 
   return (
     <div className="px-4 pt-4 pb-4">
-      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-primary)' }}>Teams</p>
-      <h1 className="font-display text-2xl text-[var(--color-text)] tracking-wide mb-4">THIS THURSDAY</h1>
+      <CeefaxHeader
+        pageId="P201 · TEAM SHEET"
+        title="TEAMS"
+        meta={teams.length > 0 ? `${teams.length} TEAMS · THIS THURSDAY` : 'AWAITING PUBLISH'}
+      />
 
       {teams.length === 0 ? (
         <div className="text-center py-16" style={{ color: '#444' }}>

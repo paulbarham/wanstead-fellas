@@ -5,6 +5,7 @@ import type { Match, Result, Team, Fixture } from '../types'
 import MatchReport from '../components/MatchReport'
 import SectionHeader from '../components/SectionHeader'
 import { hasReportContent, hasStructuredReport } from '../lib/report'
+import CeefaxHeader from '../components/CeefaxHeader'
 
 interface MatchRecord {
   match: Match
@@ -13,8 +14,6 @@ interface MatchRecord {
   fixtures: (Fixture & { team1?: Team; team2?: Team })[]
 }
 
-const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
-const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 function ScorersList({ scorers }: { scorers: string }) {
@@ -103,8 +102,11 @@ export default function HistoryPage() {
 
   return (
     <div className="px-5 py-5">
-      <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Archive</p>
-      <h1 className="font-display text-[var(--color-text)] tracking-wide mb-5" style={{ fontSize: '28px' }}>HISTORY</h1>
+      <CeefaxHeader
+        pageId="P401 · ARCHIVE"
+        title="HISTORY"
+        meta={records.length > 0 ? `${records.length} MATCH${records.length === 1 ? '' : 'ES'} ON RECORD` : undefined}
+      />
 
       {records.length === 0 ? (
         <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>

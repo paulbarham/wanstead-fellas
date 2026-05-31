@@ -13,23 +13,22 @@ function InstagramIcon() {
   )
 }
 
-const BASE_NAV_ITEMS = [
-  { to: '/', label: 'Tonight', icon: '⚽' },
-  { to: '/teams', label: 'Teams', icon: '👥' },
-  { to: '/match', label: 'Match', icon: '📊' },
-  { to: '/history', label: 'History', icon: '📅' },
-  { to: '/cards', label: 'Cards', icon: '🃏' },
-  { to: '/stats', label: 'Stats', icon: '📈' },
-  { to: '/pods', label: 'Pods', icon: '🎧' },
+// Bottom nav stays at five entries plus a "More" overflow so labels never
+// squeeze on narrow phones. Cards / Stats / Pods / Admin / Feedback all live
+// behind /more (admin gated where relevant inside MorePage).
+const NAV_ITEMS = [
+  { to: '/',         label: 'Tonight', icon: '⚽' },
+  { to: '/teams',    label: 'Teams',   icon: '👥' },
+  { to: '/match',    label: 'Match',   icon: '📊' },
+  { to: '/history',  label: 'History', icon: '📅' },
+  { to: '/more',     label: 'More',    icon: '⋯' },
 ]
-
-const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin', icon: '⚙️' }
 
 export default function Layout() {
   const { profile } = useAuth()
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
-  const navItems = profile?.is_admin ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS
+  const navItems = NAV_ITEMS
 
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--color-bg)' }}>

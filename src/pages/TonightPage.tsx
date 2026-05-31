@@ -10,6 +10,7 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import InstallBanner from '../components/InstallBanner'
 import WeatherCard from '../components/WeatherCard'
+import CeefaxHeader from '../components/CeefaxHeader'
 import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
 
 interface LastResultSummary {
@@ -236,28 +237,24 @@ export default function TonightPage() {
 
       <InstallBanner />
 
-      {/* Date + countdown */}
-      <div className="mb-3">
-        <p className="text-[10px] font-semibold uppercase mb-0.5" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
-          Next Match
-        </p>
-        <div className="flex items-start justify-between">
-          <h1 className="font-display text-[var(--color-text)] tracking-wide leading-tight" style={{ fontSize: '28px' }}>{dateLabel}</h1>
-          {phase === 'match_live' ? (
-            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: 'var(--color-error-text)' }}>⚽ LIVE NOW</span>
+      <CeefaxHeader
+        pageId="P101 · TEAMSHEET"
+        title="TONIGHT"
+        meta={`${format(new Date(nextThursday + 'T12:00:00'), 'EEE d MMM yy').toUpperCase()} · 9PM K.O.`}
+        trailing={
+          phase === 'match_live' ? (
+            <span className="text-xs font-semibold" style={{ color: 'var(--tt-red)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}>⚽ LIVE NOW</span>
           ) : phase === 'post_match' ? (
-            <span className="flex-shrink-0 ml-3 text-xs" style={{ color: 'var(--color-primary)' }}>Sign-ups open ✓</span>
+            <span className="text-xs" style={{ color: 'var(--tt-green)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>SIGN-UPS OPEN</span>
           ) : countdownLabel.tonight ? (
-            <span className="flex-shrink-0 ml-3 font-semibold text-sm" style={{ color: 'var(--color-primary)' }}>
-              {countdownLabel.text}
-            </span>
+            <span className="text-xs font-semibold" style={{ color: 'var(--tt-yellow)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>{countdownLabel.text}</span>
           ) : (
-            <span className="flex-shrink-0 ml-3 text-xs" style={{ color: '#9CA897' }}>
-              {countdownLabel.text}
-            </span>
-          )}
-        </div>
-      </div>
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>{countdownLabel.text}</span>
+          )
+        }
+      />
+      {/* dateLabel retained for accessibility / SR users */}
+      <span className="sr-only">{dateLabel}</span>
 
       <WeatherCard />
 
@@ -272,23 +269,53 @@ export default function TonightPage() {
       {/* Count + format bar */}
       <div className="flex items-center mb-3 px-4 py-3 rounded-2xl"
         style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        <div className="flex items-baseline gap-2 flex-1">
-          <span className="font-display text-5xl leading-none" style={{ color: 'var(--color-primary)' }}>{signedUpCount}</span>
-          <span className="text-xs" style={{ color: '#9CA897' }}>signed up</span>
-          {signedUpCount >= SIGNUP_CAP && (
-            <span className="text-xs font-semibold" style={{ color: 'var(--color-error-text)' }}>FULL</span>
-          )}
-        </div>
-        <div className="flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg"
-          style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm">⚽</span>
-            <span className="text-xs font-semibold text-[var(--color-text)]">{formatLabel}</span>
+        <div className="flex-1">
+          <div className="flex items-baseline gap-2">
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--tt-yellow)',
+                fontSize: '36px',
+                fontWeight: 700,
+                lineHeight: 1,
+              }}
+            >
+              {signedUpCount}
+            </span>
+            {signedUpCount >= SIGNUP_CAP && (
+              <span
+                className="text-xs font-semibold"
+                style={{ color: 'var(--tt-red)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}
+              >
+                FULL
+              </span>
+            )}
           </div>
-          {teamCountLabel && (
-            <span className="text-[10px]" style={{ color: '#9CA897' }}>{teamCountLabel}</span>
-          )}
+          <p
+            className="mt-1"
+            style={{ fontFamily: 'var(--font-mono)', color: 'var(--tt-green)', fontSize: 11, letterSpacing: '0.1em' }}
+          >
+            SIGNED UP
+          </p>
         </div>
+        {matchConfig && (
+          <div
+            className="px-3 py-1.5 rounded-lg"
+            style={{
+              border: '1px solid var(--tt-cyan)',
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
+            <p style={{ color: 'var(--tt-cyan)', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em' }}>
+              {formatLabel}
+            </p>
+            {teamCountLabel && (
+              <p style={{ color: 'var(--color-text-muted)', fontSize: 10, letterSpacing: '0.08em', marginTop: 1 }}>
+                {teamCountLabel.toUpperCase()}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {deferredPlayers.length > 0 && (
@@ -324,8 +351,16 @@ export default function TonightPage() {
       {/* My squad - linked children */}
       {linkedChildren.length > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
-            My Squad
+          <p
+            className="text-xs mb-2"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--tt-cyan)',
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+            }}
+          >
+            ▶ My Squad
           </p>
           <div className="space-y-2">
             {linkedChildren.map(child => {
@@ -371,12 +406,17 @@ export default function TonightPage() {
       {/* Who's In */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>Who's In</p>
-          {playingPlayers.length > 0 && (
-            <span className="text-xs" style={{ color: '#9CA897' }}>
-              {playingPlayers.length} {playingPlayers.length === 1 ? 'player' : 'players'}
-            </span>
-          )}
+          <p
+            className="text-xs"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--tt-cyan)',
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+            }}
+          >
+            ▶ Who's In{playingPlayers.length > 0 ? ` · ${playingPlayers.length}` : ''}
+          </p>
         </div>
         {loading ? (
           <div className="text-sm py-2" style={{ color: '#9CA897' }}>Loading…</div>
@@ -453,8 +493,16 @@ export default function TonightPage() {
       {/* Reserves */}
       {reservePlayers.length > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
-            Reserves ({reservePlayers.length})
+          <p
+            className="text-xs mb-2"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--tt-magenta)',
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+            }}
+          >
+            ▶ Reserves · {reservePlayers.length}
           </p>
           <div className="space-y-1.5">
             {reservePlayers.map((p, i) => (
@@ -563,8 +611,16 @@ export default function TonightPage() {
       {/* Admin: not signed up */}
       {profile?.is_admin && notSignedUp.length > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] font-semibold uppercase mb-2" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
-            Not In ({notSignedUp.length})
+          <p
+            className="text-xs mb-2"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--tt-green)',
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+            }}
+          >
+            ▶ Not In · {notSignedUp.length}
           </p>
           <div className="space-y-1.5">
             {notSignedUp.map(p => (

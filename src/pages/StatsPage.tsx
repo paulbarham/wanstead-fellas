@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import PlayerAvatar from '../components/PlayerAvatar'
+import CeefaxHeader from '../components/CeefaxHeader'
 import { FINE_TYPES } from '../types'
 import type { Profile, FineType } from '../types'
 
@@ -15,8 +16,6 @@ const CUR_MONTH = `${NOW.getFullYear()}-${String(NOW.getMonth() + 1).padStart(2,
 const inMode = (mode: Mode, date: string | null | undefined) =>
   mode === 'all' || (!!date && date.slice(0, 7) === CUR_MONTH)
 
-const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
-const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
 
 function PeriodToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
   return (
@@ -264,8 +263,7 @@ export default function StatsPage() {
 
   return (
     <div className="px-4 py-5">
-      <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Stats</p>
-      <h1 className="font-display text-[var(--color-text)] tracking-wide mb-5" style={{ fontSize: '28px' }}>STATS</h1>
+      <CeefaxHeader pageId="P501 · LEAGUE STATS" title="STATS" meta="SEASON 25/26" />
 
       {/* Top Scorers */}
       <Panel title="Top Scorers" icon="⚽" defaultOpen>

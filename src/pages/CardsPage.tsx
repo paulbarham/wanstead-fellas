@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import type { Profile, BadgeType } from '../types'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import PlayerCard from '../components/PlayerCard'
+import CeefaxHeader from '../components/CeefaxHeader'
 
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
@@ -122,10 +123,7 @@ export default function CardsPage() {
 
   return (
     <div className="px-4 pt-4 pb-6">
-      <p className="text-xs font-medium uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-primary)' }}>
-        Player Cards
-      </p>
-      <h1 className="font-display text-2xl text-[var(--color-text)] tracking-wide mb-4">TOP TRUMPS</h1>
+      <CeefaxHeader pageId="P601 · TOP TRUMPS" title="CARDS" meta={players.length > 0 ? `${players.length} PLAYERS` : 'LOADING…'} />
 
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
 

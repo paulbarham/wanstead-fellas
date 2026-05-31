@@ -1,13 +1,10 @@
 import { POD_ENTRIES } from '../lib/pods'
-
-const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
-const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
+import CeefaxHeader from '../components/CeefaxHeader'
 
 export default function PodsPage() {
   return (
     <div className="px-5 py-5">
-      <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Feed</p>
-      <h1 className="font-display text-[var(--color-text)] tracking-wide mb-5" style={{ fontSize: '28px' }}>PODS</h1>
+      <CeefaxHeader pageId="P701 · FEED" title="PODS" meta="FOOTBALL · POD & NEWS FEED" />
 
       <div className="space-y-3">
         {POD_ENTRIES.map(entry => (

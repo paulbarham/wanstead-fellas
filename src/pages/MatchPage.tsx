@@ -9,6 +9,7 @@ import MatchReport from '../components/MatchReport'
 import SectionHeader from '../components/SectionHeader'
 import { hasReportContent } from '../lib/report'
 import MotmVotingCard from '../components/MotmVotingCard'
+import CeefaxHeader from '../components/CeefaxHeader'
 
 interface FixtureWithTeams extends Fixture {
   team1: Team
@@ -26,8 +27,6 @@ interface GroupRow {
   pts: number
 }
 
-const LABEL_STYLE = { color: 'var(--color-text-muted)', letterSpacing: '0.8px' } as const
-const LABEL_CLASS = 'text-[10px] font-semibold uppercase'
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 interface FixtureScorer {
@@ -237,24 +236,20 @@ export default function MatchPage() {
 
   return (
     <div className="px-4 py-5">
-      <p className={LABEL_CLASS + ' mb-1'} style={LABEL_STYLE}>Match</p>
-      <div className="flex items-end justify-between mb-5">
-        <h1 className="font-display text-[var(--color-text)] tracking-wide" style={{ fontSize: '28px' }}>RESULTS</h1>
-        <div className="flex items-center gap-2 pb-0.5">
-          {matchDateLabel && (
-            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{matchDateLabel}</span>
-          )}
-          {profile?.is_admin && match && (
-            <button
-              onClick={() => setEditingResult(true)}
-              className="text-xs font-medium px-2 py-1 rounded-lg"
-              style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
-            >
-              ✎ Edit
-            </button>
-          )}
-        </div>
-      </div>
+      <CeefaxHeader
+        pageId="P303 · MATCH REPORT"
+        title="RESULTS"
+        meta={matchDateLabel ? matchDateLabel.toUpperCase() : undefined}
+        trailing={profile?.is_admin && match ? (
+          <button
+            onClick={() => setEditingResult(true)}
+            className="text-xs font-medium px-2 py-1 rounded-lg"
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+          >
+            ✎ Edit
+          </button>
+        ) : undefined}
+      />
 
       <MotmVotingCard />
 
