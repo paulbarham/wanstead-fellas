@@ -38,13 +38,13 @@
   --color-error-border: #FECACA;
   --color-team-card-body: #F8FAF8;
   /* Teletext / Ceefax accents — used for page IDs, leader rows, and
-     section labels across the redesign. Tuned to read on both
-     dark-pitch and light backgrounds. */
-  --tt-yellow: #C9A227;
-  --tt-cyan: #1d8db2;
-  --tt-magenta: #b03898;
-  --tt-green: #1a7d4a;
-  --tt-red: #c8341c;
+     section labels across the redesign. Light mode uses jewel-tone
+     equivalents that read as "printed teletext" on cream/white. */
+  --tt-yellow: #92400E;
+  --tt-cyan: #0E7490;
+  --tt-magenta: #9D174D;
+  --tt-green: #166534;
+  --tt-red: #B91C1C;
   --font-mono: 'SF Mono', ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
 }
 
