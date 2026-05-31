@@ -195,13 +195,6 @@ export default function WeatherCard() {
         border: `1px solid ${accentRain ? ACCENT_BLUE : CARD_BORDER}`,
       }}
     >
-      <p
-        className="text-[10px] font-semibold uppercase mb-2"
-        style={{ color: TEXT_DIM, letterSpacing: '0.8px' }}
-      >
-        {headerLabel}
-      </p>
-
       {loading || !data ? (
         <div className="flex items-center justify-between animate-pulse">
           <div className="flex items-center gap-3">

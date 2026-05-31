@@ -444,7 +444,7 @@ export default function TonightPage() {
                   <span className="flex-1 truncate" style={{ color: 'var(--color-text)' }}>
                     {p.name} {p.surname}
                     {isMe && (
-                      <span className="ml-1.5 text-[10px]" style={{ color: 'var(--tt-yellow)', letterSpacing: '0.06em' }}>YOU</span>
+                      <span style={{ color: 'var(--tt-yellow)', letterSpacing: '0.06em', fontSize: 10, marginLeft: 8 }}>· YOU</span>
                     )}
                   </span>
                   <span style={{ color: tagColor, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', minWidth: 32, textAlign: 'right' }}>
@@ -529,7 +529,7 @@ export default function TonightPage() {
                   <span className="flex-1 truncate" style={{ color: 'var(--color-text-muted)' }}>
                     {p.name} {p.surname}
                     {isMe && (
-                      <span className="ml-1.5 text-[10px]" style={{ color: 'var(--tt-magenta)', letterSpacing: '0.06em' }}>YOU</span>
+                      <span style={{ color: 'var(--tt-magenta)', letterSpacing: '0.06em', fontSize: 10, marginLeft: 8 }}>· YOU</span>
                     )}
                   </span>
                   <span style={{ color: 'var(--tt-magenta)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>RES</span>
