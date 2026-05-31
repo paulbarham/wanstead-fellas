@@ -77,7 +77,7 @@ export default function MyFinances({ profile }: Props) {
       </div>
 
       {/* This month's WTP games */}
-      {profile.player_type === 'wtp' && (
+      {(profile.player_type === 'wtp' || profile.player_type === 'wtp_priority') && (
         <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <div className="px-4 py-3" style={{ borderBottom: thisMonthGames.length > 0 ? '1px solid #FFFFFF' : 'none' }}>
             <div className="flex items-center justify-between">

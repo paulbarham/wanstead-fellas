@@ -299,7 +299,7 @@ export default function AdminFinancePanel() {
               className="w-full px-3 py-2.5 rounded-xl text-[var(--color-text)] text-sm outline-none"
               style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <option value="">Select player…</option>
-              {players.filter(p => p.player_type === 'wtp').map(p =>
+              {players.filter(p => p.player_type === 'wtp' || p.player_type === 'wtp_priority').map(p =>
                 <option key={p.id} value={p.id}>{p.name} {p.surname}</option>
               )}
             </select>

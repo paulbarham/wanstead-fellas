@@ -145,7 +145,10 @@ function buildTalkingPoints(teams: TeamDraft[]): string[] {
   const composed = [...flat].sort((a, b) => a.player.cp - b.player.cp)[0]
   if (composed) pool.push(`${fullName(composed.player)} stepping up to a penalty: pray.`)
 
-  const wtps = flat.filter(({ player }) => (player.player_type ?? 'wtp') === 'wtp')
+  const wtps = flat.filter(({ player }) => {
+    const t = player.player_type ?? 'wtp'
+    return t === 'wtp' || t === 'wtp_priority'
+  })
   if (wtps.length >= 3) {
     pool.push(`${wtps.length} casuals making the cut tonight — subs better be on it or there'll be questions in the AGM.`)
   }
@@ -385,7 +388,10 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
 
       // Auto-create WTP game entries for all WTP players in the published teams
       const allPlayers = draftTeams.flatMap(t => t.players)
-      const wtpPlayers = allPlayers.filter(p => (p.player_type ?? 'wtp') === 'wtp')
+      const wtpPlayers = allPlayers.filter(p => {
+        const t = p.player_type ?? 'wtp'
+        return t === 'wtp' || t === 'wtp_priority'
+      })
       if (wtpPlayers.length > 0) {
         const { error: wtpErr } = await supabase.from('wtp_games').upsert(
           wtpPlayers.map(p => ({ player_id: p.id, match_date: nextThursday, amount: 5.00 })),
