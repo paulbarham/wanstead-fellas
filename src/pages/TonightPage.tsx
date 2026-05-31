@@ -299,17 +299,14 @@ export default function TonightPage() {
         </div>
         {matchConfig && (
           <div
-            className="px-3 py-1.5 rounded-lg"
-            style={{
-              border: '1px solid var(--tt-cyan)',
-              fontFamily: 'var(--font-mono)',
-            }}
+            className="text-right"
+            style={{ fontFamily: 'var(--font-mono)' }}
           >
-            <p style={{ color: 'var(--tt-cyan)', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em' }}>
+            <p style={{ color: 'var(--tt-cyan)', fontSize: 18, fontWeight: 700, letterSpacing: '0.04em', lineHeight: 1 }}>
               {formatLabel}
             </p>
             {teamCountLabel && (
-              <p style={{ color: 'var(--color-text-muted)', fontSize: 10, letterSpacing: '0.08em', marginTop: 1 }}>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: 10, letterSpacing: '0.1em', marginTop: 4 }}>
                 {teamCountLabel.toUpperCase()}
               </p>
             )}
