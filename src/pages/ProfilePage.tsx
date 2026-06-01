@@ -93,6 +93,7 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState('')
   const [saveDone, setSaveDone] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [photoError, setPhotoError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Auth
@@ -174,26 +175,45 @@ export default function ProfilePage() {
     e.target.value = ''
     if (!file) return
     setUploading(true)
+    setPhotoError(null)
     try {
       const blob = await cropAndResizeImage(file)
-      const path = `avatars/${profile!.id}/profile.jpg`
-      const { error } = await supabase.storage
+      // Path is relative to the "avatars" bucket. Storage RLS uses the first
+      // folder segment as the owner id, so we drop the redundant "avatars/"
+      // prefix that historically nested everything one level too deep.
+      const path = `${profile!.id}/profile.jpg`
+      const { error: uploadErr } = await supabase.storage
         .from('avatars')
         .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
-      if (!error) {
-        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-        const photoUrl = `${data.publicUrl}?t=${Date.now()}`
-        await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', profile!.id)
-        await refreshProfile()
-      }
+      if (uploadErr) throw new Error(`Photo upload failed: ${uploadErr.message}`)
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      const photoUrl = `${data.publicUrl}?t=${Date.now()}`
+      const { error: profErr } = await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', profile!.id)
+      if (profErr) throw new Error(`Profile update failed: ${profErr.message}`)
+      await refreshProfile()
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('handlePhoto failed:', e)
+      setPhotoError(msg)
     } finally {
       setUploading(false)
     }
   }
 
   async function handleRemovePhoto() {
-    await supabase.storage.from('avatars').remove([`avatars/${profile!.id}/profile.jpg`])
-    await supabase.from('profiles').update({ photo_url: null }).eq('id', profile!.id)
+    setPhotoError(null)
+    const { error: rmErr } = await supabase.storage.from('avatars').remove([`${profile!.id}/profile.jpg`])
+    if (rmErr) {
+      console.error('handleRemovePhoto storage:', rmErr)
+      setPhotoError(`Couldn't remove photo: ${rmErr.message}`)
+      return
+    }
+    const { error: profErr } = await supabase.from('profiles').update({ photo_url: null }).eq('id', profile!.id)
+    if (profErr) {
+      console.error('handleRemovePhoto profile:', profErr)
+      setPhotoError(`Couldn't clear photo url: ${profErr.message}`)
+      return
+    }
     await refreshProfile()
   }
 
@@ -231,20 +251,25 @@ export default function ProfilePage() {
     e.target.value = ''
     if (!file || !selectedChild) return
     setChildUploading(true)
+    setPhotoError(null)
     try {
       const blob = await cropAndResizeImage(file)
-      const path = `avatars/${selectedChild.id}/profile.jpg`
-      const { error } = await supabase.storage
+      const path = `${selectedChild.id}/profile.jpg`
+      const { error: uploadErr } = await supabase.storage
         .from('avatars')
         .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
-      if (!error) {
-        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-        const photoUrl = `${data.publicUrl}?t=${Date.now()}`
-        await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', selectedChild.id)
-        const updated = { ...selectedChild, photo_url: photoUrl }
-        setSelectedChild(updated)
-        setLinkedChildren(prev => prev.map(c => c.id === selectedChild.id ? updated : c))
-      }
+      if (uploadErr) throw new Error(`Photo upload failed: ${uploadErr.message}`)
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      const photoUrl = `${data.publicUrl}?t=${Date.now()}`
+      const { error: profErr } = await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', selectedChild.id)
+      if (profErr) throw new Error(`Profile update failed: ${profErr.message}`)
+      const updated = { ...selectedChild, photo_url: photoUrl }
+      setSelectedChild(updated)
+      setLinkedChildren(prev => prev.map(c => c.id === selectedChild.id ? updated : c))
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('handleChildPhoto failed:', e)
+      setPhotoError(msg)
     } finally {
       setChildUploading(false)
     }
@@ -252,8 +277,19 @@ export default function ProfilePage() {
 
   async function handleChildRemovePhoto() {
     if (!selectedChild) return
-    await supabase.storage.from('avatars').remove([`avatars/${selectedChild.id}/profile.jpg`])
-    await supabase.from('profiles').update({ photo_url: null }).eq('id', selectedChild.id)
+    setPhotoError(null)
+    const { error: rmErr } = await supabase.storage.from('avatars').remove([`${selectedChild.id}/profile.jpg`])
+    if (rmErr) {
+      console.error('handleChildRemovePhoto storage:', rmErr)
+      setPhotoError(`Couldn't remove photo: ${rmErr.message}`)
+      return
+    }
+    const { error: profErr } = await supabase.from('profiles').update({ photo_url: null }).eq('id', selectedChild.id)
+    if (profErr) {
+      console.error('handleChildRemovePhoto profile:', profErr)
+      setPhotoError(`Couldn't clear photo url: ${profErr.message}`)
+      return
+    }
     const updated = { ...selectedChild, photo_url: null }
     setSelectedChild(updated)
     setLinkedChildren(prev => prev.map(c => c.id === selectedChild!.id ? updated : c))
@@ -327,7 +363,7 @@ export default function ProfilePage() {
 
       let photoUrl: string | null = null
       if (addPhotoBlob) {
-        const path = `avatars/${childId}/profile.jpg`
+        const path = `${childId}/profile.jpg`
         const { error: uploadError } = await supabase.storage
           .from('avatars')
           .upload(path, addPhotoBlob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
@@ -416,6 +452,9 @@ export default function ProfilePage() {
               </button>
             )}
           </div>
+          {photoError && (
+            <p className="text-xs mt-2" style={{ color: 'var(--color-error-text)' }}>{photoError}</p>
+          )}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
         </div>
 
@@ -633,6 +672,9 @@ export default function ProfilePage() {
                 </button>
               )}
             </div>
+            {photoError && (
+              <p className="text-xs mt-2" style={{ color: 'var(--color-error-text)' }}>{photoError}</p>
+            )}
             <input ref={childFileRef} type="file" accept="image/*" className="hidden" onChange={handleChildPhoto} />
 
             {/* Name */}

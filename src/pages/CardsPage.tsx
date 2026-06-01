@@ -32,6 +32,7 @@ export default function CardsPage() {
   const [editValues, setEditValues] = useState<Partial<Profile>>({})
   const [editAgeGroup, setEditAgeGroup] = useState('')
   const [uploadingFor, setUploadingFor] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [pwResetSent, setPwResetSent] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -95,25 +96,33 @@ export default function CardsPage() {
     if (!file || !playerId) return
     e.target.value = ''
     setUploadingFor(playerId)
+    setPhotoError(null)
     try {
       const blob = await cropAndResizeImage(file)
-      const path = `avatars/${playerId}/profile.jpg`
-      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
-      if (!error) {
-        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-        const photoUrl = `${data.publicUrl}?t=${Date.now()}`
-        await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', playerId)
-        if (playerId === myProfile?.id) await refreshProfile()
-        await loadPlayers()
-        const { data: updated } = await supabase.from('profiles').select('*').eq('id', playerId).single()
-        if (updated) setSelected(updated as Profile)
-      }
+      const path = `${playerId}/profile.jpg`
+      const { error: uploadErr } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
+      if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`)
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      const photoUrl = `${data.publicUrl}?t=${Date.now()}`
+      const { error: profErr } = await supabase.from('profiles').update({ photo_url: photoUrl }).eq('id', playerId)
+      if (profErr) throw new Error(`Profile update failed: ${profErr.message}`)
+      if (playerId === myProfile?.id) await refreshProfile()
+      await loadPlayers()
+      const { data: updated } = await supabase.from('profiles').select('*').eq('id', playerId).single()
+      if (updated) setSelected(updated as Profile)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('uploadPhoto failed:', e)
+      setPhotoError(msg)
     } finally { setUploadingFor(null) }
   }
 
   async function deletePhoto(playerId: string) {
-    await supabase.storage.from('avatars').remove([`avatars/${playerId}/profile.jpg`])
-    await supabase.from('profiles').update({ photo_url: null }).eq('id', playerId)
+    setPhotoError(null)
+    const { error: rmErr } = await supabase.storage.from('avatars').remove([`${playerId}/profile.jpg`])
+    if (rmErr) { console.error('deletePhoto storage:', rmErr); setPhotoError(`Couldn't remove photo: ${rmErr.message}`); return }
+    const { error: profErr } = await supabase.from('profiles').update({ photo_url: null }).eq('id', playerId)
+    if (profErr) { console.error('deletePhoto profile:', profErr); setPhotoError(`Couldn't clear photo url: ${profErr.message}`); return }
     if (playerId === myProfile?.id) await refreshProfile()
     await loadPlayers()
     setSelected(prev => prev?.id === playerId ? { ...prev, photo_url: null } : prev)
@@ -204,6 +213,9 @@ export default function CardsPage() {
                     </button>
                   )}
                 </div>
+              )}
+              {photoError && (
+                <p className="text-xs mt-2" style={{ color: 'var(--color-error-text)' }}>{photoError}</p>
               )}
 
               {/* Change password (own card only) */}
