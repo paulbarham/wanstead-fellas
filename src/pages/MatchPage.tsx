@@ -453,18 +453,22 @@ function buildTable(teams: Team[], fixtures: FixtureWithTeams[]): GroupRow[] {
   }
 
   for (const f of fixtures) {
-    if (f.score1 == null || f.score2 == null) continue
+    // Counts as played once at least one score is recorded; the other side's
+    // null means 0 (admin only tapped + on one stepper).
+    if (f.score1 == null && f.score2 == null) continue
+    const s1 = f.score1 ?? 0
+    const s2 = f.score2 ?? 0
     const t1 = rows[f.team1_id]
     const t2 = rows[f.team2_id]
     if (!t1 || !t2) continue
 
     t1.played++; t2.played++
-    t1.gf += f.score1; t1.ga += f.score2
-    t2.gf += f.score2; t2.ga += f.score1
+    t1.gf += s1; t1.ga += s2
+    t2.gf += s2; t2.ga += s1
 
-    if (f.score1 > f.score2) {
+    if (s1 > s2) {
       t1.won++; t1.pts += 3; t2.lost++
-    } else if (f.score1 < f.score2) {
+    } else if (s1 < s2) {
       t2.won++; t2.pts += 3; t1.lost++
     } else {
       t1.drawn++; t1.pts += 1

@@ -73,15 +73,19 @@ function buildTable(teams: Team[], fixtures: FixtureWithTeams[]): GroupRow[] {
     rows[t.id] = { team: t, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, pts: 0 }
   }
   for (const f of fixtures) {
-    if (f.score1 == null || f.score2 == null) continue
+    // A fixture counts as played as soon as one side has a score recorded —
+    // a null on the other side means 0 (admin tapped + on one stepper only).
+    if (f.score1 == null && f.score2 == null) continue
+    const s1 = f.score1 ?? 0
+    const s2 = f.score2 ?? 0
     const t1 = rows[f.team1_id]
     const t2 = rows[f.team2_id]
     if (!t1 || !t2) continue
     t1.played++; t2.played++
-    t1.gf += f.score1; t1.ga += f.score2
-    t2.gf += f.score2; t2.ga += f.score1
-    if (f.score1 > f.score2) { t1.won++; t1.pts += 3; t2.lost++ }
-    else if (f.score1 < f.score2) { t2.won++; t2.pts += 3; t1.lost++ }
+    t1.gf += s1; t1.ga += s2
+    t2.gf += s2; t2.ga += s1
+    if (s1 > s2) { t1.won++; t1.pts += 3; t2.lost++ }
+    else if (s1 < s2) { t2.won++; t2.pts += 3; t1.lost++ }
     else { t1.drawn++; t1.pts++; t2.drawn++; t2.pts++ }
   }
   return Object.values(rows).sort((a, b) => b.pts !== a.pts ? b.pts - a.pts : (b.gf - b.ga) - (a.gf - a.ga))
@@ -277,14 +281,24 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   async function updateFixtureScore(fixtureId: string, field: 'score1' | 'score2', value: string) {
     const num = value === '' ? null : parseInt(value)
     const prevFixture = fixtures.find(f => f.id === fixtureId)
-    setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, [field]: num } : f))
+    // If this side is gaining a real value while the other side is still
+    // null (admin tapped + on one stepper only), explicitly write 0 to the
+    // other side so the live table treats the fixture as played.
+    const otherField: 'score1' | 'score2' = field === 'score1' ? 'score2' : 'score1'
+    const shouldDefaultOther = num != null && prevFixture && prevFixture[otherField] == null
+    const update: Partial<{ score1: number | null; score2: number | null }> = { [field]: num }
+    if (shouldDefaultOther) update[otherField] = 0
+
+    setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, ...update } : f))
     setScoreError(null)
-    const { error } = await supabase.from('fixtures').update({ [field]: num }).eq('id', fixtureId)
+    const { error } = await supabase.from('fixtures').update(update).eq('id', fixtureId)
     if (error) {
       console.error('Score update failed:', error)
       setScoreError(`Score not saved: ${error.message}`)
       if (prevFixture) {
-        setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, [field]: prevFixture[field] } : f))
+        setFixtures(prev => prev.map(f => f.id === fixtureId
+          ? { ...f, [field]: prevFixture[field], ...(shouldDefaultOther ? { [otherField]: prevFixture[otherField] } : {}) }
+          : f))
       }
     }
   }
