@@ -38,8 +38,43 @@ const ATTR_LABELS: { key: keyof Profile; label: string }[] = [
 
 const TEAM_COLORS = ['#1E3A5F', '#14532D', '#7C2D12', '#4C1D95']
 
+// When a player's nine base attrs are all equal it means they're the auto-
+// default (the spreadsheet ratings have been entered into the six card_*
+// fields instead). For those players we derive the nine attrs from card_*
+// with overall_rating as the fallback for the four (stamina, aggression,
+// composure, work rate) that don't have a card equivalent. Players with
+// varied base attrs (already curated) are passed through unchanged so we
+// don't flatten anything like Lawrie's 10/10/8/10/10/7/7/10/7.
+function effectiveAttrs(p: Profile): Record<string, number> {
+  const baseAllSame =
+    p.sp === p.sk && p.sk === p.st && p.st === p.tk && p.tk === p.ps
+    && p.ps === p.ag && p.ag === p.phy && p.phy === p.cp && p.cp === p.wr
+  const hasCardStats = p.card_pace != null
+
+  if (baseAllSame && hasCardStats) {
+    const ovr = p.overall_rating
+    return {
+      sp:  p.card_pace        ?? ovr,
+      sk:  p.card_dribbling   ?? ovr,
+      st:  ovr,
+      tk:  p.card_defence     ?? ovr,
+      ps:  p.card_passing     ?? ovr,
+      ag:  ovr,
+      phy: p.card_physicality ?? ovr,
+      cp:  ovr,
+      wr:  ovr,
+    }
+  }
+
+  return {
+    sp: p.sp, sk: p.sk, st: p.st, tk: p.tk, ps: p.ps,
+    ag: p.ag, phy: p.phy, cp: p.cp, wr: p.wr,
+  }
+}
+
 function calcWeightedScore(player: Profile, weights: Record<string, number>): number {
-  return ATTR_LABELS.reduce((sum, { key }) => sum + (player[key] as number) * (weights[key] || 0), 0)
+  const attrs = effectiveAttrs(player)
+  return ATTR_LABELS.reduce((sum, { key }) => sum + (attrs[key as string] || 0) * (weights[key] || 0), 0)
 }
 
 function snakeDraft(players: Profile[], numTeams: number, weights: Record<string, number>): Profile[][] {
@@ -80,7 +115,7 @@ function predictTable(teams: TeamDraft[], weights: Record<string, number>) {
     const total = team.players.reduce((s, p) => s + calcWeightedScore(p, weights), 0)
     const attrAvgs: Record<string, number> = {}
     for (const { key } of ATTR_LABELS) {
-      const sum = team.players.reduce((acc, p) => acc + (p[key] as number), 0)
+      const sum = team.players.reduce((acc, p) => acc + (effectiveAttrs(p)[key as string] || 0), 0)
       attrAvgs[key as string] = sum / Math.max(1, team.players.length)
     }
     return { team, total, attrAvgs }
