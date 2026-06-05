@@ -66,7 +66,7 @@ function Tile({ label, value, caption }: { label: string; value: string; caption
   )
 }
 
-export default function MatchFitnessPanel({ profile }: { profile: Profile }) {
+export default function MatchFitnessPanel({ profile, refreshToken }: { profile: Profile; refreshToken?: number }) {
   const [session, setSession] = useState<FitnessSession | null>(null)
   const [loaded, setLoaded] = useState(false)
 
@@ -92,7 +92,7 @@ export default function MatchFitnessPanel({ profile }: { profile: Profile }) {
         setLoaded(true)
       })
     return () => { cancelled = true }
-  }, [profile.id, profile.fitness_source])
+  }, [profile.id, profile.fitness_source, refreshToken])
 
   // Render only when a session row exists. No row / error / still loading → nothing.
   if (!loaded || !session) return null

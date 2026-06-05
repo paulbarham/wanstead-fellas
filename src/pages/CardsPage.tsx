@@ -6,6 +6,7 @@ import { cropAndResizeImage } from '../lib/imageUtils'
 import PlayerCard from '../components/PlayerCard'
 import CeefaxHeader from '../components/CeefaxHeader'
 import MatchFitnessPanel from '../components/MatchFitnessPanel'
+import AddFitnessSession from '../components/AddFitnessSession'
 
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
@@ -45,6 +46,7 @@ export default function CardsPage() {
   const [loading, setLoading] = useState(true)
   const [pwResetSent, setPwResetSent] = useState(false)
   const [suggestion, setSuggestion] = useState<FitnessSuggestion | null>(null)
+  const [fitnessRefresh, setFitnessRefresh] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileInputPhotoId = useRef<string | null>(null)
 
@@ -178,7 +180,12 @@ export default function CardsPage() {
             <PlayerCard profile={editingId === selected.id ? { ...selected, ...editValues } as Profile : selected} />
 
             {/* Match Fitness — additive panel, self-gates on session existence */}
-            <MatchFitnessPanel profile={selected} />
+            <MatchFitnessPanel profile={selected} refreshToken={fitnessRefresh} />
+
+            {/* Self-serve / admin: add a match-fitness session (manual or file import) */}
+            {(selected.id === myProfile?.id || isAdmin) && (
+              <AddFitnessSession profile={selected} onSaved={() => setFitnessRefresh(n => n + 1)} />
+            )}
 
             {/* Actions beneath card */}
             <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
