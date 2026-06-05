@@ -77,7 +77,7 @@ function EmptyState({ text }: { text: string }) {
 function RankedList({
   rows,
 }: {
-  rows: { profile: ProfileLite | undefined; value: number; note?: string }[]
+  rows: { profile: ProfileLite | undefined; value: number; note?: string; display?: string }[]
   unit?: string
 }) {
   let lastValue = Number.NaN
@@ -122,7 +122,7 @@ function RankedList({
                 color: isTop ? 'var(--tt-yellow)' : 'var(--tt-cyan)',
               }}
             >
-              {r.value}
+              {r.display ?? r.value}
             </span>
           </div>
         )
@@ -158,6 +158,13 @@ interface AppRow {
   match_date: string | null
 }
 
+interface FitnessStatRow {
+  profile_id: string
+  distance_m: number | string | null
+  match_date: string | null
+  recorded_start: string | null
+}
+
 export default function StatsPage() {
   const [loading, setLoading] = useState(true)
   const [profiles, setProfiles] = useState<Record<string, ProfileLite>>({})
@@ -166,6 +173,7 @@ export default function StatsPage() {
   const [fines, setFines] = useState<FineRow[]>([])
   const [motm, setMotm] = useState<AwardRow[]>([])
   const [dotd, setDotd] = useState<AwardRow[]>([])
+  const [fitness, setFitness] = useState<FitnessStatRow[]>([])
 
   const [scorerMode, setScorerMode] = useState<Mode>('month')
   const [appsMode, setAppsMode] = useState<Mode>('month')
@@ -173,10 +181,11 @@ export default function StatsPage() {
   const [finesType, setFinesType] = useState<FineType | 'all'>('all')
   const [motmMode, setMotmMode] = useState<Mode>('month')
   const [dotdMode, setDotdMode] = useState<Mode>('month')
+  const [distMode, setDistMode] = useState<Mode>('all')
 
   useEffect(() => {
     async function load() {
-      const [ps, gl, fn, aw, ms, tm, tp] = await Promise.all([
+      const [ps, gl, fn, aw, ms, tm, tp, ft] = await Promise.all([
         supabase.from('profiles').select('id, name, surname, photo_url'),
         supabase.from('goals').select('player_id, goals_count, own_goal, match_id'),
         supabase.from('fines').select('player_id, type, amount, paid, match_date'),
@@ -184,6 +193,7 @@ export default function StatsPage() {
         supabase.from('matches').select('id, match_date'),
         supabase.from('teams').select('id, match_id'),
         supabase.from('team_players').select('team_id, player_id'),
+        supabase.from('fitness_sessions').select('profile_id, distance_m, match_date, recorded_start'),
       ])
       const matchDate: Record<string, string | null> = {}
       for (const m of (ms.data as { id: string; match_date: string | null }[]) || []) matchDate[m.id] = m.match_date
@@ -209,6 +219,8 @@ export default function StatsPage() {
       setApps(((tp.data as { team_id: string; player_id: string }[]) || [])
         .map(r => ({ player_id: r.player_id, match_id: teamMatch[r.team_id], match_date: matchDate[teamMatch[r.team_id]] ?? null }))
         .filter(r => r.match_id))
+
+      setFitness((ft.data as FitnessStatRow[]) || [])
 
       setLoading(false)
     }
@@ -278,6 +290,30 @@ export default function StatsPage() {
   }
   const motmRows = awardRows(motm, motmMode)
   const dotdRows = awardRows(dotd, dotdMode)
+
+  // Distance per game — average metres covered per tracked match, so a player
+  // with many logged sessions isn't unfairly ahead of an occasional tracker.
+  const distAgg: Record<string, { sum: number; games: number }> = {}
+  for (const r of fitness) {
+    const d = typeof r.distance_m === 'string' ? parseFloat(r.distance_m) : r.distance_m
+    if (d == null || !Number.isFinite(d) || d <= 0) continue
+    if (!inMode(distMode, r.match_date ?? r.recorded_start)) continue
+    const a = (distAgg[r.profile_id] ??= { sum: 0, games: 0 })
+    a.sum += d
+    a.games += 1
+  }
+  const distRows = Object.entries(distAgg)
+    .map(([pid, v]) => {
+      const avg = v.sum / v.games
+      return {
+        profile: profiles[pid],
+        value: Math.round(avg),
+        display: `${(avg / 1000).toFixed(2)} km`,
+        note: `${v.games} game${v.games === 1 ? '' : 's'} tracked`,
+      }
+    })
+    .filter(r => r.value > 0)
+    .sort((a, b) => b.value - a.value)
 
   return (
     <div className="px-4 py-5">
@@ -377,6 +413,18 @@ export default function StatsPage() {
           <EmptyState text="No appearance data yet — tracked from upcoming matches onward." />
         ) : (
           <RankedList rows={appsRows} unit="apps" />
+        )}
+      </Panel>
+
+      {/* Distance per game */}
+      <Panel title="Distance / Game" icon="🏃">
+        <div className="flex justify-end pt-3 -mb-1">
+          <PeriodToggle mode={distMode} setMode={setDistMode} />
+        </div>
+        {distRows.length === 0 ? (
+          <EmptyState text={distMode === 'month' ? 'No tracked sessions this month.' : 'No fitness sessions tracked yet — add match fitness from your player card.'} />
+        ) : (
+          <RankedList rows={distRows} unit="km" />
         )}
       </Panel>
     </div>
