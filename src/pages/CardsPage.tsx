@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import type { Profile, BadgeType } from '../types'
+import type { Profile, BadgeType, FitnessSuggestion } from '../types'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import PlayerCard from '../components/PlayerCard'
 import CeefaxHeader from '../components/CeefaxHeader'
+import MatchFitnessPanel from '../components/MatchFitnessPanel'
 
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
@@ -18,6 +19,14 @@ const BADGE_COLORS: Record<BadgeType, string> = {
 }
 
 const STAT_KEYS: (keyof Profile)[] = ['sp', 'sk', 'st', 'tk', 'ps', 'ag', 'phy', 'cp', 'wr', 'cunt', 'overall_rating']
+
+// Which base attrs get a fitness-derived suggestion, and the matching view column.
+const SUGGEST_KEY: Partial<Record<keyof Profile, 'sp_suggested' | 'st_suggested' | 'wr_suggested'>> = {
+  sp: 'sp_suggested', st: 'st_suggested', wr: 'wr_suggested',
+}
+const CONF_COLOR: Record<FitnessSuggestion['confidence'], string> = {
+  low: '#C9A227', medium: '#0f8566', high: '#14a06e',
+}
 const STAT_LABELS: Record<string, string> = {
   sp: 'Pace', sk: 'Skill', st: 'Stamina', tk: 'Tackling',
   ps: 'Passing', ag: 'Aggression', phy: 'Physicality', cp: 'Composure',
@@ -35,6 +44,7 @@ export default function CardsPage() {
   const [photoError, setPhotoError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [pwResetSent, setPwResetSent] = useState(false)
+  const [suggestion, setSuggestion] = useState<FitnessSuggestion | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileInputPhotoId = useRef<string | null>(null)
 
@@ -56,6 +66,14 @@ export default function CardsPage() {
     for (const k of STAT_KEYS) vals[k as string] = p[k] as number
     setEditValues(vals as Partial<Profile>)
     setEditAgeGroup(p.age_group ?? AGE_GROUP_DEFAULT)
+    // Pull any fitness-derived suggestions for this player (admin Edit Stats only).
+    setSuggestion(null)
+    supabase
+      .from('player_fitness_suggestions')
+      .select('*')
+      .eq('profile_id', p.id)
+      .maybeSingle()
+      .then(({ data }) => setSuggestion((data as FitnessSuggestion) ?? null))
   }
 
   async function saveEdit(id: string) {
@@ -159,6 +177,9 @@ export default function CardsPage() {
           >
             <PlayerCard profile={editingId === selected.id ? { ...selected, ...editValues } as Profile : selected} />
 
+            {/* Match Fitness — additive panel, self-gates on session existence */}
+            <MatchFitnessPanel profile={selected} />
+
             {/* Actions beneath card */}
             <div className="mt-2 p-4 rounded-2xl space-y-3" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
 
@@ -248,7 +269,22 @@ export default function CardsPage() {
                 <>
                   {editingId === selected.id ? (
                     <div className="space-y-2.5">
-                      {STAT_KEYS.map(key => (
+                      {suggestion && (
+                        <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                          <span style={{
+                            width: 7, height: 7, borderRadius: 999,
+                            background: CONF_COLOR[suggestion.confidence], display: 'inline-block', flexShrink: 0,
+                          }} />
+                          <span>
+                            ⚡ Fitness data · {suggestion.sessions_count} session{suggestion.sessions_count === 1 ? '' : 's'} · {suggestion.confidence} confidence ({suggestion.method})
+                          </span>
+                        </div>
+                      )}
+                      {STAT_KEYS.map(key => {
+                        const sKey = SUGGEST_KEY[key]
+                        const sVal = sKey && suggestion ? (suggestion[sKey] as number | null) : null
+                        const applied = sVal != null && (editValues[key] as number) === sVal
+                        return (
                         <div key={key as string} className="flex items-center gap-3">
                           <span className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>
                             {STAT_LABELS[key as string]}
@@ -263,8 +299,25 @@ export default function CardsPage() {
                           <span className="text-xs flex-shrink-0 text-right text-[var(--color-text)]" style={{ minWidth: 20 }}>
                             {(editValues[key] as number) ?? 5}
                           </span>
+                          {sVal != null && (
+                            <button
+                              type="button"
+                              onClick={() => setEditValues(v => ({ ...v, [key]: sVal }))}
+                              title={applied ? 'Suggestion applied' : `Apply fitness suggestion (${sVal})`}
+                              className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
+                              style={applied ? {
+                                background: 'transparent', color: 'var(--color-text-muted)',
+                                border: '1px solid var(--color-border)',
+                              } : {
+                                background: 'rgba(20,160,110,0.14)', color: '#0f8566',
+                                border: '1px solid rgba(20,160,110,0.35)',
+                              }}>
+                              {applied ? `✓ ${sVal}` : `⚡ ${sVal}`}
+                            </button>
+                          )}
                         </div>
-                      ))}
+                        )
+                      })}
                       <button onClick={() => saveEdit(selected.id)}
                         className="w-full py-2.5 rounded-xl text-sm font-semibold"
                         style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}>
