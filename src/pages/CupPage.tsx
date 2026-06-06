@@ -374,15 +374,15 @@ function MatchPredictCard({
   const koDate = new Date(match.kickoff)
   const dateStr = koDate.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).toUpperCase()
   return (
-    <div className="rounded-xl p-3 mb-2" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
-      <div className="flex items-center justify-between mb-2" style={{ fontSize: 10, letterSpacing: '0.1em' }}>
+    <div className="rounded-xl p-4 mb-3" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
+      <div className="flex items-center justify-between mb-3" style={{ fontSize: 10, letterSpacing: '0.1em' }}>
         <span style={{ color: TT_CYAN }}>{stagePageId(match.stage)} · {stageLabel(match.stage)}</span>
         <span style={{ color: locked ? TT_RED : 'var(--color-text-muted)' }}>{dateStr}</span>
       </div>
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-1" style={{ fontSize: 14, color: 'var(--color-text)' }}>
-        <span className="text-right truncate">{match.team1}</span>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-2" style={{ fontSize: 15, color: 'var(--color-text)', fontWeight: 600 }}>
+        <span className="text-right leading-tight">{match.team1}</span>
         <span style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>vs</span>
-        <span className="truncate">{match.team2}</span>
+        <span className="leading-tight">{match.team2}</span>
       </div>
       {locked
         ? <LockedState match={match} myPick={myPick} />
@@ -395,25 +395,28 @@ function MatchPredictCard({
 
 function GroupOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPrediction; onPick: (id: string, pick: string) => Promise<void> }) {
   return (
-    <div className="grid grid-cols-3 gap-1.5 mt-2">
+    <div className="grid grid-cols-3 gap-2 mt-3">
       {GROUP_OUTCOMES.map(o => {
         const selected = myPick?.pick === o
+        const label = o === 'team1' ? match.team1 : o === 'team2' ? match.team2 : 'DRAW'
         return (
           <button
             key={o}
             onClick={() => onPick(match.id, o)}
-            className="rounded-md py-2 px-1 text-center"
+            className="rounded-md py-3 px-2 text-center leading-tight"
             style={{
               border: selected ? '1px solid ' + TT_YELLOW : '1px solid var(--color-border)',
               background: selected ? 'rgba(201,162,39,0.10)' : 'transparent',
               color: selected ? TT_YELLOW : 'var(--color-text)',
               fontFamily: MONO,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
-              letterSpacing: '0.04em',
+              letterSpacing: '0.03em',
+              minHeight: 48,
+              wordBreak: 'break-word',
             }}
           >
-            {o === 'team1' ? match.team1 : o === 'team2' ? match.team2 : 'DRAW'}
+            {label}
           </button>
         )
       })}
@@ -424,14 +427,15 @@ function GroupOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: Cup
 function KOOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPrediction; onPick: (id: string, pick: string) => Promise<void> }) {
   const side1 = KO_OUTCOMES.filter(o => knockoutSide(o) === 1)
   const side2 = KO_OUTCOMES.filter(o => knockoutSide(o) === 2)
+  const shortMode = (m: '90' | 'et' | 'pen') => m === '90' ? "90'" : m === 'et' ? 'ET' : 'PENS'
   return (
-    <div className="space-y-2 mt-2">
+    <div className="space-y-2 mt-3">
       {[
         { team: match.team1, opts: side1 },
         { team: match.team2, opts: side2 },
       ].map(({ team, opts }) => (
         <div key={team} className="rounded-md overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-          <p className="px-3 py-1.5" style={{ background: 'var(--color-surface-2)', color: TT_CYAN, fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em' }}>
+          <p className="px-3 py-2" style={{ background: 'var(--color-surface-2)', color: TT_CYAN, fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em' }}>
             ▶ {team.toUpperCase()} WIN
           </p>
           <div className="grid grid-cols-3">
@@ -442,18 +446,19 @@ function KOOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPre
                 <button
                   key={o}
                   onClick={() => onPick(match.id, o)}
-                  className="py-2 px-1 text-center"
+                  className="py-3 px-1 text-center"
                   style={{
                     background: selected ? 'rgba(201,162,39,0.10)' : 'transparent',
                     color: selected ? TT_YELLOW : 'var(--color-text)',
                     borderLeft: i === 0 ? 'none' : '1px solid var(--color-border)',
                     fontFamily: MONO,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
                     letterSpacing: '0.04em',
+                    minHeight: 44,
                   }}
                 >
-                  {knockoutModeLabel(mode)}
+                  {shortMode(mode)}
                 </button>
               )
             })}
