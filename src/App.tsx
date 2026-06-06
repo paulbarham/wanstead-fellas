@@ -12,6 +12,8 @@ import FeedbackPage from './pages/FeedbackPage'
 import StatsPage from './pages/StatsPage'
 import PodsPage from './pages/PodsPage'
 import MorePage from './pages/MorePage'
+import CupPage from './pages/CupPage'
+import CupAdminPage from './pages/CupAdminPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
 
@@ -45,6 +47,8 @@ function ProtectedRoutes() {
         <Route path="stats" element={<StatsPage />} />
         <Route path="pods" element={<PodsPage />} />
         <Route path="more" element={<MorePage />} />
+        <Route path="cup" element={<CupPage />} />
+        <Route path="cup/admin" element={<CupAdminPage />} />
         <Route path="feedback" element={<FeedbackPage />} />
         <Route path="admin" element={<AdminPage />} />
         <Route path="profile" element={<ProfilePage />} />

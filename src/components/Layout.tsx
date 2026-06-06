@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
+import { isTournamentActive } from '../lib/cup'
 import PlayerAvatar from './PlayerAvatar'
 
 function InstagramIcon() {
@@ -16,19 +17,24 @@ function InstagramIcon() {
 // Bottom nav stays at five entries plus a "More" overflow so labels never
 // squeeze on narrow phones. Cards / Stats / Pods / Admin / Feedback all live
 // behind /more (admin gated where relevant inside MorePage).
-const NAV_ITEMS = [
+//
+// During an active World Cup the fifth slot swaps to Cup; More moves up to
+// a ⋯ icon in the top-right header so it's still one-tap from any screen.
+const BASE_NAV_ITEMS = [
   { to: '/',         label: 'Tonight', icon: '⚽' },
   { to: '/teams',    label: 'Teams',   icon: '👥' },
   { to: '/match',    label: 'Match',   icon: '📊' },
   { to: '/history',  label: 'History', icon: '📅' },
-  { to: '/more',     label: 'More',    icon: '⋯' },
 ]
+const MORE_NAV_ITEM = { to: '/more', label: 'More', icon: '⋯' }
+const CUP_NAV_ITEM  = { to: '/cup',  label: 'Cup',  icon: '🏆' }
 
 export default function Layout() {
   const { profile } = useAuth()
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
-  const navItems = NAV_ITEMS
+  const cupActive = isTournamentActive()
+  const navItems = [...BASE_NAV_ITEMS, cupActive ? CUP_NAV_ITEM : MORE_NAV_ITEM]
 
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--color-bg)' }}>
@@ -62,6 +68,23 @@ export default function Layout() {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0 pl-2">
+          {/* More overflow — only shown when Cup has taken the bottom-nav slot */}
+          {cupActive && (
+            <button
+              onClick={() => navigate('/more')}
+              className="flex items-center justify-center transition-opacity active:opacity-70"
+              style={{
+                width: 32, height: 32, borderRadius: '50%',
+                background: 'var(--color-surface-2, var(--color-bg))',
+                border: '1px solid var(--color-border)',
+                fontSize: 18, lineHeight: 1, color: 'var(--color-text-muted)',
+              }}
+              aria-label="More"
+            >
+              ⋯
+            </button>
+          )}
+
           {/* Theme toggle */}
           <button
             onClick={toggle}
