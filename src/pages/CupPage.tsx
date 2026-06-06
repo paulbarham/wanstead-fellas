@@ -196,12 +196,14 @@ function CupHub({
   onTab: (t: Tab) => void
 }) {
   const now = Date.now()
-  // Today's + upcoming: anything that hasn't been settled and kicks off
-  // in the next ~24h, capped at 6 matches so the hub doesn't sprawl.
+  // Unsettled fixtures from in-flight through the next 3 days, grouped by
+  // date so each day reads as a mini-schedule.
+  const horizon = now + 3 * 24 * 60 * 60_000
   const upcoming = matches.filter(m => {
     const ko = new Date(m.kickoff).getTime()
-    return m.actual_outcome == null && ko > now - 90 * 60_000
-  }).slice(0, 6)
+    return m.actual_outcome == null && ko > now - 90 * 60_000 && ko < horizon
+  })
+  const upcomingByDate = groupByDate(upcoming)
 
   const recent = matches.filter(m => m.actual_outcome != null).slice(-5).reverse()
 
@@ -232,13 +234,21 @@ function CupHub({
       )}
 
       <SectionLabel color={TT_CYAN}>▶ Upcoming Fixtures</SectionLabel>
+      <p className="text-[10px] mb-2 -mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>
+        PICKS LOCK 5 MIN BEFORE KICK-OFF
+      </p>
       {upcoming.length === 0 ? (
         <p className="text-xs mb-4" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
-          Nothing scheduled in the next 24h. Check back when the fixtures land.
+          Nothing scheduled in the next 3 days. Check back when the next round lands.
         </p>
       ) : (
-        upcoming.map(m => (
-          <MatchPredictCard key={m.id} match={m} myPick={myPicks[m.id]} onPick={onPick} />
+        upcomingByDate.map(day => (
+          <div key={day.key}>
+            <DateHeader label={day.label} />
+            {day.matches.map(m => (
+              <MatchPredictCard key={m.id} match={m} myPick={myPicks[m.id]} onPick={onPick} />
+            ))}
+          </div>
         ))
       )}
 
@@ -328,8 +338,13 @@ function CupMyPicks({
       {upcomingNoPick.length > 0 && (
         <>
           <SectionLabel color={TT_MAGENTA}>▶ Awaiting Your Pick</SectionLabel>
-          {upcomingNoPick.slice(0, 4).map(m => (
-            <MatchPredictCard key={m.id} match={m} myPick={undefined} onPick={onPick} />
+          {groupByDate(upcomingNoPick).map(day => (
+            <div key={day.key}>
+              <DateHeader label={day.label} />
+              {day.matches.map(m => (
+                <MatchPredictCard key={m.id} match={m} myPick={undefined} onPick={onPick} />
+              ))}
+            </div>
           ))}
         </>
       )}
@@ -352,6 +367,42 @@ function CupMyPicks({
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────
+// Group fixtures under date headers so the hub reads as a mini-schedule.
+function groupByDate(matches: CupMatch[]): { key: string; label: string; matches: CupMatch[] }[] {
+  const buckets = new Map<string, { label: string; matches: CupMatch[] }>()
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1)
+  for (const m of matches) {
+    const ko = new Date(m.kickoff)
+    const key = ko.toISOString().slice(0, 10)
+    let label = ko.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase()
+    const koDay = new Date(ko); koDay.setHours(0, 0, 0, 0)
+    if (koDay.getTime() === today.getTime()) label = `TODAY · ${label}`
+    else if (koDay.getTime() === tomorrow.getTime()) label = `TOMORROW · ${label}`
+    if (!buckets.has(key)) buckets.set(key, { label, matches: [] })
+    buckets.get(key)!.matches.push(m)
+  }
+  return Array.from(buckets.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, v]) => ({ key, ...v }))
+}
+
+function DateHeader({ label }: { label: string }) {
+  return (
+    <p
+      className="text-[10px] mt-3 mb-1.5 px-2 py-1 rounded inline-block"
+      style={{
+        fontFamily: MONO,
+        color: TT_CYAN,
+        background: 'var(--color-surface-2)',
+        letterSpacing: '0.14em',
+      }}
+    >
+      {label}
+    </p>
+  )
+}
+
 function SectionLabel({ color, children }: { color: string; children: React.ReactNode }) {
   return (
     <p
