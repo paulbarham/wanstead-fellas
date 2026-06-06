@@ -103,8 +103,8 @@ export default function CupPage() {
   return (
     <div className="px-4 pt-4 pb-6">
       <CeefaxHeader
-        pageId="P901 · WORLD CUP"
-        title="CUP"
+        pageId="P901 · PREDICTOR"
+        title="WORLD CUP"
         meta={headerMeta()}
         trailing={profile?.is_admin ? (
           <button
