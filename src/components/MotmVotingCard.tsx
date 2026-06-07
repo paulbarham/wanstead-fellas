@@ -33,6 +33,10 @@ export default function MotmVotingCard() {
   const [dotdStreak, setDotdStreak] = useState<ProfileLite | null>(null)
   const [breakdown, setBreakdown] = useState<BreakdownRow[] | null>(null)
   const [overrideFor, setOverrideFor] = useState<AwardType | null>(null)
+  // Per-award save error so failed votes can never silently disappear — see
+  // June 2026 incident where a vote chip flashed selected but the upsert
+  // failed and reverted with no feedback.
+  const [voteError, setVoteError] = useState<Record<AwardType, string | null>>({} as Record<AwardType, string | null>)
 
   const now = Date.now()
   const matchId = window?.match_id ?? null
@@ -143,12 +147,27 @@ export default function MotmVotingCard() {
     if (!profile || !matchId) return
     const prev = myVotes[award]
     setMyVotes(m => ({ ...m, [award]: nomineeId }))
+    setVoteError(e => ({ ...e, [award]: null }))
     const { error } = await supabase.from('votes').upsert(
       { match_id: matchId, award_type: award, voter_id: profile.id, nominee_id: nomineeId, updated_at: new Date().toISOString() },
       { onConflict: 'match_id,award_type,voter_id' },
     )
     if (error) {
       setMyVotes(m => ({ ...m, [award]: prev }))
+      setVoteError(e => ({ ...e, [award]: error.message || 'Save failed' }))
+      return
+    }
+    // Read it back so the chip only stays selected once Postgres has it.
+    const { data: confirmed, error: readErr } = await supabase
+      .from('votes')
+      .select('nominee_id')
+      .eq('match_id', matchId)
+      .eq('award_type', award)
+      .eq('voter_id', profile.id)
+      .maybeSingle()
+    if (readErr || !confirmed || (confirmed as { nominee_id: string }).nominee_id !== nomineeId) {
+      setMyVotes(m => ({ ...m, [award]: prev }))
+      setVoteError(e => ({ ...e, [award]: 'Vote didn\'t save — tap again to retry' }))
       return
     }
     loadParticipation(matchId)
@@ -203,9 +222,17 @@ export default function MotmVotingCard() {
           </div>
         ) : AWARDS.map(({ type, label, icon }) => (
           <div key={type} className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--color-primary)' }}>
-              {icon} {label}
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-primary)' }}>
+                {icon} {label}
+              </p>
+              {myVotes[type] && !voteError[type] && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: 'var(--color-success-bg, rgba(34,197,94,0.15))', color: 'var(--color-success-text, #15803d)', letterSpacing: '0.5px' }}>
+                  ✓ SAVED
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {eligible.map(p => {
                 const selected = myVotes[type] === p.id
@@ -226,6 +253,12 @@ export default function MotmVotingCard() {
                 )
               })}
             </div>
+            {voteError[type] && (
+              <p className="text-[11px] mt-2 px-2 py-1.5 rounded"
+                style={{ background: 'var(--color-error-bg, rgba(239,68,68,0.12))', color: 'var(--color-error-text, #dc2626)' }}>
+                ⚠ {voteError[type]}
+              </p>
+            )}
           </div>
         ))}
         <div className="px-4 py-3 text-[11px]" style={{ color: '#9CA897' }}>
