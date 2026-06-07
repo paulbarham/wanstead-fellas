@@ -234,6 +234,11 @@ export default function StatsPage() {
   const periodNote = (mode: Mode, noun: string) =>
     mode === 'month' ? `No ${noun} this month.` : `No ${noun} recorded yet.`
 
+  // Tiebreak when totals are equal — alphabetical by first then surname so
+  // a player order is stable across reloads.
+  const byNameAsc = (a: ProfileLite | undefined, b: ProfileLite | undefined) =>
+    `${a?.name ?? ''} ${a?.surname ?? ''}`.localeCompare(`${b?.name ?? ''} ${b?.surname ?? ''}`)
+
   // Top scorers — sum goals_count (own goals excluded) for the period.
   const scorerAgg: Record<string, number> = {}
   for (const g of goals) {
@@ -244,7 +249,7 @@ export default function StatsPage() {
   const scorerRows = Object.entries(scorerAgg)
     .map(([pid, v]) => ({ profile: profiles[pid], value: v }))
     .filter(r => r.value > 0)
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
 
   // Appearances — distinct matches a player was rostered for in the period.
   const appAgg: Record<string, Set<string>> = {}
@@ -255,7 +260,7 @@ export default function StatsPage() {
   const appsRows = Object.entries(appAgg)
     .map(([pid, set]) => ({ profile: profiles[pid], value: set.size }))
     .filter(r => r.value > 0)
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
 
   // Fines
   const fineAgg: Record<string, { paid: number; unpaid: number }> = {}
@@ -269,7 +274,7 @@ export default function StatsPage() {
   const fineRows = Object.entries(fineAgg)
     .map(([pid, v]) => ({ profile: profiles[pid], ...v, total: v.paid + v.unpaid }))
     .filter(r => r.total > 0)
-    .sort((a, b) => b.total - a.total)
+    .sort((a, b) => b.total - a.total || byNameAsc(a.profile, b.profile))
 
   // Awards
   function awardRows(rows: AwardRow[], mode: Mode) {
@@ -286,7 +291,7 @@ export default function StatsPage() {
         value: v.count,
         note: v.override ? 'incl. admin call' : undefined,
       }))
-      .sort((a, b) => b.value - a.value)
+      .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
   }
   const motmRows = awardRows(motm, motmMode)
   const dotdRows = awardRows(dotd, dotdMode)
@@ -313,7 +318,7 @@ export default function StatsPage() {
       }
     })
     .filter(r => r.value > 0)
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
 
   return (
     <div className="px-4 py-5">
