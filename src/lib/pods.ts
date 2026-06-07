@@ -1,6 +1,6 @@
-// Curated list of football pods + news. Add new entries here — the Pods tab
-// renders them in array order. Keep links to the official destinations; the
-// app deep-links out via the user's installed podcast app where possible.
+// Curated list of football pods + news. Add new entries here — keep them in
+// alphabetical order by title (ignoring a leading "The"). Pods deep-link out
+// via the user's installed podcast app where possible.
 
 export interface PodLink {
   label: string
@@ -18,6 +18,54 @@ export interface PodEntry {
 }
 
 export const POD_ENTRIES: PodEntry[] = [
+  {
+    id: 'athletic-fc',
+    title: 'The Athletic FC Podcast',
+    host: 'Ayo Akinwolere with David Ornstein, Phil Hay & Adam Crafton',
+    blurb: 'The Athletic\'s flagship football pod — newsbreaking journalism, transfer scoops and tactical deep dives from the best-staffed newsroom in the game.',
+    icon: '🎙️',
+    accent: '#E11A2B',
+    links: [
+      { label: 'Spotify', url: 'https://open.spotify.com/show/69AAB4ojTuK7gwy3ZdQdB9' },
+      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/the-athletic-fc-podcast/id1488521447' },
+    ],
+  },
+  {
+    id: 'dressing-room',
+    title: 'The Dressing Room',
+    host: 'Joe Cole, Carlton Cole & Wayne Bridge',
+    blurb: 'Three ex-Chelsea & England lads on the biggest stories of the week, plus dressing-room stories from their playing days.',
+    icon: '🎙️',
+    accent: '#0057B8',
+    links: [
+      { label: 'Spotify', url: 'https://open.spotify.com/show/5SA1rkxiVWmrv8T9DQDyNv' },
+      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/the-dressing-room/id1792177284' },
+    ],
+  },
+  {
+    id: 'football-ramble',
+    title: 'Football Ramble',
+    host: 'Marcus Speller, Luke Moore, Pete Donaldson & Andy Brassell',
+    blurb: 'A podcasting institution since 2007. Funny, opinionated and proudly independent — the best in the game on the global football week.',
+    icon: '🎙️',
+    accent: '#FF6B35',
+    links: [
+      { label: 'Spotify', url: 'https://open.spotify.com/show/5vK22FRxc1VghAYzyemMZP' },
+      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/football-ramble/id254078311' },
+    ],
+  },
+  {
+    id: 'football-weekly',
+    title: 'Football Weekly',
+    host: 'Max Rushden, Barry Glendenning & guests',
+    blurb: 'The Guardian\'s long-running pod. Sharp Premier League analysis on Mondays and Thursdays, plus deep dives into the European leagues.',
+    icon: '🎙️',
+    accent: '#052962',
+    links: [
+      { label: 'Spotify', url: 'https://open.spotify.com/show/6w8qWe0kjgHEHSWDSDGoLW' },
+      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/football-weekly/id188674007' },
+    ],
+  },
   {
     id: 'rest-is-football',
     title: 'The Rest Is Football',
@@ -43,18 +91,6 @@ export const POD_ENTRIES: PodEntry[] = [
     ],
   },
   {
-    id: 'athletic-fc',
-    title: 'The Athletic FC Podcast',
-    host: 'Ayo Akinwolere with David Ornstein, Phil Hay & Adam Crafton',
-    blurb: 'The Athletic\'s flagship football pod — newsbreaking journalism, transfer scoops and tactical deep dives from the best-staffed newsroom in the game.',
-    icon: '🎙️',
-    accent: '#E11A2B',
-    links: [
-      { label: 'Spotify', url: 'https://open.spotify.com/show/69AAB4ojTuK7gwy3ZdQdB9' },
-      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/the-athletic-fc-podcast/id1488521447' },
-    ],
-  },
-  {
     id: 'peter-crouch',
     title: 'That Peter Crouch Podcast',
     host: 'Peter Crouch, Chris Stark & Steve Sidwell',
@@ -64,18 +100,6 @@ export const POD_ENTRIES: PodEntry[] = [
     links: [
       { label: 'Spotify', url: 'https://open.spotify.com/show/2NqEBd6EJNfs6A3527xwVD' },
       { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/that-peter-crouch-podcast/id1616744464' },
-    ],
-  },
-  {
-    id: 'vibe-with-five',
-    title: 'Vibe with Five',
-    host: 'Rio Ferdinand, Joel Beya & Stephen Howson',
-    blurb: 'Rio\'s solo show — weekly Premier League round-ups with big-name guests and unfiltered ex-pro takes.',
-    icon: '🎙️',
-    accent: '#1A1A1A',
-    links: [
-      { label: 'Spotify', url: 'https://open.spotify.com/show/7isN810N4MvkW72sZQ8ZMP' },
-      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/vibe-with-five/id1638148943' },
     ],
   },
   {
@@ -91,39 +115,15 @@ export const POD_ENTRIES: PodEntry[] = [
     ],
   },
   {
-    id: 'football-weekly',
-    title: 'Football Weekly',
-    host: 'Max Rushden, Barry Glendenning & guests',
-    blurb: 'The Guardian\'s long-running pod. Sharp Premier League analysis on Mondays and Thursdays, plus deep dives into the European leagues.',
+    id: 'vibe-with-five',
+    title: 'Vibe with Five',
+    host: 'Rio Ferdinand, Joel Beya & Stephen Howson',
+    blurb: 'Rio\'s solo show — weekly Premier League round-ups with big-name guests and unfiltered ex-pro takes.',
     icon: '🎙️',
-    accent: '#052962',
+    accent: '#1A1A1A',
     links: [
-      { label: 'Spotify', url: 'https://open.spotify.com/show/6w8qWe0kjgHEHSWDSDGoLW' },
-      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/football-weekly/id188674007' },
-    ],
-  },
-  {
-    id: 'football-ramble',
-    title: 'Football Ramble',
-    host: 'Marcus Speller, Luke Moore, Pete Donaldson & Andy Brassell',
-    blurb: 'A podcasting institution since 2007. Funny, opinionated and proudly independent — the best in the game on the global football week.',
-    icon: '🎙️',
-    accent: '#FF6B35',
-    links: [
-      { label: 'Spotify', url: 'https://open.spotify.com/show/5vK22FRxc1VghAYzyemMZP' },
-      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/football-ramble/id254078311' },
-    ],
-  },
-  {
-    id: 'dressing-room',
-    title: 'The Dressing Room',
-    host: 'Joe Cole, Carlton Cole & Wayne Bridge',
-    blurb: 'Three ex-Chelsea & England lads on the biggest stories of the week, plus dressing-room stories from their playing days.',
-    icon: '🎙️',
-    accent: '#0057B8',
-    links: [
-      { label: 'Spotify', url: 'https://open.spotify.com/show/5SA1rkxiVWmrv8T9DQDyNv' },
-      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/the-dressing-room/id1792177284' },
+      { label: 'Spotify', url: 'https://open.spotify.com/show/7isN810N4MvkW72sZQ8ZMP' },
+      { label: 'Apple Podcasts', url: 'https://podcasts.apple.com/gb/podcast/vibe-with-five/id1638148943' },
     ],
   },
 ]
