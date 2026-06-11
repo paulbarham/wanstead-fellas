@@ -33,6 +33,10 @@ export default function MotmVotingCard() {
   const [dotdStreak, setDotdStreak] = useState<ProfileLite | null>(null)
   const [breakdown, setBreakdown] = useState<BreakdownRow[] | null>(null)
   const [overrideFor, setOverrideFor] = useState<AwardType | null>(null)
+  // Collapsed by default so the ballot doesn't bury the match result. Auto-
+  // expands once on load if there's still something to vote on, then respects
+  // manual toggles.
+  const [expanded, setExpanded] = useState(false)
 
   const now = Date.now()
   const matchId = window?.match_id ?? null
@@ -100,6 +104,10 @@ export default function MotmVotingCard() {
           mine[v.award_type] = v.nominee_id
         }
         setMyVotes(mine)
+        // Auto-expand once if there's something still to vote on, so first-
+        // time voters aren't stuck behind a tap.
+        const incomplete = AWARDS.some(a => !mine[a.type])
+        if (incomplete) setExpanded(true)
         await loadParticipation(w.match_id)
       } else {
         await loadResults(w.match_id, w.results_published)
@@ -178,59 +186,92 @@ export default function MotmVotingCard() {
 
   // ── Open: ballot ──────────────────────────────────────────────────────────
   if (isOpen) {
-    const hasVoted = Object.keys(myVotes).length > 0
+    const votedCount = AWARDS.filter(a => myVotes[a.type]).length
+    const votedAll = votedCount === AWARDS.length
+    const closesLabel = new Date(window.closes_at).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })
     return (
       <div className="rounded-2xl overflow-hidden mb-4"
         style={{ background: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
-        <div className="px-4 py-3 flex items-center justify-between"
-          style={{ background: 'var(--color-primary)' }}>
-          <span className="font-display tracking-wide text-white" style={{ fontSize: 18 }}>CAST YOUR VOTES</span>
-          {hasVoted && (
-            <span className="text-[10px] font-bold px-2 py-1 rounded-full"
-              style={{ background: '#FFFFFF', color: 'var(--color-primary)', letterSpacing: '0.5px' }}>
-              ✓ VOTED
+        <button
+          type="button"
+          onClick={() => setExpanded(e => !e)}
+          className="w-full text-left"
+          aria-expanded={expanded}
+        >
+          <div className="px-4 py-3 flex items-center justify-between"
+            style={{ background: 'var(--color-primary)' }}>
+            <span className="font-display tracking-wide text-white" style={{ fontSize: 18 }}>
+              {votedAll ? 'YOUR VOTES' : 'CAST YOUR VOTES'}
             </span>
-          )}
-        </div>
-
-        <div className="px-4 py-3 text-xs" style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border)' }}>
-          {participation.voted} of {participation.eligible} players have voted · closes {new Date(window.closes_at).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })}
-        </div>
-
-        {eligible.length === 0 ? (
-          <div className="px-4 py-6 text-center text-sm" style={{ color: '#9CA897' }}>
-            No roster found for this match.
+            <span className="flex items-center gap-2">
+              {votedAll && (
+                <span className="text-[10px] font-bold px-2 py-1 rounded-full"
+                  style={{ background: '#FFFFFF', color: 'var(--color-primary)', letterSpacing: '0.5px' }}>
+                  ✓ VOTED
+                </span>
+              )}
+              {!votedAll && votedCount > 0 && (
+                <span className="text-[10px] font-bold px-2 py-1 rounded-full"
+                  style={{ background: '#FFFFFF', color: 'var(--color-primary)', letterSpacing: '0.5px' }}>
+                  {votedCount}/{AWARDS.length}
+                </span>
+              )}
+              <span className="text-white text-base leading-none" aria-hidden>
+                {expanded ? '▴' : '▾'}
+              </span>
+            </span>
           </div>
-        ) : AWARDS.map(({ type, label, icon }) => (
-          <div key={type} className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--color-primary)' }}>
-              {icon} {label}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {eligible.map(p => {
-                const selected = myVotes[type] === p.id
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => castVote(type, p.id)}
-                    className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full text-xs font-medium transition-colors"
-                    style={{
-                      background: selected ? 'var(--color-primary)' : 'var(--color-surface)',
-                      color: selected ? '#FFFFFF' : 'var(--color-text)',
-                      border: `1px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                    }}
-                  >
-                    <PlayerAvatar profile={p} size={22} />
-                    {p.name} {p.surname}
-                  </button>
-                )
-              })}
+          <div className="px-4 py-2 text-xs flex items-center justify-between"
+            style={{ color: 'var(--color-text-muted)', borderBottom: expanded ? '1px solid var(--color-border)' : 'none' }}>
+            <span>{participation.voted}/{participation.eligible} voted · closes {closesLabel}</span>
+            {!expanded && (
+              <span className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-primary)', letterSpacing: '0.6px' }}>
+                {votedAll ? 'Tap to change' : 'Tap to vote'}
+              </span>
+            )}
+          </div>
+        </button>
+
+        {expanded && (
+          eligible.length === 0 ? (
+            <div className="px-4 py-6 text-center text-sm" style={{ color: '#9CA897' }}>
+              No roster found for this match.
             </div>
-          </div>
-        ))}
-        <div className="px-4 py-3 text-[11px]" style={{ color: '#9CA897' }}>
-          You can change your picks any time until voting closes.
-        </div>
+          ) : (
+            <>
+              {AWARDS.map(({ type, label, icon }) => (
+                <div key={type} className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                  <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--color-primary)' }}>
+                    {icon} {label}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {eligible.map(p => {
+                      const selected = myVotes[type] === p.id
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => castVote(type, p.id)}
+                          className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+                          style={{
+                            background: selected ? 'var(--color-primary)' : 'var(--color-surface)',
+                            color: selected ? '#FFFFFF' : 'var(--color-text)',
+                            border: `1px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          }}
+                        >
+                          <PlayerAvatar profile={p} size={22} />
+                          {p.name} {p.surname}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className="px-4 py-3 text-[11px]" style={{ color: '#9CA897' }}>
+                You can change your picks any time until voting closes.
+              </div>
+            </>
+          )
+        )}
       </div>
     )
   }

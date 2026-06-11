@@ -188,9 +188,6 @@ export default function MatchPage() {
   if (profile?.is_admin && canEnterResult) {
     return (
       <>
-        <div className="px-4 pt-4">
-          <MotmVotingCard />
-        </div>
         <AdminMatchEntry
           match={weekMatch}
           nextThursday={nextThursday}
@@ -199,6 +196,9 @@ export default function MatchPage() {
           result={weekResult}
           onSaved={fetchMatch}
         />
+        <div className="px-4 pb-4">
+          <MotmVotingCard />
+        </div>
       </>
     )
   }
@@ -251,8 +251,6 @@ export default function MatchPage() {
         ) : undefined}
       />
 
-      <MotmVotingCard />
-
       {!match ? (
         <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
           <p className="text-4xl mb-3">📊</p>
@@ -264,6 +262,10 @@ export default function MatchPage() {
       ) : (
         <ElevenVElevenView result={result} teams={teams} fixtures={fixtures} scorersByFixture={scorersByFixture} />
       )}
+
+      <div className="mt-4">
+        <MotmVotingCard />
+      </div>
     </div>
   )
 }
