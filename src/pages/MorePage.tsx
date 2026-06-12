@@ -15,7 +15,7 @@ const ITEMS: MoreItem[] = [
   { pageId: 'P501', to: '/stats',    label: 'Stats',    icon: '📈', blurb: 'Top scorers, MOTM, DOTD, appearances.' },
   { pageId: 'P601', to: '/cards',    label: 'Cards',    icon: '🃏', blurb: 'Player cards · stats · ratings.' },
   { pageId: 'P701', to: '/pods',     label: 'Pods',     icon: '🎧', blurb: 'Football podcasts &amp; news feed.' },
-  { pageId: 'P901', to: '/cup',      label: 'Cup',      icon: '🏆', blurb: 'World Cup predictor &amp; leaderboard.' },
+  { pageId: 'P901', to: '/cup',      label: 'World Cup', icon: '🏆', blurb: 'Predictor &amp; leaderboard.' },
   { pageId: 'P802', to: '/feedback', label: 'Feedback', icon: '✉️', blurb: 'Suggestions, bugs, requests.' },
   { pageId: 'P888', to: '/admin',    label: 'Admin',    icon: '⚙️', blurb: 'Player management, finance, fines.', adminOnly: true },
 ]

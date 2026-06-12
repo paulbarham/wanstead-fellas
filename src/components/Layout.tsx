@@ -27,7 +27,7 @@ const BASE_NAV_ITEMS = [
   { to: '/history',  label: 'History', icon: '📅' },
 ]
 const MORE_NAV_ITEM = { to: '/more', label: 'More', icon: '⋯' }
-const CUP_NAV_ITEM  = { to: '/cup',  label: 'Cup',  icon: '🏆' }
+const CUP_NAV_ITEM  = { to: '/cup',  label: 'World Cup',  icon: '🏆' }
 
 export default function Layout() {
   const { profile } = useAuth()

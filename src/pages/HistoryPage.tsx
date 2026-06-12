@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
-import type { Match, Result, Team, Fixture } from '../types'
+import type { Match, Result, Team, Fixture, AwardResult, AwardType } from '../types'
 import MatchReport from '../components/MatchReport'
 import SectionHeader from '../components/SectionHeader'
 import { hasReportContent, hasStructuredReport } from '../lib/report'
@@ -12,9 +12,50 @@ interface MatchRecord {
   result: Result | null
   teams: Team[]
   fixtures: (Fixture & { team1?: Team; team2?: Team })[]
+  awards: AwardResult[]
 }
 
 const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
+
+const AWARD_META: Record<AwardType, { label: string; icon: string }> = {
+  motm: { label: 'Man of the Match', icon: '🏆' },
+  dotd: { label: 'Dick of the Day', icon: '🤡' },
+}
+
+function MatchAwards({ awards, names }: { awards: AwardResult[]; names: Record<string, string> }) {
+  const types: AwardType[] = ['motm', 'dotd']
+  return (
+    <div className="space-y-3">
+      {types.map(type => {
+        const rows = awards.filter(a => a.award_type === type)
+        if (rows.length === 0) return null
+        const shared = rows.length > 1 || rows.some(r => r.is_shared)
+        const isOverride = rows.some(r => r.is_admin_override)
+        return (
+          <div key={type}>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--color-accent)' }}>
+              {AWARD_META[type].icon} {AWARD_META[type].label}
+              {shared && <span style={{ color: 'var(--color-text-muted)' }}> · shared</span>}
+              {isOverride && <span style={{ color: 'var(--color-text-muted)' }}> · admin call</span>}
+            </p>
+            <div className="space-y-0.5">
+              {rows.map(r => (
+                <p key={r.id} className="text-sm" style={{ color: 'var(--color-text)' }}>
+                  <span className="font-semibold">{names[r.player_id] ?? 'Unknown player'}</span>
+                  {!r.is_admin_override && (
+                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                      {' · '}{r.vote_count} vote{r.vote_count === 1 ? '' : 's'}
+                    </span>
+                  )}
+                </p>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 function ScorersList({ scorers }: { scorers: string }) {
   let lines = scorers.split('\n').map(l => l.trim()).filter(Boolean)
@@ -47,6 +88,7 @@ function ScorersList({ scorers }: { scorers: string }) {
 
 export default function HistoryPage() {
   const [records, setRecords] = useState<MatchRecord[]>([])
+  const [awardNames, setAwardNames] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [expandedReports, setExpandedReports] = useState<Set<string>>(new Set())
@@ -72,11 +114,24 @@ export default function HistoryPage() {
 
       const matchIds = (matches as Match[]).map(m => m.id)
 
-      const [{ data: results }, { data: teams }, { data: fixtures }] = await Promise.all([
+      const [{ data: results }, { data: teams }, { data: fixtures }, { data: awards }] = await Promise.all([
         supabase.from('results').select('*').in('match_id', matchIds),
         supabase.from('teams').select('*').in('match_id', matchIds),
         supabase.from('fixtures').select('*').in('match_id', matchIds),
+        supabase.from('award_results').select('*').in('match_id', matchIds),
       ])
+
+      const awardList = (awards as AwardResult[]) || []
+      const awardPlayerIds = [...new Set(awardList.map(a => a.player_id))]
+      if (awardPlayerIds.length > 0) {
+        const { data: profs } = await supabase
+          .from('profiles').select('id, name, surname').in('id', awardPlayerIds)
+        const nameMap: Record<string, string> = {}
+        for (const p of (profs as { id: string; name: string; surname: string }[]) || []) {
+          nameMap[p.id] = `${p.name} ${p.surname}`
+        }
+        setAwardNames(nameMap)
+      }
 
       const teamMap: Record<string, Team> = {}
       for (const t of (teams as Team[]) || []) teamMap[t.id] = t
@@ -87,7 +142,8 @@ export default function HistoryPage() {
           .filter(f => f.match_id === m.id)
           .map(f => ({ ...f, team1: teamMap[f.team1_id], team2: teamMap[f.team2_id] }))
         const matchResult = (results as Result[] || []).find(r => r.match_id === m.id) ?? null
-        return { match: m, result: matchResult, teams: matchTeams, fixtures: matchFixtures }
+        const matchAwards = awardList.filter(a => a.match_id === m.id)
+        return { match: m, result: matchResult, teams: matchTeams, fixtures: matchFixtures, awards: matchAwards }
       })
 
       setRecords(enrichedRecords)
@@ -115,7 +171,7 @@ export default function HistoryPage() {
         </div>
       ) : (
         <div className="space-y-5">
-          {records.map(({ match, result, teams, fixtures }, recordIdx) => {
+          {records.map(({ match, result, teams, fixtures, awards }, recordIdx) => {
             const isExpanded = expanded === match.id
             const isReportExpanded = expandedReports.has(match.id)
             const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy').toUpperCase()
@@ -211,6 +267,13 @@ export default function HistoryPage() {
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {awards.length > 0 && (
+                      <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <SectionHeader label="Match Awards" withDivider />
+                        <MatchAwards awards={awards} names={awardNames} />
                       </div>
                     )}
 

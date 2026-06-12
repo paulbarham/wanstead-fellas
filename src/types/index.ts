@@ -54,6 +54,53 @@ export interface Profile {
   favourite_club: string | null
   position: PlayerPosition | null
   cunt_tier: CuntTier | null
+  // Optional: not every profile object is loaded with this column. The Match
+  // Fitness panel does NOT depend on it for visibility (only for a badge).
+  fitness_source?: 'tracked' | 'manual' | null
+}
+
+export interface FitnessHrZones {
+  min_hr?: number | null
+  unit?: string | null
+  bands?: Record<string, number> | null
+}
+
+export interface FitnessSession {
+  id: string
+  profile_id: string
+  match_date: string | null
+  source: string | null
+  external_id: string | null
+  recorded_start: string | null
+  // numeric columns arrive from supabase-js as strings
+  distance_m: number | string | null
+  duration_s: number | null
+  avg_hr: number | null
+  max_hr: number | null
+  hr_zones: FitnessHrZones | null
+  avg_speed_kmh: number | string | null
+  max_speed_kmh: number | string | null
+  calories: number | null
+  training_load: number | string | null
+  raw: Record<string, unknown> | null
+}
+
+// Read-only suggestions derived from fitness_sessions (player_fitness_suggestions view).
+// Suggests PHYSICAL base attrs only: Pace (sp), Stamina (st), Work rate (wr).
+export interface FitnessSuggestion {
+  profile_id: string
+  sessions_count: number
+  last_session: string | null
+  top_speed_kmh: number | string | null
+  dist_per_hr_m: number | string | null
+  sprint_per_min: number | string | null
+  avg_hr: number | string | null
+  tracked_n: number
+  method: 'relative' | 'absolute'
+  sp_suggested: number | null
+  st_suggested: number | null
+  wr_suggested: number | null
+  confidence: 'low' | 'medium' | 'high'
 }
 
 export interface Availability {

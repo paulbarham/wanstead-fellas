@@ -6,8 +6,8 @@ import CeefaxHeader from '../components/CeefaxHeader'
 import {
   type CupMatch, type CupPrediction,
   isLocked, isTournamentActive, stageLabel, stagePageId,
-  GROUP_OUTCOMES, KO_OUTCOMES, knockoutMode, knockoutSide, knockoutModeLabel,
-  pickLabel,
+  GROUP_OUTCOMES, KO_OUTCOMES, knockoutMode, knockoutSide,
+  pickLabel, TOURNAMENT_START,
 } from '../lib/cup'
 
 type Tab = 'hub' | 'leaderboard' | 'picks'
@@ -103,9 +103,9 @@ export default function CupPage() {
   return (
     <div className="px-4 pt-4 pb-6">
       <CeefaxHeader
-        pageId="P901 · WORLD CUP"
-        title="CUP"
-        meta={isTournamentActive() ? 'TOURNAMENT LIVE · MAKE YOUR PICKS' : 'TOURNAMENT ARCHIVE'}
+        pageId="P901 · PREDICTOR"
+        title="WORLD CUP"
+        meta={headerMeta()}
         trailing={profile?.is_admin ? (
           <button
             onClick={() => navigate('/cup/admin')}
@@ -184,6 +184,21 @@ function CupTabs({
   )
 }
 
+function headerMeta(): string {
+  const now = Date.now()
+  const start = TOURNAMENT_START.getTime()
+  if (isTournamentActive()) return 'TOURNAMENT LIVE · MAKE YOUR PICKS'
+  if (now < start) {
+    const days = Math.ceil((start - now) / (24 * 60 * 60_000))
+    return `OPENS ${TOURNAMENT_START.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toUpperCase()} · ${days} DAY${days === 1 ? '' : 'S'} TO GO`
+  }
+  return 'TOURNAMENT ARCHIVE'
+}
+
+function daysUntilKickoff(): number {
+  return Math.ceil((TOURNAMENT_START.getTime() - Date.now()) / (24 * 60 * 60_000))
+}
+
 // ─── Hub view ────────────────────────────────────────────────────────────
 function CupHub({
   matches, myPicks, leaderboard, myRank, onPick, onTab,
@@ -196,18 +211,27 @@ function CupHub({
   onTab: (t: Tab) => void
 }) {
   const now = Date.now()
-  // Today's + upcoming: anything that hasn't been settled and kicks off
-  // in the next ~24h, capped at 6 matches so the hub doesn't sprawl.
-  const upcoming = matches.filter(m => {
-    const ko = new Date(m.kickoff).getTime()
-    return m.actual_outcome == null && ko > now - 90 * 60_000
-  }).slice(0, 6)
+  // Prefer the next 3 days for a mini-schedule feel. If nothing's in that
+  // window (pre-tournament, or a gap between rounds), fall back to the next
+  // 6 unsettled fixtures so the page always has picks to make.
+  const horizon = now + 3 * 24 * 60 * 60_000
+  const allUpcoming = matches
+    .filter(m => m.actual_outcome == null && new Date(m.kickoff).getTime() > now - 90 * 60_000)
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+  const inWindow = allUpcoming.filter(m => new Date(m.kickoff).getTime() < horizon)
+  const upcoming = inWindow.length > 0 ? inWindow : allUpcoming.slice(0, 6)
+  const upcomingByDate = groupByDate(upcoming)
 
   const recent = matches.filter(m => m.actual_outcome != null).slice(-5).reverse()
+  const settledExists = leaderboard.some(r => r.settled > 0)
+  const preTournament = now < TOURNAMENT_START.getTime()
+  const myPickCount = Object.keys(myPicks).length
 
   return (
     <>
-      {myRank && (
+      {preTournament ? (
+        <PreTournamentHero pickCount={myPickCount} totalFixtures={matches.length} />
+      ) : myRank && settledExists ? (
         <div
           className="rounded-xl p-4 mb-4 flex items-center justify-between"
           style={{
@@ -229,34 +253,40 @@ function CupHub({
             <p style={{ color: 'var(--color-text-muted)', fontSize: 10, letterSpacing: '0.1em', marginTop: 4 }}>POINTS</p>
           </div>
         </div>
-      )}
+      ) : null}
 
       <SectionLabel color={TT_CYAN}>▶ Upcoming Fixtures</SectionLabel>
+      <p className="text-[10px] mb-2 -mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>
+        PICKS LOCK 5 MIN BEFORE KICK-OFF
+      </p>
       {upcoming.length === 0 ? (
         <p className="text-xs mb-4" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
-          Nothing scheduled in the next 24h. Check back when the fixtures land.
+          No fixtures scheduled yet. Admin will add them as the draw firms up.
         </p>
       ) : (
-        upcoming.map(m => (
-          <MatchPredictCard key={m.id} match={m} myPick={myPicks[m.id]} onPick={onPick} />
+        upcomingByDate.map(day => (
+          <div key={day.key}>
+            <DateHeader label={day.label} />
+            {day.matches.map(m => (
+              <MatchPredictCard key={m.id} match={m} myPick={myPicks[m.id]} onPick={onPick} />
+            ))}
+          </div>
         ))
       )}
 
-      <SectionLabel color={TT_YELLOW}>▶ Top of the League</SectionLabel>
-      {leaderboard.length === 0 ? (
-        <p className="text-xs mb-4" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
-          No picks made yet. First fella in gets the early lead.
-        </p>
-      ) : (
-        <LeaderTable rows={leaderboard.slice(0, 5)} meRank={myRank?.rank} />
+      {settledExists && (
+        <>
+          <SectionLabel color={TT_YELLOW}>▶ Top of the League</SectionLabel>
+          <LeaderTable rows={leaderboard.slice(0, 5)} meRank={myRank?.rank} />
+          <button
+            onClick={() => onTab('leaderboard')}
+            className="w-full mt-2 py-2 rounded-lg text-xs font-semibold"
+            style={{ border: '1px dashed var(--color-border)', color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em', background: 'transparent' }}
+          >
+            ▶ FULL LEAGUE TABLE
+          </button>
+        </>
       )}
-      <button
-        onClick={() => onTab('leaderboard')}
-        className="w-full mt-2 py-2 rounded-lg text-xs font-semibold"
-        style={{ border: '1px dashed var(--color-border)', color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em', background: 'transparent' }}
-      >
-        ▶ FULL LEAGUE TABLE
-      </button>
 
       {recent.length > 0 && (
         <>
@@ -267,6 +297,53 @@ function CupHub({
         </>
       )}
     </>
+  )
+}
+
+function PreTournamentHero({ pickCount, totalFixtures }: { pickCount: number; totalFixtures: number }) {
+  const days = daysUntilKickoff()
+  const opener = TOURNAMENT_START.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase()
+  return (
+    <div
+      className="rounded-xl p-4 mb-4"
+      style={{
+        border: '1px solid var(--color-border)',
+        background: 'linear-gradient(135deg, rgba(201,162,39,0.14) 0%, rgba(14,116,144,0.10) 100%)',
+        fontFamily: MONO,
+      }}
+    >
+      <div className="flex items-end justify-between">
+        <div>
+          <p style={{ color: TT_YELLOW, fontSize: 38, fontWeight: 700, lineHeight: 0.95, letterSpacing: '-0.02em' }}>
+            {days}
+            <span style={{ fontSize: 14, marginLeft: 6, color: 'var(--color-text-muted)', letterSpacing: '0.1em' }}>
+              DAY{days === 1 ? '' : 'S'}
+            </span>
+          </p>
+          <p style={{ color: TT_GREEN, fontSize: 10, letterSpacing: '0.14em', marginTop: 6 }}>
+            UNTIL KICK-OFF · {opener}
+          </p>
+        </div>
+        <div className="text-right">
+          <p style={{ color: TT_CYAN, fontSize: 20, fontWeight: 700, lineHeight: 1 }}>
+            {pickCount}<span style={{ color: 'var(--color-text-muted)', fontSize: 12, marginLeft: 4 }}>/ {totalFixtures}</span>
+          </p>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 10, letterSpacing: '0.12em', marginTop: 4 }}>
+            PICKS IN
+          </p>
+        </div>
+      </div>
+      <p
+        className="mt-3 pt-3 text-[11px] leading-relaxed"
+        style={{
+          color: 'var(--color-text-muted)',
+          letterSpacing: '0.04em',
+          borderTop: '1px dashed var(--color-border)',
+        }}
+      >
+        Get your group-stage picks in early — locks 5 min before each kick-off.
+      </p>
+    </div>
   )
 }
 
@@ -328,8 +405,13 @@ function CupMyPicks({
       {upcomingNoPick.length > 0 && (
         <>
           <SectionLabel color={TT_MAGENTA}>▶ Awaiting Your Pick</SectionLabel>
-          {upcomingNoPick.slice(0, 4).map(m => (
-            <MatchPredictCard key={m.id} match={m} myPick={undefined} onPick={onPick} />
+          {groupByDate(upcomingNoPick).map(day => (
+            <div key={day.key}>
+              <DateHeader label={day.label} />
+              {day.matches.map(m => (
+                <MatchPredictCard key={m.id} match={m} myPick={undefined} onPick={onPick} />
+              ))}
+            </div>
           ))}
         </>
       )}
@@ -352,6 +434,52 @@ function CupMyPicks({
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────
+// Group fixtures under date headers so the hub reads as a mini-schedule.
+function groupByDate(matches: CupMatch[]): { key: string; label: string; matches: CupMatch[] }[] {
+  const buckets = new Map<string, { label: string; matches: CupMatch[] }>()
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1)
+  for (const m of matches) {
+    const ko = new Date(m.kickoff)
+    const key = ko.toISOString().slice(0, 10)
+    let label = ko.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase()
+    const koDay = new Date(ko); koDay.setHours(0, 0, 0, 0)
+    if (koDay.getTime() === today.getTime()) label = `TODAY · ${label}`
+    else if (koDay.getTime() === tomorrow.getTime()) label = `TOMORROW · ${label}`
+    if (!buckets.has(key)) buckets.set(key, { label, matches: [] })
+    buckets.get(key)!.matches.push(m)
+  }
+  return Array.from(buckets.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, v]) => ({ key, ...v }))
+}
+
+function DateHeader({ label }: { label: string }) {
+  const isToday = label.startsWith('TODAY')
+  const isTomorrow = label.startsWith('TOMORROW')
+  const accent = isToday ? TT_YELLOW : isTomorrow ? TT_CYAN : 'var(--color-text-muted)'
+  return (
+    <div className="flex items-center gap-2 mt-4 mb-2">
+      <span
+        className="text-[10px] px-2.5 py-1 rounded"
+        style={{
+          fontFamily: MONO,
+          color: '#000',
+          background: accent,
+          letterSpacing: '0.14em',
+          fontWeight: 700,
+        }}
+      >
+        {label}
+      </span>
+      <span
+        className="flex-1"
+        style={{ height: 1, background: 'var(--color-border)' }}
+      />
+    </div>
+  )
+}
+
 function SectionLabel({ color, children }: { color: string; children: React.ReactNode }) {
   return (
     <p
@@ -372,17 +500,36 @@ function MatchPredictCard({
 }) {
   const locked = isLocked(match)
   const koDate = new Date(match.kickoff)
-  const dateStr = koDate.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).toUpperCase()
+  const timeStr = koDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  const hasPick = !!myPick
   return (
-    <div className="rounded-xl p-3 mb-2" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
-      <div className="flex items-center justify-between mb-2" style={{ fontSize: 10, letterSpacing: '0.1em' }}>
+    <div
+      className="rounded-xl p-4 mb-3"
+      style={{
+        border: hasPick ? '1px solid rgba(201,162,39,0.55)' : '1px solid var(--color-border)',
+        background: hasPick ? 'rgba(201,162,39,0.05)' : 'var(--color-surface)',
+        fontFamily: MONO,
+      }}
+    >
+      <div className="flex items-center justify-between mb-3" style={{ fontSize: 10, letterSpacing: '0.1em' }}>
         <span style={{ color: TT_CYAN }}>{stagePageId(match.stage)} · {stageLabel(match.stage)}</span>
-        <span style={{ color: locked ? TT_RED : 'var(--color-text-muted)' }}>{dateStr}</span>
+        <span style={{ color: locked ? TT_RED : 'var(--color-text-muted)', fontWeight: 700 }}>
+          {locked ? '🔒 ' : '⏱ '}{timeStr}
+        </span>
       </div>
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-1" style={{ fontSize: 14, color: 'var(--color-text)' }}>
-        <span className="text-right truncate">{match.team1}</span>
-        <span style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>vs</span>
-        <span className="truncate">{match.team2}</span>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-1" style={{ color: 'var(--color-text)' }}>
+        <span className="text-right leading-tight" style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em' }}>
+          {match.team1}
+        </span>
+        <span
+          className="px-2"
+          style={{ color: 'var(--color-text-muted)', fontSize: 10, letterSpacing: '0.16em' }}
+        >
+          V
+        </span>
+        <span className="leading-tight" style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em' }}>
+          {match.team2}
+        </span>
       </div>
       {locked
         ? <LockedState match={match} myPick={myPick} />
@@ -394,26 +541,50 @@ function MatchPredictCard({
 }
 
 function GroupOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPrediction; onPick: (id: string, pick: string) => Promise<void> }) {
+  // 5/3/5 column split gives team names room to breathe while keeping DRAW
+  // visually slimmer — same hierarchy as a fixed-odds 1/X/2 row.
   return (
-    <div className="grid grid-cols-3 gap-1.5 mt-2">
+    <div className="grid gap-2 mt-3" style={{ gridTemplateColumns: '5fr 3fr 5fr' }}>
       {GROUP_OUTCOMES.map(o => {
         const selected = myPick?.pick === o
+        const isDraw = o === 'draw'
+        const label = o === 'team1' ? match.team1 : o === 'team2' ? match.team2 : 'DRAW'
+        const tag = o === 'team1' ? '1' : o === 'team2' ? '2' : 'X'
         return (
           <button
             key={o}
             onClick={() => onPick(match.id, o)}
-            className="rounded-md py-2 px-1 text-center"
+            className="rounded-md py-2.5 px-2 text-center leading-tight flex flex-col items-center justify-center gap-0.5"
             style={{
               border: selected ? '1px solid ' + TT_YELLOW : '1px solid var(--color-border)',
-              background: selected ? 'rgba(201,162,39,0.10)' : 'transparent',
+              background: selected ? 'rgba(201,162,39,0.14)' : 'var(--color-surface-2)',
               color: selected ? TT_YELLOW : 'var(--color-text)',
               fontFamily: MONO,
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.04em',
+              minHeight: 52,
+              wordBreak: 'break-word',
+              transition: 'background 120ms, border-color 120ms',
             }}
           >
-            {o === 'team1' ? match.team1 : o === 'team2' ? match.team2 : 'DRAW'}
+            <span
+              style={{
+                fontSize: 9,
+                letterSpacing: '0.12em',
+                color: selected ? TT_YELLOW : 'var(--color-text-muted)',
+                fontWeight: 700,
+              }}
+            >
+              {tag}
+            </span>
+            <span
+              style={{
+                fontSize: isDraw ? 11 : 12,
+                fontWeight: 700,
+                letterSpacing: '0.02em',
+                fontStyle: isDraw ? 'italic' : 'normal',
+              }}
+            >
+              {label}
+            </span>
           </button>
         )
       })}
@@ -424,14 +595,15 @@ function GroupOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: Cup
 function KOOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPrediction; onPick: (id: string, pick: string) => Promise<void> }) {
   const side1 = KO_OUTCOMES.filter(o => knockoutSide(o) === 1)
   const side2 = KO_OUTCOMES.filter(o => knockoutSide(o) === 2)
+  const shortMode = (m: '90' | 'et' | 'pen') => m === '90' ? "90'" : m === 'et' ? 'ET' : 'PENS'
   return (
-    <div className="space-y-2 mt-2">
+    <div className="space-y-2 mt-3">
       {[
         { team: match.team1, opts: side1 },
         { team: match.team2, opts: side2 },
       ].map(({ team, opts }) => (
         <div key={team} className="rounded-md overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-          <p className="px-3 py-1.5" style={{ background: 'var(--color-surface-2)', color: TT_CYAN, fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em' }}>
+          <p className="px-3 py-2" style={{ background: 'var(--color-surface-2)', color: TT_CYAN, fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em' }}>
             ▶ {team.toUpperCase()} WIN
           </p>
           <div className="grid grid-cols-3">
@@ -442,18 +614,19 @@ function KOOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPre
                 <button
                   key={o}
                   onClick={() => onPick(match.id, o)}
-                  className="py-2 px-1 text-center"
+                  className="py-3 px-1 text-center"
                   style={{
                     background: selected ? 'rgba(201,162,39,0.10)' : 'transparent',
                     color: selected ? TT_YELLOW : 'var(--color-text)',
                     borderLeft: i === 0 ? 'none' : '1px solid var(--color-border)',
                     fontFamily: MONO,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
                     letterSpacing: '0.04em',
+                    minHeight: 44,
                   }}
                 >
-                  {knockoutModeLabel(mode)}
+                  {shortMode(mode)}
                 </button>
               )
             })}
