@@ -120,7 +120,11 @@ export default function AddFitnessSession({ profile, onSaved }: { profile: Profi
     const start = recordedStart ?? new Date(`${f.matchDate}T20:00:00`).toISOString()
 
     setSaving(true)
-    const { error: insErr } = await supabase.from('fitness_sessions').insert({
+    // Upsert onto (profile_id, match_date) — re-uploading for the same night
+    // (e.g. swapping a GPX for a Polar export) replaces the previous row
+    // instead of stacking, which would double-count distance on the
+    // leaderboard. Latest upload wins, full stop.
+    const { error: insErr } = await supabase.from('fitness_sessions').upsert({
       profile_id: profile.id,
       match_date: f.matchDate,
       source,
@@ -137,7 +141,7 @@ export default function AddFitnessSession({ profile, onSaved }: { profile: Profi
         entered_via: source === 'manual' ? 'manual' : 'file',
         ...(fileName ? { source_file: fileName } : {}),
       },
-    })
+    }, { onConflict: 'profile_id,match_date' })
     setSaving(false)
 
     if (insErr) {
@@ -202,6 +206,7 @@ export default function AddFitnessSession({ profile, onSaved }: { profile: Profi
       )}
       <p className="text-[11px] mb-3" style={{ color: 'var(--color-text-muted)' }}>
         …or just type the numbers from your watch app below. Polar, Garmin, Apple Watch and Strava all work.
+        Re-uploading for the same date replaces the previous entry.
       </p>
 
       <div className="grid grid-cols-2 gap-2.5">
