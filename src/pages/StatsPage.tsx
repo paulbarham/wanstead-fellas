@@ -182,6 +182,7 @@ export default function StatsPage() {
   const [motmMode, setMotmMode] = useState<Mode>('month')
   const [dotdMode, setDotdMode] = useState<Mode>('month')
   const [distMode, setDistMode] = useState<Mode>('all')
+  const [totalDistMode, setTotalDistMode] = useState<Mode>('all')
 
   useEffect(() => {
     async function load() {
@@ -320,6 +321,28 @@ export default function StatsPage() {
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
 
+  // Total distance — same fitness rows, summed instead of averaged. Honest
+  // volume metric ("who's covered the most ground") that complements the
+  // Distance/Game per-match average.
+  const totalDistAgg: Record<string, { sum: number; games: number }> = {}
+  for (const r of fitness) {
+    const d = typeof r.distance_m === 'string' ? parseFloat(r.distance_m) : r.distance_m
+    if (d == null || !Number.isFinite(d) || d <= 0) continue
+    if (!inMode(totalDistMode, r.match_date ?? r.recorded_start)) continue
+    const a = (totalDistAgg[r.profile_id] ??= { sum: 0, games: 0 })
+    a.sum += d
+    a.games += 1
+  }
+  const totalDistRows = Object.entries(totalDistAgg)
+    .map(([pid, v]) => ({
+      profile: profiles[pid],
+      value: Math.round(v.sum),
+      display: `${(v.sum / 1000).toFixed(2)} km`,
+      note: `${v.games} game${v.games === 1 ? '' : 's'} tracked`,
+    }))
+    .filter(r => r.value > 0)
+    .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
+
   return (
     <div className="px-4 py-5">
       <CeefaxHeader pageId="P501 · LEAGUE STATS" title="STATS" meta="SEASON 25/26" />
@@ -430,6 +453,18 @@ export default function StatsPage() {
           <EmptyState text={distMode === 'month' ? 'No tracked sessions this month.' : 'No fitness sessions tracked yet — add match fitness from your player card.'} />
         ) : (
           <RankedList rows={distRows} unit="km" />
+        )}
+      </Panel>
+
+      {/* Total distance covered */}
+      <Panel title="Total Distance" icon="🗺️">
+        <div className="flex justify-end pt-3 -mb-1">
+          <PeriodToggle mode={totalDistMode} setMode={setTotalDistMode} />
+        </div>
+        {totalDistRows.length === 0 ? (
+          <EmptyState text={totalDistMode === 'month' ? 'No tracked sessions this month.' : 'No fitness sessions tracked yet — add match fitness from your player card.'} />
+        ) : (
+          <RankedList rows={totalDistRows} unit="km" />
         )}
       </Panel>
     </div>
