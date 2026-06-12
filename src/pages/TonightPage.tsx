@@ -238,7 +238,7 @@ export default function TonightPage() {
 
       <CeefaxHeader
         pageId="P101 · TEAMSHEET"
-        title="TONIGHT"
+        title="NEXT GAME"
         meta={`${format(new Date(nextThursday + 'T12:00:00'), 'EEE d MMM yy').toUpperCase()} · 9PM K.O.`}
         trailing={
           phase === 'match_live' ? (

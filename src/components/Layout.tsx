@@ -21,7 +21,7 @@ function InstagramIcon() {
 // During an active World Cup the fifth slot swaps to Cup; More moves up to
 // a ⋯ icon in the top-right header so it's still one-tap from any screen.
 const BASE_NAV_ITEMS = [
-  { to: '/',         label: 'Tonight', icon: '⚽' },
+  { to: '/',         label: 'Next Game', icon: '⚽' },
   { to: '/teams',    label: 'Teams',   icon: '👥' },
   { to: '/match',    label: 'Match',   icon: '📊' },
   { to: '/history',  label: 'History', icon: '📅' },
