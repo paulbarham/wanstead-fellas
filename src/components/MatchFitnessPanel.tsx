@@ -67,7 +67,7 @@ function Tile({ label, value, caption }: { label: string; value: string; caption
 }
 
 export default function MatchFitnessPanel({ profile, refreshToken }: { profile: Profile; refreshToken?: number }) {
-  const [session, setSession] = useState<FitnessSession | null>(null)
+  const [sessions, setSessions] = useState<FitnessSession[]>([])
   const [loaded, setLoaded] = useState(false)
 
   // Badge only — the panel's visibility is driven entirely by whether a
@@ -75,29 +75,31 @@ export default function MatchFitnessPanel({ profile, refreshToken }: { profile: 
   const tracked = profile.fitness_source === 'tracked'
 
   // Always query — the panel is self-sufficient and does not depend on
-  // fitness_source being threaded through the profile object.
+  // fitness_source being threaded through the profile object. Pull the last
+  // 12 sessions so we can show the hero plus a recent-matches breakdown.
   useEffect(() => {
     let cancelled = false
     setLoaded(false)
-    setSession(null)
+    setSessions([])
     supabase
       .from('fitness_sessions')
       .select('*')
       .eq('profile_id', profile.id)
       .order('recorded_start', { ascending: false })
-      .limit(1)
+      .limit(12)
       .then(({ data }) => {
         if (cancelled) return
-        setSession((data?.[0] as FitnessSession) ?? null)
+        setSessions((data as FitnessSession[]) ?? [])
         setLoaded(true)
       })
     return () => { cancelled = true }
   }, [profile.id, profile.fitness_source, refreshToken])
 
-  // Render only when a session row exists. No row / error / still loading → nothing.
-  if (!loaded || !session) return null
+  // Render only when at least one session exists. No row / still loading → nothing.
+  if (!loaded || sessions.length === 0) return null
 
-  const s = session
+  const s = sessions[0]
+  const olderSessions = sessions.slice(1)
   const raw = (s.raw ?? {}) as Record<string, unknown>
   const rawStr = (k: string): string | null => {
     const v = raw[k]
@@ -232,6 +234,43 @@ export default function MatchFitnessPanel({ profile, refreshToken }: { profile: 
               ✓ Full session{hrSource ? ` · ${hrSource}` : ''}
             </p>
           )}
+        </div>
+      )}
+
+      {/* Recent matches — compact per-game breakdown so the panel isn't just
+          "latest only". Hidden when there's nothing prior to show. */}
+      {olderSessions.length > 0 && (
+        <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid rgba(20,160,110,0.18)` }}>
+          <p style={{ color: C.muted, fontSize: '0.56rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
+            Recent Matches
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {olderSessions.map(os => {
+              const d = num(os.distance_m)
+              const km = d != null ? `${(d / 1000).toFixed(2)} km` : '—'
+              const dur = mmss(os.duration_s)
+              const dateStr = os.recorded_start
+                ? format(new Date(os.recorded_start), 'EEE d MMM')
+                : (os.match_date ? format(new Date(os.match_date + 'T12:00:00'), 'EEE d MMM') : '—')
+              const bits: string[] = []
+              if (dur) bits.push(dur)
+              if (os.avg_hr != null) bits.push(`${os.avg_hr} avg HR`)
+              return (
+                <div key={os.id} style={{
+                  display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+                  fontSize: '0.7rem', color: C.text,
+                }}>
+                  <span style={{ color: C.muted }}>{dateStr}</span>
+                  <span style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                    {bits.length > 0 && (
+                      <span style={{ color: C.muted, fontSize: '0.6rem' }}>{bits.join(' · ')}</span>
+                    )}
+                    <span style={{ fontWeight: 700, color: C.accentBright }}>{km}</span>
+                  </span>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
