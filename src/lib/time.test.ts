@@ -30,20 +30,17 @@ describe('getMatchPhase', () => {
     expect(getMatchPhase(THU)).toBe('signup_locked')
   })
 
-  it('stays locked up to Thursday 9am', () => {
-    at('2026-06-18T07:00:00Z') // Thu 08:00 BST
+  it('stays locked through Thursday daytime up to 9pm', () => {
+    at('2026-06-18T19:59:00Z') // Thu 20:59 BST
     expect(getMatchPhase(THU)).toBe('signup_locked')
   })
 
-  // NOTE: the code's threshold is Thu 9am (setHours(..,9)), even though the
-  // MatchPhase type comment documents "Thu 9pm". This test pins the *actual*
-  // behaviour; see the discrepancy flagged to the maintainer.
-  it('flips to match_live from Thursday 9am', () => {
-    at('2026-06-18T08:00:00Z') // Thu 09:00 BST exactly
+  it('flips to match_live at Thursday 9pm (kick-off)', () => {
+    at('2026-06-18T20:00:00Z') // Thu 21:00 BST exactly
     expect(getMatchPhase(THU)).toBe('match_live')
   })
 
-  it('is match_live in the evening too', () => {
+  it('is match_live between 9pm and 10pm', () => {
     at('2026-06-18T20:30:00Z') // Thu 21:30 BST
     expect(getMatchPhase(THU)).toBe('match_live')
   })

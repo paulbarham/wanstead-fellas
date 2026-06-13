@@ -47,7 +47,7 @@ export function getMatchPhase(thursdayDateStr: string): MatchPhase {
     TZ
   )
   const thuOpen = fromZonedTime(
-    setMilliseconds(setSeconds(setMinutes(setHours(new Date(ty, tm - 1, td), 9), 0), 0), 0),
+    setMilliseconds(setSeconds(setMinutes(setHours(new Date(ty, tm - 1, td), 21), 0), 0), 0),
     TZ
   )
   const thuClose = fromZonedTime(
