@@ -227,10 +227,12 @@ function CupHub({
   onTab: (t: Tab) => void
 }) {
   const now = Date.now()
-  // Prefer the next 3 days for a mini-schedule feel. If nothing's in that
-  // window (pre-tournament, or a gap between rounds), fall back to the next
-  // 6 unsettled fixtures so the page always has picks to make.
-  const horizon = now + 3 * 24 * 60 * 60_000
+  // Prefer the next 2 days for a "today + tomorrow" feel and to stop the
+  // Hub turning into endless scrolling once the whole 64-fixture schedule
+  // is loaded. If nothing's in that window (pre-tournament, or a gap
+  // between rounds), fall back to the next 6 unsettled fixtures so the
+  // page always has picks to make.
+  const horizon = now + 2 * 24 * 60 * 60_000
   const allUpcoming = matches
     .filter(m => m.actual_outcome == null && new Date(m.kickoff).getTime() > now - 90 * 60_000)
     .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
