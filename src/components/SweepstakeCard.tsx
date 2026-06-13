@@ -1,0 +1,445 @@
+// World Cup Sweepstake — Hub card.
+//
+// Independent of the Cup Predictor; reads from cup_sweepstake_entries +
+// cup_sweepstake_team_status (and uses cup_matches for computed GA where
+// admin hasn't overridden it). Renders three blocks:
+//   • Winner & Runner-up — full ownership grid, eliminated teams greyed out
+//     because they can no longer win this prize.
+//   • Most Conceded — running GA tally, eliminated teams stay in contention
+//     (their tally just freezes) so they're shown with an OUT badge but NOT
+//     greyed.
+//   • Most Reds — same shape as Most Conceded, empty state until reds are
+//     recorded.
+
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
+
+type SweepStatus =
+  | 'alive' | 'group_stage_out' | 'r16_out' | 'qf_out' | 'sf_out'
+  | 'third_place_lost' | 'final_lost' | 'winner'
+
+interface SweepEntry {
+  id: string
+  profile_id: string | null
+  sweep_name: string
+  team_name: string
+  stake: number
+}
+interface SweepStatusRow {
+  team_name: string
+  status: SweepStatus
+  manual_ga: number | null
+  manual_reds: number | null
+}
+interface CupMatchLite {
+  team1: string
+  team2: string
+  score1: number | null
+  score2: number | null
+  actual_outcome: string | null
+}
+
+const STATUS_LABEL: Record<SweepStatus, string> = {
+  alive: 'IN',
+  group_stage_out: 'OUT — GS',
+  r16_out: 'OUT — R16',
+  qf_out: 'OUT — QF',
+  sf_out: 'OUT — SF',
+  third_place_lost: 'OUT — 3rd',
+  final_lost: 'RUNNER-UP',
+  winner: 'WINNER',
+}
+// Teams still in contention for Winner/Runner-up. final_lost = the team lost
+// the final so they took runner-up, which still resolves the prize but they
+// can't win — treat as eliminated for grey-out purposes; we'll surface their
+// runner-up tag once the final is over.
+const ALIVE_FOR_WINNER: SweepStatus[] = ['alive', 'winner']
+
+// Prize pot breakdown — fixed at sweep entry, not derived from the pot
+// because the £120 charity portion is a contract, not "half the takings".
+const CHARITY = 120
+const PRIZE_WINNER = 60
+const PRIZE_RUNNER_UP = 30
+const PRIZE_MOST_CONCEDED = 20
+const PRIZE_MOST_REDS = 10
+
+const C = {
+  yellow: 'var(--tt-yellow)',
+  cyan: 'var(--tt-cyan)',
+  green: 'var(--tt-green)',
+  red: 'var(--tt-red)',
+  muted: 'var(--color-text-muted)',
+  text: 'var(--color-text)',
+  border: 'var(--color-border)',
+  mono: 'var(--font-mono)',
+}
+
+function computeGaFromMatches(team: string, matches: CupMatchLite[]): number {
+  let ga = 0
+  for (const m of matches) {
+    if (m.actual_outcome == null) continue
+    if (m.team1 === team) ga += m.score2 ?? 0
+    else if (m.team2 === team) ga += m.score1 ?? 0
+  }
+  return ga
+}
+
+export default function SweepstakeCard() {
+  const { profile } = useAuth()
+  const [entries, setEntries] = useState<SweepEntry[]>([])
+  const [statuses, setStatuses] = useState<SweepStatusRow[]>([])
+  const [matches, setMatches] = useState<CupMatchLite[]>([])
+  const [loaded, setLoaded] = useState(false)
+  const [expandAll, setExpandAll] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      supabase.from('cup_sweepstake_entries').select('*'),
+      supabase.from('cup_sweepstake_team_status').select('*'),
+      supabase.from('cup_matches').select('team1, team2, score1, score2, actual_outcome'),
+    ]).then(([e, s, m]) => {
+      if (cancelled) return
+      setEntries((e.data as SweepEntry[]) ?? [])
+      setStatuses((s.data as SweepStatusRow[]) ?? [])
+      setMatches((m.data as CupMatchLite[]) ?? [])
+      setLoaded(true)
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  const view = useMemo(() => {
+    const statusByTeam = new Map<string, SweepStatusRow>()
+    for (const s of statuses) statusByTeam.set(s.team_name, s)
+
+    // Per-team derived stats
+    type TeamView = {
+      team_name: string
+      sweep_name: string
+      profile_id: string | null
+      status: SweepStatus
+      ga: number
+      reds: number
+      alive_for_winner: boolean
+    }
+    const teams: TeamView[] = entries.map(e => {
+      const st = statusByTeam.get(e.team_name)
+      const status = st?.status ?? 'alive'
+      const ga = st?.manual_ga ?? computeGaFromMatches(e.team_name, matches)
+      const reds = st?.manual_reds ?? 0
+      return {
+        team_name: e.team_name,
+        sweep_name: e.sweep_name,
+        profile_id: e.profile_id,
+        status,
+        ga,
+        reds,
+        alive_for_winner: ALIVE_FOR_WINNER.includes(status),
+      }
+    })
+
+    // Group by owner for Winner/Runner-up section
+    type OwnerView = {
+      sweep_name: string
+      profile_id: string | null
+      teams: TeamView[]
+      alive_count: number
+    }
+    const byOwner = new Map<string, OwnerView>()
+    for (const t of teams) {
+      const row = byOwner.get(t.sweep_name) ?? {
+        sweep_name: t.sweep_name,
+        profile_id: t.profile_id,
+        teams: [],
+        alive_count: 0,
+      }
+      row.teams.push(t)
+      if (t.alive_for_winner) row.alive_count++
+      byOwner.set(t.sweep_name, row)
+    }
+    const owners = Array.from(byOwner.values()).sort((a, b) => {
+      if (b.alive_count !== a.alive_count) return b.alive_count - a.alive_count
+      return a.sweep_name.localeCompare(b.sweep_name)
+    })
+    // Push alive teams to the left within each owner row.
+    for (const o of owners) {
+      o.teams.sort((a, b) => Number(b.alive_for_winner) - Number(a.alive_for_winner)
+        || a.team_name.localeCompare(b.team_name))
+    }
+
+    // Tally rankings (don't grey eliminated)
+    const tallySorted = (key: 'ga' | 'reds') =>
+      [...teams].sort((a, b) => (b[key] - a[key]) || a.team_name.localeCompare(b.team_name))
+    const ga_ranking = tallySorted('ga').filter(t => t.ga > 0)
+    const reds_ranking = tallySorted('reds').filter(t => t.reds > 0)
+
+    const total_teams = entries.length
+    const pot = entries.reduce((s, e) => s + e.stake, 0)
+    const settled = matches.filter(m => m.actual_outcome != null).length
+    const alive_teams = teams.filter(t => t.alive_for_winner).length
+
+    return { teams, owners, ga_ranking, reds_ranking, total_teams, pot, settled, alive_teams }
+  }, [entries, statuses, matches])
+
+  if (!loaded) return null
+  if (entries.length === 0) return null
+
+  const myTeams = profile?.id ? view.teams.filter(t => t.profile_id === profile.id) : []
+  const displayedOwners = expandAll ? view.owners : view.owners.slice(0, 9)
+  const hiddenCount = view.owners.length - displayedOwners.length
+  const knockoutsStarted = view.alive_teams < view.total_teams
+
+  const blockStyle: React.CSSProperties = {
+    padding: '14px 16px', borderBottom: `1px solid ${C.border}`,
+  }
+  const hdrStyle: React.CSSProperties = {
+    display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6,
+  }
+  const nameLabel: React.CSSProperties = {
+    fontFamily: C.mono, color: C.yellow, fontSize: 11,
+    letterSpacing: '0.18em', fontWeight: 800, textTransform: 'uppercase',
+  }
+  const stakeLabel: React.CSSProperties = {
+    fontFamily: C.mono, color: C.yellow, fontSize: 11, fontWeight: 700,
+  }
+  const whyText: React.CSSProperties = {
+    fontSize: 11, color: C.muted, lineHeight: 1.4, marginBottom: 10,
+  }
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{
+      border: `1px solid ${C.border}`,
+      background: 'linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%)',
+    }}>
+      {/* Header */}
+      <div style={{ padding: '14px 16px 4px', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: C.mono, color: C.yellow, fontSize: 10, letterSpacing: '0.18em', fontWeight: 800 }}>
+          🎟 WORLD CUP SWEEPSTAKE
+        </span>
+        <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 9, letterSpacing: '0.12em' }}>P920 · POT</span>
+      </div>
+      <div style={{ padding: '0 16px 6px', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+        <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 36, color: C.yellow, lineHeight: 1 }}>
+          £{view.pot}
+          <span style={{ color: C.text, fontSize: 14, marginLeft: 4, opacity: 0.7, fontFamily: C.mono }}>POT</span>
+        </span>
+        <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 11, letterSpacing: '0.08em', textAlign: 'right' }}>
+          {view.owners.length} FELLAS · {view.total_teams} TEAMS<br />
+          <b style={{ color: C.green }}>£{CHARITY} TO CHARITY</b>
+        </span>
+      </div>
+      <p style={{
+        padding: '6px 16px 12px', fontFamily: C.mono, color: C.muted,
+        fontSize: 10, letterSpacing: '0.12em',
+        borderBottom: `1px solid ${C.border}`,
+      }}>£{PRIZE_WINNER} WINNER · £{PRIZE_RUNNER_UP} RUNNER-UP · £{PRIZE_MOST_CONCEDED} MOST CONCEDED · £{PRIZE_MOST_REDS} MOST REDS</p>
+
+      {/* Progress */}
+      <div style={blockStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: C.mono, color: C.muted, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <span style={{ color: C.cyan, fontWeight: 700 }}>
+            ▶ {knockoutsStarted ? 'KNOCKOUTS' : 'GROUP STAGE'}
+          </span>
+          <span>{view.alive_teams} / {view.total_teams} TEAMS ALIVE</span>
+        </div>
+        <div style={{ height: 6, borderRadius: 3, background: 'var(--color-surface-2)', overflow: 'hidden', marginTop: 6 }}>
+          <div style={{
+            height: '100%',
+            width: `${Math.round((1 - view.alive_teams / Math.max(1, view.total_teams)) * 100)}%`,
+            background: `linear-gradient(90deg, ${C.green}, ${C.yellow})`,
+          }} />
+        </div>
+      </div>
+
+      {/* Winner & Runner-up */}
+      <div style={blockStyle}>
+        <div style={hdrStyle}>
+          <span><span style={{ fontSize: 16 }}>🏆</span> <span style={nameLabel}>Winner &amp; Runner-up</span></span>
+          <span style={stakeLabel}>£60 / £30</span>
+        </div>
+        <p style={whyText}>
+          Resolves at the final. Sorted by <em style={{ color: C.cyan, fontStyle: 'normal', fontFamily: C.mono, fontSize: 10, letterSpacing: '0.06em' }}>teams still alive</em>.
+          Eliminated teams greyed — out of this prize.
+        </p>
+        {displayedOwners.map((o, i) => {
+          const isMe = !!profile?.id && o.profile_id === profile.id
+          return (
+            <div key={o.sweep_name} style={{
+              display: 'grid',
+              gridTemplateColumns: '22px 80px 1fr auto',
+              gap: 8, alignItems: 'center', padding: '8px 0',
+              borderTop: i === 0 ? `1px solid ${C.border}` : `1px dashed ${C.border}`,
+              background: isMe ? 'rgba(74,217,255,0.06)' : 'transparent',
+              borderRadius: isMe ? 8 : 0,
+              paddingLeft: isMe ? 6 : 0,
+              paddingRight: isMe ? 6 : 0,
+            }}>
+              <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 10 }}>{String(i + 1).padStart(2, '0')}</span>
+              <span style={{ fontFamily: C.mono, fontSize: 12, fontWeight: 700, color: isMe ? C.cyan : C.text }}>
+                {o.sweep_name}{isMe ? ' (you)' : ''}
+              </span>
+              <span style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {o.teams.map(t => {
+                  const out = !t.alive_for_winner
+                  return (
+                    <span key={t.team_name} style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      fontFamily: C.mono, fontSize: 11,
+                      background: out ? 'rgba(143,175,145,0.06)' : 'rgba(74,220,122,0.08)',
+                      border: `1px solid ${out ? 'rgba(143,175,145,0.18)' : 'rgba(74,220,122,0.30)'}`,
+                      color: out ? C.muted : C.text,
+                      borderRadius: 6, padding: '2px 6px',
+                      opacity: out ? 0.55 : 1,
+                      textDecoration: out ? 'line-through' : 'none',
+                    }}>
+                      {t.team_name}
+                      {out && (
+                        <span style={{ fontSize: 8, letterSpacing: '0.06em', color: C.red, padding: '0 4px', background: 'rgba(255,85,85,0.08)', borderRadius: 3 }}>
+                          {STATUS_LABEL[t.status]}
+                        </span>
+                      )}
+                    </span>
+                  )
+                })}
+              </span>
+              <span style={{ fontFamily: C.mono, color: C.yellow, fontWeight: 700, fontSize: 12 }}>
+                {o.alive_count}
+                <span style={{ color: C.muted, fontWeight: 500, fontSize: 10, marginLeft: 2 }}>alive</span>
+              </span>
+            </div>
+          )
+        })}
+        {hiddenCount > 0 && (
+          <button onClick={() => setExpandAll(true)}
+            style={{
+              display: 'block', width: '100%', padding: '8px 0', marginTop: 8,
+              background: 'transparent', border: 'none',
+              fontFamily: C.mono, color: C.yellow, fontSize: 10,
+              letterSpacing: '0.14em', fontWeight: 800, textAlign: 'center', cursor: 'pointer',
+            }}>
+            ▶ SHOW ALL {view.owners.length} FELLAS (+{hiddenCount} MORE)
+          </button>
+        )}
+      </div>
+
+      {/* Most Conceded */}
+      <div style={blockStyle}>
+        <div style={hdrStyle}>
+          <span><span style={{ fontSize: 16 }}>🥅</span> <span style={nameLabel}>Most Conceded</span></span>
+          <span style={stakeLabel}>£20</span>
+        </div>
+        <p style={whyText}>
+          Total GA across the whole tournament. <em style={{ color: C.cyan, fontStyle: 'normal', fontFamily: C.mono, fontSize: 10, letterSpacing: '0.06em' }}>Eliminated teams still in contention</em> — tally freezes when they go out.
+        </p>
+        {view.ga_ranking.length === 0 ? (
+          <p style={{ fontFamily: C.mono, color: C.muted, fontSize: 11, textAlign: 'center', padding: '10px 0 2px' }}>
+            No goals conceded yet · all teams on 0
+          </p>
+        ) : (
+          view.ga_ranking.slice(0, 5).map((t, i) => <TallyRow key={t.team_name} rk={i + 1} team={t} stat={t.ga} unit="GA" />)
+        )}
+      </div>
+
+      {/* Most Reds */}
+      <div style={blockStyle}>
+        <div style={hdrStyle}>
+          <span><span style={{ fontSize: 16 }}>🟥</span> <span style={nameLabel}>Most Reds</span></span>
+          <span style={stakeLabel}>£10</span>
+        </div>
+        <p style={whyText}>
+          Total reds across the whole tournament. Admin-recorded after each match.
+        </p>
+        {view.reds_ranking.length === 0 ? (
+          <p style={{ fontFamily: C.mono, color: C.muted, fontSize: 11, textAlign: 'center', padding: '10px 0 2px' }}>
+            No reds yet · all teams on 0
+          </p>
+        ) : (
+          view.reds_ranking.slice(0, 5).map((t, i) => <TallyRow key={t.team_name} rk={i + 1} team={t} stat={t.reds} unit="R" />)
+        )}
+      </div>
+
+      {/* Your Teams */}
+      {myTeams.length > 0 && (
+        <div style={{ margin: '12px 16px', padding: '10px 12px', borderRadius: 12,
+          background: 'rgba(74,217,255,0.06)', border: '1px solid rgba(74,217,255,0.24)' }}>
+          <p style={{ fontFamily: C.mono, color: C.cyan, fontSize: 9, letterSpacing: '0.18em', fontWeight: 800, textTransform: 'uppercase', marginBottom: 6 }}>
+            ▶ Your teams
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {myTeams.map(t => (
+              <span key={t.team_name} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: C.mono, fontSize: 12,
+                background: 'rgba(255,255,255,0.05)',
+                border: t.alive_for_winner ? '1px solid rgba(74,220,122,0.4)' : '1px solid rgba(143,175,145,0.18)',
+                color: t.alive_for_winner ? C.text : C.muted,
+                borderRadius: 999, padding: '4px 10px',
+                opacity: t.alive_for_winner ? 1 : 0.55,
+                textDecoration: t.alive_for_winner ? 'none' : 'line-through',
+              }}>
+                {t.team_name}
+                <span style={{
+                  fontSize: 9, letterSpacing: '0.1em',
+                  color: t.alive_for_winner ? C.green : C.red,
+                  padding: '1px 5px',
+                  background: t.alive_for_winner ? 'rgba(74,220,122,0.08)' : 'rgba(255,85,85,0.08)',
+                  borderRadius: 4,
+                }}>
+                  {STATUS_LABEL[t.status]}
+                </span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div style={{
+        padding: '10px 16px 14px', borderTop: `1px solid ${C.border}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 10, letterSpacing: '0.1em' }}>
+          {view.settled} group game{view.settled === 1 ? '' : 's'} settled
+        </span>
+        <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 10, letterSpacing: '0.1em' }}>
+          Admin: update status / reds in Cup Admin
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function TallyRow({ rk, team, stat, unit }: {
+  rk: number
+  team: { team_name: string; sweep_name: string; status: SweepStatus }
+  stat: number
+  unit: string
+}) {
+  const out = !ALIVE_FOR_WINNER.includes(team.status)
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '22px 1fr auto', gap: 8,
+      alignItems: 'baseline', padding: '6px 0',
+      borderTop: rk === 1 ? `1px solid ${C.border}` : `1px dashed ${C.border}`,
+    }}>
+      <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 10 }}>{String(rk).padStart(2, '0')}</span>
+      <span style={{ fontSize: 13, color: C.text }}>
+        {team.team_name}
+        <span style={{ color: C.cyan, fontFamily: C.mono, fontSize: 10, marginLeft: 6, letterSpacing: '0.06em' }}>
+          {team.sweep_name.toUpperCase()}
+        </span>
+        {out && (
+          <span style={{ fontFamily: C.mono, fontSize: 9, letterSpacing: '0.06em',
+            color: C.red, marginLeft: 6, padding: '1px 4px',
+            background: 'rgba(255,85,85,0.08)', borderRadius: 3 }}>
+            {STATUS_LABEL[team.status]}
+          </span>
+        )}
+      </span>
+      <span style={{ fontFamily: C.mono, color: C.yellow, fontWeight: 700, fontSize: 13 }}>
+        {stat}<span style={{ color: C.muted, fontWeight: 500, fontSize: 10, marginLeft: 2 }}>{unit}</span>
+      </span>
+    </div>
+  )
+}

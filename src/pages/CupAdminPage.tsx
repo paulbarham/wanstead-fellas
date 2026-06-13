@@ -8,6 +8,7 @@ import {
   stageLabel, stagePageId,
   GROUP_OUTCOMES, KO_OUTCOMES, knockoutModeLabel, knockoutMode,
 } from '../lib/cup'
+import SweepstakeAdminPanel from '../components/SweepstakeAdminPanel'
 
 const TT_YELLOW = 'var(--tt-yellow)'
 const TT_CYAN = 'var(--tt-cyan)'
@@ -71,6 +72,8 @@ export default function CupAdminPage() {
       )}
 
       <AddMatchForm onAdded={load} />
+
+      <SweepstakeAdminPanel />
 
       <p className="text-xs mt-5 mb-2" style={{ fontFamily: MONO, color: TT_CYAN, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
         ▶ All Fixtures · {matches.length}

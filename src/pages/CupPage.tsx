@@ -9,6 +9,7 @@ import {
   GROUP_OUTCOMES, KO_OUTCOMES, knockoutMode, knockoutSide,
   pickLabel, TOURNAMENT_START,
 } from '../lib/cup'
+import SweepstakeCard from '../components/SweepstakeCard'
 
 type Tab = 'hub' | 'leaderboard' | 'picks'
 
@@ -282,6 +283,9 @@ function CupHub({
           </div>
         ))
       )}
+
+      <SectionLabel color={TT_YELLOW}>▶ Sweepstake</SectionLabel>
+      <SweepstakeCard />
 
       {settledExists && (
         <>
