@@ -11,7 +11,7 @@ import {
 } from '../lib/cup'
 import SweepstakeCard from '../components/SweepstakeCard'
 
-type Tab = 'hub' | 'leaderboard' | 'picks'
+type Tab = 'hub' | 'leaderboard' | 'picks' | 'sweepstake'
 
 interface LeaderRow {
   player_id: string
@@ -147,6 +147,9 @@ export default function CupPage() {
       {!loading && tab === 'picks' && (
         <CupMyPicks matches={matches} myPicks={myPicks} onPick={setPick} />
       )}
+      {!loading && tab === 'sweepstake' && (
+        <SweepstakeCard />
+      )}
     </div>
   )
 }
@@ -161,6 +164,7 @@ function CupTabs({
     { id: 'hub', label: 'Hub' },
     { id: 'leaderboard', label: 'League' },
     { id: 'picks', label: 'My Picks' },
+    { id: 'sweepstake', label: 'Sweep' },
   ]
   return (
     <div className="flex items-center justify-between gap-3 mb-4 mt-1">
@@ -283,9 +287,6 @@ function CupHub({
           </div>
         ))
       )}
-
-      <SectionLabel color={TT_YELLOW}>▶ Sweepstake</SectionLabel>
-      <SweepstakeCard />
 
       {settledExists && (
         <>
