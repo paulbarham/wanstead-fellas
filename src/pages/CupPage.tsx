@@ -51,6 +51,14 @@ export default function CupPage() {
     for (const p of (picksRes.data as CupPrediction[]) ?? []) picksMap[p.match_id] = p
     setMyPicks(picksMap)
 
+    // Hit-rate denominator = total settled matches in the tournament, NOT the
+    // player's own settled-pick count. Otherwise a player who only submitted
+    // one pick (and got it right) would show as 100%, beating someone who
+    // picked every match and got most right. The leaderboard's purpose is to
+    // reward consistent picking, so missed deadlines are scored as wrong.
+    const totalSettled = ((matchRes.data as CupMatch[] | null) ?? [])
+      .filter(m => m.actual_outcome != null).length
+
     type LbRaw = { player_id: string; points_awarded: number | null; profiles: { name: string; surname: string } }
     const agg = new Map<string, LeaderRow>()
     for (const r of ((lbRes.data as unknown as LbRaw[]) ?? [])) {
@@ -58,18 +66,19 @@ export default function CupPage() {
         player_id: r.player_id,
         name: r.profiles.name,
         surname: r.profiles.surname,
-        points: 0, settled: 0, correct: 0,
+        points: 0, settled: totalSettled, correct: 0,
       }
       if (r.points_awarded != null) {
-        row.settled += 1
         row.points += r.points_awarded
         if (r.points_awarded > 0) row.correct += 1
       }
       agg.set(r.player_id, row)
     }
+    // Tiebreak by points first (which equals correct count since each correct
+    // pick = 1 point), then alphabetical — hit-rate clause collapses now that
+    // the denominator is global.
     const lb = Array.from(agg.values())
       .sort((a, b) => b.points - a.points
-        || (b.correct / Math.max(1, b.settled)) - (a.correct / Math.max(1, a.settled))
         || a.name.localeCompare(b.name))
     setLeaderboard(lb)
     setLoading(false)
@@ -360,8 +369,8 @@ function CupLeaderboard({ leaderboard, meId }: { leaderboard: LeaderRow[]; meId?
     <>
       <LeaderTable rows={leaderboard} meRank={null} highlightMeId={meId} />
       <p className="text-[10px] mt-3 leading-relaxed" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>
-        % = HIT RATE · CORRECT / SETTLED<br />
-        TIEBREAK: HIGHEST HIT RATE WINS
+        % = HIT RATE · CORRECT / TOTAL SETTLED MATCHES<br />
+        MISSED PICKS COUNT AS WRONG · TIEBREAK ALPHABETICAL
       </p>
     </>
   )
