@@ -14,10 +14,13 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 // API-name → our cup_matches name. Only entries that actually differ.
-// Anything not in this table is matched verbatim.
+// Anything not in this table is matched verbatim. Multiple API spellings
+// for the same country are all mapped to our single name (football-data.org
+// uses "Bosnia-Herzegovina" with a hyphen, not the long form).
 const TEAM_ALIASES: Record<string, string> = {
   'Korea Republic': 'South Korea',
   'Bosnia and Herzegovina': 'Bosnia & Herz.',
+  'Bosnia-Herzegovina': 'Bosnia & Herz.',
   'United States': 'United States',
   'USA': 'United States',
   'Czech Republic': 'Czechia',
@@ -136,6 +139,11 @@ Deno.serve(async () => {
 
   const updates: { team1: string; team2: string; outcome: string; score: string }[] = []
   const errors: { team1: string; team2: string; error: string }[] = []
+  // Track unmatched pairs so a name/time mismatch surfaces in the response
+  // instead of silently dropping the update (debugged a real Canada–Bosnia
+  // miss this way — alias map was right but the API used a longer name).
+  const matchedApiIds = new Set<number>()
+  const unmatched_our: { team1: string; team2: string; kickoff: string }[] = []
 
   for (const m of (ourMatches as CupMatch[])) {
     const ourKickoffMs = new Date(m.kickoff).getTime()
@@ -149,7 +157,11 @@ Deno.serve(async () => {
         (apiHome === m.team2 && apiAway === m.team1)
       return timeMatch && teamsMatch
     })
-    if (!matched) continue
+    if (!matched) {
+      unmatched_our.push({ team1: m.team1, team2: m.team2, kickoff: m.kickoff })
+      continue
+    }
+    matchedApiIds.add(matched.id)
 
     const swap = normalize(matched.homeTeam.name) === m.team2
     const result = computeOutcome(matched, m.is_knockout, swap)
@@ -179,11 +191,23 @@ Deno.serve(async () => {
     }
   }
 
+  // Surface API-finished matches we couldn't map back to any of our rows —
+  // either a fixture we don't track or a name/kickoff mismatch to investigate.
+  const unmatched_api = apiMatches
+    .filter(a => !matchedApiIds.has(a.id))
+    .map(a => ({
+      home: a.homeTeam.name,
+      away: a.awayTeam.name,
+      utcDate: a.utcDate,
+    }))
+
   return new Response(JSON.stringify({
     checked: ourMatches?.length ?? 0,
     api_finished: apiMatches.length,
     updated: updates.length,
     updates,
     errors,
+    unmatched_our,
+    unmatched_api,
   }), { headers: { 'Content-Type': 'application/json' } })
 })
