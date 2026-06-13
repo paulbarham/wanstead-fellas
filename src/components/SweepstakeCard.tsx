@@ -380,7 +380,7 @@ export default function SweepstakeCard() {
           <span style={stakeLabel}>£10</span>
         </div>
         <p style={whyText}>
-          Total reds across the whole tournament. <em style={{ color: C.cyan, fontStyle: 'normal', fontFamily: C.mono, fontSize: 10, letterSpacing: '0.06em' }}>Auto-pulled from api-football.com</em> after each match — admin can still override via Cup Admin if a card was missed.
+          Total reds across the whole tournament. <em style={{ color: C.cyan, fontStyle: 'normal', fontFamily: C.mono, fontSize: 10, letterSpacing: '0.06em' }}>Both free-tier feeds paywall WC 2026 card data</em> — admin enters per-team totals in Cup Admin.
         </p>
         {view.reds_ranking.length === 0 ? (
           <p style={{ fontFamily: C.mono, color: C.muted, fontSize: 11, textAlign: 'center', padding: '10px 0 2px' }}>
