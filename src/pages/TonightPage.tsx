@@ -38,6 +38,7 @@ export default function TonightPage() {
   const [issuingFine, setIssuingFine] = useState(false)
   const [lastResult, setLastResult] = useState<LastResultSummary | null | undefined>(undefined)
   const [removeConfirm, setRemoveConfirm] = useState<string | null>(null)
+  const [dropConfirm, setDropConfirm] = useState(false)
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -61,6 +62,21 @@ export default function TonightPage() {
   }, [nextThursday])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  // Keep the who's-in list live — most useful right on the deadline when
+  // spots are filling. Any insert/update/delete on this week's availability
+  // re-fetches so everyone sees the same sheet without manually refreshing.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`availability:${nextThursday}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'availability', filter: `match_date=eq.${nextThursday}` },
+        () => { fetchData() },
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [nextThursday, fetchData])
 
   useEffect(() => {
     if (!profile?.id) return
@@ -155,6 +171,14 @@ export default function TonightPage() {
     setToggling(false)
   }
 
+  // Dropping a confirmed spot auto-promotes a waiting player and can't be
+  // undone (you can't reclaim the spot by tapping again), so we confirm first.
+  // Marking in or leaving the waiting list is harmless — toggle immediately.
+  function handleToggleClick() {
+    if (isIn) setDropConfirm(true)
+    else toggleAvailability()
+  }
+
   async function toggleChildAvailability(childId: string) {
     if (!profile) return
     setToggling(true)
@@ -221,6 +245,11 @@ export default function TonightPage() {
   const playingPlayers = splitResult.playing.map(c => c.player)
   const deferredPlayers = splitResult.reserves.map(c => c.player)
   const reservePlayers = [...deferredPlayers, ...waitingPlayers]
+
+  // A confirmed sign-up can still be pushed into the reserves by the split once
+  // the game is over-subscribed. Surface that to the player directly — without
+  // it they'd see "I'm In" and wrongly assume they're playing.
+  const iAmDeferred = !!profile && deferredPlayers.some(p => p.id === profile.id)
 
   const dateLabel = (() => {
     const [y, m, d] = nextThursday.split('-').map(Number)
@@ -325,22 +354,27 @@ export default function TonightPage() {
       <div className="mb-4">
         {canToggle ? (
           <button
-            onClick={toggleAvailability}
+            onClick={handleToggleClick}
             disabled={toggling}
             className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
             style={{
-              background: isWaiting ? 'var(--color-warning-bg)' : isIn ? 'var(--color-success-bg)' : 'var(--color-primary)',
-              color: isWaiting ? '#92400e' : isIn ? '#0D6B52' : 'white',
-              border: isWaiting ? '2px solid #C9A227' : isIn ? '2px solid var(--color-primary)' : '2px solid transparent',
+              background: isWaiting || iAmDeferred ? 'var(--color-warning-bg)' : isIn ? 'var(--color-success-bg)' : 'var(--color-primary)',
+              color: isWaiting || iAmDeferred ? '#92400e' : isIn ? '#0D6B52' : 'white',
+              border: isWaiting || iAmDeferred ? '2px solid #C9A227' : isIn ? '2px solid var(--color-primary)' : '2px solid transparent',
             }}
           >
-            {toggling ? '…' : isWaiting ? '⏳ On Waiting List — Tap to Remove' : isIn ? "✓ I'm In — Tap to Drop Out" : 'Mark Me In'}
+            {toggling ? '…' : isWaiting ? '⏳ On Waiting List — Tap to Remove' : iAmDeferred ? '⏳ Reserve — Tap to Drop Out' : isIn ? "✓ I'm In — Tap to Drop Out" : 'Mark Me In'}
           </button>
         ) : (
           <div className="w-full py-3 rounded-2xl text-center font-medium text-xs"
             style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
             {phase === 'signup_locked' ? '🔒 Sign-ups are closed' : 'Sign-ups re-open after Thursday 10pm'}
           </div>
+        )}
+        {iAmDeferred && (
+          <p className="text-xs mt-2 text-center" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+            The game's full, so you've been moved to the reserves. You'll be first in if someone drops out — keep an eye on the list.
+          </p>
         )}
       </div>
 
@@ -564,6 +598,42 @@ export default function TonightPage() {
                 </div>
               )
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Drop-out confirmation */}
+      {dropConfirm && (
+        <div className="fixed inset-0 flex items-end justify-center z-50 px-4 pb-4"
+          style={{ background: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setDropConfirm(false)}>
+          <div className="w-full rounded-2xl p-5"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', maxWidth: 430 }}
+            onClick={e => e.stopPropagation()}>
+            <p className="text-xs uppercase tracking-widest mb-0.5" style={{ color: 'var(--color-warning-text)' }}>Drop Out?</p>
+            <p className="font-semibold text-[var(--color-text)] mb-2">Give up your spot for {dateLabel}?</p>
+            <p className="text-xs mb-4" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+              {waitingAvail.length > 0
+                ? 'Your place will go straight to the next player on the waiting list — you may not get it back if you change your mind.'
+                : "You can mark yourself back in afterwards, but you'll re-join at the bottom of the list."}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setDropConfirm(false); toggleAvailability() }}
+                disabled={toggling}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
+                style={{ background: 'var(--color-warning-text)', color: '#000' }}
+              >
+                {toggling ? 'Dropping…' : 'Yes, drop out'}
+              </button>
+              <button
+                onClick={() => setDropConfirm(false)}
+                className="px-4 py-3 rounded-xl text-sm"
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+              >
+                Stay in
+              </button>
+            </div>
           </div>
         </div>
       )}

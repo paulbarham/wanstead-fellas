@@ -120,7 +120,7 @@ export default function CardsPage() {
     try {
       const blob = await cropAndResizeImage(file)
       const path = `${playerId}/profile.jpg`
-      const { error: uploadErr } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
+      const { error: uploadErr } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '3600' })
       if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`)
       const { data } = supabase.storage.from('avatars').getPublicUrl(path)
       const photoUrl = `${data.publicUrl}?t=${Date.now()}`

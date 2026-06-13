@@ -24,7 +24,7 @@ const BASE_NAV_ITEMS = [
   { to: '/',         label: 'Next Game', icon: '⚽' },
   { to: '/teams',    label: 'Teams',   icon: '👥' },
   { to: '/match',    label: 'Match',   icon: '📊' },
-  { to: '/history',  label: 'History', icon: '📅' },
+  { to: '/stats',    label: 'Stats',   icon: '📈' },
 ]
 const MORE_NAV_ITEM = { to: '/more', label: 'More', icon: '⋯' }
 const CUP_NAV_ITEM  = { to: '/cup',  label: 'World Cup',  icon: '🏆' }

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Profile, Result } from '../types'
-
-const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
+import { stripFC } from '../lib/format'
 
 interface RosterPlayer {
   id: string

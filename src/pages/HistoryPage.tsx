@@ -9,6 +9,7 @@ import CeefaxHeader from '../components/CeefaxHeader'
 import MatchResultView, {
   type FixtureScorer, type FixtureWithTeams,
 } from '../components/MatchResultView'
+import { stripFC } from '../lib/format'
 
 interface MatchRecord {
   match: Match
@@ -18,8 +19,6 @@ interface MatchRecord {
   scorersByFixture: Record<string, FixtureScorer[]>
   awards: AwardResult[]
 }
-
-const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 const AWARD_META: Record<AwardType, { label: string; icon: string }> = {
   motm: { label: 'Man of the Match', icon: '🏆' },

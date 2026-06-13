@@ -4,10 +4,8 @@ import { supabase } from '../lib/supabase'
 import { getVotingWindow, canGenerateTeams } from '../lib/time'
 import type { Profile, Match, Team } from '../types'
 import PlayerAvatar from './PlayerAvatar'
-import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
+import { pickConfig, formatLabelFor, splitPlayingAndReserves, stripFC } from '../lib/format'
 import { fetchWeather, weatherEmoji, weatherLabel, type WeatherData } from '../lib/weather'
-
-const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 interface TeamDraft {
   id?: string

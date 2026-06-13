@@ -131,13 +131,9 @@ export default function ProfilePage() {
   const [addError, setAddError] = useState('')
   const addPhotoRef = useRef<HTMLInputElement>(null)
 
-  if (!profile) return null
-
-  const previewProfile = { ...profile, name, surname, age_group: ageGroup, favourite_club: club || null }
-
   // Fetch linked children once on mount
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
+    if (!profile) return
     supabase
       .from('linked_profiles')
       .select('child_id')
@@ -148,7 +144,12 @@ export default function ProfilePage() {
         const { data: profs } = await supabase.from('profiles').select('*').in('id', ids)
         setLinkedChildren((profs as Profile[]) || [])
       })
-  }, [profile.id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
+
+  if (!profile) return null
+
+  const previewProfile = { ...profile, name, surname, age_group: ageGroup, favourite_club: club || null }
 
   // ── Own profile handlers ─────────────────────────────────────────────────────
 
@@ -184,7 +185,7 @@ export default function ProfilePage() {
       const path = `${profile!.id}/profile.jpg`
       const { error: uploadErr } = await supabase.storage
         .from('avatars')
-        .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
+        .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '3600' })
       if (uploadErr) throw new Error(`Photo upload failed: ${uploadErr.message}`)
       const { data } = supabase.storage.from('avatars').getPublicUrl(path)
       const photoUrl = `${data.publicUrl}?t=${Date.now()}`
@@ -257,7 +258,7 @@ export default function ProfilePage() {
       const path = `${selectedChild.id}/profile.jpg`
       const { error: uploadErr } = await supabase.storage
         .from('avatars')
-        .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
+        .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '3600' })
       if (uploadErr) throw new Error(`Photo upload failed: ${uploadErr.message}`)
       const { data } = supabase.storage.from('avatars').getPublicUrl(path)
       const photoUrl = `${data.publicUrl}?t=${Date.now()}`
@@ -366,7 +367,7 @@ export default function ProfilePage() {
         const path = `${childId}/profile.jpg`
         const { error: uploadError } = await supabase.storage
           .from('avatars')
-          .upload(path, addPhotoBlob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
+          .upload(path, addPhotoBlob, { upsert: true, contentType: 'image/jpeg', cacheControl: '3600' })
         if (!uploadError) {
           const { data } = supabase.storage.from('avatars').getPublicUrl(path)
           photoUrl = `${data.publicUrl}?t=${Date.now()}`

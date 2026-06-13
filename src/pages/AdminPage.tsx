@@ -178,7 +178,7 @@ function PlayersPanel() {
     try {
       const blob = await cropAndResizeImage(file)
       const path = `avatars/${playerId}/profile.jpg`
-      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '0' })
+      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '3600' })
       if (!error) {
         const { data } = supabase.storage.from('avatars').getPublicUrl(path)
         const photoUrl = `${data.publicUrl}?t=${Date.now()}`

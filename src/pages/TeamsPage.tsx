@@ -5,13 +5,12 @@ import type { Profile, Team, TeamPlayer, Match } from '../types'
 import { getNextThursdayDate } from '../lib/time'
 import AdminTeamBuilder from '../components/AdminTeamBuilder'
 import CeefaxHeader from '../components/CeefaxHeader'
+import { stripFC } from '../lib/format'
 
 interface TeamWithPlayers extends Team {
   players: Profile[]
   captain: Profile | null
 }
-
-const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 export default function TeamsPage() {
   const { profile } = useAuth()

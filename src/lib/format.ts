@@ -1,5 +1,8 @@
 import type { Profile, PlayerType } from '../types'
 
+// Team names are stored with an "FC"/"XI" suffix; strip it for compact display.
+export const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
+
 export interface MatchConfig {
   total: number
   numTeams: number

@@ -8,6 +8,7 @@
 
 import type { Match, Result, Team, Fixture } from '../types'
 import SectionHeader from './SectionHeader'
+import { stripFC } from '../lib/format'
 
 export interface FixtureScorer {
   player_name: string
@@ -34,8 +35,6 @@ interface GroupRow {
   ga: number
   pts: number
 }
-
-const stripFC = (s?: string) => (s ?? '').replace(/\s+(FC|XI)$/, '')
 
 export function aggregateScorers(scorers: FixtureScorer[]): FixtureScorer[] {
   const map = new Map<string, FixtureScorer>()
