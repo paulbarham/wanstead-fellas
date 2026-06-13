@@ -380,7 +380,8 @@ export default function SweepstakeCard() {
           <span style={stakeLabel}>£10</span>
         </div>
         <p style={whyText}>
-          Total reds across the whole tournament. <em style={{ color: C.cyan, fontStyle: 'normal', fontFamily: C.mono, fontSize: 10, letterSpacing: '0.06em' }}>Auto-pulled from each match's bookings.</em>
+          Total reds across the whole tournament.
+          <em style={{ color: C.cyan, fontStyle: 'normal', fontFamily: C.mono, fontSize: 10, letterSpacing: '0.06em' }}> Free-tier feed doesn't supply card data</em> — admin enters per-team totals in Cup Admin (auto-pull will switch on if we upgrade).
         </p>
         {view.reds_ranking.length === 0 ? (
           <p style={{ fontFamily: C.mono, color: C.muted, fontSize: 11, textAlign: 'center', padding: '10px 0 2px' }}>
