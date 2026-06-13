@@ -417,7 +417,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   }
 
   function copyToClipboard() {
-    let text = isElevenVEleven ? formatElevenReport() : formatFourTeamReport()
+    const text = isElevenVEleven ? formatElevenReport() : formatFourTeamReport()
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
