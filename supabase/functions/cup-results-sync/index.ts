@@ -84,6 +84,19 @@ interface CupMatchRow {
   kickoff: string
   is_knockout: boolean
   actual_outcome: string | null
+  cards_synced_at: string | null
+}
+
+// Bookings shape from /v4/matches/{id} — only the fields we use.
+interface ApiBooking {
+  team: { name: string }
+  card: 'YELLOW' | 'YELLOW_RED' | 'RED'
+}
+interface ApiMatchDetail {
+  id: number
+  homeTeam: { name: string }
+  awayTeam: { name: string }
+  bookings?: ApiBooking[]
 }
 
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000
@@ -149,7 +162,7 @@ Deno.serve(async () => {
 
   const { data: allRows, error: fetchErr } = await supabase
     .from('cup_matches')
-    .select('id, team1, team2, kickoff, is_knockout, actual_outcome')
+    .select('id, team1, team2, kickoff, is_knockout, actual_outcome, cards_synced_at')
 
   if (fetchErr) {
     return new Response(
@@ -254,14 +267,79 @@ Deno.serve(async () => {
     }
   }
 
+  // ── Cards pass ────────────────────────────────────────────────────────
+  // For each finished match we haven't yet synced cards for, fetch the
+  // detail endpoint, tally RED + YELLOW_RED bookings per team, and write
+  // back to cup_matches.reds1 / reds2 plus cards_synced_at so we don't
+  // re-fetch. Cap per run so we stay inside football-data.org's free-tier
+  // 10-req/min limit even when backfilling a lot at once.
+  const CARDS_FETCH_CAP = 8
+  // Re-read fresh so newly-updated rows from above are included.
+  const { data: postRows } = await supabase
+    .from('cup_matches')
+    .select('id, team1, team2, actual_outcome, cards_synced_at')
+    .not('actual_outcome', 'is', null)
+    .is('cards_synced_at', null)
+    .limit(CARDS_FETCH_CAP)
+  const needsCards = (postRows as { id: string; team1: string; team2: string }[]) ?? []
+
+  const apiById = new Map<string, ApiMatch>()
+  // We didn't keep API rows indexed earlier — index by team-pair + kickoff
+  // so we can look up the API id for each of our rows that needs cards.
+  // But the simplest is: re-iterate apiMatches once and match by team/time
+  // for each of our needsCards rows.
+  const cardUpdates: { team1: string; team2: string; reds1: number; reds2: number }[] = []
+  const cardErrors: { team1: string; team2: string; error: string }[] = []
+  for (const our of needsCards) {
+    const api = apiMatches.find(a => {
+      if (!a.homeTeam.name || !a.awayTeam.name) return false
+      const h = normalize(a.homeTeam.name)
+      const w = normalize(a.awayTeam.name)
+      return (h === our.team1 && w === our.team2) || (h === our.team2 && w === our.team1)
+    })
+    if (!api) {
+      cardErrors.push({ team1: our.team1, team2: our.team2, error: 'no API match found for cards fetch' })
+      continue
+    }
+    const detailRes = await fetch(`https://api.football-data.org/v4/matches/${api.id}`, {
+      headers: { 'X-Auth-Token': apiKey },
+    })
+    if (!detailRes.ok) {
+      cardErrors.push({ team1: our.team1, team2: our.team2, error: `detail ${detailRes.status}` })
+      continue
+    }
+    const detail = await detailRes.json() as ApiMatchDetail
+    let reds1 = 0
+    let reds2 = 0
+    for (const b of detail.bookings ?? []) {
+      if (b.card !== 'RED' && b.card !== 'YELLOW_RED') continue
+      const bookedTeam = normalize(b.team.name)
+      if (bookedTeam === our.team1) reds1++
+      else if (bookedTeam === our.team2) reds2++
+    }
+    const { error: updErr } = await supabase
+      .from('cup_matches')
+      .update({ reds1, reds2, cards_synced_at: new Date().toISOString() })
+      .eq('id', our.id)
+    if (updErr) {
+      cardErrors.push({ team1: our.team1, team2: our.team2, error: `cards update: ${updErr.message}` })
+    } else {
+      cardUpdates.push({ team1: our.team1, team2: our.team2, reds1, reds2 })
+    }
+    // Track API id so we can mention in the response which rows we re-hit
+    apiById.set(our.id, api)
+  }
+
   return new Response(JSON.stringify({
     api_total: apiMatches.length,
     our_total: ourMatches.length,
     inserted: inserts.length,
     updated: updates.length,
+    cards_synced: cardUpdates.length,
     inserts,
     updates,
-    errors,
+    card_updates: cardUpdates,
+    errors: [...errors, ...cardErrors],
     skipped_api,
   }), { headers: { 'Content-Type': 'application/json' } })
 })

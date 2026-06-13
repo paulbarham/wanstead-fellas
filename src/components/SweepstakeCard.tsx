@@ -38,6 +38,8 @@ interface CupMatchLite {
   score1: number | null
   score2: number | null
   actual_outcome: string | null
+  reds1: number | null
+  reds2: number | null
 }
 
 const STATUS_LABEL: Record<SweepStatus, string> = {
@@ -85,6 +87,15 @@ function computeGaFromMatches(team: string, matches: CupMatchLite[]): number {
   return ga
 }
 
+function computeRedsFromMatches(team: string, matches: CupMatchLite[]): number {
+  let r = 0
+  for (const m of matches) {
+    if (m.team1 === team) r += m.reds1 ?? 0
+    else if (m.team2 === team) r += m.reds2 ?? 0
+  }
+  return r
+}
+
 export default function SweepstakeCard() {
   const { profile } = useAuth()
   const [entries, setEntries] = useState<SweepEntry[]>([])
@@ -98,7 +109,7 @@ export default function SweepstakeCard() {
     Promise.all([
       supabase.from('cup_sweepstake_entries').select('*'),
       supabase.from('cup_sweepstake_team_status').select('*'),
-      supabase.from('cup_matches').select('team1, team2, score1, score2, actual_outcome'),
+      supabase.from('cup_matches').select('team1, team2, score1, score2, actual_outcome, reds1, reds2'),
     ]).then(([e, s, m]) => {
       if (cancelled) return
       setEntries((e.data as SweepEntry[]) ?? [])
@@ -127,7 +138,7 @@ export default function SweepstakeCard() {
       const st = statusByTeam.get(e.team_name)
       const status = st?.status ?? 'alive'
       const ga = st?.manual_ga ?? computeGaFromMatches(e.team_name, matches)
-      const reds = st?.manual_reds ?? 0
+      const reds = st?.manual_reds ?? computeRedsFromMatches(e.team_name, matches)
       return {
         team_name: e.team_name,
         sweep_name: e.sweep_name,
@@ -369,7 +380,7 @@ export default function SweepstakeCard() {
           <span style={stakeLabel}>£10</span>
         </div>
         <p style={whyText}>
-          Total reds across the whole tournament. Admin-recorded after each match.
+          Total reds across the whole tournament. <em style={{ color: C.cyan, fontStyle: 'normal', fontFamily: C.mono, fontSize: 10, letterSpacing: '0.06em' }}>Auto-pulled from each match's bookings.</em>
         </p>
         {view.reds_ranking.length === 0 ? (
           <p style={{ fontFamily: C.mono, color: C.muted, fontSize: 11, textAlign: 'center', padding: '10px 0 2px' }}>
