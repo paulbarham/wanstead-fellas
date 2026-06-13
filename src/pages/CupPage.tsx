@@ -189,6 +189,7 @@ function CupTabs({
         </div>
         {myRank && (
           <div className="text-right shrink-0" style={{ fontFamily: MONO }}>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: 8, letterSpacing: '0.12em', lineHeight: 1, marginBottom: 2 }}>MY RANK</p>
             <p style={{ color: TT_YELLOW, fontSize: 14, fontWeight: 700, lineHeight: 1 }}>
               {String(myRank.rank).padStart(2, '0')}<span style={{ color: 'var(--color-text-muted)', fontSize: 10, marginLeft: 4 }}>/ {totalPlayers}</span>
             </p>
