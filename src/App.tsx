@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import Layout from './components/Layout'
@@ -10,50 +11,57 @@ import HistoryPage from './pages/HistoryPage'
 import CardsPage from './pages/CardsPage'
 import FeedbackPage from './pages/FeedbackPage'
 import StatsPage from './pages/StatsPage'
-import PodsPage from './pages/PodsPage'
 import MorePage from './pages/MorePage'
-import CupPage from './pages/CupPage'
-import CupAdminPage from './pages/CupAdminPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
+
+// Cup (tournament-only) and Pods are heavy and rarely visited — load them on
+// demand so they don't bloat the main bundle for the weekly sign-up flow.
+const PodsPage = lazy(() => import('./pages/PodsPage'))
+const CupPage = lazy(() => import('./pages/CupPage'))
+const CupAdminPage = lazy(() => import('./pages/CupAdminPage'))
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-bg)' }}>
+      <div className="text-center">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
+          style={{ background: 'var(--color-primary)' }}>
+          <span className="font-display text-xl text-white">WF</span>
+        </div>
+        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</p>
+      </div>
+    </div>
+  )
+}
 
 function ProtectedRoutes() {
   const { session, loading } = useAuth()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-bg)' }}>
-        <div className="text-center">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
-            style={{ background: 'var(--color-primary)' }}>
-            <span className="font-display text-xl text-white">WF</span>
-          </div>
-          <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  if (loading) return <LoadingScreen />
 
   if (!session) return <Navigate to="/login" replace />
 
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<TonightPage />} />
-        <Route path="teams" element={<TeamsPage />} />
-        <Route path="match" element={<MatchPage />} />
-        <Route path="history" element={<HistoryPage />} />
-        <Route path="cards" element={<CardsPage />} />
-        <Route path="stats" element={<StatsPage />} />
-        <Route path="pods" element={<PodsPage />} />
-        <Route path="more" element={<MorePage />} />
-        <Route path="cup" element={<CupPage />} />
-        <Route path="cup/admin" element={<CupAdminPage />} />
-        <Route path="feedback" element={<FeedbackPage />} />
-        <Route path="admin" element={<AdminPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-      </Route>
-    </Routes>
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<TonightPage />} />
+          <Route path="teams" element={<TeamsPage />} />
+          <Route path="match" element={<MatchPage />} />
+          <Route path="history" element={<HistoryPage />} />
+          <Route path="cards" element={<CardsPage />} />
+          <Route path="stats" element={<StatsPage />} />
+          <Route path="pods" element={<PodsPage />} />
+          <Route path="more" element={<MorePage />} />
+          <Route path="cup" element={<CupPage />} />
+          <Route path="cup/admin" element={<CupAdminPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="admin" element={<AdminPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+      </Routes>
+    </Suspense>
   )
 }
 
