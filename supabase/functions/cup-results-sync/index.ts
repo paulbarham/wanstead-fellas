@@ -1,9 +1,11 @@
-// Polls football-data.org for finished FIFA World Cup matches and writes
-// scores + outcomes into cup_matches. Only ever updates rows where
-// actual_outcome IS NULL — admin-entered results are never overwritten, and
-// the existing settle_cup_predictions trigger does the rest (so player
-// predictions get scored automatically, just as they would on a manual
-// admin entry).
+// Polls football-data.org for FIFA World Cup matches and keeps cup_matches
+// in sync. Two jobs:
+//   1. INSERT any API fixtures we don't yet have (lets the predictor cover
+//      all 64 WC games without anyone having to hand-seed them).
+//   2. UPDATE rows where actual_outcome IS NULL with score + outcome once
+//      the API marks them FINISHED. Admin-entered results are never
+//      overwritten. The existing settle_cup_predictions trigger handles
+//      scoring everyone's predictions.
 //
 // Env vars required:
 //   FOOTBALL_DATA_API_KEY  free-tier key from football-data.org
@@ -15,8 +17,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 // API-name → our cup_matches name. Only entries that actually differ.
 // Anything not in this table is matched verbatim. Multiple API spellings
-// for the same country are all mapped to our single name (football-data.org
-// uses "Bosnia-Herzegovina" with a hyphen, not the long form).
+// for the same country are all mapped to our single name.
 const TEAM_ALIASES: Record<string, string> = {
   'Korea Republic': 'South Korea',
   'Bosnia and Herzegovina': 'Bosnia & Herz.',
@@ -24,17 +25,49 @@ const TEAM_ALIASES: Record<string, string> = {
   'United States': 'United States',
   'USA': 'United States',
   'Czech Republic': 'Czechia',
+  'Türkiye': 'Turkey',
+  'Turkiye': 'Turkey',
+  'Netherlands': 'Netherlands',
+  'Holland': 'Netherlands',
+  "Côte d'Ivoire": 'Ivory Coast',
+  'Cote d\'Ivoire': 'Ivory Coast',
+  'Cabo Verde': 'Cape Verde',
+  'Cape Verde Islands': 'Cape Verde',
+  'Congo DR': 'DR Congo',
+  'DR Congo': 'DR Congo',
 }
 
 const normalize = (apiName: string): string => TEAM_ALIASES[apiName] ?? apiName
+
+// API stage → our cup_matches.stage value. Group stage is special — uses the
+// group letter from the API's `group` field.
+function mapStage(api: { stage: string; group?: string | null }): { stage: string; group_letter: string | null; is_knockout: boolean } | null {
+  const s = (api.stage || '').toUpperCase()
+  if (s === 'GROUP_STAGE') {
+    const g = (api.group || '').toUpperCase().replace('GROUP_', '')
+    if (!g) return null
+    const letter = g.charAt(0)
+    if (letter < 'A' || letter > 'L') return null
+    return { stage: `group_${letter.toLowerCase()}`, group_letter: letter, is_knockout: false }
+  }
+  if (s === 'LAST_32')        return { stage: 'r32', group_letter: null, is_knockout: true }
+  if (s === 'LAST_16')        return { stage: 'r16', group_letter: null, is_knockout: true }
+  if (s === 'QUARTER_FINALS') return { stage: 'qf',  group_letter: null, is_knockout: true }
+  if (s === 'SEMI_FINALS')    return { stage: 'sf',  group_letter: null, is_knockout: true }
+  if (s === 'THIRD_PLACE')    return { stage: 'third_place', group_letter: null, is_knockout: true }
+  if (s === 'FINAL')          return { stage: 'final', group_letter: null, is_knockout: true }
+  return null
+}
 
 interface ApiMatch {
   id: number
   utcDate: string
   status: string
   stage: string
-  homeTeam: { name: string }
-  awayTeam: { name: string }
+  group?: string | null
+  venue?: string | null
+  homeTeam: { name: string | null }
+  awayTeam: { name: string | null }
   score: {
     duration: 'REGULAR' | 'EXTRA_TIME' | 'PENALTY_SHOOTOUT'
     fullTime: { home: number | null; away: number | null }
@@ -44,21 +77,17 @@ interface ApiMatch {
   }
 }
 
-interface CupMatch {
+interface CupMatchRow {
   id: string
   team1: string
   team2: string
   kickoff: string
   is_knockout: boolean
+  actual_outcome: string | null
 }
 
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000
 
-// Build the outcome string the rest of the app understands.
-// Groups: 'team1' | 'draw' | 'team2'.
-// Knockouts: 'teamN_{90|et|pen}'.
-// `swap` flips the meaning of "team1"/"team2" because the API's home/away
-// ordering may not match our team1/team2 ordering for a given fixture.
 function computeOutcome(
   api: ApiMatch,
   isKnockout: boolean,
@@ -67,11 +96,8 @@ function computeOutcome(
   const home = api.score.fullTime.home
   const away = api.score.fullTime.away
   if (home == null || away == null) return null
-
-  // Score: re-order so score1 corresponds to our team1.
   const score1 = swap ? away : home
   const score2 = swap ? home : away
-
   if (!isKnockout) {
     let outcome: string
     if (api.score.winner === 'DRAW') outcome = 'draw'
@@ -80,18 +106,14 @@ function computeOutcome(
     else return null
     return { outcome, score1, score2 }
   }
-
-  // Knockout: detect 90 / ET / PEN from the API's duration field.
   let mode: '90' | 'et' | 'pen'
   if (api.score.duration === 'PENALTY_SHOOTOUT') mode = 'pen'
   else if (api.score.duration === 'EXTRA_TIME') mode = 'et'
   else mode = '90'
-
   let winnerSide: 'team1' | 'team2'
   if (api.score.winner === 'HOME_TEAM') winnerSide = swap ? 'team2' : 'team1'
   else if (api.score.winner === 'AWAY_TEAM') winnerSide = swap ? 'team1' : 'team2'
   else return null
-
   return { outcome: `${winnerSide}_${mode}`, score1, score2 }
 }
 
@@ -110,8 +132,10 @@ Deno.serve(async () => {
     { auth: { persistSession: false } },
   )
 
+  // Fetch ALL matches (no status filter) so we can also create scheduled
+  // fixtures that haven't been seeded into cup_matches yet.
   const apiRes = await fetch(
-    'https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED',
+    'https://api.football-data.org/v4/competitions/WC/matches',
     { headers: { 'X-Auth-Token': apiKey } },
   )
   if (!apiRes.ok) {
@@ -123,12 +147,9 @@ Deno.serve(async () => {
   const payload = await apiRes.json() as { matches: ApiMatch[] }
   const apiMatches = payload.matches ?? []
 
-  // Only consider unsettled fixtures — admin entries (actual_outcome NOT
-  // NULL) are sacred and we never touch them.
-  const { data: ourMatches, error: fetchErr } = await supabase
+  const { data: allRows, error: fetchErr } = await supabase
     .from('cup_matches')
-    .select('id, team1, team2, kickoff, is_knockout')
-    .is('actual_outcome', null)
+    .select('id, team1, team2, kickoff, is_knockout, actual_outcome')
 
   if (fetchErr) {
     return new Response(
@@ -136,39 +157,81 @@ Deno.serve(async () => {
       { status: 500, headers: { 'Content-Type': 'application/json' } },
     )
   }
+  const ourMatches = (allRows as CupMatchRow[]) ?? []
 
   const updates: { team1: string; team2: string; outcome: string; score: string }[] = []
+  const inserts: { team1: string; team2: string; kickoff: string; stage: string }[] = []
   const errors: { team1: string; team2: string; error: string }[] = []
-  // Track unmatched pairs so a name/time mismatch surfaces in the response
-  // instead of silently dropping the update (debugged a real Canada–Bosnia
-  // miss this way — alias map was right but the API used a longer name).
   const matchedApiIds = new Set<number>()
-  const unmatched_our: { team1: string; team2: string; kickoff: string }[] = []
+  const skipped_api: { home: string | null; away: string | null; reason: string }[] = []
 
-  for (const m of (ourMatches as CupMatch[])) {
-    const ourKickoffMs = new Date(m.kickoff).getTime()
-    const matched = apiMatches.find(a => {
-      const apiHome = normalize(a.homeTeam.name)
-      const apiAway = normalize(a.awayTeam.name)
-      const apiTimeMs = new Date(a.utcDate).getTime()
-      const timeMatch = Math.abs(apiTimeMs - ourKickoffMs) <= TWO_HOURS_MS
+  // Find our row for a given API match by normalized teams + kickoff window.
+  function findOurMatch(a: ApiMatch): CupMatchRow | null {
+    const apiHome = a.homeTeam.name ? normalize(a.homeTeam.name) : null
+    const apiAway = a.awayTeam.name ? normalize(a.awayTeam.name) : null
+    if (!apiHome || !apiAway) return null
+    const apiTimeMs = new Date(a.utcDate).getTime()
+    return ourMatches.find(m => {
       const teamsMatch =
         (apiHome === m.team1 && apiAway === m.team2) ||
         (apiHome === m.team2 && apiAway === m.team1)
-      return timeMatch && teamsMatch
-    })
-    if (!matched) {
-      unmatched_our.push({ team1: m.team1, team2: m.team2, kickoff: m.kickoff })
+      const timeMatch = Math.abs(new Date(m.kickoff).getTime() - apiTimeMs) <= TWO_HOURS_MS
+      return teamsMatch && timeMatch
+    }) ?? null
+  }
+
+  for (const a of apiMatches) {
+    if (!a.homeTeam.name || !a.awayTeam.name) {
+      // Knockout placeholder before draw is known — skip until teams resolve.
+      skipped_api.push({ home: a.homeTeam.name, away: a.awayTeam.name, reason: 'no team name yet' })
       continue
     }
-    matchedApiIds.add(matched.id)
 
-    const swap = normalize(matched.homeTeam.name) === m.team2
-    const result = computeOutcome(matched, m.is_knockout, swap)
+    const ours = findOurMatch(a)
+
+    // INSERT path — fixture we don't yet have. Don't bother creating rows
+    // for FINISHED games that have already happened (no one can predict
+    // those any more); only create SCHEDULED / IN_PLAY fixtures.
+    if (!ours) {
+      if (a.status === 'FINISHED') {
+        skipped_api.push({ home: a.homeTeam.name, away: a.awayTeam.name, reason: 'finished before we tracked it' })
+        continue
+      }
+      const stageInfo = mapStage(a)
+      if (!stageInfo) {
+        skipped_api.push({ home: a.homeTeam.name, away: a.awayTeam.name, reason: `unknown stage ${a.stage}/${a.group ?? ''}` })
+        continue
+      }
+      const team1 = normalize(a.homeTeam.name)
+      const team2 = normalize(a.awayTeam.name)
+      const { error: insErr } = await supabase
+        .from('cup_matches')
+        .insert({
+          stage: stageInfo.stage,
+          group_letter: stageInfo.group_letter,
+          team1,
+          team2,
+          kickoff: a.utcDate,
+          venue: a.venue ?? null,
+          is_knockout: stageInfo.is_knockout,
+        })
+      if (insErr) {
+        errors.push({ team1, team2, error: `insert: ${insErr.message}` })
+      } else {
+        inserts.push({ team1, team2, kickoff: a.utcDate, stage: stageInfo.stage })
+        matchedApiIds.add(a.id)
+      }
+      continue
+    }
+
+    matchedApiIds.add(a.id)
+    // UPDATE path — only if API marks it finished AND we haven't already
+    // settled it. .is('actual_outcome', null) on the update gives race-safety.
+    if (a.status !== 'FINISHED' || ours.actual_outcome != null) continue
+    const swap = normalize(a.homeTeam.name) === ours.team2
+    const result = computeOutcome(a, ours.is_knockout, swap)
     if (!result) continue
 
-    // .is('actual_outcome', null) on the update gives us race-safety: if an
-    // admin entry landed between our SELECT and UPDATE, our write is a no-op.
     const { error: updErr, count } = await supabase
       .from('cup_matches')
       .update({
@@ -176,38 +239,29 @@ Deno.serve(async () => {
         score2: result.score2,
         actual_outcome: result.outcome,
       }, { count: 'exact' })
-      .eq('id', m.id)
+      .eq('id', ours.id)
       .is('actual_outcome', null)
 
     if (updErr) {
-      errors.push({ team1: m.team1, team2: m.team2, error: updErr.message })
+      errors.push({ team1: ours.team1, team2: ours.team2, error: updErr.message })
     } else if ((count ?? 0) > 0) {
       updates.push({
-        team1: m.team1,
-        team2: m.team2,
+        team1: ours.team1,
+        team2: ours.team2,
         outcome: result.outcome,
         score: `${result.score1}-${result.score2}`,
       })
     }
   }
 
-  // Surface API-finished matches we couldn't map back to any of our rows —
-  // either a fixture we don't track or a name/kickoff mismatch to investigate.
-  const unmatched_api = apiMatches
-    .filter(a => !matchedApiIds.has(a.id))
-    .map(a => ({
-      home: a.homeTeam.name,
-      away: a.awayTeam.name,
-      utcDate: a.utcDate,
-    }))
-
   return new Response(JSON.stringify({
-    checked: ourMatches?.length ?? 0,
-    api_finished: apiMatches.length,
+    api_total: apiMatches.length,
+    our_total: ourMatches.length,
+    inserted: inserts.length,
     updated: updates.length,
+    inserts,
     updates,
     errors,
-    unmatched_our,
-    unmatched_api,
+    skipped_api,
   }), { headers: { 'Content-Type': 'application/json' } })
 })
