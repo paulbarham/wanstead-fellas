@@ -2,7 +2,7 @@
 
 > A living reference for the Wanstead Fellas app: what it does for players, what it gives admins, and how it's built. **Keep this document updated whenever functionality changes.**
 
-_Last updated: 2026-06-13_
+_Last updated: 2026-06-13 (cup-results-sync resilience; predictor "MY RANK" label)_
 
 ---
 
@@ -74,7 +74,7 @@ Seven leaderboards, each with a month / all-time toggle:
 - **Fines:** admin can issue quick fines (Late £2, Lost Ball £3, Cuntiness £5, Drop-out £2).
 
 ### Seasonal extras
-- **World Cup Predictor (`/cup`):** open to all players during the tournament window. Group-stage 1X2 picks and knockout 6-way picks (90/ET/pens), locking 5 minutes before kick-off. Leaderboard scored across all settled matches.
+- **World Cup Predictor (`/cup`):** open to all players during the tournament window. Group-stage 1X2 picks and knockout 6-way picks (90/ET/pens), locking 5 minutes before kick-off. Leaderboard scored across all settled matches; the header shows your own standing as a "MY RANK" position (rank / total players) with your points.
 - **Sweepstake:** read-only card for players; prize structure £60/£30/£20/£10 plus £120 to charity.
 - **Pods:** static car-share / group info.
 - **Feedback:** players submit feedback through a form.
@@ -111,7 +111,7 @@ Admins also drive the match cycle:
 - **Auth:** email/password. `ADMIN_EMAIL` (`pabarham@gmail.com`) is auto-promoted; profiles self-heal on login.
 - **Storage:** `avatars` bucket (`{id}/profile.jpg`), uploaded with `cacheControl: 3600` and a `?t=` cache-buster on the URL.
 - **Realtime:** `postgres_changes` for live availability.
-- **Edge function:** `cup-results-sync` runs on a 30-minute cron (URL stored in Vault as `cup_sync_url`), backed by pg_cron + pg_net.
+- **Edge function:** `cup-results-sync` runs on a 30-minute cron (URL stored in Vault as `cup_sync_url`), backed by pg_cron + pg_net. It polls football-data.org to insert/score `cup_matches` once a fixture is marked FINISHED (admin-entered results are never overwritten), and optionally pulls red cards from api-football.com (its free tier excludes WC 2026, so that pass currently no-ops; reds stay manual). Every external fetch and the whole handler are wrapped so a transient API failure degrades gracefully (retries next run) instead of crashing the sync — finished results land within ~30 min. Results can also be entered manually on the Cup Admin page, which settles predictions immediately.
 - **RLS helpers:** `is_admin()` and `my_profile_id()`.
 
 ### Database tables
