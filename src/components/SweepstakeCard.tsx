@@ -266,47 +266,68 @@ export default function SweepstakeCard() {
           const isMe = !!profile?.id && o.profile_id === profile.id
           return (
             <div key={o.sweep_name} style={{
-              display: 'grid',
-              gridTemplateColumns: '22px 80px 1fr auto',
-              gap: 8, alignItems: 'center', padding: '8px 0',
+              padding: '10px 8px',
               borderTop: i === 0 ? `1px solid ${C.border}` : `1px dashed ${C.border}`,
               background: isMe ? 'rgba(74,217,255,0.06)' : 'transparent',
               borderRadius: isMe ? 8 : 0,
-              paddingLeft: isMe ? 6 : 0,
-              paddingRight: isMe ? 6 : 0,
+              marginLeft: isMe ? -8 : 0,
+              marginRight: isMe ? -8 : 0,
             }}>
-              <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 10 }}>{String(i + 1).padStart(2, '0')}</span>
-              <span style={{ fontFamily: C.mono, fontSize: 12, fontWeight: 700, color: isMe ? C.cyan : C.text }}>
-                {o.sweep_name}{isMe ? ' (you)' : ''}
-              </span>
-              <span style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {/* Row 1: rank + name + alive count */}
+              <div style={{
+                display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+                gap: 8, marginBottom: 8,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, minWidth: 0 }}>
+                  <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 11 }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span style={{
+                    fontFamily: C.mono, fontSize: 14, fontWeight: 700,
+                    color: isMe ? C.cyan : C.text,
+                  }}>
+                    {o.sweep_name}{isMe ? ' (you)' : ''}
+                  </span>
+                </div>
+                <span style={{
+                  fontFamily: C.mono, color: C.yellow, fontWeight: 700, fontSize: 13,
+                  whiteSpace: 'nowrap',
+                }}>
+                  {o.alive_count}
+                  <span style={{ color: C.muted, fontWeight: 500, fontSize: 11, marginLeft: 4 }}>
+                    {o.alive_count === 1 ? 'team alive' : 'alive'}
+                  </span>
+                </span>
+              </div>
+              {/* Row 2: team chips — full width, breathable */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                 {o.teams.map(t => {
                   const out = !t.alive_for_winner
                   return (
                     <span key={t.team_name} style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      display: 'inline-flex', alignItems: 'center', gap: 5,
                       fontFamily: C.mono, fontSize: 11,
-                      background: out ? 'rgba(143,175,145,0.06)' : 'rgba(74,220,122,0.08)',
-                      border: `1px solid ${out ? 'rgba(143,175,145,0.18)' : 'rgba(74,220,122,0.30)'}`,
+                      background: out ? 'rgba(143,175,145,0.05)' : 'rgba(74,220,122,0.10)',
+                      border: `1px solid ${out ? 'rgba(143,175,145,0.18)' : 'rgba(74,220,122,0.32)'}`,
                       color: out ? C.muted : C.text,
-                      borderRadius: 6, padding: '2px 6px',
+                      borderRadius: 6, padding: '3px 8px',
                       opacity: out ? 0.55 : 1,
                       textDecoration: out ? 'line-through' : 'none',
                     }}>
                       {t.team_name}
                       {out && (
-                        <span style={{ fontSize: 8, letterSpacing: '0.06em', color: C.red, padding: '0 4px', background: 'rgba(255,85,85,0.08)', borderRadius: 3 }}>
+                        <span style={{
+                          fontSize: 8, letterSpacing: '0.06em', color: C.red,
+                          padding: '1px 4px', background: 'rgba(255,85,85,0.10)',
+                          borderRadius: 3, textDecoration: 'none',
+                        }}>
                           {STATUS_LABEL[t.status]}
                         </span>
                       )}
                     </span>
                   )
                 })}
-              </span>
-              <span style={{ fontFamily: C.mono, color: C.yellow, fontWeight: 700, fontSize: 12 }}>
-                {o.alive_count}
-                <span style={{ color: C.muted, fontWeight: 500, fontSize: 10, marginLeft: 2 }}>alive</span>
-              </span>
+              </div>
             </div>
           )
         })}

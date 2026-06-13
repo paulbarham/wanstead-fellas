@@ -163,37 +163,39 @@ function CupTabs({
   const items: { id: Tab; label: string }[] = [
     { id: 'hub', label: 'Hub' },
     { id: 'leaderboard', label: 'League' },
-    { id: 'picks', label: 'My Picks' },
+    { id: 'picks', label: 'Picks' },
     { id: 'sweepstake', label: 'Sweep' },
   ]
   return (
-    <div className="flex items-center justify-between gap-3 mb-4 mt-1">
-      <div className="flex gap-1" style={{ fontFamily: MONO }}>
-        {items.map(it => (
-          <button
-            key={it.id}
-            onClick={() => setTab(it.id)}
-            className="px-3 py-1.5 text-xs font-semibold rounded-md"
-            style={{
-              background: tab === it.id ? TT_YELLOW : 'transparent',
-              color: tab === it.id ? '#000' : 'var(--color-text-muted)',
-              border: tab === it.id ? '1px solid ' + TT_YELLOW : '1px solid var(--color-border)',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-            }}
-          >
-            {it.label}
-          </button>
-        ))}
-      </div>
-      {myRank && (
-        <div className="text-right" style={{ fontFamily: MONO }}>
-          <p style={{ color: TT_YELLOW, fontSize: 14, fontWeight: 700 }}>
-            {String(myRank.rank).padStart(2, '0')}<span style={{ color: 'var(--color-text-muted)', fontSize: 10, marginLeft: 4 }}>/ {totalPlayers}</span>
-          </p>
-          <p style={{ color: TT_CYAN, fontSize: 10, letterSpacing: '0.1em' }}>{myRank.row.points} PTS</p>
+    <div className="flex flex-col gap-2 mb-4 mt-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex gap-1 flex-1" style={{ fontFamily: MONO }}>
+          {items.map(it => (
+            <button
+              key={it.id}
+              onClick={() => setTab(it.id)}
+              className="flex-1 px-1 py-1.5 text-[11px] font-semibold rounded-md"
+              style={{
+                background: tab === it.id ? TT_YELLOW : 'transparent',
+                color: tab === it.id ? '#000' : 'var(--color-text-muted)',
+                border: tab === it.id ? '1px solid ' + TT_YELLOW : '1px solid var(--color-border)',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {it.label}
+            </button>
+          ))}
         </div>
-      )}
+        {myRank && (
+          <div className="text-right shrink-0" style={{ fontFamily: MONO }}>
+            <p style={{ color: TT_YELLOW, fontSize: 14, fontWeight: 700, lineHeight: 1 }}>
+              {String(myRank.rank).padStart(2, '0')}<span style={{ color: 'var(--color-text-muted)', fontSize: 10, marginLeft: 4 }}>/ {totalPlayers}</span>
+            </p>
+            <p style={{ color: TT_CYAN, fontSize: 10, letterSpacing: '0.1em', marginTop: 2 }}>{myRank.row.points} PTS</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
