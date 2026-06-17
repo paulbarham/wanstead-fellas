@@ -125,6 +125,23 @@ export default function TonightPage() {
     return () => clearInterval(interval)
   }, [])
 
+  // Picks the next waiting entry to promote into a freed confirmed slot.
+  // Priority order: wtp_priority first (they pay more — match the bump rule
+  // in toggleAvailability), then FIFO by created_at. Returns null if no one
+  // is waiting. `excludePlayerId` lets the self-drop path skip the dropper's
+  // own row in case both branches race for the same fetchData snapshot.
+  function pickPromotion(excludePlayerId?: string) {
+    const candidates = waitingAvail
+      .filter(a => a.player_id !== excludePlayerId)
+      .map(a => ({
+        a,
+        priority: (players.find(p => p.id === a.player_id)?.player_type ?? 'wtp') === 'wtp_priority' ? 0 : 1,
+        when: new Date(a.created_at).getTime(),
+      }))
+      .sort((x, y) => x.priority - y.priority || x.when - y.when)
+    return candidates[0]?.a ?? null
+  }
+
   async function toggleAvailability() {
     if (!profile) return
     if (!profile.is_admin && phase === 'signup_locked') return
@@ -135,9 +152,7 @@ export default function TonightPage() {
       await supabase.from('availability').delete().eq('id', myEntry.id)
 
       if (myEntry.status === 'confirmed') {
-        const firstWaiting = [...waitingAvail]
-          .filter(a => a.player_id !== profile.id)
-          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())[0]
+        const firstWaiting = pickPromotion(profile.id)
         if (firstWaiting) {
           await supabase.from('availability').update({ status: 'confirmed' }).eq('id', firstWaiting.id)
         }
@@ -185,6 +200,13 @@ export default function TonightPage() {
     const childEntry = availability.find(a => a.player_id === childId)
     if (childEntry) {
       await supabase.from('availability').delete().eq('id', childEntry.id)
+      // Free slot → promote the next waiting player, same rule as self-drop.
+      if (childEntry.status === 'confirmed') {
+        const firstWaiting = pickPromotion(childId)
+        if (firstWaiting) {
+          await supabase.from('availability').update({ status: 'confirmed' }).eq('id', firstWaiting.id)
+        }
+      }
     } else {
       const status = signedUpCount < SIGNUP_CAP ? 'confirmed' : 'waiting'
       await supabase.from('availability').insert({ player_id: childId, match_date: nextThursday, status })
@@ -198,6 +220,14 @@ export default function TonightPage() {
     const existing = availability.find(a => a.player_id === playerId)
     if (existing) {
       await supabase.from('availability').delete().eq('id', existing.id)
+      // Free slot → promote the next waiting player. Without this, an admin
+      // removing someone leaves the teams uneven (Felix Baker, 2026-06-17).
+      if (existing.status === 'confirmed') {
+        const firstWaiting = pickPromotion(playerId)
+        if (firstWaiting) {
+          await supabase.from('availability').update({ status: 'confirmed' }).eq('id', firstWaiting.id)
+        }
+      }
     } else {
       await supabase.from('availability').insert({ player_id: playerId, match_date: nextThursday, status: 'confirmed' })
     }
