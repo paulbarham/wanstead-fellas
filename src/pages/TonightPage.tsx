@@ -165,16 +165,27 @@ export default function TonightPage() {
       } else if (playerType === 'wtp') {
         await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'waiting' })
       } else {
-        const confirmedWtp = confirmedAvail
-          .filter(a => {
-            const p = players.find(pl => pl.id === a.player_id)
-            return (p?.player_type ?? 'wtp') === 'wtp'
-          })
-          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        // Strict pecking order: subscribed > wtp_priority > wtp. A signer-up
+        // can bump anyone strictly below their tier. wtp_priority can bump
+        // wtp; subscribed can bump wtp first, then wtp_priority. Within a
+        // tier the latest-confirmed (highest created_at) is the one displaced
+        // — fairer to first-comers.
+        const bumpableTiers = playerType === 'subscribed'
+          ? ['wtp', 'wtp_priority']
+          : ['wtp']
+        const candidate = confirmedAvail
+          .map(a => ({ a, tier: players.find(pl => pl.id === a.player_id)?.player_type ?? 'wtp' }))
+          .filter(({ tier }) => bumpableTiers.includes(tier))
+          // Sort by tier rank (wtp first), then latest created_at within tier.
+          .sort((x, y) => {
+            const rank = (t: string) => t === 'wtp' ? 0 : 1
+            const r = rank(x.tier) - rank(y.tier)
+            if (r !== 0) return r
+            return new Date(y.a.created_at).getTime() - new Date(x.a.created_at).getTime()
+          })[0]?.a
 
-        if (confirmedWtp.length > 0) {
-          const toBump = confirmedWtp[0]
-          await supabase.from('availability').update({ status: 'waiting' }).eq('id', toBump.id)
+        if (candidate) {
+          await supabase.from('availability').update({ status: 'waiting' }).eq('id', candidate.id)
           await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'confirmed' })
         } else {
           await supabase.from('availability').insert({ player_id: profile.id, match_date: nextThursday, status: 'waiting' })
