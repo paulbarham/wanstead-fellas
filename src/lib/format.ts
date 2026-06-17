@@ -10,6 +10,7 @@ export interface MatchConfig {
 }
 
 export const VALID_CONFIGS: MatchConfig[] = [
+  { total: 36, numTeams: 4, teamSize: 9 },
   { total: 32, numTeams: 4, teamSize: 8 },
   { total: 28, numTeams: 4, teamSize: 7 },
   { total: 24, numTeams: 4, teamSize: 6 },
