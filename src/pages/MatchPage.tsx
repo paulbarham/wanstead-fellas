@@ -66,6 +66,7 @@ export default function MatchPage() {
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>([])
   const [result, setResult] = useState<Result | null>(null)
   const [scorersByFixture, setScorersByFixture] = useState<Record<string, FixtureScorer[]>>({})
+  const [votingOpen, setVotingOpen] = useState(false)
 
   const [weekMatch, setWeekMatch] = useState<Match | null>(null)
   const [weekTeams, setWeekTeams] = useState<Team[]>([])
@@ -130,6 +131,23 @@ export default function MatchPage() {
       setWeekTeams(week.teams)
       setWeekFixtures(week.fixtures)
       setWeekResult(week.result)
+    }
+
+    // Decide where the awards card mounts: pinned at the top while the latest
+    // voting window is open, otherwise in the mid-slot (between result and
+    // report). MotmVotingCard still decides ballot-vs-results internally.
+    const { data: vw } = await supabase
+      .from('voting_windows')
+      .select('opens_at, closes_at')
+      .order('closes_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (vw) {
+      const v = vw as { opens_at: string; closes_at: string }
+      const nowMs = Date.now()
+      setVotingOpen(nowMs >= new Date(v.opens_at).getTime() && nowMs <= new Date(v.closes_at).getTime())
+    } else {
+      setVotingOpen(false)
     }
 
     setLoading(false)
@@ -220,6 +238,9 @@ export default function MatchPage() {
         </>
       ) : (
         <div className="space-y-4">
+          {/* Voting open → pin the ballot above the result so it's the first
+              thing members see while there's something to vote on. */}
+          {votingOpen && <MotmVotingCard />}
           <MatchResultView
             match={match}
             result={result}
@@ -227,10 +248,9 @@ export default function MatchPage() {
             fixtures={fixtures}
             scorersByFixture={scorersByFixture}
           />
-          {/* MOTM/DOTD sits between the result and the written report so the
-              current-week tab matches the History tab's order (result →
-              awards → report). */}
-          <MotmVotingCard />
+          {/* Voting closed → the awards results sit between the result and the
+              written report, matching the History tab's order. */}
+          {!votingOpen && <MotmVotingCard />}
           {hasReportContent(result) && result && (
             <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between gap-2 pb-3 mb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>

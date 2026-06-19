@@ -2,7 +2,7 @@
 
 > A living reference for the Wanstead Fellas app: what it does for players, what it gives admins, and how it's built. **Keep this document updated whenever functionality changes.**
 
-_Last updated: 2026-06-19 (finished-match block ordering: Predicted vs. Actual moved between table and results; consistent across Match and History tabs)_
+_Last updated: 2026-06-19 (single-pass MOTM/DOTD ballot + pinned-open placement + 10am voting close; finished-match block ordering: Predicted vs. Actual between table and results)_
 
 ---
 
@@ -56,6 +56,9 @@ Team generation is allowed from Wed 10pm up to 30 minutes before kick-off (Thu 8
 
 ### Awards & voting
 - **MOTM** (Man of the Match) and **DOTD** (Dick of the Day) voting after the match.
+- **Voting window:** opens 22:00 match night (full time), closes 10:00 the next day (`getVotingWindow`, stamped at team generation).
+- **Single-pass ballot:** one row per player with a 🏆 (MOTM) and 🤡 (DOTD) button, so both awards are cast in one scroll. That night's goalscorers sort to the top with a ⚽ tag, and a search box filters the roster.
+- **Placement:** while the window is open the ballot is pinned to the top of the Match tab; once closed the results sit in the mid-slot (between result and report), matching the History tab.
 - Only rostered players are eligible; votes upsert with read-back confirmation.
 
 ### Stats

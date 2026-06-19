@@ -33,14 +33,14 @@ export default function MotmVotingCard() {
   const [dotdStreak, setDotdStreak] = useState<ProfileLite | null>(null)
   const [breakdown, setBreakdown] = useState<BreakdownRow[] | null>(null)
   const [overrideFor, setOverrideFor] = useState<AwardType | null>(null)
-  // Collapsed by default so the ballot doesn't bury the match result. Auto-
-  // expands once on load if there's still something to vote on, then respects
-  // manual toggles.
-  const [expanded, setExpanded] = useState(false)
   // Per-award save error so failed votes can never silently disappear — see
   // June 2026 incident where a vote chip flashed selected but the upsert
   // failed and reverted with no feedback.
   const [voteError, setVoteError] = useState<Record<AwardType, string | null>>({} as Record<AwardType, string | null>)
+  // Single-pass ballot helpers: live name filter + that night's goalscorers,
+  // sorted to the top with a ⚽ tag so MOTM candidates surface without scrolling.
+  const [filter, setFilter] = useState('')
+  const [scorers, setScorers] = useState<Record<string, number>>({})
 
   const now = Date.now()
   const matchId = window?.match_id ?? null
@@ -99,6 +99,17 @@ export default function MotmVotingCard() {
       const pMap: Record<string, ProfileLite> = {}
       for (const p of elig) pMap[p.id] = p
 
+      // Goalscorers for this match drive the goal tag + scorer-first ordering on
+      // the ballot. Own goals don't count as a MOTM signal.
+      const { data: goalRows } = await supabase
+        .from('goals').select('player_id, goals_count, own_goal').eq('match_id', w.match_id)
+      const sc: Record<string, number> = {}
+      for (const g of (goalRows as { player_id: string | null; goals_count: number; own_goal: boolean }[]) || []) {
+        if (!g.player_id || g.own_goal) continue
+        sc[g.player_id] = (sc[g.player_id] ?? 0) + (g.goals_count ?? 0)
+      }
+      setScorers(sc)
+
       if (nowMs <= closes) {
         // Open: load my own votes (RLS returns only mine) + participation.
         const { data: mv } = await supabase
@@ -108,10 +119,6 @@ export default function MotmVotingCard() {
           mine[v.award_type] = v.nominee_id
         }
         setMyVotes(mine)
-        // Auto-expand once if there's something still to vote on, so first-
-        // time voters aren't stuck behind a tap.
-        const incomplete = AWARDS.some(a => !mine[a.type])
-        if (incomplete) setExpanded(true)
         await loadParticipation(w.match_id)
       } else {
         await loadResults(w.match_id, w.results_published)
@@ -203,107 +210,126 @@ export default function MotmVotingCard() {
   if (loading || !window) return null
   if (now < opensAt) return null
 
-  // ── Open: ballot ──────────────────────────────────────────────────────────
+  // ── Open: single-pass ballot ────────────────────────────────────────────────
+  // One row per player with a 🏆 (MOTM) and 🤡 (DOTD) button, so both awards are
+  // cast in a single scroll. Goalscorers float to the top; a search box tames the
+  // long roster.
   if (isOpen) {
-    const votedCount = AWARDS.filter(a => myVotes[a.type]).length
-    const votedAll = votedCount === AWARDS.length
+    const motmPick = myVotes.motm
+    const dotdPick = myVotes.dotd
+    const votedAll = !!motmPick && !!dotdPick
     const closesLabel = new Date(window.closes_at).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })
+    const q = filter.trim().toLowerCase()
+    const ranked = [...eligible].sort((a, b) => {
+      const ga = scorers[a.id] ?? 0, gb = scorers[b.id] ?? 0
+      if (gb !== ga) return gb - ga
+      return `${a.surname}${a.name}`.localeCompare(`${b.surname}${b.name}`)
+    })
+    const shown = q ? ranked.filter(p => `${p.name} ${p.surname}`.toLowerCase().includes(q)) : ranked
+    const errors = [voteError.motm, voteError.dotd].filter(Boolean)
+
+    const renderPick = (award: AwardType, player: ProfileLite, selected: boolean, emoji: string) => (
+      <button
+        key={award}
+        onClick={() => castVote(award, player.id)}
+        aria-label={`${award === 'motm' ? 'Man of the Match' : 'Dick of the Day'}: ${player.name} ${player.surname}`}
+        aria-pressed={selected}
+        className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base transition-transform"
+        style={{
+          background: selected ? 'var(--color-primary)' : 'var(--color-surface)',
+          border: `1px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
+          opacity: selected ? 1 : 0.45,
+          transform: selected ? 'scale(1.05)' : 'none',
+        }}
+      >
+        {emoji}
+      </button>
+    )
+
     return (
       <div className="rounded-2xl overflow-hidden mb-4"
         style={{ background: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
-        <button
-          type="button"
-          onClick={() => setExpanded(e => !e)}
-          className="w-full text-left"
-          aria-expanded={expanded}
-        >
-          <div className="px-4 py-3 flex items-center justify-between"
-            style={{ background: 'var(--color-primary)' }}>
-            <span className="font-display tracking-wide text-white" style={{ fontSize: 18 }}>
-              {votedAll ? 'YOUR VOTES' : 'CAST YOUR VOTES'}
-            </span>
-            <span className="flex items-center gap-2">
-              {votedAll && (
-                <span className="text-[10px] font-bold px-2 py-1 rounded-full"
-                  style={{ background: '#FFFFFF', color: 'var(--color-primary)', letterSpacing: '0.5px' }}>
-                  ✓ VOTED
-                </span>
-              )}
-              {!votedAll && votedCount > 0 && (
-                <span className="text-[10px] font-bold px-2 py-1 rounded-full"
-                  style={{ background: '#FFFFFF', color: 'var(--color-primary)', letterSpacing: '0.5px' }}>
-                  {votedCount}/{AWARDS.length}
-                </span>
-              )}
-              <span className="text-white text-base leading-none" aria-hidden>
-                {expanded ? '▴' : '▾'}
+        <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'var(--color-primary)' }}>
+          <span className="font-display tracking-wide text-white" style={{ fontSize: 18 }}>
+            {votedAll ? 'YOUR VOTES' : 'CAST YOUR VOTES'}
+          </span>
+          <span className="flex items-center gap-1.5">
+            {([['motm', '🏆', !!motmPick], ['dotd', '🤡', !!dotdPick]] as const).map(([key, icon, done]) => (
+              <span key={key} className="text-[11px] font-bold px-2 py-1 rounded-full"
+                style={{ background: done ? '#FFFFFF' : 'rgba(255,255,255,0.22)', color: done ? 'var(--color-primary)' : '#FFFFFF', letterSpacing: '0.5px' }}>
+                {icon} {done ? '✓' : '–'}
               </span>
-            </span>
-          </div>
-          <div className="px-4 py-2 text-xs flex items-center justify-between"
-            style={{ color: 'var(--color-text-muted)', borderBottom: expanded ? '1px solid var(--color-border)' : 'none' }}>
-            <span>{participation.voted}/{participation.eligible} voted · closes {closesLabel}</span>
-            {!expanded && (
-              <span className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-primary)', letterSpacing: '0.6px' }}>
-                {votedAll ? 'Tap to change' : 'Tap to vote'}
-              </span>
-            )}
-          </div>
-        </button>
+            ))}
+          </span>
+        </div>
 
-        {expanded && (
-          eligible.length === 0 ? (
-            <div className="px-4 py-6 text-center text-sm" style={{ color: '#9CA897' }}>
-              No roster found for this match.
-            </div>
-          ) : (
-            <>
-              {AWARDS.map(({ type, label, icon }) => (
-                <div key={type} className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-primary)' }}>
-                      {icon} {label}
-                    </p>
-                    {myVotes[type] && !voteError[type] && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: 'var(--color-success-bg, rgba(34,197,94,0.15))', color: 'var(--color-success-text, #15803d)', letterSpacing: '0.5px' }}>
-                        ✓ SAVED
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {eligible.map(p => {
-                      const selected = myVotes[type] === p.id
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => castVote(type, p.id)}
-                          className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full text-xs font-medium transition-colors"
-                          style={{
-                            background: selected ? 'var(--color-primary)' : 'var(--color-surface)',
-                            color: selected ? '#FFFFFF' : 'var(--color-text)',
-                            border: `1px solid ${selected ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                          }}
-                        >
-                          <PlayerAvatar profile={p} size={22} />
-                          {p.name} {p.surname}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {voteError[type] && (
-                    <p className="text-[11px] mt-2 px-2 py-1.5 rounded"
-                      style={{ background: 'var(--color-error-bg, rgba(239,68,68,0.12))', color: 'var(--color-error-text, #dc2626)' }}>
-                      ⚠ {voteError[type]}
-                    </p>
-                  )}
-                </div>
-              ))}
-              <div className="px-4 py-3 text-[11px]" style={{ color: '#9CA897' }}>
-                You can change your picks any time until voting closes.
+        <div className="px-4 py-2 text-xs flex items-center justify-between"
+          style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border)' }}>
+          <span>{participation.voted}/{participation.eligible} voted · closes {closesLabel}</span>
+          <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--color-primary)', letterSpacing: '0.5px' }}>
+            🏆 MOTM · 🤡 DOTD
+          </span>
+        </div>
+
+        {eligible.length === 0 ? (
+          <div className="px-4 py-6 text-center text-sm" style={{ color: '#9CA897' }}>
+            No roster found for this match.
+          </div>
+        ) : (
+          <>
+            {errors.length > 0 && (
+              <div className="px-4 pt-3 space-y-1">
+                {errors.map((e, i) => (
+                  <p key={i} className="text-[11px] px-2 py-1.5 rounded"
+                    style={{ background: 'var(--color-error-bg, rgba(239,68,68,0.12))', color: 'var(--color-error-text, #dc2626)' }}>
+                    ⚠ {e}
+                  </p>
+                ))}
               </div>
-            </>
-          )
+            )}
+
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
+              <input
+                type="text"
+                value={filter}
+                onChange={e => setFilter(e.target.value)}
+                placeholder={`Search ${eligible.length} players…`}
+                className="w-full px-3 py-2 rounded-lg text-sm"
+                style={{ background: 'var(--color-surface-2)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
+              />
+            </div>
+
+            <div>
+              {shown.map(p => {
+                const goals = scorers[p.id] ?? 0
+                return (
+                  <div key={p.id} className="px-4 py-2.5 flex items-center gap-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                    <PlayerAvatar profile={p} size={32} />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>{p.name} {p.surname}</span>
+                      {goals > 0 && (
+                        <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                          style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-muted)' }}>
+                          ⚽ {goals}
+                        </span>
+                      )}
+                    </div>
+                    {renderPick('motm', p, motmPick === p.id, '🏆')}
+                    {renderPick('dotd', p, dotdPick === p.id, '🤡')}
+                  </div>
+                )
+              })}
+              {shown.length === 0 && (
+                <div className="px-4 py-6 text-center text-sm" style={{ color: '#9CA897' }}>
+                  No players match “{filter}”.
+                </div>
+              )}
+            </div>
+
+            <div className="px-4 py-3 text-[11px]" style={{ color: '#9CA897' }}>
+              Tap 🏆 for Man of the Match and 🤡 for Dick of the Day. Change anytime until voting closes.
+            </div>
+          </>
         )}
       </div>
     )
