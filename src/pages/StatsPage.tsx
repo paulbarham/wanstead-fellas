@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import PlayerAvatar from '../components/PlayerAvatar'
 import CeefaxHeader from '../components/CeefaxHeader'
+import { useAuth } from '../hooks/useAuth'
 import { FINE_TYPES } from '../types'
 import type { Profile, FineType } from '../types'
 
@@ -175,6 +176,7 @@ interface FixtureRow {
 }
 
 export default function StatsPage() {
+  const { profile: currentProfile } = useAuth()
   const [loading, setLoading] = useState(true)
   const [profiles, setProfiles] = useState<Record<string, ProfileLite>>({})
   const [goals, setGoals] = useState<GoalRow[]>([])
@@ -195,6 +197,7 @@ export default function StatsPage() {
   const [distMode, setDistMode] = useState<Mode>('all')
   const [winsMode, setWinsMode] = useState<Mode>('month')
   const [totalDistMode, setTotalDistMode] = useState<Mode>('all')
+  const [wallMode, setWallMode] = useState<Mode>('all')
 
   useEffect(() => {
     async function load() {
@@ -441,6 +444,54 @@ export default function StatsPage() {
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
 
+  // ── The Wall (goals conceded by your team on the night) ─────────────────
+  // For each completed match (every fixture has both scores), sum each team's
+  // total GA across the round-robin. A player's "GA night" is their team's
+  // total — lower is better. Min nights filter stops a one-off appearance
+  // gaming the leaderboard.
+  const gaByTeamMatch: Record<string, Record<string, number>> = {}
+  for (const [matchId, fxs] of Object.entries(fixturesByMatch)) {
+    if (!fxs.every(f => f.score1 != null && f.score2 != null)) continue
+    const teamGa: Record<string, number> = {}
+    for (const f of fxs) {
+      teamGa[f.team1_id] = (teamGa[f.team1_id] ?? 0) + (f.score2 ?? 0)
+      teamGa[f.team2_id] = (teamGa[f.team2_id] ?? 0) + (f.score1 ?? 0)
+    }
+    gaByTeamMatch[matchId] = teamGa
+  }
+
+  const wallAgg: Record<string, { ga: number; nights: number; cs: number; best: number }> = {}
+  for (const a of apps) {
+    if (!inMode(wallMode, a.match_date)) continue
+    const teamGa = gaByTeamMatch[a.match_id]?.[a.team_id]
+    if (teamGa == null) continue
+    const r = (wallAgg[a.player_id] ??= { ga: 0, nights: 0, cs: 0, best: Number.POSITIVE_INFINITY })
+    r.ga += teamGa
+    r.nights += 1
+    if (teamGa === 0) r.cs += 1
+    if (teamGa < r.best) r.best = teamGa
+  }
+
+  const wallMinNights = wallMode === 'month' ? 2 : 3
+  const wallRows = Object.entries(wallAgg)
+    .filter(([, v]) => v.nights >= wallMinNights)
+    .map(([pid, v]) => {
+      const avg = v.ga / v.nights
+      return {
+        profile: profiles[pid],
+        // *100 so equal averages tie-rank as a single int comparison.
+        value: Math.round(avg * 100),
+        display: avg.toFixed(2),
+        note: `${v.nights} nights · ${v.cs} clean sheet${v.cs === 1 ? '' : 's'} · best ${v.best}`,
+      }
+    })
+    .sort((a, b) => a.value - b.value || byNameAsc(a.profile, b.profile))
+
+  // Hero stats for the signed-in user (only shown when they qualify under
+  // the current period filter).
+  const wallSelf = currentProfile ? wallAgg[currentProfile.id] : null
+  const wallSelfAvg = wallSelf && wallSelf.nights > 0 ? wallSelf.ga / wallSelf.nights : null
+
   return (
     <div className="px-4 py-5">
       <CeefaxHeader pageId="P501 · LEAGUE STATS" title="STATS" meta="SEASON 25/26" />
@@ -576,6 +627,53 @@ export default function StatsPage() {
         ) : (
           <RankedList rows={winsRows} unit="wins" />
         )}
+      </Panel>
+
+      {/* The Wall — goals conceded by your team across the night's fixtures */}
+      <Panel title="The Wall · Goals Conceded" icon="🧱">
+        <div className="flex justify-end pt-3 -mb-1">
+          <PeriodToggle mode={wallMode} setMode={setWallMode} />
+        </div>
+        {wallSelfAvg != null && wallSelf && (
+          <div className="flex gap-2.5 pt-3">
+            <div
+              className="flex-1 rounded-xl px-3 py-2.5"
+              style={{ background: 'rgba(74, 217, 255, 0.06)', border: '1px solid var(--color-border)' }}
+            >
+              <div style={{ fontSize: 10, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Your Avg GA
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 700, color: 'var(--tt-green)', marginTop: 2 }}>
+                {wallSelfAvg.toFixed(2)}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+                per night · {wallSelf.nights} played
+              </div>
+            </div>
+            <div
+              className="flex-1 rounded-xl px-3 py-2.5"
+              style={{ background: 'rgba(74, 217, 255, 0.06)', border: '1px solid var(--color-border)' }}
+            >
+              <div style={{ fontSize: 10, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Clean Sheets
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 700, color: 'var(--tt-yellow)', marginTop: 2 }}>
+                {wallSelf.cs}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+                nights with 0 conceded
+              </div>
+            </div>
+          </div>
+        )}
+        {wallRows.length === 0 ? (
+          <EmptyState text={wallMode === 'month' ? 'Not enough completed matches this month yet.' : 'No defensive data yet — needs completed matches with scores.'} />
+        ) : (
+          <RankedList rows={wallRows} unit="GA/night" />
+        )}
+        <div style={{ fontSize: 10, color: 'var(--color-text-muted)', marginTop: 10, padding: '0 2px' }}>
+          Goals shipped by your team across the night's fixtures. Minimum {wallMinNights} nights played to qualify.
+        </div>
       </Panel>
     </div>
   )
