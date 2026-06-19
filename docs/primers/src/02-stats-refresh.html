@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Stats Page Refresh</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · STATS UPDATE · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  /* Teletext masthead */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 14pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  /* Headings */
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 13pt;
+    margin: 16pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 10pt 0 3pt;
+    letter-spacing: 0.04em; page-break-after: avoid;
+  }
+  p { margin: 5pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  ul, ol { margin: 5pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  /* Callouts */
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 10pt 0; font-size: 10pt;
+  }
+  .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+
+  /* Podium illustration block — mirrors how it looks in the app */
+  .panel-mock {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 10pt;
+    margin: 6pt 0 10pt;
+  }
+  .panel-mock .head {
+    display: table; width: 100%;
+    font-family: 'Helvetica', sans-serif;
+    margin-bottom: 4pt;
+  }
+  .panel-mock .head .ttl {
+    display: table-cell;
+    font-weight: 700; color: #E8F0E9;
+    font-size: 10pt;
+  }
+  .panel-mock .head .chev {
+    display: table-cell; text-align: right;
+    color: #9CA897; font-size: 8pt;
+  }
+  .podium-row {
+    display: table; width: 100%; margin: 2pt 0;
+    font-family: 'Courier New', monospace; font-size: 9.5pt;
+  }
+  .podium-row .rank {
+    display: table-cell; width: 18pt;
+    color: #0F1710; font-weight: 800;
+    text-align: center; padding: 1pt 0;
+    border-radius: 9pt; font-size: 8pt;
+  }
+  .podium-row.r1 .rank { background: #FFD400; }
+  .podium-row.r2 .rank { background: #C8D2C2; }
+  .podium-row.r3 .rank { background: #D69A4A; }
+  .podium-row .nm {
+    display: table-cell; padding-left: 8pt;
+    font-family: 'Helvetica', sans-serif;
+    color: #E8F0E9;
+  }
+  .podium-row.r1 .nm { color: #FFD400; font-weight: 700; }
+  .podium-row .v {
+    display: table-cell; text-align: right;
+    color: #4AD9FF; font-weight: 700;
+  }
+  .podium-row.r1 .v { color: #FFD400; }
+  .podium-row .v .u { color: #9CA897; font-size: 8pt; margin-left: 3pt; font-weight: 500; }
+
+  /* Hero card row mock */
+  .hero-strip {
+    display: table; width: 100%; margin: 6pt 0 10pt;
+    border-spacing: 6pt 0;
+  }
+  .hero-card {
+    display: table-cell; width: 33%;
+    background: #15211A; border-radius: 8pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+  }
+  .hero-card.gold   { border: 1px solid rgba(255,212,0,0.4); }
+  .hero-card.silver { border: 1px solid rgba(74,217,255,0.35); }
+  .hero-card.bronze { border: 1px solid rgba(255,102,204,0.35); }
+  .hero-card .lab {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #9CA897;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .hero-card .who { color: #E8F0E9; font-weight: 700; font-size: 9.5pt; margin-top: 2pt; }
+  .hero-card .val { font-family: 'Courier New', monospace; font-size: 14pt; font-weight: 800; margin-top: 2pt; }
+  .hero-card.gold   .val { color: #FFD400; }
+  .hero-card.silver .val { color: #4AD9FF; }
+  .hero-card.bronze .val { color: #FF66CC; }
+  .hero-card .u { font-size: 7.5pt; color: #9CA897; font-weight: 500; margin-left: 2pt; }
+
+  /* Section labels mock */
+  .section-mock {
+    color: #4AD9FF; font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.14em; text-transform: uppercase;
+    margin: 10pt 0 4pt;
+    border-bottom: 1px solid #2D4A2F;
+    padding-bottom: 3pt;
+  }
+
+  .pill-row {
+    display: table; width: 100%; margin: 6pt 0 10pt;
+    border-spacing: 4pt 0;
+  }
+  .pill {
+    display: table-cell;
+    background: rgba(74,220,122,0.1);
+    border: 1px solid #4ADC7A;
+    color: #4ADC7A;
+    border-radius: 12pt;
+    padding: 5pt 12pt;
+    font-size: 9pt;
+    font-weight: 700;
+    font-family: 'Helvetica', sans-serif;
+  }
+  .toggle {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 12pt;
+    text-align: center;
+    padding: 0;
+    width: 130pt;
+    overflow: hidden;
+  }
+  .toggle .opt {
+    display: inline-block; padding: 4pt 8pt;
+    font-size: 8.5pt; font-weight: 700;
+    color: #9CA897;
+    font-family: 'Helvetica', sans-serif;
+  }
+  .toggle .opt.on { background: #4ADC7A; color: #fff; border-radius: 10pt; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 14pt 0 10pt;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 14pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Stats Page · Refresh</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P502 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>TL;DR</strong> — The Stats page just got a serious facelift. You no longer have to tap eight accordions to find anything. Headline awards sit at the top, every panel shows a top-3 podium under its title, and there's a brand-new defensive leaderboard. <em>Open the app, tap Stats, see for yourself.</em>
+</div>
+
+<h2>What's new at a glance</h2>
+<ul>
+  <li><strong>Hero strip</strong> at the top — three headline awards always visible.</li>
+  <li><strong>Top-3 podium</strong> under every panel — gold / silver / bronze, no tapping required.</li>
+  <li><strong>The Wall</strong> · NEW · a defensive leaderboard for goals conceded.</li>
+  <li><strong>Sections</strong> — Attack · Awards · Defence · Participation · Shame.</li>
+  <li><strong>My Stats</strong> pill — jumps to your player card.</li>
+  <li><strong>One toggle</strong> at the top — flip the whole page between This Month and All Time.</li>
+</ul>
+
+<h2>The Hero strip</h2>
+<p>The three headline awards now live front-and-centre at the top of Stats. Gold for top scorer, silver for the Wall King (lowest goals conceded), bronze for most wins. Updates with the page-level period filter.</p>
+
+<div class="hero-strip">
+  <div class="hero-card gold">
+    <div class="lab">⚽ Top Scorer</div>
+    <div class="who">Beau Samuels</div>
+    <div class="val">14<span class="u">goals</span></div>
+  </div>
+  <div class="hero-card silver">
+    <div class="lab">🧱 Wall King</div>
+    <div class="who">Mark Pearson</div>
+    <div class="val">1.50<span class="u">GA/night</span></div>
+  </div>
+  <div class="hero-card bronze">
+    <div class="lab">🥇 Most Wins</div>
+    <div class="who">Geof Aiwerioba</div>
+    <div class="val">4<span class="u">wins</span></div>
+  </div>
+</div>
+
+<h2>Podium previews on every panel</h2>
+<p>Before: panels were collapsed by default and you saw nothing. Now: every panel shows its top three players right under the title — leader in gold, runner-up in silver, third in bronze. Tap the chevron to see the full ranked table.</p>
+
+<div class="panel-mock">
+  <div class="head">
+    <span class="ttl">⚽  Top Scorers</span>
+    <span class="chev">▼</span>
+  </div>
+  <div class="podium-row r1"><span class="rank">1</span><span class="nm">Beau Samuels</span><span class="v">14<span class="u">goals</span></span></div>
+  <div class="podium-row r2"><span class="rank">2</span><span class="nm">Josh Edwards</span><span class="v">10</span></div>
+  <div class="podium-row r3"><span class="rank">3</span><span class="nm">Mikel Winter</span><span class="v">9</span></div>
+</div>
+
+<div class="callout green">
+  <strong>Bonus:</strong> when several players are tied at the top (e.g. four players on 1 MOTM each) the panel collapses to a compact "<em>4-way tie at the top</em>" line instead of three identical bars.
+</div>
+
+<h2>🧱 NEW: The Wall — Goals Conceded</h2>
+<p>A defensive counterpart to the Winning Team stat. For every completed match, we sum up the goals your team shipped across all three fixtures on the night, then rank players by their average per night. Lower is better. Minimum 3 nights played to qualify (2 if you're viewing This Month).</p>
+
+<div class="panel-mock">
+  <div class="head">
+    <span class="ttl">🧱  The Wall · Goals Conceded</span>
+    <span class="chev">▼</span>
+  </div>
+  <div class="podium-row r1"><span class="rank">1</span><span class="nm">Mark Pearson</span><span class="v">1.50<span class="u">GA/night</span></span></div>
+  <div class="podium-row r2"><span class="rank">2</span><span class="nm">Geof Aiwerioba</span><span class="v">2.00</span></div>
+  <div class="podium-row r3"><span class="rank">3</span><span class="nm">Lawrie Pointer</span><span class="v">2.50</span></div>
+</div>
+
+<p>Tap into the panel for your own personal stats card: <strong>Your Avg GA</strong> and <strong>Clean Sheets</strong> (nights where your team shipped zero).</p>
+
+<h2>Grouped into sections</h2>
+<p>The old flat list of nine accordions is now grouped under five teletext-style headings:</p>
+
+<div class="section-mock">▮ Attack</div>
+<div class="section-mock">▮ Awards</div>
+<div class="section-mock">▮ Defence</div>
+<div class="section-mock">▮ Participation</div>
+<div class="section-mock">▮ Shame</div>
+
+<p>Fines and DOTD live at the bottom under Shame. Awards (MOTM, Winning Team) live near the top where they belong.</p>
+
+<h2>👤 My Stats pill + global toggle</h2>
+<p>Above the hero strip you'll find a green <strong>My Stats</strong> pill (tap it to jump to your player card) and a single <strong>This Month / All Time</strong> toggle that filters every panel and hero card at once.</p>
+
+<div class="pill-row">
+  <div class="pill">🟢  PB  My Stats  ›</div>
+  <div class="toggle"><span class="opt">This Month</span><span class="opt on">All Time</span></div>
+</div>
+
+<hr>
+
+<h2>What hasn't changed</h2>
+<ul>
+  <li>The <strong>full ranked tables</strong> are still there — they're just one tap behind the chevron now.</li>
+  <li>The <strong>Fines</strong> filter chips (All / Late / Drop Out / etc.) still work the same way inside that panel.</li>
+  <li>Voting, sign-ups, the World Cup hub, fixtures — all untouched. Stats only.</li>
+</ul>
+
+<div class="closer">
+  Refresh your app · tap <strong>📊 Stats</strong> · have a look.<br>
+  Bug reports / suggestions → admin in the WhatsApp group.
+</div>
+
+</body>
+</html>
