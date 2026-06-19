@@ -210,11 +210,14 @@ export default function MatchPage() {
       />
 
       {!match ? (
-        <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
-          <p className="text-4xl mb-3">📊</p>
-          <p className="font-medium text-[var(--color-text)]">No result yet</p>
-          <p className="text-sm mt-1">Results posted after the match</p>
-        </div>
+        <>
+          <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
+            <p className="text-4xl mb-3">📊</p>
+            <p className="font-medium text-[var(--color-text)]">No result yet</p>
+            <p className="text-sm mt-1">Results posted after the match</p>
+          </div>
+          <MotmVotingCard />
+        </>
       ) : (
         <div className="space-y-4">
           <MatchResultView
@@ -224,6 +227,10 @@ export default function MatchPage() {
             fixtures={fixtures}
             scorersByFixture={scorersByFixture}
           />
+          {/* MOTM/DOTD sits between the result and the written report so the
+              current-week tab matches the History tab's order (result →
+              awards → report). */}
+          <MotmVotingCard />
           {hasReportContent(result) && result && (
             <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between gap-2 pb-3 mb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
@@ -234,10 +241,6 @@ export default function MatchPage() {
           )}
         </div>
       )}
-
-      <div className="mt-4">
-        <MotmVotingCard />
-      </div>
     </div>
   )
 }

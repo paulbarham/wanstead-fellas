@@ -2,7 +2,7 @@
 
 > A living reference for the Wanstead Fellas app: what it does for players, what it gives admins, and how it's built. **Keep this document updated whenever functionality changes.**
 
-_Last updated: 2026-06-13 (cup-results-sync resilience; predictor "MY RANK" label)_
+_Last updated: 2026-06-19 (finished-match block ordering: Predicted vs. Actual moved between table and results; consistent across Match and History tabs)_
 
 ---
 
@@ -52,6 +52,7 @@ Team generation is allowed from Wed 10pm up to 30 minutes before kick-off (Thu 8
 - Score steppers and a live league table.
 - Per-fixture scorer entry feeding the goals table.
 - Results report view (shared `MatchResultView`).
+- **Finished-match ordering (identical on the Match and History tabs):** Group Table → Predicted vs. Actual → Results → Match Awards (MOTM/DOTD) → Match Report. `MatchResultView` renders the table, the `PredictedVsActual` card, and the results; the awards block and `MatchReport` are placed by the page. Predicted vs. Actual sits between the table and the results — it is no longer the first section of the written report.
 
 ### Awards & voting
 - **MOTM** (Man of the Match) and **DOTD** (Dick of the Day) voting after the match.
@@ -62,7 +63,7 @@ Seven leaderboards, each with a month / all-time toggle:
 - Top Scorers, Fines, MOTM, DOTD, Appearances, Distance per Game, Total Distance.
 
 ### History
-- Collapsible list of completed matches, each with the result view, awards, and match report.
+- Collapsible list of completed matches, each following the same ordering as the Match tab: result view (table → Predicted vs. Actual → results), then Match Awards, then the match report.
 
 ### Match fitness
 - Players can add their own fitness per match — manually or by importing a **TCX/GPX** file from a watch/app.
@@ -120,7 +121,7 @@ Admins also drive the match cycle:
 ### Key logic modules
 - **`src/lib/time.ts`** — match phases, team-gen window, voting window, countdown labels (London timezone).
 - **`src/lib/format.ts`** — `stripFC`, `pickConfig` (team-size selection), `formatLabelFor`, `splitPlayingAndReserves` (deferral ordering).
-- **`src/lib/report.ts`** — structured match-report helpers.
+- **`src/lib/report.ts`** — structured match-report helpers. The written report (`MatchReport`) covers summary → Key Highlights → Team Awards → Player of the Tournament → Fines & Admin → Banter → App Watch → Conclusion; Predicted vs. Actual is rendered separately by `PredictedVsActual` inside `MatchResultView`.
 - **`src/lib/fitnessImport.ts`** — TCX/GPX parsing.
 
 ### Player stat model

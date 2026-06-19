@@ -6,8 +6,9 @@
 // placing that (Match tab puts it inline; History puts it below the awards
 // block). Keeps this component focused on results-style content.
 
-import type { Match, Result, Team, Fixture } from '../types'
+import type { Match, Result, Team, Fixture, ReportPredictions } from '../types'
 import SectionHeader from './SectionHeader'
+import PredictedVsActual from './PredictedVsActual'
 import { stripFC } from '../lib/format'
 
 export interface FixtureScorer {
@@ -174,11 +175,12 @@ function TwoTeamResult({ fixtures, scorersByFixture, legacyScorers }: {
   )
 }
 
-function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers }: {
+function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, predictions }: {
   teams: Team[]
   fixtures: FixtureWithTeams[]
   scorersByFixture: Record<string, FixtureScorer[]>
   legacyScorers: string | null
+  predictions: ReportPredictions | null
 }) {
   const table = buildTable(teams, fixtures)
   const anyPerFixtureScorers = fixtures.some(f => (scorersByFixture[f.id]?.length ?? 0) > 0)
@@ -231,6 +233,9 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers }: {
           </tbody>
         </table>
       </div>
+
+      {/* Predicted vs. Actual — sits between the table and the results */}
+      <PredictedVsActual predictions={predictions} />
 
       {/* Fixtures (with per-fixture scorers if available) */}
       <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
@@ -294,7 +299,21 @@ export default function MatchResultView({ match, result, teams, fixtures, scorer
   scorersByFixture: Record<string, FixtureScorer[]>
 }) {
   const isMultiTeam = teams.length > 2 || match.format === 'tournament' || match.format === '4-team'
-  return isMultiTeam
-    ? <FourTeamResult teams={teams} fixtures={fixtures} scorersByFixture={scorersByFixture} legacyScorers={result?.scorers ?? null} />
-    : <TwoTeamResult fixtures={fixtures} scorersByFixture={scorersByFixture} legacyScorers={result?.scorers ?? null} />
+  if (isMultiTeam) {
+    return (
+      <FourTeamResult
+        teams={teams}
+        fixtures={fixtures}
+        scorersByFixture={scorersByFixture}
+        legacyScorers={result?.scorers ?? null}
+        predictions={result?.predictions ?? null}
+      />
+    )
+  }
+  return (
+    <div className="space-y-4">
+      <TwoTeamResult fixtures={fixtures} scorersByFixture={scorersByFixture} legacyScorers={result?.scorers ?? null} />
+      <PredictedVsActual predictions={result?.predictions ?? null} />
+    </div>
+  )
 }

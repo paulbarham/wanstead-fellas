@@ -64,7 +64,7 @@ export default function MatchReport({ result }: { result: Result }) {
     )
   }
 
-  const { predictions, key_highlights, team_awards, fines_admin, banter, app_watch, player_of_tournament } = result
+  const { key_highlights, team_awards, fines_admin, banter, app_watch, player_of_tournament } = result
   const awards: [string, TeamAward | null | undefined][] = [
     ['Defensive', team_awards?.defensive],
     ['Safe Hands', team_awards?.safe_hands],
@@ -80,31 +80,8 @@ export default function MatchReport({ result }: { result: Result }) {
         </p>
       )}
 
-      {predictions && predictions.rows?.length > 0 && (
-        <Section label="Predicted vs. Actual">
-          <div className="overflow-hidden rounded-xl" style={{ border: '1px solid var(--color-border)' }}>
-            <table className="w-full text-xs">
-              <thead>
-                <tr style={{ color: 'var(--color-text-muted)' }}>
-                  <th className="px-3 py-2 text-left font-medium">Position</th>
-                  <th className="px-3 py-2 text-left font-medium">Predicted</th>
-                  <th className="px-3 py-2 text-left font-medium">Actual</th>
-                </tr>
-              </thead>
-              <tbody>
-                {predictions.rows.map((row, i) => (
-                  <tr key={i} style={{ borderTop: '1px solid var(--color-border)' }}>
-                    <td className="px-3 py-2 font-medium text-[var(--color-text)]">{row.position}</td>
-                    <td className="px-3 py-2" style={{ color: 'var(--color-text-muted)' }}>{row.predicted}</td>
-                    <td className="px-3 py-2 font-medium" style={{ color: 'var(--color-accent)' }}>{row.actual}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {predictions.note && <p style={{ ...BODY_STYLE, marginTop: 8 }}>{predictions.note}</p>}
-        </Section>
-      )}
+      {/* Predicted vs. Actual is rendered by MatchResultView (between the
+          group table and the results), not here — see PredictedVsActual. */}
 
       {key_highlights && key_highlights.length > 0 && (
         <Section label="Key Highlights">
