@@ -156,6 +156,7 @@ interface AppRow {
   player_id: string
   match_id: string
   match_date: string | null
+  team_id: string
 }
 
 interface FitnessStatRow {
@@ -163,6 +164,14 @@ interface FitnessStatRow {
   distance_m: number | string | null
   match_date: string | null
   recorded_start: string | null
+}
+
+interface FixtureRow {
+  match_id: string
+  team1_id: string
+  team2_id: string
+  score1: number | null
+  score2: number | null
 }
 
 export default function StatsPage() {
@@ -174,6 +183,8 @@ export default function StatsPage() {
   const [motm, setMotm] = useState<AwardRow[]>([])
   const [dotd, setDotd] = useState<AwardRow[]>([])
   const [fitness, setFitness] = useState<FitnessStatRow[]>([])
+  // Used to compute who was on the winning team each match.
+  const [fixtures, setFixtures] = useState<FixtureRow[]>([])
 
   const [scorerMode, setScorerMode] = useState<Mode>('month')
   const [appsMode, setAppsMode] = useState<Mode>('month')
@@ -182,11 +193,12 @@ export default function StatsPage() {
   const [motmMode, setMotmMode] = useState<Mode>('month')
   const [dotdMode, setDotdMode] = useState<Mode>('month')
   const [distMode, setDistMode] = useState<Mode>('all')
+  const [winsMode, setWinsMode] = useState<Mode>('month')
   const [totalDistMode, setTotalDistMode] = useState<Mode>('all')
 
   useEffect(() => {
     async function load() {
-      const [ps, gl, fn, aw, ms, tm, tp, ft] = await Promise.all([
+      const [ps, gl, fn, aw, ms, tm, tp, ft, fx] = await Promise.all([
         supabase.from('profiles').select('id, name, surname, photo_url'),
         supabase.from('goals').select('player_id, goals_count, own_goal, match_id'),
         supabase.from('fines').select('player_id, type, amount, paid, match_date'),
@@ -195,6 +207,7 @@ export default function StatsPage() {
         supabase.from('teams').select('id, match_id'),
         supabase.from('team_players').select('team_id, player_id'),
         supabase.from('fitness_sessions').select('profile_id, distance_m, match_date, recorded_start'),
+        supabase.from('fixtures').select('match_id, team1_id, team2_id, score1, score2'),
       ])
       const matchDate: Record<string, string | null> = {}
       for (const m of (ms.data as { id: string; match_date: string | null }[]) || []) matchDate[m.id] = m.match_date
@@ -218,10 +231,16 @@ export default function StatsPage() {
       setDotd(norm('dotd'))
 
       setApps(((tp.data as { team_id: string; player_id: string }[]) || [])
-        .map(r => ({ player_id: r.player_id, match_id: teamMatch[r.team_id], match_date: matchDate[teamMatch[r.team_id]] ?? null }))
+        .map(r => ({
+          player_id: r.player_id,
+          match_id: teamMatch[r.team_id],
+          match_date: matchDate[teamMatch[r.team_id]] ?? null,
+          team_id: r.team_id,
+        }))
         .filter(r => r.match_id))
 
       setFitness((ft.data as FitnessStatRow[]) || [])
+      setFixtures((fx.data as FixtureRow[]) || [])
 
       setLoading(false)
     }
@@ -340,6 +359,85 @@ export default function StatsPage() {
       display: `${(v.sum / 1000).toFixed(2)} km`,
       note: `${v.games} game${v.games === 1 ? '' : 's'} tracked`,
     }))
+    .filter(r => r.value > 0)
+    .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
+
+  // ── Winning team (wins + current streak) ────────────────────────────────
+  // Per match, derive the winning team from the fixtures: build a mini league
+  // table (3-1-0 points, GD then GF tiebreak) and pick the top team. A pure
+  // tie at the top (e.g. a 2-team 1-1 draw, or a deadlocked 4-team group)
+  // resolves as "no winner" so neither side gets credit.
+  const fixturesByMatch: Record<string, FixtureRow[]> = {}
+  for (const f of fixtures) (fixturesByMatch[f.match_id] ??= []).push(f)
+
+  const winnerByMatch: Record<string, string | null> = {}
+  for (const [matchId, fxs] of Object.entries(fixturesByMatch)) {
+    const stats = new Map<string, { pts: number; gd: number; gf: number }>()
+    const bump = (id: string, gf: number, ga: number, pts: number) => {
+      const r = stats.get(id) ?? { pts: 0, gd: 0, gf: 0 }
+      r.pts += pts; r.gd += gf - ga; r.gf += gf
+      stats.set(id, r)
+    }
+    for (const f of fxs) {
+      if (f.score1 == null && f.score2 == null) continue
+      const s1 = f.score1 ?? 0, s2 = f.score2 ?? 0
+      if (s1 > s2) { bump(f.team1_id, s1, s2, 3); bump(f.team2_id, s2, s1, 0) }
+      else if (s1 < s2) { bump(f.team1_id, s1, s2, 0); bump(f.team2_id, s2, s1, 3) }
+      else { bump(f.team1_id, s1, s2, 1); bump(f.team2_id, s2, s1, 1) }
+    }
+    const sorted = [...stats.entries()].sort(([, a], [, b]) =>
+      b.pts - a.pts || b.gd - a.gd || b.gf - a.gf)
+    if (sorted.length === 0) { winnerByMatch[matchId] = null; continue }
+    const [topId, top] = sorted[0]
+    if (sorted.length >= 2) {
+      const [, second] = sorted[1]
+      // Tie at the top on all sort keys → no clean winner.
+      if (second.pts === top.pts && second.gd === top.gd && second.gf === top.gf) {
+        winnerByMatch[matchId] = null
+        continue
+      }
+    }
+    winnerByMatch[matchId] = topId
+  }
+
+  // Per-player win count for the period; streak is always all-time on
+  // chronological history (missed matches skipped — only games you played in
+  // count toward the streak; losing a match you played in breaks it).
+  const winsAgg: Record<string, number> = {}
+  for (const a of apps) {
+    if (!inMode(winsMode, a.match_date)) continue
+    if (winnerByMatch[a.match_id] === a.team_id) {
+      winsAgg[a.player_id] = (winsAgg[a.player_id] ?? 0) + 1
+    }
+  }
+
+  // Build chronological-desc app history per player to derive current streak.
+  const appsByPlayer: Record<string, AppRow[]> = {}
+  for (const a of apps) (appsByPlayer[a.player_id] ??= []).push(a)
+  for (const list of Object.values(appsByPlayer)) {
+    list.sort((x, y) => (y.match_date ?? '').localeCompare(x.match_date ?? ''))
+  }
+  function streakFor(playerId: string): number {
+    let n = 0
+    for (const a of appsByPlayer[playerId] ?? []) {
+      const winner = winnerByMatch[a.match_id]
+      if (winner === undefined) continue            // match has no fixtures yet
+      if (winner === null) return n                  // played a draw / tie → break
+      if (winner === a.team_id) n++                 // played and won → extend
+      else return n                                  // played and lost → break
+    }
+    return n
+  }
+
+  const winsRows = Object.entries(winsAgg)
+    .map(([pid, v]) => {
+      const s = streakFor(pid)
+      return {
+        profile: profiles[pid],
+        value: v,
+        note: s > 1 ? `🔥 ${s} in a row` : s === 1 ? 'On a streak of 1' : 'Last result wasn\'t a win',
+      }
+    })
     .filter(r => r.value > 0)
     .sort((a, b) => b.value - a.value || byNameAsc(a.profile, b.profile))
 
@@ -465,6 +563,18 @@ export default function StatsPage() {
           <EmptyState text={totalDistMode === 'month' ? 'No tracked sessions this month.' : 'No fitness sessions tracked yet — add match fitness from your player card.'} />
         ) : (
           <RankedList rows={totalDistRows} unit="km" />
+        )}
+      </Panel>
+
+      {/* Winning team (wins + current streak) */}
+      <Panel title="Winning Team" icon="🏆">
+        <div className="flex justify-end pt-3 -mb-1">
+          <PeriodToggle mode={winsMode} setMode={setWinsMode} />
+        </div>
+        {winsRows.length === 0 ? (
+          <EmptyState text={winsMode === 'month' ? 'No wins this month.' : 'No winning-team data yet — needs completed matches with scores.'} />
+        ) : (
+          <RankedList rows={winsRows} unit="wins" />
         )}
       </Panel>
     </div>
