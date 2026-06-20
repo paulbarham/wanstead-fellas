@@ -8,6 +8,7 @@ Shareable, Wanstead-Fellas-branded PDFs for distributing to the WhatsApp group w
 |---|---|---|---|
 | 01 | [`pdf/01-user-guide.pdf`](pdf/01-user-guide.pdf) | New-fella getting-started guide (sign-up, tabs, week-by-week, World Cup, house rules) | Jun 2026 |
 | 02 | [`pdf/02-stats-refresh.pdf`](pdf/02-stats-refresh.pdf) | Stats page refresh — hero strip, podium previews, The Wall, sections, My Stats | Jun 2026 |
+| 03 | [`pdf/03-next-game-refresh.pdf`](pdf/03-next-game-refresh.pdf) | Next Game tab refresh — search, tier dots, consolidated masthead, collapsible Not-In with filter chips | Jun 2026 |
 
 ## Layout
 

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Next Game Refresh</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · NEXT GAME UPDATE · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  /* Teletext masthead */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 14pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 13pt;
+    margin: 16pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+
+  p { margin: 5pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  ul, ol { margin: 5pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 10pt 0; font-size: 10pt;
+  }
+  .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+
+  /* Tier-dot legend */
+  .tier-legend {
+    background: #15211A;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 12pt;
+    margin: 8pt 0;
+    display: table; width: 100%;
+  }
+  .tier {
+    display: inline-flex; align-items: center; gap: 5pt;
+    font-size: 9.5pt; color: #E8F0E9;
+    margin-right: 14pt;
+  }
+  .dot {
+    width: 14pt; height: 14pt; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9pt; font-weight: 800;
+  }
+  .dot.sub  { background: #4ADC7A; color: #0F1710; }
+  .dot.pri  { background: #FFD400; color: #0F1710; }
+  .dot.wtp  { background: #4a4f48; color: #E8EAE3; }
+
+  /* Inline mock blocks */
+  .mock {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 10pt;
+    margin: 6pt 0 10pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+  }
+  .mock-row {
+    display: flex; align-items: center;
+    padding: 3pt 0; gap: 8pt;
+  }
+  .mock-row .idx { color: #9CA897; font-size: 8.5pt; width: 14pt; }
+  .mock-row .nm  { flex: 1; font-family: 'Helvetica', sans-serif; color: #E8F0E9; }
+  .mock-row .meta { font-size: 8.5pt; color: #9CA897; }
+  .mock-row .add {
+    background: rgba(74,220,122,0.1);
+    border: 1px solid #4ADC7A;
+    color: #4ADC7A;
+    padding: 2pt 8pt;
+    border-radius: 4pt;
+    font-size: 8.5pt; font-weight: 800;
+  }
+  .chip {
+    display: inline-block;
+    padding: 2pt 8pt; border-radius: 999pt;
+    font-size: 8.5pt; font-weight: 700;
+    color: #9CA897;
+    border: 1px solid #2D4A2F;
+    margin-right: 4pt;
+  }
+  .chip.on { background: #4ADC7A; color: #0F1710; border-color: #4ADC7A; }
+
+  /* Tile row for masthead consolidation demo */
+  .tiles { display: table; width: 100%; border-spacing: 6pt 0; margin: 6pt 0 10pt; }
+  .tile {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 10pt;
+    vertical-align: middle;
+  }
+  .tile .lab { font-family: 'Courier New', monospace; font-size: 8pt; color: #9CA897; letter-spacing: 0.08em; text-transform: uppercase; }
+  .tile .val { font-family: 'Courier New', monospace; font-size: 16pt; font-weight: 800; color: #FFD400; }
+  .tile.fmt .val { color: #4AD9FF; font-size: 14pt; }
+  .tile.weather .val { color: #FFFFFF; font-size: 11pt; font-weight: 600; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 14pt 0 10pt;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 14pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Next Game · Refresh</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P503 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>TL;DR</strong> — The Next Game tab is now far less of a scroll. The 73-row wall of signups has been broken up with a search box, coloured tier dots, a tighter masthead, and a collapsible Not-In list for admin. <em>Force-refresh the app and have a look.</em>
+</div>
+
+<h2>What's new at a glance</h2>
+<ul>
+  <li><strong>Search box</strong> at the top of the lists — type a name to jump to it.</li>
+  <li><strong>Coloured tier dots</strong> replace the cryptic SUB / WTP* / WTP suffixes.</li>
+  <li><strong>Consolidated masthead</strong> — weather + signup count + format share one row.</li>
+  <li><strong>Smaller My Squad pills</strong> for kid toggles, so they don't compete with the main I'm In button.</li>
+  <li><strong>Not In</strong> (admin only) now collapses by default, with tier filters + sorted by recent attendance.</li>
+</ul>
+
+<h2>Tier dots — what the colours mean</h2>
+<p>Every player row used to end in a small text label (SUB / WTP* / WTP). Four flavours of the same word at 10pt is hard to scan. Now it's a single coloured dot:</p>
+
+<div class="tier-legend">
+  <span class="tier"><span class="dot sub">S</span><strong>Subscribed</strong> · pays monthly</span>
+  <span class="tier"><span class="dot pri">★</span><strong>WTP Priority</strong> · £5/game, jumps the wtp queue</span>
+  <span class="tier"><span class="dot wtp">·</span><strong>Casual (WTP)</strong> · £5/game</span>
+</div>
+
+<h2>Consolidated masthead</h2>
+<p>Weather, signup count and game format used to stack as three separate full-width cards. Now they share one row:</p>
+
+<div class="tiles">
+  <div class="tile weather"><div class="lab">Forecast</div><div class="val">☁️ 22°C · 8mph</div></div>
+  <div class="tile"><div class="lab">Signed Up</div><div class="val">14<span style="font-size:10pt;color:#9CA897">/32</span></div></div>
+  <div class="tile fmt"><div class="lab">Format</div><div class="val">7v7 · 2 teams</div></div>
+</div>
+
+<h2>Search</h2>
+<p>A search box appears above the player lists (whenever there are more than ~10 players in the squad). Type a few letters and the IN, Reserves and (admin) NOT IN lists all narrow instantly.</p>
+
+<div class="mock">
+  <div class="mock-row" style="border-bottom: 1px solid #2D4A2F; padding-bottom: 4pt;">
+    <span style="flex:1;color:#9CA897;font-family:'Helvetica',sans-serif;">🔍  geof_</span>
+  </div>
+  <div class="mock-row"><span class="dot sub">S</span><span class="nm">Geof Aiwerioba</span><span class="meta">· YOU</span></div>
+</div>
+
+<h2>Admin: Not-In is now manageable</h2>
+<p>With 70+ profiles on file, the old Not-In list was a 50-row alphabetical scroll. It's now collapsed by default. When opened:</p>
+
+<div class="mock">
+  <div style="padding-bottom: 6pt; border-bottom: 1px solid #2D4A2F;">
+    <span class="chip on">All · 59</span>
+    <span class="chip">Subscribed · 47</span>
+    <span class="chip">WTP · 12</span>
+  </div>
+  <div class="mock-row" style="padding-top:6pt;"><span class="dot sub">S</span><span class="nm">Daren Low</span><span class="meta">6 of last 8</span><span class="add">+ ADD</span></div>
+  <div class="mock-row"><span class="dot sub">S</span><span class="nm">Justin Franklin</span><span class="meta">6 of last 8</span><span class="add">+ ADD</span></div>
+  <div class="mock-row"><span class="dot sub">S</span><span class="nm">Michael Farley</span><span class="meta">6 of last 8</span><span class="add">+ ADD</span></div>
+  <div class="mock-row"><span class="dot sub">S</span><span class="nm">Beau Samuels</span><span class="meta">5 of last 8</span><span class="add">+ ADD</span></div>
+</div>
+
+<ul>
+  <li><strong>Filter chips</strong> — All / Subscribed / WTP, with live counts.</li>
+  <li><strong>Sorted by recent attendance</strong> — likeliest-to-play surface first, not alphabet. The "6 of last 8" badge tells you who's a regular vs occasional.</li>
+  <li><strong>Tap the section header</strong> to expand/collapse.</li>
+</ul>
+
+<h2>My Squad — smaller pills</h2>
+<p>Previously each kid took a full-height row right under the I'm In CTA, competing with it for attention. Now they're compact pill buttons that stack horizontally:</p>
+
+<div class="callout green">
+  <span style="display: inline-flex; align-items: center; gap: 6pt; padding: 4pt 10pt; border: 1px solid #0D6B52; border-radius: 999pt; background: rgba(74,220,122,0.1); color: #0D6B52; font-weight: 600; font-size: 10pt;">
+    👤 Marley · <strong>✓ IN</strong>
+  </span>
+  &nbsp; Tap to toggle. Same logic as before — your spot stays where it was.
+</div>
+
+<hr>
+
+<h2>What hasn't changed</h2>
+<ul>
+  <li>Sign-up logic, reserve promotion, signup cap (32) — all untouched.</li>
+  <li>The I'm In / Drop Out CTA still does exactly what it did.</li>
+  <li>Last-result card at the bottom still links into Match.</li>
+</ul>
+
+<div class="closer">
+  Force-refresh the app · tap <strong>⚽ Next Game</strong> · feel the difference.<br>
+  Issues / ideas → admin in the WhatsApp group.
+</div>
+
+</body>
+</html>
