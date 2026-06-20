@@ -106,7 +106,13 @@ function conditionLabel(code: number): string {
   }
 }
 
-export default function WeatherCard() {
+interface WeatherCardProps {
+  // Compact mode trims the header + rain % column so the card can sit next
+  // to the signup-count card in a single row on the Next Game page.
+  compact?: boolean
+}
+
+export default function WeatherCard({ compact = false }: WeatherCardProps = {}) {
   const [targetDate, setTargetDate] = useState(() => getNextThursdayDate())
   const [data, setData] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -161,14 +167,16 @@ export default function WeatherCard() {
   if (failed) {
     return (
       <div
-        className="mb-3 px-4 py-3 rounded-2xl flex items-center justify-between gap-3"
+        className={`${compact ? 'h-full' : 'mb-3'} px-4 py-3 rounded-2xl flex items-center justify-between gap-3`}
         style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       >
         <div>
-          <p className="text-[10px] font-semibold uppercase mb-1"
-            style={{ color: TEXT_DIM, letterSpacing: '0.8px' }}>
-            {headerLabel}
-          </p>
+          {!compact && (
+            <p className="text-[10px] font-semibold uppercase mb-1"
+              style={{ color: TEXT_DIM, letterSpacing: '0.8px' }}>
+              {headerLabel}
+            </p>
+          )}
           <p className="text-xs" style={{ color: TEXT_MUTED }}>
             Forecast unavailable
           </p>
@@ -189,14 +197,15 @@ export default function WeatherCard() {
 
   return (
     <div
-      className="mb-3 px-4 py-3 rounded-2xl"
+      className={`${compact ? 'h-full' : 'mb-3'} px-3 py-2 rounded-2xl flex items-center`}
       style={{
         background: CARD_BG,
         border: `1px solid ${accentRain ? ACCENT_BLUE : CARD_BORDER}`,
+        minHeight: compact ? 0 : undefined,
       }}
     >
       {loading || !data ? (
-        <div className="flex items-center justify-between animate-pulse">
+        <div className="flex items-center justify-between animate-pulse w-full">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full" style={{ background: CARD_BORDER }} />
             <div className="space-y-1.5">
@@ -204,45 +213,52 @@ export default function WeatherCard() {
               <div className="h-2.5 w-32 rounded" style={{ background: CARD_BORDER }} />
             </div>
           </div>
-          <div className="space-y-1.5 text-right">
-            <div className="h-6 w-14 rounded ml-auto" style={{ background: CARD_BORDER }} />
-            <div className="h-2 w-10 rounded ml-auto" style={{ background: CARD_BORDER }} />
-          </div>
+          {!compact && (
+            <div className="space-y-1.5 text-right">
+              <div className="h-6 w-14 rounded ml-auto" style={{ background: CARD_BORDER }} />
+              <div className="h-2 w-10 rounded ml-auto" style={{ background: CARD_BORDER }} />
+            </div>
+          )}
         </div>
       ) : (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2">
             <Icon
-              size={36}
+              size={compact ? 28 : 36}
               strokeWidth={1.5}
               color={accentRain ? ACCENT_BLUE : 'white'}
             />
             <div>
-              <p className="text-sm font-semibold text-white leading-tight">
+              <p
+                className={compact ? 'text-xs font-semibold text-white leading-tight' : 'text-sm font-semibold text-white leading-tight'}
+              >
                 {conditionLabel(data.weatherCode)}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: TEXT_MUTED }}>
-                {data.temperatureC}°C · {data.windSpeedMph} mph wind
+              <p className={compact ? 'text-[10px] mt-0.5' : 'text-xs mt-0.5'} style={{ color: TEXT_MUTED }}>
+                {data.temperatureC}°C · {data.windSpeedMph} mph
+                {accentRain && ` · ${data.precipitationProbability}%☔`}
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p
-              className="font-display leading-none"
-              style={{
-                fontSize: '28px',
-                color: accentRain ? ACCENT_BLUE : 'white',
-              }}
-            >
-              {data.precipitationProbability}%
-            </p>
-            <p
-              className="text-[10px] uppercase mt-1"
-              style={{ color: TEXT_DIM, letterSpacing: '0.5px' }}
-            >
-              Rain
-            </p>
-          </div>
+          {!compact && (
+            <div className="text-right">
+              <p
+                className="font-display leading-none"
+                style={{
+                  fontSize: '28px',
+                  color: accentRain ? ACCENT_BLUE : 'white',
+                }}
+              >
+                {data.precipitationProbability}%
+              </p>
+              <p
+                className="text-[10px] uppercase mt-1"
+                style={{ color: TEXT_DIM, letterSpacing: '0.5px' }}
+              >
+                Rain
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

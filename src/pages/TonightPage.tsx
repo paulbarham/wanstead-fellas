@@ -22,6 +22,44 @@ interface LastResultSummary {
 
 const SIGNUP_CAP = 32
 
+// Replaces the cryptic "SUB / WTP* / WTP" text suffix with a single coloured
+// dot. Far less visual noise per row and easier to scan vertically.
+function TierDot({ type }: { type: string }) {
+  const cfg = type === 'subscribed'
+    ? { bg: 'var(--color-primary)', fg: '#0F1710', letter: 'S', label: 'Subscribed' }
+    : type === 'wtp_priority'
+      ? { bg: 'var(--tt-yellow)', fg: '#0F1710', letter: '★', label: 'WTP Priority' }
+      : { bg: '#4a4f48', fg: 'var(--color-text)', letter: '·', label: 'Casual (WTP)' }
+  return (
+    <span
+      title={cfg.label}
+      style={{
+        width: 18, height: 18, borderRadius: '50%',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 10, fontWeight: 800, color: cfg.fg,
+        background: cfg.bg, flexShrink: 0,
+      }}
+    >
+      {cfg.letter}
+    </span>
+  )
+}
+
+// Match the TierDot above into a small inline legend so first-time users
+// know what the colours mean without poking at every row.
+function TierLegend() {
+  return (
+    <div
+      className="mt-3 px-3 py-2 rounded-lg flex items-center gap-3 flex-wrap"
+      style={{ background: 'rgba(74,217,255,0.04)', border: '1px dashed var(--color-border)', fontSize: 10, color: 'var(--color-text-muted)' }}
+    >
+      <span className="flex items-center gap-1.5"><TierDot type="subscribed" /> Subscribed</span>
+      <span className="flex items-center gap-1.5"><TierDot type="wtp_priority" /> Priority casual</span>
+      <span className="flex items-center gap-1.5"><TierDot type="wtp" /> Casual</span>
+    </div>
+  )
+}
+
 export default function TonightPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
@@ -39,6 +77,15 @@ export default function TonightPage() {
   const [lastResult, setLastResult] = useState<LastResultSummary | null | undefined>(undefined)
   const [removeConfirm, setRemoveConfirm] = useState<string | null>(null)
   const [dropConfirm, setDropConfirm] = useState(false)
+  // Search filter applied to all three lists (IN, reserves, NOT IN). Empty
+  // string = no filter. Case-insensitive substring match on name+surname.
+  const [search, setSearch] = useState('')
+  // NOT IN is admin-only and defaults closed — used to be a 50+ row scroll.
+  const [notInOpen, setNotInOpen] = useState(false)
+  const [notInFilter, setNotInFilter] = useState<'all' | 'subscribed' | 'wtp'>('all')
+  // Map of playerId → confirmed signups in the trailing 8 weeks. Used to
+  // sort the NOT IN list by likelihood-to-play, not alphabetically.
+  const [recentApps, setRecentApps] = useState<Record<string, number>>({})
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -114,6 +161,28 @@ export default function TonightPage() {
     }
     fetchLastResult()
   }, [])
+
+  // Recent attendance for NOT IN sorting — last 8 weeks of confirmed signups,
+  // grouped by player. Only fetched for admin since only the admin view
+  // currently surfaces the NOT IN list.
+  useEffect(() => {
+    if (!profile?.is_admin) return
+    const since = new Date()
+    since.setDate(since.getDate() - 56)
+    const sinceStr = since.toISOString().slice(0, 10)
+    supabase
+      .from('availability')
+      .select('player_id, match_date')
+      .eq('status', 'confirmed')
+      .gte('match_date', sinceStr)
+      .then(({ data }) => {
+        const map: Record<string, number> = {}
+        for (const r of (data as { player_id: string; match_date: string }[]) || []) {
+          map[r.player_id] = (map[r.player_id] ?? 0) + 1
+        }
+        setRecentApps(map)
+      })
+  }, [profile?.is_admin])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -264,15 +333,38 @@ export default function TonightPage() {
 
   const byName = (a: Profile, b: Profile) =>
     `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
+  // Search applies at render time only — splitting math below must use the
+  // full lists so playing/reserves don't get miscounted.
+  const matchesSearch = (p: Profile) => {
+    if (!search.trim()) return true
+    return `${p.name} ${p.surname}`.toLowerCase().includes(search.trim().toLowerCase())
+  }
   const signedUpPlayers = players
     .filter(p => confirmedAvail.some(a => a.player_id === p.id))
     .sort(byName)
   const waitingPlayers = players
     .filter(p => waitingAvail.some(a => a.player_id === p.id))
     .sort(byName)
-  const notSignedUp = players
+  // NOT IN: sort by recent attendance desc (likeliest to play first) — name
+  // fallback. Then filter chip narrows by tier. Admin only.
+  const notSignedUpAll = players
     .filter(p => !availability.some(a => a.player_id === p.id))
-    .sort(byName)
+    .sort((a, b) => {
+      const ra = recentApps[a.id] ?? 0
+      const rb = recentApps[b.id] ?? 0
+      if (rb !== ra) return rb - ra
+      return byName(a, b)
+    })
+  const notSignedUpSubCount = notSignedUpAll.filter(p => (p.player_type ?? 'wtp') === 'subscribed').length
+  const notSignedUpWtpCount = notSignedUpAll.length - notSignedUpSubCount
+  const notSignedUp = notSignedUpAll
+    .filter(p => {
+      if (notInFilter === 'all') return true
+      const t = p.player_type ?? 'wtp'
+      if (notInFilter === 'subscribed') return t === 'subscribed'
+      return t === 'wtp' || t === 'wtp_priority'
+    })
+    .filter(matchesSearch)
 
   const matchConfig = pickConfig(signedUpCount)
   const signupClosed = phase !== 'signup_open' && phase !== 'post_match'
@@ -325,8 +417,6 @@ export default function TonightPage() {
       {/* dateLabel retained for accessibility / SR users */}
       <span className="sr-only">{dateLabel}</span>
 
-      <WeatherCard />
-
       {/* Phase banners */}
       {phase === 'signup_locked' && (
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
@@ -335,53 +425,37 @@ export default function TonightPage() {
         </div>
       )}
 
-      {/* Count + format bar */}
-      <div className="flex items-center mb-3 px-4 py-3 rounded-2xl"
-        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        <div className="flex-1">
-          <div className="flex items-baseline gap-2">
-            <span
-              style={{
-                fontFamily: 'var(--font-mono)',
-                color: 'var(--tt-yellow)',
-                fontSize: '36px',
-                fontWeight: 700,
-                lineHeight: 1,
-              }}
-            >
-              {signedUpCount}
-            </span>
-            {signedUpCount >= SIGNUP_CAP && (
-              <span
-                className="text-xs font-semibold"
-                style={{ color: 'var(--tt-red)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}
-              >
-                FULL
-              </span>
-            )}
-          </div>
-          <p
-            className="mt-1"
-            style={{ fontFamily: 'var(--font-mono)', color: 'var(--tt-green)', fontSize: 11, letterSpacing: '0.1em' }}
-          >
-            SIGNED UP
-          </p>
+      {/* Consolidated masthead — weather + count + format in one row,
+          replacing the previous three-card stack. */}
+      <div className="flex items-stretch gap-2 mb-3">
+        <div className="flex-1 min-w-0">
+          <WeatherCard compact />
         </div>
-        {matchConfig && (
-          <div
-            className="text-right"
-            style={{ fontFamily: 'var(--font-mono)' }}
-          >
-            <p style={{ color: 'var(--tt-cyan)', fontSize: 18, fontWeight: 700, letterSpacing: '0.04em', lineHeight: 1 }}>
-              {formatLabel}
-            </p>
-            {teamCountLabel && (
-              <p style={{ color: 'var(--color-text-muted)', fontSize: 10, letterSpacing: '0.1em', marginTop: 4 }}>
-                {teamCountLabel.toUpperCase()}
-              </p>
-            )}
+        <div className="flex items-center gap-3 px-3 py-2 rounded-2xl"
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <div className="text-center" style={{ fontFamily: 'var(--font-mono)' }}>
+            <div className="flex items-baseline gap-1 justify-center">
+              <span style={{ color: 'var(--tt-yellow)', fontSize: 22, fontWeight: 700, lineHeight: 1 }}>
+                {signedUpCount}
+              </span>
+              <span style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>/{SIGNUP_CAP}</span>
+            </div>
+            <div style={{ color: 'var(--tt-green)', fontSize: 9, letterSpacing: '0.1em', marginTop: 2 }}>
+              {signedUpCount >= SIGNUP_CAP ? 'FULL' : 'SIGNED UP'}
+            </div>
           </div>
-        )}
+          {matchConfig && (
+            <div className="text-center px-2 py-1 rounded-lg"
+              style={{ background: 'rgba(74,217,255,0.08)', border: '1px solid rgba(74,217,255,0.25)', fontFamily: 'var(--font-mono)' }}>
+              <div style={{ color: 'var(--tt-cyan)', fontSize: 13, fontWeight: 700, lineHeight: 1 }}>{formatLabel}</div>
+              {teamCountLabel && (
+                <div style={{ color: 'var(--color-text-muted)', fontSize: 8, letterSpacing: '0.08em', marginTop: 2 }}>
+                  {teamCountLabel.toUpperCase()}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {deferredPlayers.length > 0 && (
@@ -419,11 +493,12 @@ export default function TonightPage() {
         )}
       </div>
 
-      {/* My squad - linked children */}
+      {/* My squad - linked children. Compact pill rows so kid toggles don't
+          visually compete with the main I'm In CTA above. */}
       {linkedChildren.length > 0 && (
         <div className="mb-4">
           <p
-            className="text-xs mb-2"
+            className="text-[10px] mb-1.5"
             style={{
               fontFamily: 'var(--font-mono)',
               color: 'var(--tt-cyan)',
@@ -433,45 +508,63 @@ export default function TonightPage() {
           >
             ▶ My Squad
           </p>
-          <div className="space-y-2">
+          <div className="flex flex-wrap gap-1.5">
             {linkedChildren.map(child => {
               const childEntry = availability.find(a => a.player_id === child.id)
               const childIsIn = childEntry?.status === 'confirmed'
               const childIsWaiting = childEntry?.status === 'waiting'
-              return (
+              return canToggle ? (
+                <button
+                  key={child.id}
+                  onClick={() => toggleChildAvailability(child.id)}
+                  disabled={toggling}
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs font-medium disabled:opacity-50"
+                  style={{
+                    background: childIsWaiting ? 'var(--color-warning-bg)' : childIsIn ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                    color: childIsWaiting ? '#92400e' : childIsIn ? '#0D6B52' : 'var(--color-text-muted)',
+                    border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#0D6B52' : 'var(--color-border)'}`,
+                  }}
+                >
+                  <PlayerAvatar profile={child} size={20} />
+                  <span>{child.name}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700 }}>
+                    {childIsWaiting ? '⏳ WAIT' : childIsIn ? '✓ IN' : '+ MARK IN'}
+                  </span>
+                </button>
+              ) : (
                 <div
                   key={child.id}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs"
+                  style={{
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    color: childIsIn ? '#0D6B52' : childIsWaiting ? '#92400e' : '#9CA897',
+                  }}
                 >
-                  <PlayerAvatar profile={child} size={32} />
-                  <span className="flex-1 text-sm font-medium text-[var(--color-text)]">
-                    {child.name} {child.surname}
-                  </span>
-                  {canToggle ? (
-                    <button
-                      onClick={() => toggleChildAvailability(child.id)}
-                      disabled={toggling}
-                      className="text-xs px-4 py-2 rounded-xl font-semibold disabled:opacity-50 flex-shrink-0"
-                      style={{
-                        minHeight: 36,
-                        background: childIsWaiting ? 'var(--color-warning-bg)' : childIsIn ? 'var(--color-success-bg)' : 'var(--color-surface)',
-                        color: childIsWaiting ? '#92400e' : childIsIn ? '#0D6B52' : '#9CA897',
-                        border: `1px solid ${childIsWaiting ? '#C9A227' : childIsIn ? '#0D6B52' : 'var(--color-border)'}`,
-                      }}
-                    >
-                      {childIsWaiting ? '⏳ Waiting' : childIsIn ? '✓ In' : 'Mark In'}
-                    </button>
-                  ) : (
-                    <span className="text-xs" style={{ color: childIsIn ? '#0D6B52' : childIsWaiting ? '#92400e' : '#9CA897' }}>
-                      {childIsIn ? '✓ In' : childIsWaiting ? '⏳' : 'Not In'}
-                    </span>
-                  )}
+                  <PlayerAvatar profile={child} size={20} />
+                  <span>{child.name}</span>
+                  <span style={{ fontSize: 10 }}>{childIsIn ? '✓' : childIsWaiting ? '⏳' : '–'}</span>
                 </div>
               )
             })}
           </div>
         </div>
+      )}
+
+      {/* Search box — filters Who's In, Reserves, and (admin) Not In. */}
+      {players.length > 10 && (
+        <input
+          type="search"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="🔍 Search players…"
+          className="w-full px-3 py-2 mb-3 rounded-xl text-sm"
+          style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            color: 'var(--color-text)',
+          }}
+        />
       )}
 
       {/* Who's In */}
@@ -497,11 +590,9 @@ export default function TonightPage() {
           </p>
         ) : (
           <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-            {playingPlayers.map((p, idx) => {
+            {playingPlayers.filter(matchesSearch).map((p, idx) => {
               const isMe = p.id === profile?.id
               const playerType = p.player_type ?? 'wtp'
-              const tagLabel = playerType === 'subscribed' ? 'SUB' : playerType === 'wtp_priority' ? 'WTP*' : 'WTP'
-              const tagColor = playerType === 'subscribed' ? 'var(--tt-green)' : playerType === 'wtp_priority' ? 'var(--tt-cyan)' : 'var(--tt-yellow)'
               return (
                 <div
                   key={p.id}
@@ -516,14 +607,12 @@ export default function TonightPage() {
                   <span style={{ color: 'var(--color-text-muted)', fontSize: 11, width: 22 }}>
                     {String(idx + 1).padStart(2, '0')}
                   </span>
+                  <TierDot type={playerType} />
                   <span className="flex-1 truncate" style={{ color: 'var(--color-text)' }}>
                     {p.name} {p.surname}
                     {isMe && (
                       <span style={{ color: 'var(--tt-yellow)', letterSpacing: '0.06em', fontSize: 10, marginLeft: 8 }}>· YOU</span>
                     )}
-                  </span>
-                  <span style={{ color: tagColor, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', minWidth: 32, textAlign: 'right' }}>
-                    {tagLabel}
                   </span>
                   {profile?.is_admin && (
                     <button
@@ -585,8 +674,9 @@ export default function TonightPage() {
             ▶ Reserves · {reservePlayers.length}
           </p>
           <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-            {reservePlayers.map((p, idx) => {
+            {reservePlayers.filter(matchesSearch).map((p, idx) => {
               const isMe = p.id === profile?.id
+              const playerType = p.player_type ?? 'wtp'
               return (
                 <div
                   key={p.id}
@@ -601,6 +691,7 @@ export default function TonightPage() {
                   <span style={{ color: 'var(--color-text-muted)', fontSize: 11, width: 22 }}>
                     {String(idx + 1).padStart(2, '0')}
                   </span>
+                  <TierDot type={playerType} />
                   <span className="flex-1 truncate" style={{ color: 'var(--color-text-muted)' }}>
                     {p.name} {p.surname}
                     {isMe && (
@@ -729,55 +820,90 @@ export default function TonightPage() {
         </div>
       )}
 
-      {/* Admin: not signed up */}
-      {profile?.is_admin && notSignedUp.length > 0 && (
+      {/* Admin: not signed up. Collapsed by default — used to be 50+ rows of
+          alphabetical scroll. When opened, ranked by recent attendance so the
+          likeliest-to-play surface first, with a tier filter to narrow. */}
+      {profile?.is_admin && notSignedUpAll.length > 0 && (
         <div className="mb-4">
-          <p
-            className="text-xs mb-2"
-            style={{
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--tt-green)',
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-            }}
+          <button
+            onClick={() => setNotInOpen(o => !o)}
+            className="w-full flex items-center justify-between mb-2 text-left"
           >
-            ▶ Not In · {notSignedUp.length}
-          </p>
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-            {notSignedUp.map((p, idx) => {
-              const playerType = p.player_type ?? 'wtp'
-              const tagLabel = playerType === 'subscribed' ? 'SUB' : playerType === 'wtp_priority' ? 'WTP*' : 'WTP'
-              const tagColor = playerType === 'subscribed' ? 'var(--tt-green)' : playerType === 'wtp_priority' ? 'var(--tt-cyan)' : 'var(--tt-yellow)'
-              return (
-                <div
-                  key={p.id}
-                  className="flex items-center gap-2 px-3 py-2"
-                  style={{
-                    borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 13,
-                  }}
-                >
-                  <span style={{ color: 'var(--color-text-muted)', fontSize: 11, width: 22 }}>
-                    {String(idx + 1).padStart(2, '0')}
-                  </span>
-                  <span className="flex-1 truncate" style={{ color: 'var(--color-text-muted)' }}>
-                    {p.name} {p.surname}
-                  </span>
-                  <span style={{ color: tagColor, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>
-                    {tagLabel}
-                  </span>
+            <p
+              className="text-xs"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--tt-green)',
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+              }}
+            >
+              ▶ Not In · {notSignedUpAll.length}
+            </p>
+            <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>{notInOpen ? '▲' : '▼'}</span>
+          </button>
+          {notInOpen && (
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+              <div className="flex gap-1.5 px-3 py-2 flex-wrap" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                {([
+                  { v: 'all' as const, label: `All · ${notSignedUpAll.length}` },
+                  { v: 'subscribed' as const, label: `Subscribed · ${notSignedUpSubCount}` },
+                  { v: 'wtp' as const, label: `WTP · ${notSignedUpWtpCount}` },
+                ]).map(opt => (
                   <button
-                    onClick={() => adminTogglePlayer(p.id)}
-                    className="text-[10px] px-2 py-1 rounded font-semibold"
-                    style={{ color: 'var(--tt-green)', border: '1px solid var(--tt-green)', letterSpacing: '0.06em' }}
+                    key={opt.v}
+                    onClick={() => setNotInFilter(opt.v)}
+                    className="text-[10px] px-2.5 py-1 rounded-full font-semibold"
+                    style={{
+                      background: notInFilter === opt.v ? 'var(--color-primary)' : 'transparent',
+                      color: notInFilter === opt.v ? '#fff' : 'var(--color-text-muted)',
+                      border: `1px solid ${notInFilter === opt.v ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                      fontFamily: 'var(--font-mono)',
+                      letterSpacing: '0.06em',
+                    }}
                   >
-                    ADD
+                    {opt.label}
                   </button>
-                </div>
-              )
-            })}
-          </div>
+                ))}
+              </div>
+              {notSignedUp.length === 0 ? (
+                <p className="text-xs py-4 text-center" style={{ color: 'var(--color-text-muted)' }}>
+                  No matches for this filter.
+                </p>
+              ) : notSignedUp.map((p, idx) => {
+                const playerType = p.player_type ?? 'wtp'
+                const recent = recentApps[p.id] ?? 0
+                return (
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-2 px-3 py-2"
+                    style={{
+                      borderTop: idx === 0 ? 'none' : '1px solid var(--color-border)',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 13,
+                    }}
+                  >
+                    <TierDot type={playerType} />
+                    <span className="flex-1 truncate" style={{ color: 'var(--color-text-muted)' }}>
+                      {p.name} {p.surname}
+                    </span>
+                    {recent > 0 && (
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: 10 }}>
+                        {recent} of last 8
+                      </span>
+                    )}
+                    <button
+                      onClick={() => adminTogglePlayer(p.id)}
+                      className="text-[10px] px-2 py-1 rounded font-semibold"
+                      style={{ color: 'var(--tt-green)', border: '1px solid var(--tt-green)', letterSpacing: '0.06em' }}
+                    >
+                      ADD
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -831,6 +957,8 @@ export default function TonightPage() {
           )}
         </button>
       )}
+
+      <TierLegend />
     </div>
   )
 }
