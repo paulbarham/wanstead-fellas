@@ -437,16 +437,14 @@ export default function AdminFinancePanel() {
         </div>
       ) : (
         <div className="space-y-2">
-          {/* Column headers — slightly tighter to fit the avatar column. */}
-          <div className="flex items-center px-3 pb-1 gap-1"
+          {/* Column headers — summary now shows just Player + Owed; the
+              per-fine-type breakdown lives in the expanded detail + the
+              totals row at the bottom, so admin still has it but the daily
+              chase view stays scannable. */}
+          <div className="flex items-center px-4 pb-1.5"
             style={{ borderBottom: '1px solid var(--color-border)' }}>
             <span className="flex-1 text-xs font-medium pl-9" style={{ color: '#9CA897' }}>Player</span>
-            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-warning-text)' }}>WTP</span>
-            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>Late</span>
-            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>Ball</span>
-            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>C*nt</span>
-            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>Out</span>
-            <span className="text-xs w-[78px] text-right font-semibold" style={{ color: 'var(--color-error-text)' }}>Owed</span>
+            <span className="text-xs font-semibold" style={{ color: 'var(--color-error-text)' }}>Owed</span>
           </div>
 
           {summaries.map(s => {
@@ -460,14 +458,13 @@ export default function AdminFinancePanel() {
             const leftAccent = isBlocked ? '4px solid var(--color-error-text)'
               : s.priorOwed > 0 ? '4px solid #C9A227' : `1px solid ${borderColor}`
 
-            // Renders a per-category cell — blank when zero so the eye isn't
-            // pulled to noise. Whole-pound display.
-            const cell = (val: number, colour: string) => (
-              <span className="text-xs w-9 text-center tabular-nums pt-0.5"
-                style={{ color: val > 0 ? colour : 'transparent' }}>
-                {val > 0 ? gbp(val) : '·'}
-              </span>
-            )
+            // Mini one-line breakdown that replaces the 5-column wall:
+            // tells admin at a glance whether a row is mostly WTP or fines.
+            const parts: string[] = []
+            if (s.wtpOwed       > 0) parts.push(`${gbp(s.wtpOwed)} WTP`)
+            const finesTotal = s.lateOwed + s.lostBallOwed + s.cunOwed + s.dropoutOwed
+            if (finesTotal      > 0) parts.push(`${gbp(finesTotal)} fines`)
+            const breakdownLine = parts.length > 1 ? parts.join(' · ') : null
 
             return (
               <div key={s.player.id} className="rounded-2xl overflow-hidden"
@@ -477,34 +474,37 @@ export default function AdminFinancePanel() {
                   borderLeft: leftAccent,
                 }}>
 
-                {/* Summary row — avatar + name + per-category cells + owed */}
+                {/* Summary row — avatar + name + owed (with breakdown below
+                    when both WTP and fines contribute). */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : s.player.id)}
-                  className="w-full flex items-center px-2.5 py-2.5 gap-1"
+                  className="w-full flex items-center px-4 py-3 gap-3"
                 >
-                  <PlayerAvatar profile={s.player} size={28} />
-                  <span className="flex-1 min-w-0 text-sm font-medium text-left flex items-center gap-1.5"
-                    style={{ color: allPaid ? '#666' : 'white' }}>
-                    <span className="truncate">{s.player.name} {s.player.surname}</span>
-                    {isBlocked && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider flex-shrink-0"
-                        style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>
-                        ⛔
+                  <PlayerAvatar profile={s.player} size={32} />
+                  <span className="flex-1 min-w-0 text-left flex flex-col gap-0.5">
+                    <span className="text-sm font-medium flex items-center gap-1.5"
+                      style={{ color: allPaid ? '#666' : 'white' }}>
+                      <span className="truncate">{s.player.name} {s.player.surname}</span>
+                      {isBlocked && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider flex-shrink-0"
+                          style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>
+                          ⛔
+                        </span>
+                      )}
+                    </span>
+                    {breakdownLine && (
+                      <span className="text-[10px] tabular-nums" style={{ color: 'var(--color-text-muted)' }}>
+                        {breakdownLine}
                       </span>
                     )}
                   </span>
-                  {cell(s.wtpOwed,       '#C9A227')}
-                  {cell(s.lateOwed,      '#DC2626')}
-                  {cell(s.lostBallOwed,  '#DC2626')}
-                  {cell(s.cunOwed,       '#DC2626')}
-                  {cell(s.dropoutOwed,   '#DC2626')}
-                  <span className="w-[78px] text-right font-bold tabular-nums"
+                  <span className="text-right font-bold tabular-nums flex-shrink-0"
                     style={{ color: allPaid ? '#0D6B52' : '#DC2626' }}>
                     {allPaid ? (
-                      <span className="text-sm">✓</span>
+                      <span className="text-base">✓</span>
                     ) : (
                       <span className="flex flex-col items-end leading-tight">
-                        <span className="text-sm">{gbp(s.allTimeOwed)}</span>
+                        <span className="text-base">{gbp(s.allTimeOwed)}</span>
                         {s.priorOwed > 0 && (
                           <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
                             {gbp(s.priorOwed)} prior
@@ -611,28 +611,25 @@ export default function AdminFinancePanel() {
             )
           })}
 
-          {/* Totals row — same column widths as data rows. Whole-pound only. */}
-          <div className="flex items-center px-2.5 py-3 rounded-2xl gap-1"
+          {/* Totals row — grand total prominent; per-category breakdown
+              tucked under it as a small subtitle line so admin still gets
+              the accounting view without crowding the layout. */}
+          <div className="flex items-center px-4 py-3 rounded-2xl gap-3"
             style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', marginTop: 8 }}>
-            <div style={{ width: 28 }} />
-            <span className="flex-1 text-xs font-bold uppercase tracking-wide" style={{ color: '#9CA897' }}>Totals</span>
-            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-warning-text)' }}>
-              {gbp(grandWtp)}
+            <span className="flex-1 min-w-0 text-left flex flex-col gap-0.5">
+              <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#9CA897' }}>Totals</span>
+              <span className="text-[10px] tabular-nums" style={{ color: 'var(--color-text-muted)' }}>
+                {[
+                  grandWtp > 0 && `${gbp(grandWtp)} WTP`,
+                  grandLate > 0 && `${gbp(grandLate)} late`,
+                  grandLostBall > 0 && `${gbp(grandLostBall)} ball`,
+                  grandCun > 0 && `${gbp(grandCun)} c*nt`,
+                  grandDropout > 0 && `${gbp(grandDropout)} out`,
+                ].filter(Boolean).join(' · ') || '—'}
+              </span>
             </span>
-            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
-              {gbp(grandLate)}
-            </span>
-            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
-              {gbp(grandLostBall)}
-            </span>
-            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
-              {gbp(grandCun)}
-            </span>
-            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
-              {gbp(grandDropout)}
-            </span>
-            <span className="w-[78px] text-right font-bold tabular-nums flex flex-col items-end leading-tight" style={{ color: 'var(--color-error-text)' }}>
-              <span className="text-sm">{gbp(grandAllTimeOwed)}</span>
+            <span className="text-right font-bold tabular-nums flex-shrink-0 leading-tight flex flex-col items-end" style={{ color: 'var(--color-error-text)' }}>
+              <span className="text-base">{gbp(grandAllTimeOwed)}</span>
               {grandPriorOwed > 0 && (
                 <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
                   {gbp(grandMonthOwed)} mth + {gbp(grandPriorOwed)} prior
