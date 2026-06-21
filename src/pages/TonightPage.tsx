@@ -92,6 +92,14 @@ export default function TonightPage() {
   // position yet. Saving inline avoids a trip to the Profile page.
   const [savingPosition, setSavingPosition] = useState(false)
   const [positionDismissed, setPositionDismissed] = useState(false)
+  // Players currently blocked from signing up because they owe money past
+  // the 2-week grace period. Populated from v_blocked_players. Used to (a)
+  // show a clear "you owe £X" banner to the signed-in user, (b) skip blocked
+  // players when auto-promoting a reserve.
+  const [blockedOwed, setBlockedOwed] = useState<Record<string, number>>({})
+  // Set when the toggle attempt is rejected by the DB trigger so we can show
+  // the message inline instead of an opaque error.
+  const [signupError, setSignupError] = useState<string | null>(null)
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -168,6 +176,20 @@ export default function TonightPage() {
     fetchLastResult()
   }, [])
 
+  // Blocked players (past-grace unpaid amounts). One fetch per page load
+  // — re-runs when availability changes via the realtime subscription so
+  // the list stays current if admin marks someone paid mid-session.
+  useEffect(() => {
+    supabase.from('v_blocked_players').select('player_id, past_grace_owed')
+      .then(({ data }) => {
+        const map: Record<string, number> = {}
+        for (const r of (data as { player_id: string; past_grace_owed: number | string }[]) || []) {
+          map[r.player_id] = Number(r.past_grace_owed)
+        }
+        setBlockedOwed(map)
+      })
+  }, [availability])
+
   // Recent attendance for NOT IN sorting — last 8 weeks of confirmed signups,
   // grouped by player. Only fetched for admin since only the admin view
   // currently surfaces the NOT IN list.
@@ -208,6 +230,10 @@ export default function TonightPage() {
   function pickPromotion(excludePlayerId?: string) {
     const candidates = waitingAvail
       .filter(a => a.player_id !== excludePlayerId)
+      // Skip blocked players — the DB trigger would reject the promotion
+      // anyway, but filtering here means the slot goes to the next eligible
+      // reserve cleanly instead of failing and leaving it vacant.
+      .filter(a => !blockedOwed[a.player_id])
       .map(a => ({
         a,
         priority: (players.find(p => p.id === a.player_id)?.player_type ?? 'wtp') === 'wtp_priority' ? 0 : 1,
@@ -221,7 +247,14 @@ export default function TonightPage() {
     if (!profile) return
     if (!profile.is_admin && phase === 'signup_locked') return
     if (!profile.is_admin && phase === 'match_live') return
+    // Hard block: catch unpaid-past-grace upfront so we don't even attempt
+    // the insert. The DB trigger is still the safety net behind this.
+    if (!profile.is_admin && !myEntry && blockedOwed[profile.id]) {
+      setSignupError(`You owe £${blockedOwed[profile.id].toFixed(2)} past the 2-week grace period — pay up to unlock sign-ups.`)
+      return
+    }
     setToggling(true)
+    setSignupError(null)
 
     if (myEntry) {
       await supabase.from('availability').delete().eq('id', myEntry.id)
@@ -487,6 +520,18 @@ export default function TonightPage() {
         </div>
       )}
 
+      {/* Unpaid block banner — passive, shown to the blocked player so they
+          know why before they even tap. Admin override still works. */}
+      {profile && !profile.is_admin && !myEntry && blockedOwed[profile.id] && (
+        <div className="mb-3 px-3 py-2.5 rounded-xl text-xs"
+          style={{ background: 'rgba(255,85,85,0.08)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>
+          <p className="font-semibold">⛔ Sign-ups locked — you owe £{blockedOwed[profile.id].toFixed(2)}</p>
+          <p className="mt-1" style={{ color: 'var(--color-text-muted)' }}>
+            Unpaid amounts past the 2-week grace period. Settle up with admin to unlock.
+          </p>
+        </div>
+      )}
+
       {/* Position nudge — only when the player hasn't picked one yet. Dismissable
           per session so it doesn't badger; persists across sessions until set. */}
       {profile && !profile.preferred_position_primary && !positionDismissed && (
@@ -527,7 +572,7 @@ export default function TonightPage() {
         {canToggle ? (
           <button
             onClick={handleToggleClick}
-            disabled={toggling}
+            disabled={toggling || (!profile?.is_admin && !myEntry && !!profile && !!blockedOwed[profile.id])}
             className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
             style={{
               background: isWaiting || iAmDeferred ? 'var(--color-warning-bg)' : isIn ? 'var(--color-success-bg)' : 'var(--color-primary)',
@@ -535,13 +580,18 @@ export default function TonightPage() {
               border: isWaiting || iAmDeferred ? '2px solid #C9A227' : isIn ? '2px solid var(--color-primary)' : '2px solid transparent',
             }}
           >
-            {toggling ? '…' : isWaiting ? '⏳ On Waiting List — Tap to Remove' : iAmDeferred ? '⏳ Reserve — Tap to Drop Out' : isIn ? "✓ I'm In — Tap to Drop Out" : 'Mark Me In'}
+            {toggling ? '…' : isWaiting ? '⏳ On Waiting List — Tap to Remove' : iAmDeferred ? '⏳ Reserve — Tap to Drop Out' : isIn ? "✓ I'm In — Tap to Drop Out" : (!profile?.is_admin && profile && blockedOwed[profile.id]) ? `⛔ Unpaid £${blockedOwed[profile.id].toFixed(2)} — Pay to Unlock` : 'Mark Me In'}
           </button>
         ) : (
           <div className="w-full py-3 rounded-2xl text-center font-medium text-xs"
             style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
             {phase === 'signup_locked' ? '🔒 Sign-ups are closed' : 'Sign-ups re-open after Thursday 10pm'}
           </div>
+        )}
+        {signupError && (
+          <p className="text-xs mt-2 text-center" style={{ color: 'var(--color-error-text)', lineHeight: 1.5 }}>
+            ⚠ {signupError}
+          </p>
         )}
         {iAmDeferred && (
           <p className="text-xs mt-2 text-center" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>

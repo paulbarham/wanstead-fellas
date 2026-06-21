@@ -118,6 +118,9 @@ export default function AdminFinancePanel() {
   // priorOwedByPlayer[playerId] = unpaid £ from months STRICTLY BEFORE the
   // currently viewed month. Surfaces carryover next to each row.
   const [priorOwedByPlayer, setPriorOwedByPlayer] = useState<Record<string, number>>({})
+  // Players currently blocked from signing up because their unpaid charges
+  // are past the 2-week grace period. Sourced from v_blocked_players.
+  const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [markingPaid, setMarkingPaid] = useState<string | null>(null)
@@ -146,7 +149,7 @@ export default function AdminFinancePanel() {
     const startStr = format(monthStart, 'yyyy-MM-dd')
     const endStr = format(monthEnd, 'yyyy-MM-dd')
 
-    const [{ data: ps }, { data: fs }, { data: gs }, { data: priorF }, { data: priorG }] = await Promise.all([
+    const [{ data: ps }, { data: fs }, { data: gs }, { data: priorF }, { data: priorG }, { data: blocked }] = await Promise.all([
       supabase.from('profiles').select('*').order('surname'),
       supabase.from('fines').select('*').gte('match_date', startStr).lte('match_date', endStr),
       supabase.from('wtp_games').select('*').gte('match_date', startStr).lte('match_date', endStr),
@@ -154,6 +157,7 @@ export default function AdminFinancePanel() {
       // so we don't pull every row in the table.
       supabase.from('fines').select('player_id, amount').eq('paid', false).lt('match_date', startStr),
       supabase.from('wtp_games').select('player_id, amount').eq('paid', false).lt('match_date', startStr),
+      supabase.from('v_blocked_players').select('player_id'),
     ])
     setPlayers((ps as Profile[]) || [])
     setFines((fs as Fine[]) || [])
@@ -167,6 +171,7 @@ export default function AdminFinancePanel() {
       prior[r.player_id] = (prior[r.player_id] ?? 0) + Number(r.amount)
     }
     setPriorOwedByPlayer(prior)
+    setBlockedIds(new Set(((blocked as { player_id: string }[]) || []).map(b => b.player_id)))
     setLoading(false)
   }, [viewDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -416,9 +421,15 @@ export default function AdminFinancePanel() {
                   onClick={() => setExpandedId(isExpanded ? null : s.player.id)}
                   className="w-full flex items-start px-3 py-3 gap-1"
                 >
-                  <span className="flex-1 text-sm font-medium text-left"
+                  <span className="flex-1 text-sm font-medium text-left flex items-center gap-1.5 flex-wrap"
                     style={{ color: allPaid ? '#666' : 'white' }}>
-                    {s.player.name} {s.player.surname}
+                    <span>{s.player.name} {s.player.surname}</span>
+                    {blockedIds.has(s.player.id) && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider"
+                        style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>
+                        ⛔ BLOCKED
+                      </span>
+                    )}
                   </span>
                   <span className="text-xs w-10 text-center tabular-nums pt-0.5"
                     style={{ color: s.wtpOwed > 0 ? '#C9A227' : '#444' }}>
