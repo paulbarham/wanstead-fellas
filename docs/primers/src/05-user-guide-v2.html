@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — The Fellas' Guide (v2)</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · GUIDE · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+
+  /* Teletext masthead */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 12pt 14pt;
+    border-radius: 10pt;
+    margin-bottom: 10pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 19pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 { color: #4ADC7A; font-size: 10pt; margin: 10pt 0 4pt; font-family: 'Arial Black', sans-serif; page-break-after: avoid; }
+  h4 { color: #4AD9FF; font-size: 9pt; margin: 6pt 0 2pt; font-family: 'Arial Black', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; page-break-after: avoid; }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 16pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 7pt 10pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 9pt;
+  }
+  .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.red { background: rgba(255,85,85,0.07); border-left-color: #FF5555; }
+  .callout.magenta { background: rgba(255,102,204,0.06); border-left-color: #FF66CC; }
+
+  /* Tab strip illustration */
+  .tabstrip {
+    display: table; width: 100%; margin: 6pt 0 10pt;
+    border: 1px solid #2D4A2F; border-radius: 8pt; overflow: hidden;
+    background: #1A2B1C;
+  }
+  .tabstrip .tab {
+    display: table-cell; text-align: center;
+    padding: 8pt 4pt;
+    font-family: 'Courier New', monospace; font-size: 8pt;
+    color: #8FAF91;
+    border-right: 1px solid #2D4A2F;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+  .tabstrip .tab:last-child { border-right: none; }
+  .tabstrip .tab .icon {
+    display: block; font-size: 16pt; margin-bottom: 2pt;
+  }
+
+  /* Weekly timeline */
+  .timeline {
+    display: table; width: 100%; border-spacing: 6pt 0;
+    margin: 6pt 0 10pt;
+  }
+  .timeline .day {
+    display: table-cell; vertical-align: top;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 8pt; padding: 8pt 10pt;
+    width: 33%;
+  }
+  .timeline .day .when {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; color: #FFD400;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .timeline .day .what {
+    font-size: 10pt; font-weight: 700;
+    color: #E8F0E9; margin: 3pt 0 2pt;
+  }
+  .timeline .day .how {
+    font-size: 8.5pt; color: #9CA897;
+  }
+  .timeline .day .how .pill {
+    display: inline-block; padding: 1pt 5pt;
+    background: rgba(74,220,122,0.12); border: 1px solid #4ADC7A;
+    color: #4ADC7A; border-radius: 3pt;
+    font-family: 'Courier New', monospace; font-size: 8pt;
+    margin: 1pt 1pt 0 0;
+  }
+
+  /* Phone screen mockup wrapper */
+  .phone {
+    background: #0F1710;
+    border: 1px solid #2D4A2F;
+    border-radius: 14pt;
+    padding: 8pt 8pt 4pt;
+    margin: 4pt 0 6pt;
+  }
+  .phone-head {
+    font-family: 'Courier New', monospace;
+    font-size: 7pt; color: #4AD9FF;
+    letter-spacing: 0.08em;
+    margin-bottom: 3pt;
+  }
+  .phone-title {
+    font-family: 'Courier New', monospace;
+    color: #FFD400; font-size: 13pt; font-weight: 800;
+    margin-bottom: 4pt;
+    letter-spacing: 0.02em;
+  }
+  .phone-body {
+    font-size: 8.5pt;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 6pt; padding: 5pt 7pt;
+  }
+
+  /* Cols layout */
+  .cols { display: table; width: 100%; border-spacing: 8pt 0; margin-top: 6pt; }
+  .col { display: table-cell; vertical-align: top; width: 50%; }
+
+  /* Step number circle */
+  .step {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16pt; height: 16pt; border-radius: 50%;
+    background: #FFD400; color: #0F1710;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9pt; font-weight: 800;
+    margin-right: 5pt;
+    vertical-align: middle;
+  }
+
+  /* Tier dot */
+  .dot {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14pt; height: 14pt; border-radius: 50%;
+    font-size: 8.5pt; font-weight: 800;
+  }
+  .dot.sub  { background: #4ADC7A; color: #0F1710; }
+  .dot.pri  { background: #FFD400; color: #0F1710; }
+  .dot.wtp  { background: #4a4f48; color: #E8EAE3; }
+
+  /* Position chip */
+  .pos-chip {
+    display: inline-flex; align-items: center; gap: 4pt;
+    padding: 3pt 8pt; border-radius: 12pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; font-weight: 700;
+    background: rgba(255,212,0,0.1); border: 1px solid #FFD400;
+    color: #FFD400;
+    margin-right: 4pt;
+  }
+  .pos-chip.def { background: rgba(74,217,255,0.08); border-color: #4AD9FF; color: #4AD9FF; }
+
+  /* Mini ranked list (podium style) */
+  .ranked-mini {
+    display: table; width: 100%;
+    font-family: 'Courier New', monospace; font-size: 9pt;
+    margin: 4pt 0;
+  }
+  .ranked-mini .row { display: table-row; }
+  .ranked-mini .rank, .ranked-mini .nm, .ranked-mini .v {
+    display: table-cell; padding: 2pt 0;
+  }
+  .ranked-mini .rank { width: 14pt; }
+  .ranked-mini .rank .badge {
+    display: inline-block; width: 12pt; height: 12pt;
+    border-radius: 50%; text-align: center;
+    font-size: 7pt; font-weight: 800; line-height: 12pt;
+    color: #0F1710;
+  }
+  .ranked-mini .rank.gold .badge   { background: #FFD400; }
+  .ranked-mini .rank.silver .badge { background: #C8D2C2; }
+  .ranked-mini .rank.bronze .badge { background: #D69A4A; }
+  .ranked-mini .nm { padding-left: 6pt; color: #E8F0E9; font-family: 'Helvetica', sans-serif; }
+  .ranked-mini .v { text-align: right; color: #4AD9FF; font-weight: 700; }
+
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 10pt 0; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; margin: 4pt 0 8pt; font-size: 8.5pt; }
+  th { background: #1A2B1C; color: #FFD400; padding: 4pt 6pt; text-align: left; font-family: 'Courier New', monospace; font-size: 7.5pt; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid #2D4A2F; }
+  td { padding: 4pt 6pt; border-bottom: 1px dashed rgba(45,74,47,0.6); vertical-align: top; }
+  td.icon { color: #FFD400; font-weight: 700; white-space: nowrap; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.1em;
+    margin-top: 10pt;
+    padding: 6pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE 1: WELCOME ──────────────────────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">The fellas' guide · v2</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P001 · GUIDE</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>What this is</strong> — five minutes from here, you'll know how to sign up for Thursday, vote for MOTM, check your stats, pay your fines, and play the World Cup predictor. Skim it, then keep it on your phone.
+</div>
+
+<h2>Quick start</h2>
+
+<p><span class="step">1</span> <strong>Open the app link your captain sent you.</strong> Tap <em>Sign up</em> → email + password. Confirm your name when prompted. That's it — you're in.</p>
+
+<p><span class="step">2</span> <strong>Install it on your home screen</strong> so it behaves like a proper app:</p>
+<ul>
+  <li>📱 <strong>iPhone (Safari):</strong> tap the share icon → <em>Add to Home Screen</em>.</li>
+  <li>🤖 <strong>Android (Chrome):</strong> tap the menu → <em>Install app</em> / <em>Add to Home Screen</em>.</li>
+</ul>
+
+<p><span class="step">3</span> <strong>Pick your position.</strong> The app will nudge you the first time you visit Next Game — tap your spot (🧤 GK · 🛡️ DEF · ⚙️ MID · ⚽ ATT). Helps the auto-balancer build fairer teams.</p>
+
+<h2>The five tabs at the bottom</h2>
+
+<div class="tabstrip">
+  <div class="tab"><span class="icon">⚽</span>Next Game</div>
+  <div class="tab"><span class="icon">👥</span>Teams</div>
+  <div class="tab"><span class="icon">📊</span>Match</div>
+  <div class="tab"><span class="icon">🏆</span>Stats</div>
+  <div class="tab"><span class="icon">🏆</span>World Cup</div>
+</div>
+
+<table>
+  <tr><td class="icon">⚽ Next Game</td><td>Mark yourself <em>In</em> or <em>Out</em> for Thursday. See the playing list, reserves, weather, kick-off, who's still missing.</td></tr>
+  <tr><td class="icon">👥 Teams</td><td>Wednesday evening onwards — see who's on your team and what colour you're playing in.</td></tr>
+  <tr><td class="icon">📊 Match</td><td>Tonight's live score, fixtures, voting, then the match report once the game's done.</td></tr>
+  <tr><td class="icon">🏆 Stats</td><td>Top scorers · awards · The Wall · winning team · distance · fines — full leaderboards by category.</td></tr>
+  <tr><td class="icon">🏆 World Cup</td><td>(During tournaments only) Predictor, sweepstake, your picks.</td></tr>
+</table>
+
+<p>A <strong>More</strong> menu (⋯ top-right) holds your profile, finances, fitness uploads and a few extras.</p>
+
+<h2>Your week, in three days</h2>
+
+<div class="timeline">
+  <div class="day">
+    <div class="when">🗓️ Wednesday</div>
+    <div class="what">Sign up by 10pm</div>
+    <div class="how">
+      Open <em>Next Game</em> → big green <strong>I'm In</strong>.<br>
+      Changed your mind? <strong>Drop Out</strong> before 10pm.<br>
+      <span class="pill">cap = 32</span>
+      <span class="pill">9pm K.O.</span>
+    </div>
+  </div>
+  <div class="day">
+    <div class="when">⚽ Thursday</div>
+    <div class="what">Play + vote</div>
+    <div class="how">
+      Afternoon: check <em>Teams</em> for your line-up + colours.<br>
+      Evening: tap <em>Match</em> for live score + voting.<br>
+      <span class="pill">MOTM 🏆</span>
+      <span class="pill">DOTD 🤡</span>
+    </div>
+  </div>
+  <div class="day">
+    <div class="when">📝 Friday</div>
+    <div class="what">Read the report</div>
+    <div class="how">
+      <em>Match</em> tab: scorers, awards, table, banter.<br>
+      <em>Stats</em> ticks up: top scorer, Wall, wins, fitness.<br>
+      <span class="pill">vote closes 10am</span>
+    </div>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>House rules baked into the app</strong>
+  <ul style="margin-top: 3pt;">
+    <li><strong>Cap:</strong> 32 confirmed per Thursday (sometimes 36 for special weeks). Extras go to <em>reserves</em>.</li>
+    <li><strong>Priority order</strong> when bumping for a slot: <em>subscribed &gt; paid casuals (WTP+) &gt; casuals (WTP)</em>.</li>
+    <li><strong>Late drops:</strong> if someone drops late, the highest-priority reserve gets pulled in automatically.</li>
+    <li><strong>Voting closes 10am Friday.</strong> No late votes.</li>
+  </ul>
+</div>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 2: NEXT GAME ─────────────────────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>NEXT GAME</h1>
+    <div class="sub">Signing up · reserves · your kid</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P101 · GUIDE</span>
+  </div>
+</div>
+
+<p>The tab you'll open most. Everything's on one screen.</p>
+
+<h2>What you'll see</h2>
+
+<div class="phone">
+  <div class="phone-head">P101 · NEXT GAME · THU 25 JUN</div>
+  <div class="phone-title">NEXT GAME · 9PM K.O.</div>
+  <div class="phone-body">
+    ☁️ 22°C · 8mph &nbsp; · &nbsp; <strong style="color:#FFD400;">14/32 signed up</strong> &nbsp; · &nbsp; <strong style="color:#4AD9FF;">7v7 / 2 teams</strong><br>
+    <span style="color:#4AD9FF;">⚽ Where do you play?</span> · pick GK · DEF · MID · ATT &nbsp; <span style="color:#9CA897;">✕</span><br>
+    <strong style="color:#4ADC7A;">✓ I'm In — Tap to Drop Out</strong>
+  </div>
+</div>
+
+<ul>
+  <li><strong>Masthead row</strong> — weather, signup count, tonight's format (7v7, 9v9 etc.).</li>
+  <li><strong>Position nudge</strong> — only shows if you haven't picked your position yet. One tap to set it from here, no need to visit Profile.</li>
+  <li><strong>Big I'm In / Drop Out button</strong> — green when you're in, yellow when you're on the waiting list.</li>
+  <li><strong>My Squad pill</strong> — if you manage a kid's account, their In/Out toggle sits as a small pill next to yours.</li>
+  <li><strong>Search box</strong> — type a few letters to jump to a name in any of the lists.</li>
+  <li><strong>Who's In · 14</strong> — the playing list. <em>Your row is highlighted in green.</em></li>
+</ul>
+
+<h3>Player tier dots</h3>
+
+<p>Each player row has a coloured dot showing their tier:</p>
+<div class="callout cyan" style="margin: 4pt 0;">
+  <span class="dot sub">S</span> <strong>Subscribed</strong> — pays monthly · &nbsp;&nbsp;
+  <span class="dot pri">★</span> <strong>WTP+</strong> — priority casual, £5/game · &nbsp;&nbsp;
+  <span class="dot wtp">·</span> <strong>WTP</strong> — casual, £5/game
+</div>
+
+<h2>Common how-tos</h2>
+
+<h3>🆘 The match is full — what happens?</h3>
+<p>You'll join the <strong>reserves</strong>. The list is auto-ranked by tier (subscribed first, then WTP+, then WTP by sign-up time). If anyone drops out, the top reserve gets bumped into the slot — no admin needed.</p>
+
+<h3>👶 I want to sign up my kid</h3>
+<p>If admin has linked your child to your account, you'll see them on Next Game as a small pill next to your I'm In button. Tap it to sign them up; tap again to drop them.</p>
+
+<h3>🚪 I need to drop out</h3>
+<p>Tap your green <strong>I'm In</strong> button → confirm. If anyone's waiting, your slot goes to the top reserve automatically. <em>You can change your mind later but you may not get your spot back.</em></p>
+
+<h3>🔒 What if I miss the 10pm deadline?</h3>
+<p>Sign-ups are locked. The captain can still slot you in via admin tools if there's room, but message in WhatsApp first.</p>
+
+<h3>👀 Why can't I see "Not In"?</h3>
+<p>The "Not In · 59" list is admin-only — keeps the page clean for everyone else.</p>
+
+<div class="callout green">
+  <strong>The status of your sign-up</strong> is always written on the big button:<br>
+  ✓ <strong>I'm In</strong> · 🟡 <strong>On the Waiting List</strong> · ⏳ <strong>Reserve (was confirmed, got bumped)</strong>
+</div>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 3: MATCH NIGHT + STATS ───────────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>MATCH NIGHT · STATS</h1>
+    <div class="sub">Voting · scores · leaderboards</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P301 · GUIDE</span>
+  </div>
+</div>
+
+<h2>Match tab — voting (Thursday night)</h2>
+
+<p>While the game's running, the captain enters scores live on the Match tab. After full time, the voting card opens at the top of the page.</p>
+
+<div class="phone">
+  <div class="phone-head">P301 · MATCH · CAST YOUR VOTES</div>
+  <div class="phone-title">CAST YOUR VOTES</div>
+  <div class="phone-body">
+    <strong style="color:#FFD400;">🏆 ✓ &nbsp; 🤡 –</strong> &nbsp; · &nbsp; <span style="color:#9CA897;">14/32 voted · closes Fri 10:00</span><br>
+    🔍 Search 32 players…<br>
+    <strong>Beau Samuels</strong> ⚽ 2 &nbsp;&nbsp;&nbsp; 🏆 <span style="color:#4ADC7A;">●</span> &nbsp; 🤡 ◯<br>
+    <strong>Edward Ezra</strong>      &nbsp;&nbsp;&nbsp; 🏆 ◯ &nbsp; 🤡 <span style="color:#4ADC7A;">●</span>
+  </div>
+</div>
+
+<ul>
+  <li><strong>One row per player</strong> — tap 🏆 for MOTM and 🤡 for DOTD. Both votes in one scroll.</li>
+  <li><strong>Goalscorers are sorted to the top</strong> with a ⚽ tag so MOTM candidates surface without scrolling.</li>
+  <li><strong>Search box</strong> filters live as you type.</li>
+  <li><strong>Change your mind</strong> anytime until 10am Friday.</li>
+  <li><strong>Two pills top-right</strong> show your progress: 🏆 ✓ means MOTM cast, 🤡 ✓ means DOTD cast.</li>
+</ul>
+
+<div class="callout">
+  Voting closes <strong>Friday 10:00 AM</strong>. Winners auto-publish on the Match tab, where the card morphs into the result.
+</div>
+
+<h3>📝 Match report</h3>
+<p>Friday morning the report drops on the Match tab — scorers, MOTM/DOTD, league table for the night, key highlights, banter, app watch (World Cup chat). Older reports live on <em>History</em> (under <strong>More</strong>) — tap any prior Thursday to expand.</p>
+
+<h2>Stats tab — the league leaderboards</h2>
+
+<p>The Stats page is a dashboard, not a menu. The top section always shows three <strong>hero cards</strong> with the season leaders:</p>
+
+<div class="cols">
+  <div class="col">
+    <div class="callout" style="background: rgba(255,212,0,0.08);">
+      <strong>⚽ Top Scorer</strong><br>
+      Beau Samuels<br>
+      <strong style="font-size: 14pt;">14</strong> <span style="font-size: 8pt; color: #9CA897;">goals</span>
+    </div>
+  </div>
+  <div class="col">
+    <div class="callout cyan">
+      <strong>🧱 Wall King</strong><br>
+      Mark Pearson<br>
+      <strong style="font-size: 14pt;">1.50</strong> <span style="font-size: 8pt; color: #9CA897;">GA/night</span>
+    </div>
+  </div>
+</div>
+
+<p>Below the heroes, panels grouped by theme:</p>
+<table>
+  <tr><th>Section</th><th>What's in it</th></tr>
+  <tr><td class="icon">Attack</td><td>Top Scorers</td></tr>
+  <tr><td class="icon">Awards</td><td>Man of the Match · Winning Team (with current streak)</td></tr>
+  <tr><td class="icon">Defence</td><td>The Wall — goals conceded per night, lower is better</td></tr>
+  <tr><td class="icon">Participation</td><td>Appearances · Distance per game · Total distance</td></tr>
+  <tr><td class="icon">Shame</td><td>Dick of the Day · Fines</td></tr>
+</table>
+
+<h3>How to read each panel</h3>
+<p>Every panel shows a <strong>top-3 podium</strong> right under the title (gold · silver · bronze) — that's the league leaderboard for that category at a glance. Tap the panel to expand for the full ranked table.</p>
+
+<div class="ranked-mini">
+  <div class="row"><div class="rank gold"><span class="badge">1</span></div><div class="nm">Beau Samuels</div><div class="v">14</div></div>
+  <div class="row"><div class="rank silver"><span class="badge">2</span></div><div class="nm">Josh Edwards</div><div class="v">10</div></div>
+  <div class="row"><div class="rank bronze"><span class="badge">3</span></div><div class="nm">Mikel Winter</div><div class="v">9</div></div>
+</div>
+
+<h3>Other controls</h3>
+<ul>
+  <li><strong>This Month / All Time</strong> toggle at the top — flips the whole page between the two views.</li>
+  <li><strong>My Stats pill</strong> at the top jumps you straight to your player card.</li>
+</ul>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 4: PROFILE + WORLD CUP + MONEY + HELP ───────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>PROFILE · CUP · CASH</h1>
+    <div class="sub">Your card · World Cup · finances · help</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P901 · GUIDE</span>
+  </div>
+</div>
+
+<h2>Your Profile</h2>
+
+<p>Open via <strong>More → My Profile</strong> or tap your avatar at the top of any screen. You'll find:</p>
+
+<ul>
+  <li><strong>Your Top Trumps card</strong> — overall rating + six attributes (pace, shooting, passing, dribbling, defence, physicality) or GK stats if you're a keeper. Updates as the season goes on.</li>
+  <li><strong>Preferred position</strong> — pick a <em>primary</em> and an optional <em>backup</em>. Used by the team balancer (so every team gets a striker, a defender and a GK) and feeds future position-aware leaderboards.</li>
+  <li><strong>Photo, name, age group, favourite club</strong> — set once, easy to change.</li>
+  <li><strong>Match fitness</strong> — add post-match GPS data (see below).</li>
+  <li><strong>My Finances</strong> — your running balance.</li>
+</ul>
+
+<h3>Position picker</h3>
+<p>Four buttons. Tap once for <em>primary</em>, tap a second to set a <em>backup</em>, tap again to clear. Helpful if you're "happy at MID, can play DEF in a pinch."</p>
+
+<p style="text-align: center; margin: 8pt 0;">
+  <span class="pos-chip">🧤 GK</span>
+  <span class="pos-chip def">🛡️ DEF</span>
+  <span class="pos-chip">⚙️ MID</span>
+  <span class="pos-chip def">⚽ ATT</span>
+</p>
+
+<h3>📈 Add match fitness</h3>
+<p>On your player card, tap <strong>+ Add match fitness</strong>. Either upload a <code style="color:#4AD9FF;">.gpx</code> or <code style="color:#4AD9FF;">.tcx</code> file exported from your watch app (Polar, Garmin, Strava), or type the numbers in by hand. Re-uploading for the same date replaces the previous entry.</p>
+
+<h2>💷 My Finances</h2>
+
+<p>Open via <strong>More → My Finances</strong>. Two sections:</p>
+<ul>
+  <li><strong>WTP Games This Month</strong> — for casual players, a £5 fee is now added automatically whenever you sign up confirmed for a Thursday. The panel shows count + £ total + per-game lines.</li>
+  <li><strong>Outstanding Fines</strong> — any lateness / drop-out / cuntiness charges, with date and amount.</li>
+</ul>
+
+<div class="callout green">
+  Big number at the top tells you what you owe. <em>"All clear ✓"</em> means you're paid up.
+</div>
+
+<h2>🏆 World Cup tab</h2>
+
+<p>Appears at the bottom of the app during tournaments. Four sub-tabs:</p>
+
+<table>
+  <tr><td class="icon">Hub</td><td>Upcoming fixtures (today + tomorrow) with your picks · leaderboard preview.</td></tr>
+  <tr><td class="icon">League</td><td>Full predictor standings. % is your hit rate across <em>all</em> settled matches.</td></tr>
+  <tr><td class="icon">My Picks</td><td>Your scorecard — what you predicted, what's still locked.</td></tr>
+  <tr><td class="icon">Sweep</td><td>The £240 paper sweepstake digitised — pot, prizes, ownership grid, leaders for Most Conceded and Most Reds. Your teams highlighted in cyan at the bottom.</td></tr>
+</table>
+
+<div class="callout red">
+  <strong>Picks lock 5 minutes before kick-off.</strong> Miss it and that match counts as a wrong pick — the leaderboard denominator is total settled matches, not just the ones you predicted. Set a phone reminder for early-morning games.
+</div>
+
+<hr>
+
+<h2>🛟 When something looks wrong</h2>
+
+<ol>
+  <li><strong>Force-refresh first.</strong> iPhone: swipe up to close the app, then re-open. Desktop: <code style="color:#4AD9FF;">Cmd+Shift+R</code> / <code style="color:#4AD9FF;">Ctrl+Shift+R</code>. Most "weird" data is a cached old view.</li>
+  <li><strong>Check your phone has signal</strong> — most live features need it.</li>
+  <li><strong>Still wrong?</strong> Drop the admin a message: <strong>pabarham@gmail.com</strong> or in the WhatsApp group. Include a screenshot and what you were doing.</li>
+</ol>
+
+<div class="closer">
+  That's the lot. Now go have a kick around. 🟢⚽
+</div>
+
+</body>
+</html>
