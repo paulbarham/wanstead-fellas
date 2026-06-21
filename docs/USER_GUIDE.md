@@ -38,10 +38,10 @@ A **More** menu (⋯ top right or in the nav) holds your profile, stats, fines, 
 - **Full already?** You'll go to the **Reserves** list. If anyone drops, you get auto-promoted in priority order (paid casuals first, then by sign-up time).
 
 ### Thursday afternoon
-- Open **Teams** to see your line-up and team colours. The teams are auto-balanced by the captain's tool.
+- Open **Teams** to see your line-up and team colours. The teams are auto-balanced by the admin's team builder.
 
 ### Thursday night
-- **Match** tab shows the score live as the captain enters it.
+- **Match** tab shows the score live as the admin enters it.
 - Cast votes in the **Cast Your Votes** card on the Match tab:
   - 🏆 **Man of the Match** — best player on the night.
   - 🤡 **Dick of the Day** — the lighter award.
