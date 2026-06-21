@@ -2,6 +2,18 @@ export type PlayerType = 'subscribed' | 'wtp_priority' | 'wtp'
 
 export type PlayerPosition = 'GK' | 'DF' | 'MF' | 'ST'
 
+// Four-position taxonomy used for player-set preferred positions (vs the
+// legacy admin-set `position` column which uses GK/DF/MF/ST). Kept separate
+// so we can roll out without forcing a backfill of the legacy column.
+export type PreferredPosition = 'GK' | 'DEF' | 'MID' | 'ATT'
+
+export const PREFERRED_POSITIONS: { value: PreferredPosition; label: string; icon: string; full: string }[] = [
+  { value: 'GK',  label: 'GK',  icon: '🧤', full: 'Goalkeeper' },
+  { value: 'DEF', label: 'DEF', icon: '🛡️', full: 'Defender' },
+  { value: 'MID', label: 'MID', icon: '⚙️', full: 'Midfielder' },
+  { value: 'ATT', label: 'ATT', icon: '⚽', full: 'Attacker' },
+]
+
 export type CuntTier = 'saint' | 'gentleman' | 'scamp' | 'nuisance' | 'cunt'
 
 export type League = 'premier_league' | 'championship' | 'league_one'
@@ -53,6 +65,10 @@ export interface Profile {
   gk_physicality: number | null
   favourite_club: string | null
   position: PlayerPosition | null
+  // Player-set, owned by the player on their Profile page. May be null
+  // while we wait for the squad to pick. See PreferredPosition type.
+  preferred_position_primary: PreferredPosition | null
+  preferred_position_secondary: PreferredPosition | null
   cunt_tier: CuntTier | null
   // Optional: not every profile object is loaded with this column. The Match
   // Fitness panel does NOT depend on it for visibility (only for a badge).

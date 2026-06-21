@@ -6,7 +6,8 @@ import { cropAndResizeImage } from '../lib/imageUtils'
 import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
-import type { Profile } from '../types'
+import PositionPicker from '../components/PositionPicker'
+import type { Profile, PreferredPosition } from '../types'
 import { CLUBS } from '../lib/clubs'
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
@@ -85,6 +86,8 @@ export default function ProfilePage() {
   const [surname, setSurname] = useState(profile?.surname ?? '')
   const [ageGroup, setAgeGroup] = useState(profile?.age_group ?? '20–29')
   const [club, setClub] = useState(profile?.favourite_club ?? '')
+  const [posPrimary, setPosPrimary] = useState<PreferredPosition | null>(profile?.preferred_position_primary ?? null)
+  const [posSecondary, setPosSecondary] = useState<PreferredPosition | null>(profile?.preferred_position_secondary ?? null)
   const parsedDob = parseDob(profile?.dob)
   const [dobDay, setDobDay] = useState(parsedDob.day)
   const [dobMonth, setDobMonth] = useState(parsedDob.month)
@@ -159,7 +162,13 @@ export default function ProfilePage() {
     setSaveError('')
     const { error } = await supabase
       .from('profiles')
-      .update({ name, surname, age_group: ageGroup, dob: composeDob(dobDay, dobMonth, dobYear), favourite_club: club || null })
+      .update({
+        name, surname, age_group: ageGroup,
+        dob: composeDob(dobDay, dobMonth, dobYear),
+        favourite_club: club || null,
+        preferred_position_primary: posPrimary,
+        preferred_position_secondary: posSecondary,
+      })
       .eq('id', profile!.id)
     setSaving(false)
     if (error) {
@@ -392,7 +401,9 @@ export default function ProfilePage() {
         card_dribbling: null, card_defence: null, card_physicality: null,
         gk_pace: null, gk_reflexes: null, gk_handling: null,
         gk_distribution: null, gk_positioning: null, gk_physicality: null,
-        favourite_club: null, position: null, cunt_tier: null,
+        favourite_club: null, position: null,
+        preferred_position_primary: null, preferred_position_secondary: null,
+        cunt_tier: null,
       }
       setLinkedChildren(prev => [...prev, newChild])
       closeAddForm()
@@ -511,6 +522,16 @@ export default function ProfilePage() {
               ))}
             </optgroup>
           </select>
+        </div>
+
+        {/* Preferred position — feeds future position-aware stats & balancer */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Preferred position</label>
+          <PositionPicker
+            primary={posPrimary}
+            secondary={posSecondary}
+            onChange={({ primary, secondary }) => { setPosPrimary(primary); setPosSecondary(secondary) }}
+          />
         </div>
 
         {/* Date of birth */}

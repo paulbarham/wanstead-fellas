@@ -10,6 +10,8 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import InstallBanner from '../components/InstallBanner'
 import WeatherCard from '../components/WeatherCard'
 import CeefaxHeader from '../components/CeefaxHeader'
+import PositionPicker from '../components/PositionPicker'
+import type { PreferredPosition } from '../types'
 import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
 
 interface LastResultSummary {
@@ -61,7 +63,7 @@ function TierLegend() {
 }
 
 export default function TonightPage() {
-  const { profile } = useAuth()
+  const { profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [nextThursday, setNextThursday] = useState(() => getNextThursdayDate())
   const [phase, setPhase] = useState(() => getMatchPhase(nextThursday))
@@ -86,6 +88,10 @@ export default function TonightPage() {
   // Map of playerId → confirmed signups in the trailing 8 weeks. Used to
   // sort the NOT IN list by likelihood-to-play, not alphabetically.
   const [recentApps, setRecentApps] = useState<Record<string, number>>({})
+  // One-tap nudge shown when the signed-in player hasn't picked a preferred
+  // position yet. Saving inline avoids a trip to the Profile page.
+  const [savingPosition, setSavingPosition] = useState(false)
+  const [positionDismissed, setPositionDismissed] = useState(false)
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -264,6 +270,22 @@ export default function TonightPage() {
 
     await fetchData()
     setToggling(false)
+  }
+
+  // Inline save of preferred position from the nudge banner — saves a trip
+  // to the Profile page for the 10 players who still have no position set.
+  async function savePosition(next: { primary: PreferredPosition | null; secondary: PreferredPosition | null }) {
+    if (!profile || savingPosition) return
+    setSavingPosition(true)
+    await supabase
+      .from('profiles')
+      .update({
+        preferred_position_primary: next.primary,
+        preferred_position_secondary: next.secondary,
+      })
+      .eq('id', profile.id)
+    await refreshProfile()
+    setSavingPosition(false)
   }
 
   // Dropping a confirmed spot auto-promotes a waiting player and can't be
@@ -462,6 +484,41 @@ export default function TonightPage() {
         <div className="mb-3 px-3 py-2 rounded-xl text-xs text-center"
           style={{ background: 'var(--color-warning-bg)', color: '#92400e', border: '1px solid #C9A227' }}>
           {playingPlayers.length} playing · {deferredPlayers.length} moved to reserves
+        </div>
+      )}
+
+      {/* Position nudge — only when the player hasn't picked one yet. Dismissable
+          per session so it doesn't badger; persists across sessions until set. */}
+      {profile && !profile.preferred_position_primary && !positionDismissed && (
+        <div
+          className="mb-4 p-3 rounded-2xl"
+          style={{ background: 'rgba(74,217,255,0.07)', border: '1px solid rgba(74,217,255,0.35)' }}
+        >
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--tt-cyan)' }}>
+                ⚽ Where do you play?
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                Pick your spot — helps the balancer build fairer teams. Saves instantly.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPositionDismissed(true)}
+              className="text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
+              aria-label="Dismiss for this session"
+            >
+              ✕
+            </button>
+          </div>
+          <PositionPicker
+            primary={profile.preferred_position_primary ?? null}
+            secondary={profile.preferred_position_secondary ?? null}
+            onChange={savePosition}
+            compact
+          />
         </div>
       )}
 
