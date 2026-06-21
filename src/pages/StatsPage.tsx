@@ -4,11 +4,12 @@ import { supabase } from '../lib/supabase'
 import PlayerAvatar from '../components/PlayerAvatar'
 import CeefaxHeader from '../components/CeefaxHeader'
 import { useAuth } from '../hooks/useAuth'
-import { FINE_TYPES } from '../types'
-import type { Profile, FineType } from '../types'
+import { FINE_TYPES, PREFERRED_POSITIONS } from '../types'
+import type { Profile, FineType, PreferredPosition } from '../types'
 
 type Mode = 'all' | 'month'
-type ProfileLite = Pick<Profile, 'id' | 'name' | 'surname' | 'photo_url'>
+type PosFilter = PreferredPosition | 'all'
+type ProfileLite = Pick<Profile, 'id' | 'name' | 'surname' | 'photo_url' | 'preferred_position_primary'>
 
 // Current calendar month, e.g. "2026-05". "This Month" shows only matches
 // whose date falls in this month; at month rollover it naturally resets and
@@ -35,6 +36,40 @@ function PeriodToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => voi
           {m === 'month' ? 'This Month' : 'All Time'}
         </button>
       ))}
+    </div>
+  )
+}
+
+// Position filter applies globally to every leaderboard on the page. When set,
+// each panel only shows players whose primary preferred_position matches —
+// "Top 3 strikers · defenders · GKs separately" promised in guide v4.
+function PositionFilter({ value, setValue }: { value: PosFilter; setValue: (v: PosFilter) => void }) {
+  const opts: { v: PosFilter; label: string; icon?: string }[] = [
+    { v: 'all', label: 'All' },
+    ...PREFERRED_POSITIONS.map(p => ({ v: p.value as PosFilter, label: p.label, icon: p.icon })),
+  ]
+  return (
+    <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+      {opts.map(opt => {
+        const active = value === opt.v
+        return (
+          <button
+            key={opt.v}
+            onClick={() => setValue(opt.v)}
+            className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors flex items-center gap-1"
+            style={{
+              background: active ? 'var(--color-primary)' : 'var(--color-surface)',
+              color: active ? '#FFFFFF' : 'var(--color-text-muted)',
+              border: `1px solid ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
+              fontFamily: 'var(--font-mono)',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {opt.icon && <span style={{ fontSize: 12, lineHeight: 1 }}>{opt.icon}</span>}
+            <span>{opt.label}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -150,19 +185,24 @@ function SectionHeader({ label }: { label: string }) {
 }
 
 function HeroCard({ tier, label, icon, player, value, unit }: {
-  tier: 'gold' | 'silver' | 'bronze'
+  tier: 'gold' | 'silver' | 'bronze' | 'green'
   label: string
   icon: string
   player: string
   value: string
   unit: string
 }) {
-  const accent = tier === 'gold' ? 'var(--tt-yellow)' : tier === 'silver' ? 'var(--tt-cyan)' : 'var(--tt-magenta)'
+  const accent = tier === 'gold' ? 'var(--tt-yellow)'
+    : tier === 'silver' ? 'var(--tt-cyan)'
+    : tier === 'bronze' ? 'var(--tt-magenta)'
+    : 'var(--tt-green)'
   const bgGrad = tier === 'gold'
     ? 'linear-gradient(160deg, rgba(255,212,0,0.08), var(--color-surface) 70%)'
     : tier === 'silver'
       ? 'linear-gradient(160deg, rgba(74,217,255,0.07), var(--color-surface) 70%)'
-      : 'linear-gradient(160deg, rgba(255,102,204,0.06), var(--color-surface) 70%)'
+      : tier === 'bronze'
+        ? 'linear-gradient(160deg, rgba(255,102,204,0.06), var(--color-surface) 70%)'
+        : 'linear-gradient(160deg, rgba(74,220,122,0.08), var(--color-surface) 70%)'
   return (
     <div
       className="flex-shrink-0 rounded-2xl px-3 py-2.5"
@@ -304,12 +344,16 @@ export default function StatsPage() {
   // Single page-level period filter — replaces eight per-panel toggles so
   // the whole page reads as "this month" or "all time" coherently.
   const [globalMode, setGlobalMode] = useState<Mode>('all')
+  // Position filter — applies to every leaderboard. Default 'all'. Players
+  // with no position set are excluded when a specific position is selected
+  // (incentive to pick one).
+  const [posFilter, setPosFilter] = useState<PosFilter>('all')
   const [finesType, setFinesType] = useState<FineType | 'all'>('all')
 
   useEffect(() => {
     async function load() {
       const [ps, gl, fn, aw, ms, tm, tp, ft, fx] = await Promise.all([
-        supabase.from('profiles').select('id, name, surname, photo_url'),
+        supabase.from('profiles').select('id, name, surname, photo_url, preferred_position_primary'),
         supabase.from('goals').select('player_id, goals_count, own_goal, match_id'),
         supabase.from('fines').select('player_id, type, amount, paid, match_date'),
         supabase.from('award_results').select('player_id, award_type, is_admin_override, match_id'),
@@ -368,6 +412,16 @@ export default function StatsPage() {
   // a player order is stable across reloads.
   const byNameAsc = (a: ProfileLite | undefined, b: ProfileLite | undefined) =>
     `${a?.name ?? ''} ${a?.surname ?? ''}`.localeCompare(`${b?.name ?? ''} ${b?.surname ?? ''}`)
+
+  // Filter leaderboard rows by the global position filter. Players with no
+  // primary position set get excluded when a specific position is selected.
+  function byPos<T extends { profile: ProfileLite | undefined }>(rows: T[]): T[] {
+    if (posFilter === 'all') return rows
+    return rows.filter(r => r.profile?.preferred_position_primary === posFilter)
+  }
+  const posLabel = posFilter === 'all'
+    ? ''
+    : PREFERRED_POSITIONS.find(p => p.value === posFilter)?.label ?? ''
 
   // Top scorers — sum goals_count (own goals excluded) for the period.
   const scorerAgg: Record<string, number> = {}
@@ -599,11 +653,28 @@ export default function StatsPage() {
   const wallSelf = currentProfile ? wallAgg[currentProfile.id] : null
   const wallSelfAvg = wallSelf && wallSelf.nights > 0 ? wallSelf.ga / wallSelf.nights : null
 
-  // Hero strip — three headline awards. Values come from the period-filtered
-  // ranked rows so the cards stay in sync with the global toggle.
-  const heroTopScorer = scorerRows[0]
-  const heroWall = wallRows[0]
-  const heroWins = winsRows[0]
+  // Hero strip — headline awards. Filtered by both the period toggle (via the
+  // *Rows) and the position chip (via byPos), so the three cards stay in sync
+  // with whatever the player has selected.
+  const heroTopScorer = byPos(scorerRows)[0]
+  const heroWall = byPos(wallRows)[0]
+  const heroWins = byPos(winsRows)[0]
+
+  // 4th hero — Top GK by clean sheets (avg GA as tiebreak). Specialists who'd
+  // otherwise never show on a goals/MOTM leaderboard get celebrated here.
+  // Only shown when posFilter === 'all' (when filter is GK, the standard
+  // three cards above already filter to GKs).
+  const gkRows = Object.entries(wallAgg)
+    .filter(([pid]) => profiles[pid]?.preferred_position_primary === 'GK')
+    .map(([pid, v]) => ({
+      profile: profiles[pid],
+      cs: v.cs,
+      avg: v.nights > 0 ? v.ga / v.nights : Number.POSITIVE_INFINITY,
+      nights: v.nights,
+    }))
+    .filter(r => r.nights >= 1 && r.profile)
+    .sort((a, b) => b.cs - a.cs || a.avg - b.avg)
+  const heroGk = gkRows[0]
 
   // Fines podium needs a {value, display} shape since fineRows tracks paid/unpaid.
   const finePodiumRows: PodiumRow[] = fineRows.map(r => ({
@@ -613,6 +684,19 @@ export default function StatsPage() {
   }))
 
   const meInitials = currentProfile ? `${currentProfile.name?.[0] ?? ''}${currentProfile.surname?.[0] ?? ''}`.toUpperCase() : ''
+
+  // Apply the position filter once for each leaderboard so render is clean.
+  // When posFilter === 'all', byPos is a no-op.
+  const scorerRowsF = byPos(scorerRows)
+  const motmRowsF = byPos(motmRows)
+  const dotdRowsF = byPos(dotdRows)
+  const winsRowsF = byPos(winsRows)
+  const wallRowsF = byPos(wallRows)
+  const appsRowsF = byPos(appsRows)
+  const distRowsF = byPos(distRows)
+  const totalDistRowsF = byPos(totalDistRows)
+  const fineRowsF = byPos(fineRows)
+  const finePodiumRowsF = byPos(finePodiumRows)
 
   return (
     <div className="px-4 py-5">
@@ -651,13 +735,19 @@ export default function StatsPage() {
         <PeriodToggle mode={globalMode} setMode={setGlobalMode} />
       </div>
 
-      {/* Hero strip — 3 headline awards. Horizontally scrollable so more can
+      {/* Position filter — chip strip below the period toggle. Affects every
+          leaderboard on the page, hero strip included. */}
+      <div className="mb-3">
+        <PositionFilter value={posFilter} setValue={setPosFilter} />
+      </div>
+
+      {/* Hero strip — headline awards. Horizontally scrollable so more can
           slot in later. */}
       <div className="flex gap-2 overflow-x-auto mb-3 -mx-4 px-4 pb-1">
         {heroTopScorer?.profile && (
           <HeroCard
             tier="gold"
-            label="Top Scorer"
+            label={posLabel ? `Top Scorer · ${posLabel}` : 'Top Scorer'}
             icon="⚽"
             player={`${heroTopScorer.profile.name} ${heroTopScorer.profile.surname}`}
             value={String(heroTopScorer.value)}
@@ -667,7 +757,7 @@ export default function StatsPage() {
         {heroWall?.profile && (
           <HeroCard
             tier="silver"
-            label="Wall King"
+            label={posLabel ? `Wall King · ${posLabel}` : 'Wall King'}
             icon="🧱"
             player={`${heroWall.profile.name} ${heroWall.profile.surname}`}
             value={String(heroWall.display ?? heroWall.value)}
@@ -677,11 +767,21 @@ export default function StatsPage() {
         {heroWins?.profile && (
           <HeroCard
             tier="bronze"
-            label="Most Wins"
+            label={posLabel ? `Most Wins · ${posLabel}` : 'Most Wins'}
             icon="🥇"
             player={`${heroWins.profile.name} ${heroWins.profile.surname}`}
             value={String(heroWins.value)}
             unit="wins"
+          />
+        )}
+        {posFilter === 'all' && heroGk?.profile && (
+          <HeroCard
+            tier="green"
+            label="Top GK"
+            icon="🧤"
+            player={`${heroGk.profile.name} ${heroGk.profile.surname}`}
+            value={String(heroGk.cs)}
+            unit={heroGk.cs === 1 ? 'clean sheet' : 'clean sheets'}
           />
         )}
       </div>
@@ -692,11 +792,11 @@ export default function StatsPage() {
         title="Top Scorers"
         icon="⚽"
         defaultOpen
-        preview={<PodiumPreview rows={scorerRows} unit="goals" emptyText={periodNote(globalMode, 'goals')} />}
+        preview={<PodiumPreview rows={scorerRowsF} unit="goals" emptyText={periodNote(globalMode, 'goals')} />}
       >
-        {scorerRows.length === 0
+        {scorerRowsF.length === 0
           ? <EmptyState text={periodNote(globalMode, 'goals')} />
-          : <RankedList rows={scorerRows} unit="goals" />}
+          : <RankedList rows={scorerRowsF} unit="goals" />}
       </Panel>
 
       {/* AWARDS ----------------------------------------------------------- */}
@@ -704,20 +804,20 @@ export default function StatsPage() {
       <Panel
         title="Man of the Match"
         icon="🏆"
-        preview={<PodiumPreview rows={motmRows} unit="awards" emptyText="No MOTM awards yet — voting kicks off next match." />}
+        preview={<PodiumPreview rows={motmRowsF} unit="awards" emptyText="No MOTM awards yet — voting kicks off next match." />}
       >
-        {motmRows.length === 0
+        {motmRowsF.length === 0
           ? <EmptyState text={globalMode === 'month' ? 'No awards this month.' : 'No awards yet — voting starts next match.'} />
-          : <RankedList rows={motmRows} unit="awards" />}
+          : <RankedList rows={motmRowsF} unit="awards" />}
       </Panel>
       <Panel
         title="Winning Team"
         icon="🥇"
-        preview={<PodiumPreview rows={winsRows} unit="wins" emptyText="No wins recorded yet." />}
+        preview={<PodiumPreview rows={winsRowsF} unit="wins" emptyText="No wins recorded yet." />}
       >
-        {winsRows.length === 0
+        {winsRowsF.length === 0
           ? <EmptyState text={globalMode === 'month' ? 'No wins this month.' : 'No winning-team data yet — needs completed matches with scores.'} />
-          : <RankedList rows={winsRows} unit="wins" />}
+          : <RankedList rows={winsRowsF} unit="wins" />}
       </Panel>
 
       {/* DEFENCE ---------------------------------------------------------- */}
@@ -725,7 +825,7 @@ export default function StatsPage() {
       <Panel
         title="The Wall · Goals Conceded"
         icon="🧱"
-        preview={<PodiumPreview rows={wallRows} emptyText="Need more completed matches to qualify." />}
+        preview={<PodiumPreview rows={wallRowsF} emptyText="Need more completed matches to qualify." />}
       >
         {wallSelfAvg != null && wallSelf && (
           <div className="flex gap-2.5 pt-3">
@@ -759,9 +859,9 @@ export default function StatsPage() {
             </div>
           </div>
         )}
-        {wallRows.length === 0
+        {wallRowsF.length === 0
           ? <EmptyState text={globalMode === 'month' ? 'Not enough completed matches this month yet.' : 'No defensive data yet — needs completed matches with scores.'} />
-          : <RankedList rows={wallRows} unit="GA/night" />}
+          : <RankedList rows={wallRowsF} unit="GA/night" />}
         <div style={{ fontSize: 10, color: 'var(--color-text-muted)', marginTop: 10, padding: '0 2px' }}>
           Goals shipped by your team across the night's fixtures. Minimum {wallMinNights} nights played to qualify.
         </div>
@@ -772,29 +872,29 @@ export default function StatsPage() {
       <Panel
         title="Appearances"
         icon="📋"
-        preview={<PodiumPreview rows={appsRows} unit="apps" emptyText="No appearance data yet." />}
+        preview={<PodiumPreview rows={appsRowsF} unit="apps" emptyText="No appearance data yet." />}
       >
-        {appsRows.length === 0
+        {appsRowsF.length === 0
           ? <EmptyState text="No appearance data yet — tracked from upcoming matches onward." />
-          : <RankedList rows={appsRows} unit="apps" />}
+          : <RankedList rows={appsRowsF} unit="apps" />}
       </Panel>
       <Panel
         title="Distance / Game"
         icon="🏃"
-        preview={<PodiumPreview rows={distRows} emptyText="First to log a session sets the bar." />}
+        preview={<PodiumPreview rows={distRowsF} emptyText="First to log a session sets the bar." />}
       >
-        {distRows.length === 0
+        {distRowsF.length === 0
           ? <EmptyState text={globalMode === 'month' ? 'No tracked sessions this month.' : 'No fitness sessions tracked yet — add match fitness from your player card.'} />
-          : <RankedList rows={distRows} unit="km" />}
+          : <RankedList rows={distRowsF} unit="km" />}
       </Panel>
       <Panel
         title="Total Distance"
         icon="🗺️"
-        preview={<PodiumPreview rows={totalDistRows} emptyText="No fitness sessions tracked yet." />}
+        preview={<PodiumPreview rows={totalDistRowsF} emptyText="No fitness sessions tracked yet." />}
       >
-        {totalDistRows.length === 0
+        {totalDistRowsF.length === 0
           ? <EmptyState text={globalMode === 'month' ? 'No tracked sessions this month.' : 'No fitness sessions tracked yet — add match fitness from your player card.'} />
-          : <RankedList rows={totalDistRows} unit="km" />}
+          : <RankedList rows={totalDistRowsF} unit="km" />}
       </Panel>
 
       {/* SHAME ------------------------------------------------------------ */}
@@ -802,16 +902,16 @@ export default function StatsPage() {
       <Panel
         title="Dick of the Day"
         icon="🤡"
-        preview={<PodiumPreview rows={dotdRows} unit="awards" emptyText="No DOTDs yet — vote opens next match." />}
+        preview={<PodiumPreview rows={dotdRowsF} unit="awards" emptyText="No DOTDs yet — vote opens next match." />}
       >
-        {dotdRows.length === 0
+        {dotdRowsF.length === 0
           ? <EmptyState text={globalMode === 'month' ? 'No awards this month.' : 'No awards yet — voting starts next match.'} />
-          : <RankedList rows={dotdRows} unit="awards" />}
+          : <RankedList rows={dotdRowsF} unit="awards" />}
       </Panel>
       <Panel
         title="Fines"
         icon="💷"
-        preview={<PodiumPreview rows={finePodiumRows} emptyText={periodNote(globalMode, 'fines')} />}
+        preview={<PodiumPreview rows={finePodiumRowsF} emptyText={periodNote(globalMode, 'fines')} />}
       >
         <div className="flex items-center justify-between pt-3">
           <div className="flex gap-1.5 overflow-x-auto pb-1 -ml-0.5">
@@ -834,11 +934,11 @@ export default function StatsPage() {
             })}
           </div>
         </div>
-        {fineRows.length === 0 ? (
+        {fineRowsF.length === 0 ? (
           <EmptyState text={periodNote(globalMode, 'fines')} />
         ) : (
           <div className="pt-3 space-y-1.5">
-            {fineRows.map((r, i) => (
+            {fineRowsF.map((r, i) => (
               <div key={r.profile?.id ?? i} className="flex items-center gap-3 py-1.5">
                 {r.profile ? <PlayerAvatar profile={r.profile} size={32} /> : <div style={{ width: 32 }} />}
                 <div className="flex-1 min-w-0">
