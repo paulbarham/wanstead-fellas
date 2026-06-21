@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-21 (Carryover surfaced in admin + unpaid-signup-block shipped)_
+_Last updated: 2026-06-21 (Block enforcement relaxed to June onwards)_
 
 ---
 
@@ -113,6 +113,8 @@ Keeping the books straight and chasing what's owed without admin having to nag m
 | Auto-charge £5 WTP fee on confirmed signup | ✅ | chat · migration `023` · commit `38be733` | DB trigger; auto-reaps unpaid row on drop-out |
 | Admin Finance: prior-month carryover surfaced inline | ✅ | chat · commit `98eea49` | "+£X prior" per row, sort by all-time owed |
 | Unpaid signup block (2-week grace, DB + UI) | ✅ | chat · migration `026` · commit `f75eef8` | Blocked players can't confirm; admin can override; auto-promotion skips them |
+| Block-start cutoff (only Jun 2026 onwards charges count) | ✅ | chat · migration `027` | May & earlier carryover still visible/owed but doesn't gate signups |
+| Make block-start cutoff a setting (not hardcoded in fn) | 🟢 | chat | Move `block_start` to a settings table the admin can edit |
 | All-Time view toggle on AdminFinancePanel | 🟢 | chat | Aggregate per player across every month — full chase list |
 | Player-facing notice when grace is approaching | 🟢 | chat | "You owe £X — pay by Sat or you'll be blocked from next Thu" |
 | Stripe / online payment | 🟢 | chat | One-tap settle from the app instead of cash to admin |
