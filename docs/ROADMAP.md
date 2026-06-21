@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-21 (Stats position filter + Top GK hero shipped)_
+_Last updated: 2026-06-21 (Card position badge shipped)_
 
 ---
 
@@ -33,7 +33,8 @@ The picker and DB are live. The visible payoff (position-aware cards, stats, bal
 | Profile page picker | ✅ | `86c6edd` | Saved with the existing form |
 | Next Game inline nudge for unset players | ✅ | `86c6edd` | Dismissible per session |
 | Admin position adoption tracker | ✅ | commit `3a7d82f` · view `v_position_adoption` | Currently 49/59 = 83% set |
-| Card redesign with prominent position badge + position-rank pill in footer | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | Identity payoff — gold/silver/bronze by position |
+| Card: prominent position badge (primary + secondary chip) | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `ace97e1` | Colour per position (GK green / DEF cyan / MID yellow / ATT magenta); on full + compact cards; legacy `position` fallback for older profiles |
+| Card: position-rank pill in footer (e.g. "#1 ATT · 14 goals / 0.4 game") | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | Deferred from card ship — needs aggregated cross-player data; do on Profile page first |
 | Position-aware Stats panels (Top 3 by position filter) | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `9e5979c` | Chip strip below period toggle; filters every panel on the page |
 | 4th hero card for Top GK on Stats | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `9e5979c` | Clean-sheet leader; green tier; shown when posFilter is 'all' |
 | Position-weighted overall rating | 🟢 | [04](primers/pdf/04-preferred-position.pdf) · [06](primers/pdf/06-user-guide-v3.pdf) p6 | Defender's "60 ATT" no longer drags their overall down |
