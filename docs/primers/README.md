@@ -15,7 +15,8 @@ Stored in the repo so they don't get lost when a dev container is cleaned up, an
 | 02 | [`pdf/02-stats-refresh.pdf`](pdf/02-stats-refresh.pdf) | Primer | Stats page refresh — hero strip, podium previews, The Wall, sections, My Stats | Jun 2026 |
 | 03 | [`pdf/03-next-game-refresh.pdf`](pdf/03-next-game-refresh.pdf) | Primer | Next Game tab refresh — search, tier dots, consolidated masthead, collapsible Not-In with filter chips | Jun 2026 |
 | 04 | [`pdf/04-preferred-position.pdf`](pdf/04-preferred-position.pdf) | Proposal | Player-set preferred position (primary + secondary) — unlocks position-aware stats, card identity, and balancer constraints | Jun 2026 |
-| 05 | [`pdf/05-user-guide-v2.pdf`](pdf/05-user-guide-v2.pdf) | Primer | **User guide v2** · supersedes 01 · 4 pages with visual aids · adds Stats redesign, Next Game refresh, position picker, auto WTP fees | Jun 2026 |
+| 05 | [`pdf/05-user-guide-v2.pdf`](pdf/05-user-guide-v2.pdf) | Primer | User guide v2 · supersedes 01 · 4 pages with visual aids · adds Stats redesign, Next Game refresh, position picker, auto WTP fees · *superseded by 06* | Jun 2026 |
+| 06 | [`pdf/06-user-guide-v3.pdf`](pdf/06-user-guide-v3.pdf) | Primer | **User guide v3** · supersedes 05 · 6 pages · opens with the five-pillar vision (Operations · Stats Theatre · Identity · Fairness · Community), covers every feature including History · Cards · Pods · Feedback, and an "Under the Hood" page on how features drive your card attributes (today + roadmap) | Jun 2026 |
 
 > ✏️ **Versioning note.** User guides (and any other primer that gets a refresh) are kept as siblings rather than overwritten so the audit trail of what we told the squad — and when — stays intact. When a primer is superseded, flag the older row with *"superseded by NN"* but don't delete the file.
 
