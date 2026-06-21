@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Preferred Position Proposal</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · PREFERRED POSITION · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+
+  /* Teletext masthead */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 12pt 14pt;
+    border-radius: 10pt;
+    margin-bottom: 10pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 19pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 { color: #4ADC7A; font-size: 10pt; margin: 10pt 0 4pt; font-family: 'Arial Black', sans-serif; }
+
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 16pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 7pt 10pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 9.5pt;
+  }
+  .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.red { background: rgba(255,85,85,0.07); border-left-color: #FF5555; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0; font-size: 8.5pt; }
+  th { background: #1A2B1C; color: #FFD400; padding: 5pt 6pt; text-align: left; font-family: 'Courier New', monospace; font-size: 7.5pt; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid #2D4A2F; }
+  td { padding: 4pt 6pt; border-bottom: 1px dashed rgba(45,74,47,0.6); vertical-align: top; }
+  td.team { color: #4ADC7A; font-weight: 700; font-family: 'Courier New', monospace; }
+  td.bad { color: #FF5555; font-weight: 700; }
+  td.good { color: #4ADC7A; font-weight: 700; }
+
+  .cols { display: table; width: 100%; border-spacing: 8pt 0; margin-top: 6pt; }
+  .col { display: table-cell; vertical-align: top; width: 50%; }
+
+  /* Position picker mock */
+  .picker {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 10pt;
+    padding: 10pt;
+    margin: 6pt 0;
+  }
+  .picker .title { font-family: 'Courier New', monospace; font-size: 8pt; color: #4AD9FF; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6pt; }
+  .position-grid { display: table; width: 100%; border-spacing: 4pt; }
+  .position-cell {
+    display: table-cell; width: 25%;
+    background: #0a0f0c;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 4pt;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .position-cell.primary { border-color: #FFD400; background: rgba(255,212,0,0.1); }
+  .position-cell.secondary { border-color: #4AD9FF; background: rgba(74,217,255,0.08); }
+  .position-cell .ico { font-size: 18pt; line-height: 1; }
+  .position-cell .lab { font-family: 'Courier New', monospace; font-size: 7.5pt; color: #E8F0E9; margin-top: 2pt; font-weight: 700; letter-spacing: 0.06em; }
+  .position-cell.primary .lab { color: #FFD400; }
+  .position-cell.secondary .lab { color: #4AD9FF; }
+  .position-cell .name { font-family: 'Helvetica', sans-serif; font-size: 7.5pt; color: #9CA897; margin-top: 1pt; }
+  .picker .help { font-size: 8pt; color: #9CA897; margin-top: 6pt; font-style: italic; }
+
+  /* Player card mock */
+  .card {
+    background: linear-gradient(160deg, #FFD400 0%, #C99500 100%);
+    border-radius: 10pt;
+    padding: 0;
+    margin: 6pt 0;
+    width: 220pt;
+    overflow: hidden;
+    border: 2pt solid #FFE066;
+  }
+  .card-head {
+    display: table; width: 100%;
+    padding: 8pt 10pt 4pt;
+  }
+  .card-head .ovr {
+    display: table-cell; width: 50pt;
+    text-align: center;
+    color: #0F1710;
+    vertical-align: top;
+  }
+  .card-head .ovr .num { font-family: 'Arial Black', sans-serif; font-size: 30pt; line-height: 1; }
+  .card-head .ovr .lab { font-family: 'Courier New', monospace; font-size: 7pt; letter-spacing: 0.1em; }
+  .card-head .pos-badge {
+    display: table-cell; vertical-align: top; padding-top: 4pt; text-align: right;
+  }
+  .pos-pill {
+    display: inline-block;
+    background: #0F1710; color: #FFD400;
+    padding: 3pt 8pt; border-radius: 999pt;
+    font-family: 'Arial Black', sans-serif; font-size: 11pt;
+    letter-spacing: 0.05em;
+  }
+  .pos-pill .ico { margin-right: 3pt; }
+  .pos-second {
+    display: block; margin-top: 3pt;
+    font-family: 'Courier New', monospace; font-size: 7pt;
+    color: rgba(15,23,16,0.7); letter-spacing: 0.05em;
+  }
+  .card-name {
+    padding: 4pt 10pt 6pt;
+    font-family: 'Arial Black', sans-serif;
+    color: #0F1710; font-size: 12pt;
+    letter-spacing: 0.02em;
+  }
+  .card-stats {
+    background: #0F1710;
+    padding: 8pt 10pt;
+  }
+  .stat-row { display: table; width: 100%; padding: 2pt 0; font-family: 'Courier New', monospace; }
+  .stat-row .lab { display: table-cell; font-size: 8pt; color: #9CA897; letter-spacing: 0.08em; }
+  .stat-row .num { display: table-cell; text-align: right; font-size: 10pt; font-weight: 700; color: #E8F0E9; }
+  .stat-row.key .lab { color: #FFD400; }
+  .stat-row.key .num { color: #FFD400; }
+  .card-foot {
+    background: #0F1710;
+    padding: 4pt 10pt 8pt;
+    border-top: 1px dashed #2D4A2F;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #4ADC7A;
+    letter-spacing: 0.08em;
+  }
+
+  /* Rank pill — used in card footer */
+  .rank-pill {
+    display: inline-block;
+    background: rgba(74,220,122,0.15);
+    border: 1px solid #4ADC7A;
+    color: #4ADC7A;
+    padding: 2pt 8pt;
+    border-radius: 999pt;
+    font-weight: 700;
+  }
+
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 10pt 0; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.1em;
+    margin-top: 10pt;
+    padding: 6pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE 1: THE CASE ───────────────────────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>PREFERRED POSITION</h1>
+    <div class="sub">Player-set position · the missing primitive</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · PROPOSAL</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>The idea</strong> — let each player pick a <em>primary</em> and <em>secondary</em> position from their profile. It's a 30-second action, unlocks position-aware stats and ratings, and gives the balancer the single most important constraint it's missing.
+</div>
+
+<h2>Why now</h2>
+<ul>
+  <li><strong>10 of 36 active players have no position set</strong> — the balancer has nothing to work with. Admin-only field, no incentive for players to ask for it.</li>
+  <li><strong>Stats are about to come alive</strong> (Wall, distance, goals/game) — interpreting them without position is misleading. A GK with 1 goal/season is a hero; a striker with 1 goal/season isn't.</li>
+  <li><strong>The 18 Jun draft was lopsided on positions, not ratings</strong> — see below. v2 balancer can't fix this without position data.</li>
+</ul>
+
+<h3>Exhibit A · the 18 Jun teams by position</h3>
+
+<table>
+  <tr><th>Team</th><th>GK</th><th>DEF</th><th>MID</th><th>ATT</th><th>?</th><th>Outcome</th></tr>
+  <tr>
+    <td class="team">Aaron Franklin FC</td>
+    <td>1</td><td>2</td><td>2</td><td class="bad">4</td><td>0</td>
+    <td>3W 0D 0L · <span class="good">winners</span> (top-heavy carried)</td>
+  </tr>
+  <tr>
+    <td class="team">Gary Edwards FC</td>
+    <td class="bad">0</td><td class="bad">5</td><td>3</td><td class="bad">0</td><td>1</td>
+    <td>1W 2D 0L · 2 goals in 3 games (no finisher)</td>
+  </tr>
+  <tr>
+    <td class="team">Josh Edwards FC</td>
+    <td>1</td><td class="bad">0</td><td class="bad">7</td><td>1</td><td>0</td>
+    <td>0W 2D 1L · last (zero defenders)</td>
+  </tr>
+  <tr>
+    <td class="team">Mikel Winter FC</td>
+    <td>1</td><td>2</td><td>5</td><td class="bad">0</td><td>1</td>
+    <td>1W 0D 2L · no strikers</td>
+  </tr>
+</table>
+
+<div class="callout red">
+  <strong>The pattern</strong>: every team that lost or drew was the wrong <em>shape</em>, not the wrong <em>quality</em>. Aaron FC won not because they were stronger overall, but because they had 4 strikers vs a team with zero. Today's balancer optimises ratings; this is the shape it can't see.
+</div>
+
+<h2>How it works</h2>
+
+<div class="cols">
+  <div class="col">
+    <h3>Data model</h3>
+    <p>Two new columns on <code style="color:#4AD9FF;">profiles</code>:</p>
+    <ul>
+      <li><code style="color:#4AD9FF;">preferred_position_primary</code> — required for new sign-ups, prompted at first login for existing players</li>
+      <li><code style="color:#4AD9FF;">preferred_position_secondary</code> — optional, for the player who's "happy at MID, can fill in at DEF"</li>
+    </ul>
+    <p>Four positions to keep it simple — football people have opinions about CDM vs CAM but a Sunday-night roster doesn't need it:</p>
+    <ul>
+      <li>🧤 <strong>GK</strong> — Goalkeeper</li>
+      <li>🛡️ <strong>DEF</strong> — Defender</li>
+      <li>⚙️ <strong>MID</strong> — Midfielder</li>
+      <li>⚽ <strong>ATT</strong> — Forward</li>
+    </ul>
+  </div>
+  <div class="col">
+    <h3>Player-set, not admin-set</h3>
+    <p>Lives on the <strong>profile page</strong> as a single picker — primary big, secondary smaller. Players see it, players own it. Admin can still nudge ("you've been playing DEF all month, want to update?") via a one-tap prompt on the next-game screen.</p>
+
+    <div class="picker">
+      <div class="title">Set your position</div>
+      <div class="position-grid">
+        <div class="position-row" style="display: table-row;">
+          <div class="position-cell"><div class="ico">🧤</div><div class="lab">GK</div></div>
+          <div class="position-cell"><div class="ico">🛡️</div><div class="lab">DEF</div></div>
+          <div class="position-cell primary"><div class="ico">⚙️</div><div class="lab">MID</div><div class="name">Primary</div></div>
+          <div class="position-cell secondary"><div class="ico">⚽</div><div class="lab">ATT</div><div class="name">Secondary</div></div>
+        </div>
+      </div>
+      <div class="help">Tap once for primary · tap again for secondary · tap a third time to clear.</div>
+    </div>
+  </div>
+</div>
+
+<h2>What it unlocks</h2>
+<ul>
+  <li><strong>Position-aware overall</strong> — defender's "63 ATT" no longer drags their overall down. Each attribute weighted by relevance to the position they actually play.</li>
+  <li><strong>Position-aware leaderboards on Stats</strong> — "Top 3 strikers by goals/game", "Top 3 defenders by Wall", "Top GK by clean sheets %". Specialists finally get celebrated.</li>
+  <li><strong>Balancer constraint</strong> — every team gets ≥1 GK, ≥1 DEF, ≥1 ATT (whenever possible). Soft-balance to ~equal MID counts. The 18 Jun chaos becomes impossible.</li>
+  <li><strong>Secondary position as the safety valve</strong> — if there's only one GK signed up but two players have GK as secondary, balancer pulls one across. No more "Chris Hughes is in goal by default."</li>
+  <li><strong>Form rating context</strong> — peer 🟢 for a defender who kept a clean sheet means something different from peer 🟢 for a striker who scored. Weighted by position.</li>
+</ul>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 2: VISUALS + BALANCER IMPACT ─────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>WHAT IT LOOKS LIKE</h1>
+    <div class="sub">Card · Stats · Balancer</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P704 · PROPOSAL</span>
+  </div>
+</div>
+
+<h2>The updated player card</h2>
+<p>Big position badge top-right, secondary small underneath, footer ranks you against your positional peers — the thing players will actually open the app to look at.</p>
+
+<div class="cols">
+  <div class="col">
+    <div class="card">
+      <div class="card-head">
+        <div class="ovr"><div class="num">9</div><div class="lab">OVR</div></div>
+        <div class="pos-badge">
+          <span class="pos-pill"><span class="ico">⚽</span>ATT</span>
+          <span class="pos-second">also ⚙️ MID</span>
+        </div>
+      </div>
+      <div class="card-name">BEAU SAMUELS</div>
+      <div class="card-stats">
+        <div class="stat-row key"><span class="lab">SHO  Shooting</span><span class="num">10</span></div>
+        <div class="stat-row key"><span class="lab">PAC  Pace</span><span class="num">10</span></div>
+        <div class="stat-row key"><span class="lab">DRI  Dribbling</span><span class="num">9</span></div>
+        <div class="stat-row"><span class="lab">PAS  Passing</span><span class="num">9</span></div>
+        <div class="stat-row"><span class="lab">PHY  Physical</span><span class="num">10</span></div>
+        <div class="stat-row"><span class="lab">DEF  Defence</span><span class="num">9</span></div>
+      </div>
+      <div class="card-foot">⚽ <span class="rank-pill">#1 ATT</span> · 14 goals · 0.4 / game</div>
+    </div>
+    <p style="font-size:8pt;color:#9CA897;text-align:center;">Striker · key stats highlighted</p>
+  </div>
+  <div class="col">
+    <div class="card" style="background: linear-gradient(160deg, #4AD9FF 0%, #2596B8 100%);">
+      <div class="card-head">
+        <div class="ovr"><div class="num">9</div><div class="lab">OVR</div></div>
+        <div class="pos-badge">
+          <span class="pos-pill"><span class="ico">🛡️</span>DEF</span>
+          <span class="pos-second">also ⚙️ MID</span>
+        </div>
+      </div>
+      <div class="card-name">LAWRIE POINTER</div>
+      <div class="card-stats">
+        <div class="stat-row key"><span class="lab">DEF  Defence</span><span class="num">9</span></div>
+        <div class="stat-row key"><span class="lab">PHY  Physical</span><span class="num">10</span></div>
+        <div class="stat-row key"><span class="lab">PAC  Pace</span><span class="num">10</span></div>
+        <div class="stat-row"><span class="lab">PAS  Passing</span><span class="num">9</span></div>
+        <div class="stat-row"><span class="lab">DRI  Dribbling</span><span class="num">9</span></div>
+        <div class="stat-row"><span class="lab">SHO  Shooting</span><span class="num">7</span></div>
+      </div>
+      <div class="card-foot">🛡️ <span class="rank-pill" style="background:rgba(74,217,255,0.18);border-color:#4AD9FF;color:#4AD9FF;">#1 DEF</span> · 2.50 GA/night · 1 CS</div>
+    </div>
+    <p style="font-size:8pt;color:#9CA897;text-align:center;">Defender · DEF and PHY emphasised</p>
+  </div>
+</div>
+
+<div class="callout green">
+  <strong>Subtle but powerful</strong> — same overall score (9), different headline stats, different footer pill, different colour scheme. Identity at a glance. Players notice and care.
+</div>
+
+<h2>New angles on the Stats page</h2>
+<p>The redesigned Stats page already has hero strips and podiums. Add a fourth hero strip card — <strong>"Top GK"</strong> — and gate three existing panels by position filter:</p>
+
+<table>
+  <tr><th>Panel</th><th>Default view</th><th>With position filter</th></tr>
+  <tr><td>Top Scorers</td><td>All players ranked</td><td>"Top 3 strikers · Top 3 midfielders"</td></tr>
+  <tr><td>The Wall · GA/night</td><td>All eligible</td><td>"Top defenders · Top GKs separately"</td></tr>
+  <tr><td>Distance / Game</td><td>All tracked players</td><td>Per-position averages — midfielders likely run furthest</td></tr>
+  <tr><td>Winning Team</td><td>By apps</td><td>"Who's the most-winning ATT / MID / DEF"</td></tr>
+</table>
+
+<h2>Balancer impact (positional layer on top of v2)</h2>
+
+<table>
+  <tr><th>Constraint</th><th>Hard / soft</th><th>What it prevents</th></tr>
+  <tr><td>≥1 GK per team</td><td>Hard (use secondaries if short)</td><td>Gary FC's keeperless night</td></tr>
+  <tr><td>≥1 ATT per team</td><td>Hard (use secondaries if short)</td><td>Gary FC scoring 2 in 3 games</td></tr>
+  <tr><td>≥1 DEF per team</td><td>Hard (use secondaries if short)</td><td>Josh FC's zero-defender chaos</td></tr>
+  <tr><td>MID count within ±1 across teams</td><td>Soft</td><td>Josh FC's 7-vs-3 midfield imbalance</td></tr>
+  <tr><td>Categorical balance (from v2)</td><td>Soft</td><td>Talent stacking within positions</td></tr>
+</table>
+
+<div class="callout green">
+  <strong>Combined effect</strong>: v2 balancer (categorical) + positions = matches that are fair on both <em>quality</em> AND <em>shape</em>. The most-realistic improvement on offer.
+</div>
+
+<h2>Sequencing into the existing roadmap</h2>
+<ol>
+  <li><strong>Position picker on profile</strong> (this proposal) — week 1, low-risk, no rating changes.</li>
+  <li><strong>One-tap prompt on Next Game</strong> for the 10 players with no position set — week 1, drives adoption.</li>
+  <li><strong>Stats panels gated by position filter</strong> + 4th hero card for "Top GK" — week 2.</li>
+  <li><strong>Card redesign</strong> with prominent position badge + position rank pill — week 2.</li>
+  <li><strong>Balancer v2 with positional constraints</strong> — week 3, ships only once ≥80% of regulars have a position set.</li>
+  <li><strong>Engagement backlog (push, streaks, social proof) → then peer rating</strong> — separate workstream, runs in parallel.</li>
+</ol>
+
+<div class="closer">
+  Lowest-risk · highest-impact addition to the rating + balance roadmap.<br>
+  30 seconds of player input · unlocks every other improvement.
+</div>
+
+</body>
+</html>
