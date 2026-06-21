@@ -13,6 +13,16 @@ Conventions for any Claude session working on this repo.
 
 The audit trail of what we said we'd do, vs what actually landed, is the whole point.
 
+### Roadmap PDF snapshot
+
+There's a branded PDF render of the roadmap at [`docs/primers/pdf/09-roadmap.pdf`](docs/primers/pdf/09-roadmap.pdf) (HTML source at `docs/primers/src/09-roadmap.html`). It's the shareable, Wanstead-Fellas-branded version. **Re-render when the markdown materially changes** (typically: shipping an item, adding a new theme, big batch of new ideas — not for every typo). The convention is to overwrite `09-roadmap.{html,pdf}` rather than create siblings, because the markdown itself is the audit-trail-of-record.
+
+```sh
+weasyprint docs/primers/src/09-roadmap.html docs/primers/pdf/09-roadmap.pdf
+```
+
+If the structure of the snapshot template needs to change significantly, treat it like any other primer refresh — bump the number (10-roadmap-vN) and add a "superseded by" note in the index.
+
 ## Docs structure
 
 | Path | What it is |

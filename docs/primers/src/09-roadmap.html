@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Roadmap Snapshot</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · ROADMAP · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 11pt 14pt;
+    border-radius: 10pt;
+    margin-bottom: 8pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 19pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 11.5pt;
+    margin: 10pt 0 3pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 { color: #4ADC7A; font-size: 9pt; margin: 7pt 0 2pt; font-family: 'Arial Black', sans-serif; page-break-after: avoid; }
+
+  p { margin: 3pt 0; font-size: 8.5pt; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul { margin: 3pt 0; padding-left: 15pt; }
+  li { margin: 1.5pt 0; }
+  li::marker { color: #FFD400; }
+  code { font-family: 'Courier New', monospace; color: #4AD9FF; font-size: 8pt; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 6pt 9pt; border-radius: 4pt;
+    margin: 6pt 0; font-size: 8.5pt;
+  }
+  .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.red { background: rgba(255,85,85,0.07); border-left-color: #FF5555; }
+
+  /* Status key visual */
+  .status-key {
+    display: table; width: 100%; border-spacing: 4pt 0; margin: 4pt 0 8pt;
+  }
+  .status-key .row { display: table-row; }
+  .status-key .cell {
+    display: table-cell; padding: 4pt 6pt;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 6pt; vertical-align: middle;
+    font-size: 7.5pt;
+  }
+  .status-key .badge {
+    display: inline-block; font-weight: 700;
+    font-size: 9pt; margin-right: 4pt; vertical-align: middle;
+  }
+
+  /* At-a-glance totals tiles */
+  .totals { display: table; width: 100%; border-spacing: 4pt 0; margin: 4pt 0 8pt; }
+  .totals .tile {
+    display: table-cell; vertical-align: top;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 6pt; padding: 6pt 8pt;
+    width: 33%;
+  }
+  .totals .tile .label {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #9CA897;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .totals .tile .num {
+    font-family: 'Courier New', monospace;
+    font-size: 22pt; font-weight: 800; line-height: 1;
+    margin-top: 2pt;
+  }
+  .totals .tile.shipped .num { color: #4ADC7A; }
+  .totals .tile.proposed .num { color: #FFD400; }
+  .totals .tile.blocker .num { color: #FF66CC; }
+  .totals .tile .sub {
+    font-size: 7pt; color: #9CA897; margin-top: 2pt;
+  }
+
+  /* Roadmap row table */
+  table.roadmap {
+    width: 100%; border-collapse: collapse;
+    margin: 3pt 0 6pt; font-size: 7.5pt;
+  }
+  table.roadmap th {
+    background: #1A2B1C; color: #FFD400;
+    padding: 4pt 6pt; text-align: left;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #2D4A2F;
+  }
+  table.roadmap td {
+    padding: 3pt 6pt;
+    border-bottom: 1px dashed rgba(45,74,47,0.6);
+    vertical-align: top;
+  }
+  table.roadmap td.status { width: 22pt; text-align: center; font-size: 11pt; line-height: 1; }
+  table.roadmap td.item { color: #E8F0E9; font-weight: 600; width: 38%; }
+  table.roadmap td.source { color: #9CA897; font-family: 'Courier New', monospace; font-size: 7pt; white-space: nowrap; }
+  table.roadmap td.notes { color: #9CA897; font-style: italic; font-size: 7.5pt; }
+  table.roadmap tr.shipped td.item { color: #4ADC7A; }
+  table.roadmap tr.blocker td.item { color: #FF66CC; }
+
+  /* Section/theme heading */
+  .theme-head {
+    display: table; width: 100%;
+    margin: 10pt 0 4pt;
+    padding: 5pt 8pt;
+    background: rgba(74,217,255,0.04);
+    border-left: 3pt solid #4AD9FF;
+    border-radius: 4pt;
+    page-break-after: avoid;
+  }
+  .theme-head .icon {
+    display: table-cell; vertical-align: middle;
+    width: 26pt; font-size: 16pt;
+  }
+  .theme-head .title {
+    display: table-cell; vertical-align: middle;
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12pt;
+    letter-spacing: 0.02em;
+  }
+  .theme-head .meta {
+    display: table-cell; vertical-align: middle;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #9CA897;
+    letter-spacing: 0.06em;
+  }
+  .theme-head .meta .pill {
+    display: inline-block;
+    padding: 1pt 5pt; margin-left: 3pt;
+    border-radius: 3pt; font-weight: 700;
+  }
+  .pill-shipped { background: rgba(74,220,122,0.15); color: #4ADC7A; }
+  .pill-proposed { background: rgba(255,212,0,0.10); color: #FFD400; }
+  .pill-blocker { background: rgba(255,102,204,0.10); color: #FF66CC; }
+
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 8pt 0; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.1em;
+    margin-top: 10pt;
+    padding: 6pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE 1: COVER + KEY + IDENTITY ──────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROADMAP</h1>
+    <div class="sub">Snapshot · 21 Jun 2026</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · ROADMAP</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>What this is</strong> — a point-in-time render of <code>docs/ROADMAP.md</code>, the single source of truth for what's coming next. Updated continuously in the repo; PDF re-rendered when something material changes. Every idea sits here until it ships, then gets flagged ✅ and the commit hash logged.
+</div>
+
+<h2>At a glance</h2>
+<div class="totals">
+  <div class="tile shipped">
+    <div class="label">✅ Shipped</div>
+    <div class="num">5</div>
+    <div class="sub">Preferred-position foundation</div>
+  </div>
+  <div class="tile proposed">
+    <div class="label">🟢 Proposed</div>
+    <div class="num">41</div>
+    <div class="sub">Across 6 themes</div>
+  </div>
+  <div class="tile blocker">
+    <div class="label">⚠️ Blockers</div>
+    <div class="num">3</div>
+    <div class="sub">Sequencing dependencies</div>
+  </div>
+</div>
+
+<h2>Status key</h2>
+<div class="status-key">
+  <div class="row">
+    <div class="cell"><span class="badge">🟢</span> <strong>Proposed</strong> — captured in a doc or chat, awaiting agreement</div>
+    <div class="cell"><span class="badge">🟡</span> <strong>Scheduled</strong> — agreed, queued for build</div>
+  </div>
+  <div class="row">
+    <div class="cell"><span class="badge">🔵</span> <strong>In progress</strong> — being built right now</div>
+    <div class="cell"><span class="badge">✅</span> <strong>Shipped</strong> — live on main</div>
+  </div>
+  <div class="row">
+    <div class="cell"><span class="badge">⚠️</span> <strong>Blocker</strong> — dependency that gates other items</div>
+    <div class="cell"><span class="badge">🟥</span> <strong>Known issue</strong> — bug or wart on the fix list</div>
+  </div>
+</div>
+
+<div class="theme-head">
+  <div class="icon">🪪</div>
+  <div class="title">Identity · Preferred Position</div>
+  <div class="meta">
+    <span class="pill pill-shipped">5 ✅</span>
+    <span class="pill pill-proposed">6 🟢</span>
+    <span class="pill pill-blocker">1 ⚠️</span>
+  </div>
+</div>
+<p>Picker and DB are live. The visible payoff (position-aware cards, stats, balancer) is still to come.</p>
+
+<table class="roadmap">
+  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">DB columns: <code>preferred_position_primary</code> + <code>_secondary</code></td><td class="source">04 · 86c6edd</td><td class="notes">Backfilled from legacy <code>position</code></td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">PositionPicker component (4-button grid)</td><td class="source">86c6edd</td><td class="notes">Reusable, supports compact mode</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Profile page picker</td><td class="source">86c6edd</td><td class="notes">Saves with the existing form</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Next Game inline nudge for unset players</td><td class="source">86c6edd</td><td class="notes">Dismissible per session</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Admin position adoption tracker + <code>v_position_adoption</code> view</td><td class="source">3a7d82f</td><td class="notes">Currently 49 / 59 = 83% set</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Card redesign: prominent position badge + rank pill in footer</td><td class="source">04</td><td class="notes">Gold / silver / bronze ranking by position</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Position-aware Stats panels (Top 3 by position filter)</td><td class="source">04</td><td class="notes">"Top 3 strikers · defenders"</td></tr>
+  <tr><td class="status">🟢</td><td class="item">4th hero card on Stats — Top GK</td><td class="source">04</td><td class="notes">Specialists get celebrated</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Position-weighted overall rating</td><td class="source">04 · 06 p6</td><td class="notes">No more "60 ATT" dragging defenders down</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Balancer hard constraint: ≥1 GK / ≥1 ATT / ≥1 DEF per team</td><td class="source">04</td><td class="notes">Uses secondaries if short</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Balancer soft constraint: MID count within ±1 across teams</td><td class="source">04</td><td class="notes"></td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Position-aware balancer ships only once ≥80% of regulars have a position set</td><td class="source">04</td><td class="notes">Currently 83% — bar cleared, chase the last 10</td></tr>
+</table>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 2: OPERATIONS + STATS THEATRE ──────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROADMAP · 2</h1>
+    <div class="sub">Operations · Stats Theatre</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · ROADMAP</span>
+  </div>
+</div>
+
+<div class="theme-head">
+  <div class="icon">🛠️</div>
+  <div class="title">Operations · Balancer v2</div>
+  <div class="meta"><span class="pill pill-proposed">7 🟢</span></div>
+</div>
+<p>Same 11 players, mathematically fairer teams. The 18 Jun match is the case study: SHO spread was ±12, with 3 swaps it would have been ±3.</p>
+
+<table class="roadmap">
+  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">Categorical balance — each attribute total within ±X across teams</td><td class="source">07</td><td class="notes">Today balances overall sum only</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Star cap (max 2 OVR ≥ 85 per team)</td><td class="source">07</td><td class="notes">Stops talent stacking</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Defender floor (≥1 with DEF ≥ 8 per team)</td><td class="source">07</td><td class="notes">Most stompings = no defender</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Simulated annealing algorithm</td><td class="source">07</td><td class="notes">~1000 iter, &lt;100ms</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Rematch penalty — spread frequently-together players</td><td class="source">07</td><td class="notes">Bonus social-mixing effect</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Avg score-differential tracking (validation metric)</td><td class="source">07</td><td class="notes">Target: drop ~2.5 → ~1.5 goals</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Admin escape hatch: drag-swap + regenerate button</td><td class="source">07</td><td class="notes">Algorithm = suggestion, not mandate</td></tr>
+</table>
+
+<div class="theme-head">
+  <div class="icon">🎭</div>
+  <div class="title">Stats Theatre · Rating Engine</div>
+  <div class="meta"><span class="pill pill-proposed">13 🟢</span></div>
+</div>
+<p>Card attributes are admin-set today. The plan turns them into live, derived values that reflect actual play. <strong>Promised in user guide v4 page 6.</strong></p>
+
+<table class="roadmap">
+  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">SHO ← goals / appearance (with form decay)</td><td class="source">06 p6 · 07</td><td class="notes">Half-life ~6 weeks</td></tr>
+  <tr><td class="status">🟢</td><td class="item">DEF ← inverse Wall + clean-sheet bonus</td><td class="source">06 p6</td><td class="notes">Data already exists</td></tr>
+  <tr><td class="status">🟢</td><td class="item">PAC ← <code>max_speed_kmh</code> from fitness sessions</td><td class="source">06 p6</td><td class="notes">Only for tracked players</td></tr>
+  <tr><td class="status">🟢</td><td class="item">PHY ← total distance × HR-zone workload</td><td class="source">06 p6</td><td class="notes">Bayesian shrinkage if no fitness</td></tr>
+  <tr><td class="status">🟢</td><td class="item">PAS ← aggregated peer-rating signal</td><td class="source">06 p6</td><td class="notes">Depends on peer ratings shipping</td></tr>
+  <tr><td class="status">🟢</td><td class="item">DRI ← stays admin-set</td><td class="source">06 p6</td><td class="notes">No good honest signal</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Position-weighted overall (not flat mean)</td><td class="source">06 p6</td><td class="notes">See Identity theme</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Form arrow on cards (↗︎ / ↘︎)</td><td class="source">06 p6 · 07</td><td class="notes">4-match rolling vs season</td></tr>
+  <tr><td class="status">🟢</td><td class="item">"Why this rating?" tooltip with full breakdown</td><td class="source">06 p6 · 07</td><td class="notes">Stops "algorithm is wrong" complaints</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Bayesian shrinkage for low-appearance players</td><td class="source">07</td><td class="notes">Under 3 apps → 70% blend to team mean</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Hybrid admin baseline + ±N auto-adjustment</td><td class="source">07</td><td class="notes">Cards drift ±5–10 from admin baseline</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Nightly cron + <code>card_history</code> table for delta log</td><td class="source">07</td><td class="notes">pg_cron already in use for cup-sync</td></tr>
+  <tr><td class="status">🟢</td><td class="item">MOTM / DOTD influence capped at ±5 on overall</td><td class="source">07</td><td class="notes">Anti-gaming</td></tr>
+</table>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 3: ENGAGEMENT + COMMUNITY + DATA + KNOWN ───────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROADMAP · 3</h1>
+    <div class="sub">Engagement · Community · Data · Issues</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · ROADMAP</span>
+  </div>
+</div>
+
+<div class="theme-head">
+  <div class="icon">🤝</div>
+  <div class="title">Engagement · Voting (and beyond)</div>
+  <div class="meta"><span class="pill pill-proposed">6 🟢</span></div>
+</div>
+<p>Avg MOTM/DOTD turnout is <strong>44%</strong> after the June 2026 single-pass ballot redesign. The blockers below are what's left to lift it. <em>Until they ship, peer ratings would inherit the same 44% ceiling — so engagement levers go first.</em></p>
+
+<table class="roadmap">
+  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">Web push at full time ("Vote for tonight's MOTM")</td><td class="source">eng. review</td><td class="notes">Highest-impact, highest-effort lever</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Web push when results publish</td><td class="source">eng. review</td><td class="notes">Closes the loop that today voids</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Nav badge on Match tab when ballot open</td><td class="source">eng. review</td><td class="notes">Cheaper interim before push</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Voting streak counter ("🔥 4 weeks in a row")</td><td class="source">eng. review · 07</td><td class="notes">Loss aversion &gt; novelty</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Live social proof ("14 voted · 22 haven't")</td><td class="source">eng. review · 07</td><td class="notes">Already partially in — lift visually</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Results-reveal moment / Friday morning push</td><td class="source">eng. review</td><td class="notes">Pairs with results-publish push</td></tr>
+</table>
+
+<div class="theme-head">
+  <div class="icon">🤝</div>
+  <div class="title">Community · Peer Ratings (revised)</div>
+  <div class="meta"><span class="pill pill-proposed">5 🟢</span> <span class="pill pill-blocker">1 ⚠️</span></div>
+</div>
+<p>Original proposal 07 had a new screen. Revised in-chat: extend the existing MotmVotingCard with a third inline column rather than build a new flow.</p>
+
+<table class="roadmap">
+  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">Third inline column on MotmVotingCard (🟢 / 🟡 / 🔴)</td><td class="source">chat ← 07</td><td class="notes">One extra optional tap per teammate</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Default = 🟡, no added friction</td><td class="source">chat</td><td class="notes">Voluntary, ballot still works if skipped</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Cap influence at ±2 per match, ±5 cumulative on overall</td><td class="source">chat · 07</td><td class="notes">Conservative; data is noisy</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Bayesian shrinkage when &lt;5 voters</td><td class="source">chat · 07</td><td class="notes">Sample-size guard</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Feed balancer as small synthetic adjustment</td><td class="source">chat · 07</td><td class="notes">Not a primary signal</td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Sequencing: engagement levers ship FIRST</td><td class="source">chat</td><td class="notes">Below 65% turnout, peer-rating signal is too thin</td></tr>
+</table>
+
+<div class="theme-head">
+  <div class="icon">📈</div>
+  <div class="title">Data Quality</div>
+  <div class="meta"><span class="pill pill-proposed">4 🟢</span></div>
+</div>
+<p>New signals the rating engine and balancer can use. Most are tiny additions to existing flows.</p>
+
+<table class="roadmap">
+  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">Position played per fixture — one-tap picker on match-entry</td><td class="source">chat</td><td class="notes">Unlocks "GK 1 goal ≠ striker 1 goal"</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Assists tracking</td><td class="source">chat</td><td class="notes">Exploring Veo recordings + shirt numbers</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Self-rated form — Wednesday "how are the legs?" poll</td><td class="source">chat</td><td class="notes">🔥 💪 🆗 🤒 🛏️ → balancer input</td></tr>
+  <tr><td class="status">🟢</td><td class="item">HR-zone fatigue index</td><td class="source">chat</td><td class="notes">Flag "burnt", balance with extra runners</td></tr>
+</table>
+
+<div class="theme-head">
+  <div class="icon">🟥</div>
+  <div class="title">Known Issues</div>
+  <div class="meta"><span class="pill pill-blocker">1</span></div>
+</div>
+
+<table class="roadmap">
+  <tr><th style="width:22pt;"></th><th>Item</th><th colspan="2">Notes</th></tr>
+  <tr><td class="status">🟥</td><td class="item">MotmVotingCard context-mismatch</td><td colspan="2" class="notes">Loads the latest voting window independently of the displayed match. During an open window before that night's result is entered, the page shows last week's result + report with this week's ballot wedged in. (eng. review §"Still open")</td></tr>
+</table>
+
+<hr>
+
+<h2>Adding new ideas</h2>
+<ol>
+  <li>Drop a row in the matching theme with status 🟢 and a one-line note. If no theme fits, add a new one.</li>
+  <li>If the idea warrants a full proposal, build a primer-style PDF and add it to <code>docs/primers/</code> as the next number; link from the row.</li>
+  <li><strong>When the item ships:</strong> change status to ✅, add the commit short hash, but leave the row in place.</li>
+  <li><strong>Don't delete shipped items.</strong> The audit trail of what we set out to do vs what landed is the whole point.</li>
+  <li>Mark blockers explicitly with ⚠️ and link to the dependency. Sequencing matters more than priority.</li>
+</ol>
+
+<div class="closer">
+  Live tracker · <code>docs/ROADMAP.md</code> on main · PDF re-rendered when something material changes.
+</div>
+
+</body>
+</html>
