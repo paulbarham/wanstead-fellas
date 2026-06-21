@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns'
 import { supabase } from '../lib/supabase'
+import PlayerAvatar from './PlayerAvatar'
 import type { Profile, Fine, WtpGame, FineType } from '../types'
 import { FINE_TYPES } from '../types'
 import { getNextThursdayDate } from '../lib/time'
@@ -80,6 +81,37 @@ function buildSummaries(
 
   // Sort by all-time outstanding desc so the biggest debts surface first.
   return summaries.sort((a, b) => b.allTimeOwed - a.allTimeOwed)
+}
+
+// Small £-only formatter for the dense table. Whole-pound display by default
+// (£45) when there are no pence; full pennies otherwise (£4.50).
+function gbp(n: number): string {
+  return n % 1 === 0 ? `£${n.toFixed(0)}` : `£${n.toFixed(2)}`
+}
+
+interface HeroTileProps { label: string; value: string; tone: 'red' | 'amber' | 'cyan' | 'green' }
+function HeroTile({ label, value, tone }: HeroTileProps) {
+  const colour =
+    tone === 'red'   ? 'var(--color-error-text)' :
+    tone === 'amber' ? '#C9A227' :
+    tone === 'cyan'  ? 'var(--tt-cyan)' :
+                       'var(--color-primary)'
+  return (
+    <div
+      className="flex-1 rounded-2xl px-3 py-2.5"
+      style={{ background: 'var(--color-surface)', border: `1px solid ${colour}55`, minWidth: 0 }}
+    >
+      <div style={{ fontSize: 9, color: 'var(--color-text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        {label}
+      </div>
+      <div
+        className="tabular-nums"
+        style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: 18, color: colour, marginTop: 2, lineHeight: 1 }}
+      >
+        {value}
+      </div>
+    </div>
+  )
 }
 
 function exportCsv(summaries: PlayerSummary[], monthLabel: string) {
@@ -256,6 +288,11 @@ export default function AdminFinancePanel() {
 
   const fineLabel = (type: FineType) => FINE_TYPES.find(t => t.value === type)?.label ?? type
 
+  // Hero stats for the chase-list dashboard at the top — surface the numbers
+  // admin most cares about before they scroll.
+  const playersWithDebt = summaries.filter(s => s.allTimeOwed > 0).length
+  const blockedCount = summaries.filter(s => blockedIds.has(s.player.id)).length
+
   return (
     <div className="space-y-4">
       {/* Month navigator */}
@@ -277,24 +314,31 @@ export default function AdminFinancePanel() {
         </button>
       </div>
 
-      {/* Action buttons */}
+      {/* Hero stats — the chase numbers up top so admin sees them first. */}
       <div className="flex gap-2">
+        <HeroTile label="Outstanding" value={gbp(grandAllTimeOwed)} tone="red" />
+        <HeroTile label="Players" value={String(playersWithDebt)} tone="cyan" />
+        <HeroTile label="Blocked" value={String(blockedCount)} tone={blockedCount > 0 ? 'red' : 'green'} />
+      </div>
+
+      {/* Action buttons — compact tertiary so they don't dominate the page. */}
+      <div className="flex gap-2 justify-end">
         <button
           onClick={() => { setShowFineForm(s => !s); setShowWtpForm(false) }}
-          className="flex-1 py-2.5 rounded-xl text-xs font-semibold"
+          className="px-3 py-1.5 rounded-lg text-[11px] font-semibold"
           style={{
-            background: showFineForm ? '#0D6B52' : 'var(--color-surface)',
+            background: showFineForm ? 'var(--color-primary)' : 'transparent',
             color: showFineForm ? 'white' : 'var(--color-primary)',
             border: '1px solid var(--color-primary)',
           }}
         >
-          + Issue Fine
+          + Fine
         </button>
         <button
           onClick={() => { setShowWtpForm(s => !s); setShowFineForm(false) }}
-          className="flex-1 py-2.5 rounded-xl text-xs font-semibold"
+          className="px-3 py-1.5 rounded-lg text-[11px] font-semibold"
           style={{
-            background: showWtpForm ? '#C9A227' : 'var(--color-surface)',
+            background: showWtpForm ? '#C9A227' : 'transparent',
             color: showWtpForm ? '#000' : '#C9A227',
             border: '1px solid #C9A227',
           }}
@@ -393,72 +437,79 @@ export default function AdminFinancePanel() {
         </div>
       ) : (
         <div className="space-y-2">
-          {/* Column headers */}
+          {/* Column headers — slightly tighter to fit the avatar column. */}
           <div className="flex items-center px-3 pb-1 gap-1"
-            style={{ borderBottom: '1px solid #FFFFFF' }}>
-            <span className="flex-1 text-xs font-medium" style={{ color: '#9CA897' }}>Player</span>
-            <span className="text-xs w-10 text-center" style={{ color: 'var(--color-warning-text)' }}>WTP</span>
-            <span className="text-xs w-10 text-center" style={{ color: 'var(--color-text-muted)' }}>Late</span>
-            <span className="text-xs w-10 text-center" style={{ color: 'var(--color-text-muted)' }}>Ball</span>
-            <span className="text-xs w-10 text-center" style={{ color: 'var(--color-text-muted)' }}>C*nt</span>
-            <span className="text-xs w-10 text-center" style={{ color: 'var(--color-text-muted)' }}>Out</span>
-            <span className="text-xs w-20 text-right font-semibold" style={{ color: 'var(--color-error-text)' }}>Owed</span>
+            style={{ borderBottom: '1px solid var(--color-border)' }}>
+            <span className="flex-1 text-xs font-medium pl-9" style={{ color: '#9CA897' }}>Player</span>
+            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-warning-text)' }}>WTP</span>
+            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>Late</span>
+            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>Ball</span>
+            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>C*nt</span>
+            <span className="text-[10px] w-9 text-center" style={{ color: 'var(--color-text-muted)' }}>Out</span>
+            <span className="text-xs w-[78px] text-right font-semibold" style={{ color: 'var(--color-error-text)' }}>Owed</span>
           </div>
 
           {summaries.map(s => {
             const isExpanded = expandedId === s.player.id
             const allPaid = s.allTimeOwed === 0
-            // Highlight carryover-owing rows so they jump out as the chase list.
+            const isBlocked = blockedIds.has(s.player.id)
+            // Blocked = red left border. Carryover = amber border. Otherwise
+            // standard. Combines visual cues for the chase list at a glance.
             const borderColor = allPaid ? 'var(--color-border)'
               : s.priorOwed > 0 ? '#7a3a0a' : '#3a1a1a'
+            const leftAccent = isBlocked ? '4px solid var(--color-error-text)'
+              : s.priorOwed > 0 ? '4px solid #C9A227' : `1px solid ${borderColor}`
+
+            // Renders a per-category cell — blank when zero so the eye isn't
+            // pulled to noise. Whole-pound display.
+            const cell = (val: number, colour: string) => (
+              <span className="text-xs w-9 text-center tabular-nums pt-0.5"
+                style={{ color: val > 0 ? colour : 'transparent' }}>
+                {val > 0 ? gbp(val) : '·'}
+              </span>
+            )
 
             return (
               <div key={s.player.id} className="rounded-2xl overflow-hidden"
-                style={{ background: 'var(--color-surface)', border: `1px solid ${borderColor}` }}>
+                style={{
+                  background: 'var(--color-surface)',
+                  border: `1px solid ${borderColor}`,
+                  borderLeft: leftAccent,
+                }}>
 
-                {/* Summary row */}
+                {/* Summary row — avatar + name + per-category cells + owed */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : s.player.id)}
-                  className="w-full flex items-start px-3 py-3 gap-1"
+                  className="w-full flex items-center px-2.5 py-2.5 gap-1"
                 >
-                  <span className="flex-1 text-sm font-medium text-left flex items-center gap-1.5 flex-wrap"
+                  <PlayerAvatar profile={s.player} size={28} />
+                  <span className="flex-1 min-w-0 text-sm font-medium text-left flex items-center gap-1.5"
                     style={{ color: allPaid ? '#666' : 'white' }}>
-                    <span>{s.player.name} {s.player.surname}</span>
-                    {blockedIds.has(s.player.id) && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider"
+                    <span className="truncate">{s.player.name} {s.player.surname}</span>
+                    {isBlocked && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider flex-shrink-0"
                         style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>
-                        ⛔ BLOCKED
+                        ⛔
                       </span>
                     )}
                   </span>
-                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
-                    style={{ color: s.wtpOwed > 0 ? '#C9A227' : '#444' }}>
-                    {s.wtpOwed > 0 ? `£${s.wtpOwed}` : '—'}
-                  </span>
-                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
-                    style={{ color: s.lateOwed > 0 ? '#DC2626' : '#444' }}>
-                    {s.lateOwed > 0 ? `£${s.lateOwed}` : '—'}
-                  </span>
-                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
-                    style={{ color: s.lostBallOwed > 0 ? '#DC2626' : '#444' }}>
-                    {s.lostBallOwed > 0 ? `£${s.lostBallOwed}` : '—'}
-                  </span>
-                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
-                    style={{ color: s.cunOwed > 0 ? '#DC2626' : '#444' }}>
-                    {s.cunOwed > 0 ? `£${s.cunOwed}` : '—'}
-                  </span>
-                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
-                    style={{ color: s.dropoutOwed > 0 ? '#DC2626' : '#444' }}>
-                    {s.dropoutOwed > 0 ? `£${s.dropoutOwed}` : '—'}
-                  </span>
-                  <span className="w-20 text-right font-bold tabular-nums flex flex-col items-end"
+                  {cell(s.wtpOwed,       '#C9A227')}
+                  {cell(s.lateOwed,      '#DC2626')}
+                  {cell(s.lostBallOwed,  '#DC2626')}
+                  {cell(s.cunOwed,       '#DC2626')}
+                  {cell(s.dropoutOwed,   '#DC2626')}
+                  <span className="w-[78px] text-right font-bold tabular-nums"
                     style={{ color: allPaid ? '#0D6B52' : '#DC2626' }}>
-                    <span className="text-xs">
-                      {allPaid ? '✓' : `£${s.allTimeOwed.toFixed(2)}`}
-                    </span>
-                    {s.priorOwed > 0 && (
-                      <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
-                        +£{s.priorOwed.toFixed(2)} prior
+                    {allPaid ? (
+                      <span className="text-sm">✓</span>
+                    ) : (
+                      <span className="flex flex-col items-end leading-tight">
+                        <span className="text-sm">{gbp(s.allTimeOwed)}</span>
+                        {s.priorOwed > 0 && (
+                          <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
+                            {gbp(s.priorOwed)} prior
+                          </span>
+                        )}
                       </span>
                     )}
                   </span>
@@ -560,31 +611,31 @@ export default function AdminFinancePanel() {
             )
           })}
 
-          {/* Totals row — shows the month's columns + a combined All-Time
-              outstanding tally so the admin sees the chase number at a glance. */}
-          <div className="flex items-start px-3 py-3 rounded-2xl gap-1"
+          {/* Totals row — same column widths as data rows. Whole-pound only. */}
+          <div className="flex items-center px-2.5 py-3 rounded-2xl gap-1"
             style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', marginTop: 8 }}>
-            <span className="flex-1 text-xs font-bold uppercase tracking-wide pt-0.5" style={{ color: '#9CA897' }}>Totals</span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-warning-text)' }}>
-              £{grandWtp.toFixed(0)}
+            <div style={{ width: 28 }} />
+            <span className="flex-1 text-xs font-bold uppercase tracking-wide" style={{ color: '#9CA897' }}>Totals</span>
+            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-warning-text)' }}>
+              {gbp(grandWtp)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
-              £{grandLate.toFixed(0)}
+            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+              {gbp(grandLate)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
-              £{grandLostBall.toFixed(0)}
+            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+              {gbp(grandLostBall)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
-              £{grandCun.toFixed(0)}
+            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+              {gbp(grandCun)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
-              £{grandDropout.toFixed(0)}
+            <span className="text-[11px] w-9 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+              {gbp(grandDropout)}
             </span>
-            <span className="w-20 text-right font-bold tabular-nums flex flex-col items-end" style={{ color: 'var(--color-error-text)' }}>
-              <span className="text-xs">£{grandAllTimeOwed.toFixed(2)}</span>
+            <span className="w-[78px] text-right font-bold tabular-nums flex flex-col items-end leading-tight" style={{ color: 'var(--color-error-text)' }}>
+              <span className="text-sm">{gbp(grandAllTimeOwed)}</span>
               {grandPriorOwed > 0 && (
                 <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
-                  £{grandMonthOwed.toFixed(0)} mth + £{grandPriorOwed.toFixed(0)} prior
+                  {gbp(grandMonthOwed)} mth + {gbp(grandPriorOwed)} prior
                 </span>
               )}
             </span>
