@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-21_
+_Last updated: 2026-06-21 (Stats position filter + Top GK hero shipped)_
 
 ---
 
@@ -34,8 +34,8 @@ The picker and DB are live. The visible payoff (position-aware cards, stats, bal
 | Next Game inline nudge for unset players | ✅ | `86c6edd` | Dismissible per session |
 | Admin position adoption tracker | ✅ | commit `3a7d82f` · view `v_position_adoption` | Currently 49/59 = 83% set |
 | Card redesign with prominent position badge + position-rank pill in footer | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | Identity payoff — gold/silver/bronze by position |
-| Position-aware Stats panels (Top 3 by position filter) | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | "Top 3 strikers · Top 3 defenders" |
-| 4th hero card for Top GK on Stats | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | Specialists get celebrated |
+| Position-aware Stats panels (Top 3 by position filter) | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `9e5979c` | Chip strip below period toggle; filters every panel on the page |
+| 4th hero card for Top GK on Stats | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `9e5979c` | Clean-sheet leader; green tier; shown when posFilter is 'all' |
 | Position-weighted overall rating | 🟢 | [04](primers/pdf/04-preferred-position.pdf) · [06](primers/pdf/06-user-guide-v3.pdf) p6 | Defender's "60 ATT" no longer drags their overall down |
 | Balancer hard constraint: ≥1 GK / ≥1 ATT / ≥1 DEF per team | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | Use secondaries when short on a position |
 | Balancer soft constraint: MID count within ±1 across teams | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | |
