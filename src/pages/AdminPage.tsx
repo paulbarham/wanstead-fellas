@@ -9,6 +9,7 @@ import PlayerAvatar from '../components/PlayerAvatar'
 import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import AdminFinancePanel from '../components/AdminFinancePanel'
+import PositionAdoptionTracker from '../components/PositionAdoptionTracker'
 import AdminCsvImport from '../components/AdminCsvImport'
 
 interface LinkedProfileRow {
@@ -203,6 +204,8 @@ function PlayersPanel() {
   return (
     <>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+
+      <PositionAdoptionTracker />
 
       <div className="mb-3">
         <AdminCsvImport players={players} onImported={loadPlayers} />
