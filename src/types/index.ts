@@ -257,6 +257,16 @@ export interface WtpGame {
   created_at: string
 }
 
+// Player credit balance — overpayments and goodwill. Subtracts from
+// outstanding to give the net balance shown in finance views.
+export interface Credit {
+  id: string
+  player_id: string
+  amount: number
+  notes: string | null
+  created_at: string
+}
+
 export interface LinkedProfile {
   id: string
   parent_id: string
