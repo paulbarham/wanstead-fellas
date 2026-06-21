@@ -14,22 +14,38 @@ interface PlayerSummary {
   lostBallOwed: number
   cunOwed: number
   dropoutOwed: number
-  totalOwed: number
+  monthOwed: number
+  // Unpaid amounts from months STRICTLY BEFORE the viewed month, so the
+  // admin can see Felix's £30 carryover next to his £15 current month.
+  priorOwed: number
+  // monthOwed + priorOwed — what's actually owed right now in total.
+  allTimeOwed: number
   totalPaid: number
 }
 
-function buildSummaries(players: Profile[], fines: Fine[], wtpGames: WtpGame[]): PlayerSummary[] {
+function buildSummaries(
+  players: Profile[],
+  fines: Fine[],
+  wtpGames: WtpGame[],
+  priorOwedByPlayer: Record<string, number>,
+): PlayerSummary[] {
   const summaries: PlayerSummary[] = []
+  const seen = new Set<string>()
 
   for (const player of players) {
     const pf = fines.filter(f => f.player_id === player.id)
     const pg = wtpGames.filter(g => g.player_id === player.id)
-    if (pf.length === 0 && pg.length === 0) continue
+    const prior = priorOwedByPlayer[player.id] ?? 0
+    if (pf.length === 0 && pg.length === 0 && prior === 0) continue
+    seen.add(player.id)
 
     const unpaidFines = pf.filter(f => !f.paid)
     const unpaidGames = pg.filter(g => !g.paid)
     const paidFines = pf.filter(f => f.paid)
     const paidGames = pg.filter(g => g.paid)
+
+    const monthOwed = unpaidFines.reduce((s, f) => s + Number(f.amount), 0)
+      + unpaidGames.reduce((s, g) => s + Number(g.amount), 0)
 
     summaries.push({
       player,
@@ -40,16 +56,34 @@ function buildSummaries(players: Profile[], fines: Fine[], wtpGames: WtpGame[]):
       lostBallOwed: unpaidFines.filter(f => f.type === 'lost_ball').reduce((s, f) => s + Number(f.amount), 0),
       cunOwed: unpaidFines.filter(f => f.type === 'cuntiness').reduce((s, f) => s + Number(f.amount), 0),
       dropoutOwed: unpaidFines.filter(f => f.type === 'dropout').reduce((s, f) => s + Number(f.amount), 0),
-      totalOwed: unpaidFines.reduce((s, f) => s + Number(f.amount), 0) + unpaidGames.reduce((s, g) => s + Number(g.amount), 0),
+      monthOwed,
+      priorOwed: prior,
+      allTimeOwed: monthOwed + prior,
       totalPaid: paidFines.reduce((s, f) => s + Number(f.amount), 0) + paidGames.reduce((s, g) => s + Number(g.amount), 0),
     })
   }
 
-  return summaries.sort((a, b) => b.totalOwed - a.totalOwed)
+  // Also include players who have *only* prior carryover (no current-month
+  // records) so admin sees them too — otherwise chasing past debt requires
+  // navigating back month-by-month.
+  for (const player of players) {
+    if (seen.has(player.id)) continue
+    const prior = priorOwedByPlayer[player.id] ?? 0
+    if (prior === 0) continue
+    summaries.push({
+      player,
+      fines: [], wtpGames: [],
+      wtpOwed: 0, lateOwed: 0, lostBallOwed: 0, cunOwed: 0, dropoutOwed: 0,
+      monthOwed: 0, priorOwed: prior, allTimeOwed: prior, totalPaid: 0,
+    })
+  }
+
+  // Sort by all-time outstanding desc so the biggest debts surface first.
+  return summaries.sort((a, b) => b.allTimeOwed - a.allTimeOwed)
 }
 
 function exportCsv(summaries: PlayerSummary[], monthLabel: string) {
-  const headers = ['Name', 'WTP Games (£)', 'Late (£)', 'Lost Ball (£)', 'Cuntiness (£)', 'Drop Out (£)', 'Total Owed (£)', 'Total Paid (£)', 'Status']
+  const headers = ['Name', 'WTP Games (£)', 'Late (£)', 'Lost Ball (£)', 'Cuntiness (£)', 'Drop Out (£)', 'Month Owed (£)', 'Prior Owed (£)', 'All-Time Owed (£)', 'Total Paid (£)', 'Status']
   const lines = [
     headers.join(','),
     ...summaries.map(s => [
@@ -59,9 +93,11 @@ function exportCsv(summaries: PlayerSummary[], monthLabel: string) {
       s.lostBallOwed.toFixed(2),
       s.cunOwed.toFixed(2),
       s.dropoutOwed.toFixed(2),
-      s.totalOwed.toFixed(2),
+      s.monthOwed.toFixed(2),
+      s.priorOwed.toFixed(2),
+      s.allTimeOwed.toFixed(2),
       s.totalPaid.toFixed(2),
-      s.totalOwed === 0 ? 'Paid' : 'Outstanding',
+      s.allTimeOwed === 0 ? 'Paid' : 'Outstanding',
     ].join(',')),
   ].join('\n')
 
@@ -79,6 +115,9 @@ export default function AdminFinancePanel() {
   const [players, setPlayers] = useState<Profile[]>([])
   const [fines, setFines] = useState<Fine[]>([])
   const [wtpGames, setWtpGames] = useState<WtpGame[]>([])
+  // priorOwedByPlayer[playerId] = unpaid £ from months STRICTLY BEFORE the
+  // currently viewed month. Surfaces carryover next to each row.
+  const [priorOwedByPlayer, setPriorOwedByPlayer] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [markingPaid, setMarkingPaid] = useState<string | null>(null)
@@ -107,22 +146,37 @@ export default function AdminFinancePanel() {
     const startStr = format(monthStart, 'yyyy-MM-dd')
     const endStr = format(monthEnd, 'yyyy-MM-dd')
 
-    const [{ data: ps }, { data: fs }, { data: gs }] = await Promise.all([
+    const [{ data: ps }, { data: fs }, { data: gs }, { data: priorF }, { data: priorG }] = await Promise.all([
       supabase.from('profiles').select('*').order('surname'),
       supabase.from('fines').select('*').gte('match_date', startStr).lte('match_date', endStr),
       supabase.from('wtp_games').select('*').gte('match_date', startStr).lte('match_date', endStr),
+      // Carryover: unpaid amounts from any earlier month. Filtered server-side
+      // so we don't pull every row in the table.
+      supabase.from('fines').select('player_id, amount').eq('paid', false).lt('match_date', startStr),
+      supabase.from('wtp_games').select('player_id, amount').eq('paid', false).lt('match_date', startStr),
     ])
     setPlayers((ps as Profile[]) || [])
     setFines((fs as Fine[]) || [])
     setWtpGames((gs as WtpGame[]) || [])
+
+    const prior: Record<string, number> = {}
+    for (const r of ((priorF as { player_id: string; amount: number | string }[]) || [])) {
+      prior[r.player_id] = (prior[r.player_id] ?? 0) + Number(r.amount)
+    }
+    for (const r of ((priorG as { player_id: string; amount: number | string }[]) || [])) {
+      prior[r.player_id] = (prior[r.player_id] ?? 0) + Number(r.amount)
+    }
+    setPriorOwedByPlayer(prior)
     setLoading(false)
   }, [viewDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { loadData() }, [loadData])
 
-  const summaries = buildSummaries(players, fines, wtpGames)
+  const summaries = buildSummaries(players, fines, wtpGames, priorOwedByPlayer)
 
-  const grandTotalOwed = summaries.reduce((s, r) => s + r.totalOwed, 0)
+  const grandMonthOwed = summaries.reduce((s, r) => s + r.monthOwed, 0)
+  const grandPriorOwed = summaries.reduce((s, r) => s + r.priorOwed, 0)
+  const grandAllTimeOwed = summaries.reduce((s, r) => s + r.allTimeOwed, 0)
   const grandWtp = summaries.reduce((s, r) => s + r.wtpOwed, 0)
   const grandLate = summaries.reduce((s, r) => s + r.lateOwed, 0)
   const grandLostBall = summaries.reduce((s, r) => s + r.lostBallOwed, 0)
@@ -133,9 +187,14 @@ export default function AdminFinancePanel() {
     setMarkingPaid(summary.player.id)
     const fineIds = summary.fines.filter(f => !f.paid).map(f => f.id)
     const gameIds = summary.wtpGames.filter(g => !g.paid).map(g => g.id)
+    // If they have prior-month carryover, clear everything unpaid for this
+    // player across all time — admin's intent here is "they've paid up".
+    const clearPriorToo = summary.priorOwed > 0
     await Promise.all([
       fineIds.length > 0 ? supabase.from('fines').update({ paid: true }).in('id', fineIds) : Promise.resolve(),
       gameIds.length > 0 ? supabase.from('wtp_games').update({ paid: true }).in('id', gameIds) : Promise.resolve(),
+      clearPriorToo ? supabase.from('fines').update({ paid: true }).eq('player_id', summary.player.id).eq('paid', false) : Promise.resolve(),
+      clearPriorToo ? supabase.from('wtp_games').update({ paid: true }).eq('player_id', summary.player.id).eq('paid', false) : Promise.resolve(),
     ])
     await loadData()
     setMarkingPaid(null)
@@ -338,49 +397,59 @@ export default function AdminFinancePanel() {
             <span className="text-xs w-10 text-center" style={{ color: 'var(--color-text-muted)' }}>Ball</span>
             <span className="text-xs w-10 text-center" style={{ color: 'var(--color-text-muted)' }}>C*nt</span>
             <span className="text-xs w-10 text-center" style={{ color: 'var(--color-text-muted)' }}>Out</span>
-            <span className="text-xs w-14 text-right font-semibold" style={{ color: 'var(--color-error-text)' }}>Owed</span>
+            <span className="text-xs w-20 text-right font-semibold" style={{ color: 'var(--color-error-text)' }}>Owed</span>
           </div>
 
           {summaries.map(s => {
             const isExpanded = expandedId === s.player.id
-            const allPaid = s.totalOwed === 0
+            const allPaid = s.allTimeOwed === 0
+            // Highlight carryover-owing rows so they jump out as the chase list.
+            const borderColor = allPaid ? 'var(--color-border)'
+              : s.priorOwed > 0 ? '#7a3a0a' : '#3a1a1a'
 
             return (
               <div key={s.player.id} className="rounded-2xl overflow-hidden"
-                style={{ background: 'var(--color-surface)', border: `1px solid ${allPaid ? 'var(--color-border)' : '#3a1a1a'}` }}>
+                style={{ background: 'var(--color-surface)', border: `1px solid ${borderColor}` }}>
 
                 {/* Summary row */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : s.player.id)}
-                  className="w-full flex items-center px-3 py-3 gap-1"
+                  className="w-full flex items-start px-3 py-3 gap-1"
                 >
                   <span className="flex-1 text-sm font-medium text-left"
                     style={{ color: allPaid ? '#666' : 'white' }}>
                     {s.player.name} {s.player.surname}
                   </span>
-                  <span className="text-xs w-10 text-center tabular-nums"
+                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
                     style={{ color: s.wtpOwed > 0 ? '#C9A227' : '#444' }}>
                     {s.wtpOwed > 0 ? `£${s.wtpOwed}` : '—'}
                   </span>
-                  <span className="text-xs w-10 text-center tabular-nums"
+                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
                     style={{ color: s.lateOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.lateOwed > 0 ? `£${s.lateOwed}` : '—'}
                   </span>
-                  <span className="text-xs w-10 text-center tabular-nums"
+                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
                     style={{ color: s.lostBallOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.lostBallOwed > 0 ? `£${s.lostBallOwed}` : '—'}
                   </span>
-                  <span className="text-xs w-10 text-center tabular-nums"
+                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
                     style={{ color: s.cunOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.cunOwed > 0 ? `£${s.cunOwed}` : '—'}
                   </span>
-                  <span className="text-xs w-10 text-center tabular-nums"
+                  <span className="text-xs w-10 text-center tabular-nums pt-0.5"
                     style={{ color: s.dropoutOwed > 0 ? '#DC2626' : '#444' }}>
                     {s.dropoutOwed > 0 ? `£${s.dropoutOwed}` : '—'}
                   </span>
-                  <span className="text-xs w-14 text-right font-bold tabular-nums"
+                  <span className="w-20 text-right font-bold tabular-nums flex flex-col items-end"
                     style={{ color: allPaid ? '#0D6B52' : '#DC2626' }}>
-                    {allPaid ? '✓' : `£${s.totalOwed.toFixed(2)}`}
+                    <span className="text-xs">
+                      {allPaid ? '✓' : `£${s.allTimeOwed.toFixed(2)}`}
+                    </span>
+                    {s.priorOwed > 0 && (
+                      <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
+                        +£{s.priorOwed.toFixed(2)} prior
+                      </span>
+                    )}
                   </span>
                 </button>
 
@@ -388,8 +457,9 @@ export default function AdminFinancePanel() {
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid var(--color-border)' }}>
 
-                    {/* Mark as paid button */}
-                    {s.totalOwed > 0 && (
+                    {/* Mark as paid button — clears everything unpaid for the
+                        player including any prior-month carryover. */}
+                    {s.allTimeOwed > 0 && (
                       <div className="px-3 py-2.5" style={{ borderBottom: '1px solid #FFFFFF' }}>
                         <button
                           onClick={() => markAllPaid(s)}
@@ -397,7 +467,7 @@ export default function AdminFinancePanel() {
                           className="w-full py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
                           style={{ background: 'var(--color-success-bg)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
                         >
-                          {markingPaid === s.player.id ? 'Marking…' : `✓ Mark All Paid (£${s.totalOwed.toFixed(2)})`}
+                          {markingPaid === s.player.id ? 'Marking…' : `✓ Mark All Paid (£${s.allTimeOwed.toFixed(2)}${s.priorOwed > 0 ? ` · incl. £${s.priorOwed.toFixed(2)} prior` : ''})`}
                         </button>
                       </div>
                     )}
@@ -479,27 +549,33 @@ export default function AdminFinancePanel() {
             )
           })}
 
-          {/* Totals row */}
-          <div className="flex items-center px-3 py-3 rounded-2xl gap-1"
+          {/* Totals row — shows the month's columns + a combined All-Time
+              outstanding tally so the admin sees the chase number at a glance. */}
+          <div className="flex items-start px-3 py-3 rounded-2xl gap-1"
             style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', marginTop: 8 }}>
-            <span className="flex-1 text-xs font-bold uppercase tracking-wide" style={{ color: '#9CA897' }}>Totals</span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: 'var(--color-warning-text)' }}>
+            <span className="flex-1 text-xs font-bold uppercase tracking-wide pt-0.5" style={{ color: '#9CA897' }}>Totals</span>
+            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-warning-text)' }}>
               £{grandWtp.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
               £{grandLate.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
               £{grandLostBall.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
               £{grandCun.toFixed(0)}
             </span>
-            <span className="text-xs w-10 text-center font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
+            <span className="text-xs w-10 text-center font-bold tabular-nums pt-0.5" style={{ color: 'var(--color-error-text)' }}>
               £{grandDropout.toFixed(0)}
             </span>
-            <span className="text-xs w-14 text-right font-bold tabular-nums" style={{ color: 'var(--color-error-text)' }}>
-              £{grandTotalOwed.toFixed(2)}
+            <span className="w-20 text-right font-bold tabular-nums flex flex-col items-end" style={{ color: 'var(--color-error-text)' }}>
+              <span className="text-xs">£{grandAllTimeOwed.toFixed(2)}</span>
+              {grandPriorOwed > 0 && (
+                <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
+                  £{grandMonthOwed.toFixed(0)} mth + £{grandPriorOwed.toFixed(0)} prior
+                </span>
+              )}
             </span>
           </div>
 
