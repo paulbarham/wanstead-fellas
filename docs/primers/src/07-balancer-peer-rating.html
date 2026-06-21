@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Balancer + Peer Rating proposal</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · PROPOSAL · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+
+  /* Teletext masthead */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 12pt 14pt;
+    border-radius: 10pt;
+    margin-bottom: 10pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 19pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 { color: #4ADC7A; font-size: 10pt; margin: 10pt 0 4pt; font-family: 'Arial Black', sans-serif; }
+
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 16pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 7pt 10pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 9.5pt;
+  }
+  .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.red { background: rgba(255,85,85,0.07); border-left-color: #FF5555; }
+
+  /* Category bar — visualises per-team attribute totals */
+  .balance-block { background: #15211A; border: 1px solid #2D4A2F; border-radius: 8pt; padding: 8pt 10pt; margin: 6pt 0; }
+  .balance-block .lbl {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; color: #9CA897;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 4pt;
+  }
+  .bar-row {
+    display: table; width: 100%; margin: 2pt 0;
+    font-family: 'Courier New', monospace; font-size: 8.5pt;
+  }
+  .bar-row .name { display: table-cell; width: 70pt; color: #E8F0E9; vertical-align: middle; }
+  .bar-row .bar-track {
+    display: table-cell; vertical-align: middle;
+    background: #0a0f0c; border: 1px solid #2D4A2F;
+    border-radius: 3pt; height: 10pt; position: relative;
+  }
+  .bar-fill {
+    display: inline-block; height: 8pt;
+    background: linear-gradient(90deg, #FFD400, #FF9C00);
+    border-radius: 2pt; margin: 1pt;
+  }
+  .bar-fill.bal { background: linear-gradient(90deg, #4ADC7A, #2BA850); }
+  .bar-row .val { display: table-cell; width: 26pt; text-align: right; padding-left: 5pt; color: #4AD9FF; font-weight: 700; vertical-align: middle; }
+  .bar-row.outlier .val { color: #FF5555; }
+
+  /* Range badge */
+  .range-badge {
+    display: inline-block;
+    font-family: 'Courier New', monospace; font-size: 8pt;
+    padding: 2pt 6pt; border-radius: 3pt;
+    font-weight: 700;
+  }
+  .range-badge.bad { background: rgba(255,85,85,0.15); color: #FF5555; border: 1px solid rgba(255,85,85,0.3); }
+  .range-badge.good { background: rgba(74,220,122,0.15); color: #4ADC7A; border: 1px solid rgba(74,220,122,0.3); }
+
+  /* Side-by-side columns */
+  .cols { display: table; width: 100%; border-spacing: 8pt 0; margin-top: 6pt; }
+  .col { display: table-cell; vertical-align: top; width: 50%; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0; font-size: 8.5pt; }
+  th { background: #1A2B1C; color: #FFD400; padding: 5pt 6pt; text-align: left; font-family: 'Courier New', monospace; font-size: 7.5pt; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid #2D4A2F; }
+  td { padding: 4pt 6pt; border-bottom: 1px dashed rgba(45,74,47,0.6); vertical-align: top; }
+  td.team { color: #4ADC7A; font-weight: 700; font-family: 'Courier New', monospace; }
+  tr.imbal td.outval { color: #FF5555; font-weight: 700; }
+  tr td.good { color: #4ADC7A; font-weight: 700; }
+
+  /* Actual scoreline strip */
+  .scoreline {
+    display: flex; gap: 6pt; margin: 4pt 0;
+    font-family: 'Courier New', monospace; font-size: 9pt;
+    color: #9CA897;
+  }
+  .scoreline strong { color: #E8F0E9; }
+
+  /* Peer rating UI mock */
+  .phone {
+    width: 270pt;
+    background: #0F1710;
+    border: 1px solid #2D4A2F;
+    border-radius: 20pt;
+    padding: 10pt 10pt 50pt;
+  }
+  .phone-head {
+    color: #4AD9FF; font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.08em;
+  }
+  .phone-title {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 17pt; margin: 4pt 0 6pt;
+    font-family: 'Courier New', monospace; letter-spacing: 0.02em;
+  }
+  .phone-sub { font-size: 8pt; color: #9CA897; font-family: 'Courier New', monospace; margin-bottom: 8pt; }
+
+  .gate {
+    border: 1px solid #FFD400; background: rgba(255,212,0,0.06);
+    border-radius: 8pt; padding: 8pt 10pt; margin-bottom: 8pt;
+  }
+  .gate .ttl { font-size: 9.5pt; color: #FFD400; font-weight: 700; margin-bottom: 2pt; }
+  .gate .body { font-size: 8.5pt; color: #9CA897; }
+
+  .squad-grid {
+    display: table; width: 100%; border-spacing: 4pt;
+  }
+  .squad-row { display: table-row; }
+  .squad-cell {
+    display: table-cell;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 8pt; padding: 6pt; vertical-align: top;
+    width: 50%;
+  }
+  .squad-cell.rated { border-color: #4ADC7A; background: rgba(74,220,122,0.04); }
+  .player-mini { display: flex; align-items: center; gap: 5pt; margin-bottom: 4pt; }
+  .avatar {
+    width: 22pt; height: 22pt; border-radius: 50%;
+    background: linear-gradient(135deg, #4ADC7A, #166534);
+    color: white; font-size: 9pt; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .player-name { font-size: 9pt; color: #E8F0E9; font-weight: 600; }
+  .rating-row { display: table; width: 100%; }
+  .rating-cell {
+    display: table-cell; text-align: center;
+    padding: 3pt 0; border-radius: 5pt;
+    font-size: 12pt;
+    border: 1px solid #2D4A2F;
+    background: #0a0f0c;
+  }
+  .rating-cell.picked { border-color: #4ADC7A; background: rgba(74,220,122,0.15); }
+  .rating-cell.picked-yellow { border-color: #FFD400; background: rgba(255,212,0,0.15); }
+  .rating-cell.picked-red { border-color: #FF5555; background: rgba(255,85,85,0.15); }
+
+  .sub-cta {
+    margin-top: 10pt; padding: 9pt;
+    text-align: center;
+    background: #4ADC7A; color: white;
+    border-radius: 8pt; font-weight: 700;
+    font-size: 10pt;
+  }
+  .sub-cta.disabled { background: #2D4A2F; color: #6b8a7a; }
+
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 10pt 0; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.1em;
+    margin-top: 10pt;
+    padding: 6pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE 1: BALANCER ───────────────────────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>BALANCER · v2</h1>
+    <div class="sub">Categorical balance · case study 18 Jun 2026</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P701 · PROPOSAL</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>The case for change</strong> — the current balancer aims for equal <em>overall</em> totals per team and stops there. With 9-attribute cards available, it can do much more. Below: the actual 18 Jun teams, the imbalance that crept in, and what a categorical balancer would have done differently.
+</div>
+
+<h2>What the balancer did on 18 Jun</h2>
+<p>36 confirmed players · 4 teams of 9 · overall ratings balanced to within 3 points. Looks even. But:</p>
+
+<table>
+  <tr>
+    <th>Team</th><th>OVR</th><th>SHO</th><th>PAS</th><th>DRI</th><th>DEF</th><th>PHY</th>
+  </tr>
+  <tr class="imbal">
+    <td class="team">Aaron Franklin FC</td><td>64</td><td>62</td><td>65</td><td>64</td><td>67</td><td>69</td>
+  </tr>
+  <tr class="imbal">
+    <td class="team">Gary Edwards FC</td><td>63</td><td class="outval">53</td><td>64</td><td>61</td><td>68</td><td>69</td>
+  </tr>
+  <tr class="imbal">
+    <td class="team">Josh Edwards FC</td><td>67</td><td class="outval">65</td><td>70</td><td class="outval">69</td><td class="outval">62</td><td>63</td>
+  </tr>
+  <tr class="imbal">
+    <td class="team">Mikel Winter FC</td><td>66</td><td>58</td><td>68</td><td>65</td><td>68</td><td class="outval">72</td>
+  </tr>
+  <tr>
+    <td><strong>Spread</strong></td>
+    <td><span class="range-badge good">±4</span></td>
+    <td><span class="range-badge bad">±12 ⚠</span></td>
+    <td><span class="range-badge good">±6</span></td>
+    <td><span class="range-badge bad">±8</span></td>
+    <td><span class="range-badge good">±6</span></td>
+    <td><span class="range-badge bad">±9</span></td>
+  </tr>
+</table>
+
+<div class="callout red">
+  <strong>The hidden problems:</strong>
+  <ul style="margin-top: 3pt;">
+    <li><strong>Gary Edwards FC had 53 shooting</strong> — 12 below Josh Edwards FC. They scored 2 goals in 3 games — they didn't have a finisher.</li>
+    <li><strong>Josh Edwards FC had every dribbler</strong> (69 DRI) — and one of the lowest defences (62). They drew twice and lost once.</li>
+    <li><strong>Gary Edwards FC had no recognised GK</strong> (Chris Hughes was a last-minute add) — purely lucky they didn't get punished.</li>
+  </ul>
+</div>
+
+<h3>What actually happened that night</h3>
+<div class="scoreline"><strong>Aaron FC 0 - 0 Gary FC</strong> · cagey</div>
+<div class="scoreline"><strong>Aaron FC 1 - 0 Josh FC</strong></div>
+<div class="scoreline"><strong>Aaron FC 2 - 1 Mikel FC</strong> · Aaron 9 pts <span style="color:#FFD400;font-weight:700">· WINNERS</span></div>
+<div class="scoreline"><strong>Gary FC 0 - 0 Josh FC</strong></div>
+<div class="scoreline"><strong>Gary FC 2 - 0 Mikel FC</strong></div>
+<div class="scoreline"><strong>Mikel FC 2 - 1 Josh FC</strong> · 4 of 6 games had margin ≤ 1, but two stomps included</div>
+
+<h2>What v2 would have done</h2>
+<p>The new algorithm balances on <em>every</em> category, not just overall. Constraints layered on top:</p>
+<ul>
+  <li><strong>Categorical balance</strong>: each attribute total within ±4 across teams.</li>
+  <li><strong>GK guarantee</strong>: each team gets ≥1 recognised GK.</li>
+  <li><strong>Defender floor</strong>: each team gets ≥1 player with DEF ≥ 8.</li>
+  <li><strong>Star cap</strong>: max 2 players with OVR ≥ 8 per team.</li>
+  <li><strong>Simulated annealing</strong>: random swap pairs of equal-OVR players to drive imbalance down. ~1000 iterations, &lt;100ms.</li>
+</ul>
+
+<h3>The simulated-annealing output (3 swaps from actual)</h3>
+<p>Same 36 players. Three swaps: <em>Tom Broughton ↔ Stan Finch · Felix Baker ↔ Mark Pearson · Adam Thorpe ↔ Joseph Pender</em>.</p>
+
+<table>
+  <tr>
+    <th>Team</th><th>OVR</th><th>SHO</th><th>PAS</th><th>DRI</th><th>DEF</th><th>PHY</th>
+  </tr>
+  <tr>
+    <td class="team">Aaron Franklin FC</td><td>64</td><td>62</td><td>65</td><td>64</td><td>67</td><td>69</td>
+  </tr>
+  <tr>
+    <td class="team">Gary Edwards FC</td><td>63</td><td class="good">60</td><td>65</td><td class="good">65</td><td>67</td><td>69</td>
+  </tr>
+  <tr>
+    <td class="team">Josh Edwards FC</td><td>67</td><td>61</td><td>67</td><td>66</td><td class="good">66</td><td>66</td>
+  </tr>
+  <tr>
+    <td class="team">Mikel Winter FC</td><td>66</td><td>59</td><td>67</td><td>64</td><td>68</td><td>69</td>
+  </tr>
+  <tr>
+    <td><strong>Spread</strong></td>
+    <td><span class="range-badge good">±4</span></td>
+    <td><span class="range-badge good">±3</span></td>
+    <td><span class="range-badge good">±2</span></td>
+    <td><span class="range-badge good">±2</span></td>
+    <td><span class="range-badge good">±2</span></td>
+    <td><span class="range-badge good">±3</span></td>
+  </tr>
+</table>
+
+<div class="callout green">
+  <strong>Impact:</strong>
+  SHO spread went from <strong>±12 → ±3</strong>. DRI from <strong>±8 → ±2</strong>. PHY from <strong>±9 → ±3</strong>. Three swaps, no team identity broken. Aaron FC keeps Beau Samuels as their star; the swaps happened among the support players.
+</div>
+
+<h3>Why it matters over the season</h3>
+<ul>
+  <li><strong>Closer games</strong> — fewer 6-0 stomps means more fun for everyone.</li>
+  <li><strong>Fairer "Winning Team" stat</strong> — wins will reflect player quality more than draft luck.</li>
+  <li><strong>Trustable "Wall" stat</strong> — GA per night becomes a real defensive signal once defences aren't lopsided.</li>
+  <li><strong>Validation</strong>: after 4 weeks of v2, expect avg score differential to drop from ~2.5 → ~1.5 goals.</li>
+</ul>
+
+<div class="callout">
+  <strong>Admin escape hatch</strong> — admin can still drag-swap players post-balance. The algorithm is a suggestion, not a mandate. Add a "regenerate" button to try a fresh allocation if a particular output looks off.
+</div>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 2: PEER RATING ───────────────────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>RATE YOUR SQUAD</h1>
+    <div class="sub">Peer rating · low-friction design</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P702 · PROPOSAL</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>The problem</strong> — MOTM/DOTD engagement is low because it feels altruistic and takes too many clicks. Peer ratings could be gold for the balancer, but only if 60%+ of the squad actually does them every week. <em>This proposal designs around the engagement gap, not the data we want.</em>
+</div>
+
+<h2>Design principles</h2>
+<ul>
+  <li><strong>≤ 20 seconds</strong> total — finished before you've cracked your second beer.</li>
+  <li><strong>One screen, no scrolling</strong> — the whole squad visible at once.</li>
+  <li><strong>One tap per teammate</strong> — three colours, no text input, no comments.</li>
+  <li><strong>Selfish incentive</strong> — gate <em>your</em> rating behind doing the work.</li>
+  <li><strong>Combined with MOTM/DOTD</strong> — same screen, not three separate flows.</li>
+</ul>
+
+<div class="cols">
+  <div class="col">
+
+    <h2>The flow</h2>
+
+    <div class="phone">
+      <div class="phone-head">P201 · POST MATCH</div>
+      <div class="phone-title">RATE YOUR SQUAD</div>
+      <div class="phone-sub">Aaron Franklin FC · 8 teammates · 9 PM K.O.</div>
+
+      <div class="gate">
+        <div class="ttl">🔒 Your form rating: locked</div>
+        <div class="body">Rate your teammates to unlock yours · 5 of 8 done</div>
+      </div>
+
+      <div class="squad-grid">
+        <div class="squad-row">
+          <div class="squad-cell rated">
+            <div class="player-mini"><span class="avatar">BS</span><span class="player-name">Beau Samuels</span></div>
+            <div class="rating-row">
+              <div class="rating-cell picked">🟢</div>
+              <div class="rating-cell">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+          <div class="squad-cell rated">
+            <div class="player-mini"><span class="avatar">AF</span><span class="player-name">Aaron F</span></div>
+            <div class="rating-row">
+              <div class="rating-cell picked">🟢</div>
+              <div class="rating-cell">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+        </div>
+        <div class="squad-row">
+          <div class="squad-cell rated">
+            <div class="player-mini"><span class="avatar">GA</span><span class="player-name">Geof A</span></div>
+            <div class="rating-row">
+              <div class="rating-cell">🟢</div>
+              <div class="rating-cell picked-yellow">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+          <div class="squad-cell rated">
+            <div class="player-mini"><span class="avatar">CD</span><span class="player-name">Corin D</span></div>
+            <div class="rating-row">
+              <div class="rating-cell picked">🟢</div>
+              <div class="rating-cell">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+        </div>
+        <div class="squad-row">
+          <div class="squad-cell rated">
+            <div class="player-mini"><span class="avatar">PM</span><span class="player-name">Peter M</span></div>
+            <div class="rating-row">
+              <div class="rating-cell picked">🟢</div>
+              <div class="rating-cell">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+          <div class="squad-cell">
+            <div class="player-mini"><span class="avatar">EE</span><span class="player-name">Edward E</span></div>
+            <div class="rating-row">
+              <div class="rating-cell">🟢</div>
+              <div class="rating-cell">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+        </div>
+        <div class="squad-row">
+          <div class="squad-cell">
+            <div class="player-mini"><span class="avatar">SD</span><span class="player-name">Scott D</span></div>
+            <div class="rating-row">
+              <div class="rating-cell">🟢</div>
+              <div class="rating-cell">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+          <div class="squad-cell">
+            <div class="player-mini"><span class="avatar">OC</span><span class="player-name">Ollie C</span></div>
+            <div class="rating-row">
+              <div class="rating-cell">🟢</div>
+              <div class="rating-cell">🟡</div>
+              <div class="rating-cell">🔴</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-cta disabled">3 more to unlock · then pick MOTM &amp; DOTD</div>
+    </div>
+
+  </div>
+  <div class="col">
+
+    <h2>The behaviour loop</h2>
+
+    <h3>📲 Trigger</h3>
+    <p>Push notification fires <strong>10pm Thursday</strong> (after the match): "How was the squad? 20 seconds and your form rating updates." Single tap deep-links straight to this screen. No menu navigation required.</p>
+
+    <h3>🔒 Selfish hook</h3>
+    <p>Player's own form rating (a single 1–5 number on their card) is hidden behind a lock icon until they've rated <em>their own teammates</em>. Same psychology as "see who liked you" on Hinge — give to get.</p>
+
+    <h3>🔥 Streak</h3>
+    <p>Top of the screen: "🔥 4 weeks in a row · keep the streak". Breaking a streak feels worse than starting one. Players will tap through just to keep the flame alive.</p>
+
+    <h3>👻 Anonymity</h3>
+    <p>Players see <em>their</em> aggregated form (e.g. "Your squad rated you 4.2"), but never <em>who</em> rated what. Removes social cost and frees honest ratings.</p>
+
+    <h3>🏆 MOTM &amp; DOTD baked in</h3>
+    <p>After the 7 colour taps, the final screen shows the players you tagged 🟢 and asks <em>"Pick MOTM"</em>. One tap. Same for 🔴 → DOTD. Total: ~9 taps. No more separate flow.</p>
+
+    <h3>🔇 Forgetters</h3>
+    <p>If you forget, the screen still works any time before Friday 9am. After: locked, your form rating doesn't update for that week (small penalty — incentive without punishment).</p>
+
+  </div>
+</div>
+
+<h2>What the data unlocks</h2>
+<ul>
+  <li><strong>Form rating</strong> — fold the rolling 4-match peer score into the card's <em>overall</em> with ±3 weight. Cards feel "alive".</li>
+  <li><strong>Balancer signal</strong> — a player on a hot peer-rated streak gets a small synthetic boost; one on a cold streak gets cooled. Stops "the lazy week" from being silently rewarded by the balancer.</li>
+  <li><strong>MOTM &amp; DOTD higher quality</strong> — comes from people who actually watched the match (the squad), not casual viewers.</li>
+  <li><strong>Engagement metric</strong> — track "% of squad who rated" each week. Initial target: 60%. Aim 75% by month 3.</li>
+</ul>
+
+<h2>Why people will actually do it</h2>
+<table>
+  <tr><th>Motivation</th><th>Mechanic</th></tr>
+  <tr><td>Curiosity about own rating</td><td>Gate · "5 of 8 done"</td></tr>
+  <tr><td>Loss aversion</td><td>Streak counter</td></tr>
+  <tr><td>Tribal pride</td><td>"Aaron FC has a 4.1 squad rating · 2nd in league"</td></tr>
+  <tr><td>Banter</td><td>Friday morning recap card · "Edward Ezra was on form (4.6)"</td></tr>
+  <tr><td>Influence</td><td>Your rating literally moves the balancer next week</td></tr>
+</table>
+
+<div class="closer">
+  Combined effect · v2 balancer + peer ratings = teams that are mathematically fairer · and ratings that match how players actually played.
+</div>
+
+</body>
+</html>
