@@ -1,5 +1,5 @@
-import type { Profile, TierType } from '../types'
-import { getTier } from '../types'
+import type { Profile, TierType, PreferredPosition } from '../types'
+import { getTier, PREFERRED_POSITIONS } from '../types'
 import PlayerTypeBadge from './PlayerTypeBadge'
 import CuntinessBadge from './CuntinessBadge'
 import ClubBadge from './ClubBadge'
@@ -11,10 +11,60 @@ const TIER: Record<TierType, { bg: string; accent: string; label: string }> = {
   standard: { bg: 'linear-gradient(150deg, #0d0d0d 0%, #141414 55%, #1c1c1c 100%)', accent: '#8A8F98', label: 'STANDARD' },
 }
 
+// Position visual treatment — coloured pill on the card so the player's
+// preferred position reads at a glance. Keys match the four PreferredPosition
+// values (GK / DEF / MID / ATT); the legacy admin `position` (ST/MF/DF/GK) is
+// mapped through too so older profiles still render a badge.
+const POS_STYLE: Record<PreferredPosition, { bg: string; fg: string; icon: string; label: string }> = {
+  GK:  { bg: '#0F2E18', fg: '#4ADC7A', icon: '🧤', label: 'GK' },
+  DEF: { bg: '#0E2434', fg: '#4AD9FF', icon: '🛡️', label: 'DEF' },
+  MID: { bg: '#2A2410', fg: '#FFD400', icon: '⚙️', label: 'MID' },
+  ATT: { bg: '#2A0E1E', fg: '#FF66CC', icon: '⚽', label: 'ATT' },
+}
+function preferredPositionOf(p: Profile): PreferredPosition | null {
+  if (p.preferred_position_primary) return p.preferred_position_primary
+  // Fall back to the legacy admin-set position for older profiles. Stale
+  // 'MD' values still exist in the DB outside the typed union, so coerce
+  // through a string before matching.
+  const legacy = (p.position ?? '') as string
+  if (legacy === 'GK') return 'GK'
+  if (legacy === 'DF') return 'DEF'
+  if (legacy === 'MF' || legacy === 'MD') return 'MID'
+  if (legacy === 'ST') return 'ATT'
+  return null
+}
+function PositionBadge({ pos, size = 'lg' }: { pos: PreferredPosition; size?: 'lg' | 'sm' }) {
+  const s = POS_STYLE[pos]
+  const px = size === 'lg' ? 8 : 5
+  const py = size === 'lg' ? 4 : 2
+  const fs = size === 'lg' ? 12 : 9
+  const icSize = size === 'lg' ? 13 : 10
+  return (
+    <span
+      title={PREFERRED_POSITIONS.find(o => o.value === pos)?.full}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        padding: `${py}px ${px}px`, borderRadius: 999,
+        background: s.bg, color: s.fg,
+        border: `1px solid ${s.fg}55`,
+        fontFamily: 'ui-monospace, monospace',
+        fontSize: fs, fontWeight: 800, letterSpacing: '0.04em',
+        lineHeight: 1,
+      }}
+    >
+      <span style={{ fontSize: icSize, lineHeight: 1 }}>{s.icon}</span>
+      <span>{s.label}</span>
+    </span>
+  )
+}
+
 type Stat = { label: string; value: number | null }
 
 function statsFor(p: Profile): Stat[] {
-  const isGK = p.position === 'GK'
+  // Use preferred position (player-set) over legacy admin `position` to
+  // decide which stat set to show. So Kev who now self-identifies as GK
+  // sees his GK stats even if admin hasn't updated the legacy field.
+  const isGK = preferredPositionOf(p) === 'GK'
   const hasGk = p.gk_pace != null || p.gk_reflexes != null || p.gk_handling != null
   // New signups / My-Squad children have no card_* values yet — fall back to
   // overall_rating so the card shows a sensible baseline instead of "—".
@@ -69,7 +119,10 @@ interface Props {
 export default function PlayerCard({ profile, compact = false }: Props) {
   const tier = getTier(profile.overall_rating)
   const t = TIER[tier]
-  const subtitle = [profile.age_group, profile.position].filter(Boolean).join(' · ')
+  const primaryPos = preferredPositionOf(profile)
+  const secondaryPos = profile.preferred_position_secondary ?? null
+  // Subtitle drops position now that it has its own prominent badge.
+  const subtitle = profile.age_group ?? ''
 
   // ── Compact (grid thumbnail) ─────────────────────────────────────────────
   if (compact) {
@@ -96,6 +149,13 @@ export default function PlayerCard({ profile, compact = false }: Props) {
             {profile.overall_rating}
           </span>
         </div>
+
+        {/* Compact position badge under OVR — secondary kept off compact card */}
+        {primaryPos && (
+          <div style={{ position: 'absolute', top: 56, right: 7, zIndex: 3 }}>
+            <PositionBadge pos={primaryPos} size="sm" />
+          </div>
+        )}
 
         <div style={{ position: 'absolute', top: 24, bottom: 42, left: 0, right: 0, overflow: 'hidden' }}>
           <Portrait p={profile} accent={t.accent} big={false} />
@@ -158,7 +218,29 @@ export default function PlayerCard({ profile, compact = false }: Props) {
           </span>
         </div>
 
-        {/* Name + age · position */}
+        {/* Position badge stack (primary + optional secondary) below OVR */}
+        {primaryPos && (
+          <div style={{
+            position: 'absolute', top: 56, right: 12, zIndex: 3,
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4,
+          }}>
+            <PositionBadge pos={primaryPos} size="lg" />
+            {secondaryPos && (
+              <span style={{
+                fontFamily: 'ui-monospace, monospace',
+                fontSize: 9, letterSpacing: '0.05em',
+                color: 'rgba(255,255,255,0.7)',
+                background: 'rgba(0,0,0,0.45)',
+                padding: '2px 6px', borderRadius: 999,
+                border: '1px solid rgba(255,255,255,0.15)',
+              }}>
+                also {POS_STYLE[secondaryPos].icon} {secondaryPos}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Name + age (position now lives in its own badge) */}
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 16px 12px', zIndex: 3 }}>
           <p style={{ fontFamily: 'display', fontSize: '1.5rem', color: 'white', lineHeight: 1, letterSpacing: '0.02em' }}>
             {profile.name?.toUpperCase()} {profile.surname?.toUpperCase()}
