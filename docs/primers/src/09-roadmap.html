@@ -206,7 +206,7 @@
 <div class="masthead">
   <div class="left">
     <h1>ROADMAP</h1>
-    <div class="sub">Snapshot · 21 Jun 2026 (block relaxed to Jun onwards)</div>
+    <div class="sub">Snapshot · 21 Jun 2026 (post Player Credits)</div>
   </div>
   <div class="right">
     <span class="pageid">P703 · ROADMAP</span>
@@ -221,12 +221,12 @@
 <div class="totals">
   <div class="tile shipped">
     <div class="label">✅ Shipped</div>
-    <div class="num">12</div>
-    <div class="sub">Carryover + block + relaxed to Jun onwards</div>
+    <div class="num">13</div>
+    <div class="sub">Carryover + block + relaxed + player credits</div>
   </div>
   <div class="tile proposed">
     <div class="label">🟢 Proposed</div>
-    <div class="num">43</div>
+    <div class="num">44</div>
     <div class="sub">Across 7 themes</div>
   </div>
   <div class="tile blocker">
@@ -385,7 +385,7 @@
 <div class="theme-head">
   <div class="icon">💷</div>
   <div class="title">Money &amp; Enforcement</div>
-  <div class="meta"><span class="pill pill-shipped">4 ✅</span> <span class="pill pill-proposed">4 🟢</span></div>
+  <div class="meta"><span class="pill pill-shipped">5 ✅</span> <span class="pill pill-proposed">5 🟢</span></div>
 </div>
 <p>Keeping the books straight and chasing what's owed without admin having to nag manually.</p>
 
@@ -395,6 +395,8 @@
   <tr class="shipped"><td class="status">✅</td><td class="item">Admin Finance: prior-month carryover surfaced inline</td><td class="source">98eea49</td><td class="notes">"+£X prior" per row; all-time sort</td></tr>
   <tr class="shipped"><td class="status">✅</td><td class="item">Unpaid signup block (2-week grace, DB + UI)</td><td class="source">migr 026 · f75eef8</td><td class="notes">Blocked players can't confirm; admin override; auto-promotion skips them</td></tr>
   <tr class="shipped"><td class="status">✅</td><td class="item">Block-start cutoff (Jun 2026 onwards)</td><td class="source">migr 027</td><td class="notes">May &amp; earlier carryover still visible but doesn't gate signups</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Player credits (overpayments + goodwill, green vs red)</td><td class="source">migr 028 · c20bc79</td><td class="notes">Net balance everywhere; "+ Credit" admin form; My Finances "In Credit" state</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Auto-apply credit when payment recorded</td><td class="source">chat</td><td class="notes">"Mike paid £5" → marks fine paid + adds £3 credit in one action</td></tr>
   <tr><td class="status">🟢</td><td class="item">Make block-start cutoff a setting (not hardcoded)</td><td class="source">chat</td><td class="notes">Move <code>block_start</code> to an editable setting</td></tr>
   <tr><td class="status">🟢</td><td class="item">All-Time view toggle on AdminFinancePanel</td><td class="source">chat</td><td class="notes">Aggregate per player across every month</td></tr>
   <tr><td class="status">🟢</td><td class="item">Player-facing notice when grace is approaching</td><td class="source">chat</td><td class="notes">"You owe £X — pay by Sat or you'll be blocked"</td></tr>
