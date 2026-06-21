@@ -243,7 +243,6 @@ export default function AdminFinancePanel() {
 
   const summaries = buildSummaries(players, fines, wtpGames, credits, priorOwedByPlayer)
 
-  const grandMonthOwed = summaries.reduce((s, r) => s + r.monthOwed, 0)
   const grandPriorOwed = summaries.reduce((s, r) => s + r.priorOwed, 0)
   const grandGrossOwed = summaries.reduce((s, r) => s + r.grossOwed, 0)
   const grandCredits = summaries.reduce((s, r) => s + r.creditBalance, 0)
@@ -402,7 +401,7 @@ export default function AdminFinancePanel() {
             border: '1px solid #C9A227',
           }}
         >
-          + WTP Game
+          + WTP
         </button>
         <button
           onClick={() => { setShowCreditForm(s => !s); setShowFineForm(false); setShowWtpForm(false) }}
@@ -546,14 +545,12 @@ export default function AdminFinancePanel() {
         </div>
       ) : (
         <div className="space-y-2">
-          {/* Column headers — summary now shows just Player + Owed; the
-              per-fine-type breakdown lives in the expanded detail + the
-              totals row at the bottom, so admin still has it but the daily
-              chase view stays scannable. */}
-          <div className="flex items-center px-4 pb-1.5"
-            style={{ borderBottom: '1px solid var(--color-border)' }}>
-            <span className="flex-1 text-xs font-medium pl-9" style={{ color: '#9CA897' }}>Player</span>
-            <span className="text-xs font-semibold" style={{ color: 'var(--color-error-text)' }}>Owed</span>
+          {/* Column headers — match row's padding + fixed amount cell width
+              so the "Owed" header lines up with the data column. */}
+          <div className="flex items-center pb-1.5"
+            style={{ borderBottom: '1px solid var(--color-border)', paddingLeft: 10, paddingRight: 12 }}>
+            <span className="flex-1 text-xs font-medium pl-[40px]" style={{ color: '#9CA897' }}>Player</span>
+            <span className="text-xs font-semibold text-right" style={{ color: 'var(--color-error-text)', width: 82 }}>Owed</span>
           </div>
 
           {summaries.map(s => {
@@ -591,12 +588,14 @@ export default function AdminFinancePanel() {
                   borderLeft: leftAccent,
                 }}>
 
-                {/* Summary row — avatar + name + net balance (right side). */}
+                {/* Summary row — avatar + name + fixed-width amount cell so
+                    the subtitle text never overflows past the card edge. */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : s.player.id)}
-                  className="w-full flex items-center px-4 py-3 gap-3"
+                  className="w-full flex items-center py-2.5 gap-2.5"
+                  style={{ paddingLeft: 10, paddingRight: 12 }}
                 >
-                  <PlayerAvatar profile={s.player} size={32} />
+                  <PlayerAvatar profile={s.player} size={30} />
                   <span className="flex-1 min-w-0 text-left flex flex-col gap-0.5">
                     <span className="text-sm font-medium flex items-center gap-1.5"
                       style={{ color: allSquare ? '#666' : 'white' }}>
@@ -614,14 +613,16 @@ export default function AdminFinancePanel() {
                       </span>
                     )}
                   </span>
+                  {/* Fixed-width amount cell — wide enough for "£999" + the
+                      shortened subtitle, narrow enough not to crowd the name. */}
                   <span className="text-right font-bold tabular-nums flex-shrink-0"
-                    style={{ color: rightColour }}>
+                    style={{ color: rightColour, width: 82 }}>
                     {allSquare ? (
                       <span className="text-base">✓</span>
                     ) : inCredit ? (
                       <span className="flex flex-col items-end leading-tight">
                         <span className="text-base">{gbp(Math.abs(s.netBalance))}</span>
-                        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--tt-green)' }}>
+                        <span className="text-[9px] font-medium uppercase tracking-wider" style={{ color: 'var(--tt-green)' }}>
                           credit
                         </span>
                       </span>
@@ -629,13 +630,13 @@ export default function AdminFinancePanel() {
                       <span className="flex flex-col items-end leading-tight">
                         <span className="text-base">{gbp(s.netBalance)}</span>
                         {s.priorOwed > 0 && (
-                          <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
-                            {gbp(s.priorOwed)} prior
+                          <span className="text-[9px] font-medium" style={{ color: '#C9A227' }}>
+                            +{gbp(s.priorOwed)} prior
                           </span>
                         )}
                         {s.creditBalance > 0 && (
-                          <span className="text-[10px] font-medium" style={{ color: 'var(--tt-green)' }}>
-                            after {gbp(s.creditBalance)} credit
+                          <span className="text-[9px] font-medium" style={{ color: 'var(--tt-green)' }}>
+                            −{gbp(s.creditBalance)} credit
                           </span>
                         )}
                       </span>
@@ -774,12 +775,10 @@ export default function AdminFinancePanel() {
             )
           })}
 
-          {/* Totals row — grand total prominent; per-category breakdown
-              tucked under it as a small subtitle line so admin still gets
-              the accounting view without crowding the layout. */}
-          <div className="flex items-center px-4 py-3 rounded-2xl gap-3"
-            style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', marginTop: 8 }}>
-            <span className="flex-1 min-w-0 text-left flex flex-col gap-0.5">
+          {/* Totals row — matches data-row padding + amount cell width. */}
+          <div className="flex items-center py-3 rounded-2xl gap-2.5"
+            style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', marginTop: 8, paddingLeft: 10, paddingRight: 12 }}>
+            <span className="flex-1 min-w-0 text-left flex flex-col gap-0.5 pl-[40px]">
               <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#9CA897' }}>Totals</span>
               <span className="text-[10px] tabular-nums" style={{ color: 'var(--color-text-muted)' }}>
                 {[
@@ -792,18 +791,21 @@ export default function AdminFinancePanel() {
               </span>
             </span>
             <span className="text-right font-bold tabular-nums flex-shrink-0 leading-tight flex flex-col items-end"
-              style={{ color: grandNetOwed > 0 ? 'var(--color-error-text)' : grandNetOwed < 0 ? 'var(--tt-green)' : '#0D6B52' }}>
+              style={{ color: grandNetOwed > 0 ? 'var(--color-error-text)' : grandNetOwed < 0 ? 'var(--tt-green)' : '#0D6B52', width: 82 }}>
               <span className="text-base">
-                {grandNetOwed === 0 ? '✓' : grandNetOwed < 0 ? `${gbp(Math.abs(grandNetOwed))} credit` : gbp(grandNetOwed)}
+                {grandNetOwed === 0 ? '✓' : grandNetOwed < 0 ? gbp(Math.abs(grandNetOwed)) : gbp(grandNetOwed)}
               </span>
+              {grandNetOwed < 0 && (
+                <span className="text-[9px] font-medium uppercase tracking-wider" style={{ color: 'var(--tt-green)' }}>credit</span>
+              )}
               {grandPriorOwed > 0 && (
-                <span className="text-[10px] font-medium" style={{ color: '#C9A227' }}>
-                  {gbp(grandMonthOwed)} mth + {gbp(grandPriorOwed)} prior
+                <span className="text-[9px] font-medium" style={{ color: '#C9A227' }}>
+                  +{gbp(grandPriorOwed)} prior
                 </span>
               )}
-              {grandCredits > 0 && (
-                <span className="text-[10px] font-medium" style={{ color: 'var(--tt-green)' }}>
-                  after {gbp(grandCredits)} credit
+              {grandCredits > 0 && grandNetOwed > 0 && (
+                <span className="text-[9px] font-medium" style={{ color: 'var(--tt-green)' }}>
+                  −{gbp(grandCredits)} credit
                 </span>
               )}
             </span>
