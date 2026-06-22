@@ -400,25 +400,55 @@ function CupMyPicks({
   const upcomingNoPick = pending.filter(m => !myPicks[m.id] && !isLocked(m))
   const settledMine = settled.filter(m => myPicks[m.id])
 
+  const totalSettled = settled.length
   const correct = settledMine.filter(m => myPicks[m.id].points_awarded === 1).length
   const wrong = settledMine.length - correct
-  const hitRate = settledMine.length > 0 ? Math.round((correct / settledMine.length) * 100) : null
+  const missed = totalSettled - settledMine.length
+  // Two denominators on purpose: the LEAGUE uses tournament-wide settled
+  // matches (so missed deadlines count as wrong) — that's the number that
+  // matches the league table. The "of your picks" rate is a personal vanity
+  // stat. Both shown to defuse the cross-page confusion (e.g. Felix sees
+  // 100% on his picks but 5% on the league because he only picked 2).
+  const leagueRate   = totalSettled    > 0 ? Math.round((correct / totalSettled)       * 100) : null
+  const personalRate = settledMine.length > 0 ? Math.round((correct / settledMine.length) * 100) : null
+  const ratesDiffer  = leagueRate !== null && personalRate !== null && leagueRate !== personalRate
 
   return (
     <>
       <div
-        className="rounded-xl p-4 mb-4 flex items-center justify-between"
+        className="rounded-xl p-4 mb-4"
         style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}
       >
-        <div>
-          <p style={{ color: TT_YELLOW, fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{hitRate != null ? `${hitRate}%` : '—'}</p>
-          <p style={{ color: TT_GREEN, fontSize: 10, letterSpacing: '0.1em', marginTop: 4 }}>HIT RATE</p>
+        <div className="flex items-end justify-between">
+          <div>
+            <p style={{ color: TT_YELLOW, fontSize: 24, fontWeight: 700, lineHeight: 1 }}>
+              {leagueRate != null ? `${leagueRate}%` : '—'}
+            </p>
+            <p style={{ color: TT_GREEN, fontSize: 9, letterSpacing: '0.1em', marginTop: 4 }}>
+              LEAGUE HIT RATE
+            </p>
+          </div>
+          {ratesDiffer && (
+            <div className="text-right">
+              <p style={{ color: TT_CYAN, fontSize: 16, fontWeight: 600, lineHeight: 1 }}>
+                {personalRate}%
+              </p>
+              <p style={{ color: TT_CYAN, fontSize: 9, letterSpacing: '0.1em', marginTop: 4, opacity: 0.75 }}>
+                OF YOUR PICKS
+              </p>
+            </div>
+          )}
         </div>
-        <div className="text-right">
-          <p style={{ color: TT_CYAN, fontSize: 12, letterSpacing: '0.06em' }}>
-            <span style={{ color: TT_GREEN }}>{correct}</span> RIGHT · <span style={{ color: TT_RED }}>{wrong}</span> WRONG
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 11, marginTop: 10, letterSpacing: '0.04em' }}>
+          <span style={{ color: TT_GREEN }}>{correct}</span> right
+          <span style={{ color: TT_RED }}> · {wrong}</span> wrong
+          {missed > 0 && <span style={{ color: TT_MAGENTA }}> · {missed} missed</span>}
+        </p>
+        {missed > 0 && (
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 9, marginTop: 6, opacity: 0.7, letterSpacing: '0.02em' }}>
+            League rate = correct ÷ all {totalSettled} settled. Missed picks count as wrong.
           </p>
-        </div>
+        )}
       </div>
 
       {upcomingNoPick.length > 0 && (
