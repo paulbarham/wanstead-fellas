@@ -45,7 +45,11 @@ export default function CupPage() {
       profile?.id
         ? supabase.from('cup_predictions').select('*').eq('player_id', profile.id)
         : Promise.resolve({ data: [] as CupPrediction[] }),
-      supabase.from('cup_predictions').select('player_id, points_awarded, profiles!inner(name, surname)'),
+      // Server-side leaderboard view — aggregates points per player so we
+      // don't blow past Supabase's default 1000-row cap (>1100 predictions
+      // as of June 2026 would silently lose ~123 points across the table).
+      // Replaces the prior client-side reduce over the raw predictions table.
+      supabase.from('v_cup_leaderboard').select('player_id, name, surname, points, correct'),
     ])
     setMatches((matchRes.data as CupMatch[]) ?? [])
     const picksMap: Record<string, CupPrediction> = {}
@@ -60,27 +64,20 @@ export default function CupPage() {
     const totalSettled = ((matchRes.data as CupMatch[] | null) ?? [])
       .filter(m => m.actual_outcome != null).length
 
-    type LbRaw = { player_id: string; points_awarded: number | null; profiles: { name: string; surname: string } }
-    const agg = new Map<string, LeaderRow>()
-    for (const r of ((lbRes.data as unknown as LbRaw[]) ?? [])) {
-      const row = agg.get(r.player_id) ?? {
+    type LbView = { player_id: string; name: string; surname: string; points: number; correct: number }
+    const lb = ((lbRes.data as LbView[]) ?? [])
+      .map(r => ({
         player_id: r.player_id,
-        name: r.profiles.name,
-        surname: r.profiles.surname,
-        points: 0, settled: totalSettled, correct: 0,
-      }
-      if (r.points_awarded != null) {
-        row.points += r.points_awarded
-        if (r.points_awarded > 0) row.correct += 1
-      }
-      agg.set(r.player_id, row)
-    }
-    // Tiebreak by points first (which equals correct count since each correct
-    // pick = 1 point), then alphabetical — hit-rate clause collapses now that
-    // the denominator is global.
-    const lb = Array.from(agg.values())
-      .sort((a, b) => b.points - a.points
-        || a.name.localeCompare(b.name))
+        name: r.name,
+        surname: r.surname,
+        points: r.points,
+        settled: totalSettled,
+        correct: r.correct,
+      }))
+      // Tiebreak by points first (which equals correct count since each correct
+      // pick = 1 point), then alphabetical — hit-rate clause collapses now that
+      // the denominator is global.
+      .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
     setLeaderboard(lb)
     setLoading(false)
   }, [profile?.id])
