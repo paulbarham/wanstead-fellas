@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — MOTM/DOTD Engagement Review</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · ENGAGEMENT REVIEW · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 14pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 13pt;
+    margin: 16pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 10pt 0 3pt;
+    letter-spacing: 0.04em; page-break-after: avoid;
+  }
+  p { margin: 5pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  ul, ol { margin: 5pt 0; padding-left: 18pt; }
+  li { margin: 3pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 10pt 0; font-size: 10pt;
+  }
+  .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.red { background: rgba(255,85,85,0.08); border-left-color: #FF5555; }
+  .callout.magenta { background: rgba(255,102,204,0.08); border-left-color: #FF66CC; }
+
+  /* Turnout table */
+  table.turnout {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8pt 0 10pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    background: #15211A;
+    border-radius: 8pt;
+    overflow: hidden;
+  }
+  table.turnout th {
+    background: rgba(74,217,255,0.1);
+    color: #4AD9FF;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 8pt;
+    text-align: right;
+    padding: 6pt 8pt;
+    border-bottom: 1px solid #2D4A2F;
+  }
+  table.turnout th:first-child { text-align: left; }
+  table.turnout td {
+    padding: 5pt 8pt;
+    text-align: right;
+    color: #E8F0E9;
+    border-bottom: 1px solid rgba(45,74,47,0.5);
+  }
+  table.turnout td:first-child {
+    text-align: left;
+    color: #E8F0E9;
+    font-weight: 700;
+    font-family: 'Helvetica', sans-serif;
+  }
+  table.turnout tr:last-child td { border-bottom: 0; }
+  table.turnout td.pct-good { color: #4ADC7A; font-weight: 800; }
+  table.turnout td.pct-bad  { color: #FF5555; font-weight: 800; }
+  table.turnout td.pct-mid  { color: #FFD400; font-weight: 800; }
+  table.turnout td.drop     { color: #FF66CC; }
+
+  /* Stat strip — three big numbers */
+  .stat-strip {
+    display: table; width: 100%; margin: 8pt 0 12pt;
+    border-spacing: 6pt 0;
+  }
+  .stat-card {
+    display: table-cell; width: 33%;
+    background: #15211A; border-radius: 8pt;
+    padding: 10pt 10pt;
+    vertical-align: top;
+    text-align: center;
+  }
+  .stat-card.red    { border: 1px solid rgba(255,85,85,0.4); }
+  .stat-card.yellow { border: 1px solid rgba(255,212,0,0.4); }
+  .stat-card.cyan   { border: 1px solid rgba(74,217,255,0.4); }
+  .stat-card .big {
+    font-family: 'Courier New', monospace;
+    font-size: 22pt; font-weight: 800;
+    line-height: 1;
+  }
+  .stat-card.red    .big { color: #FF5555; }
+  .stat-card.yellow .big { color: #FFD400; }
+  .stat-card.cyan   .big { color: #4AD9FF; }
+  .stat-card .lab {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #9CA897;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-top: 6pt;
+  }
+  .stat-card .sub { color: #E8F0E9; font-size: 9pt; margin-top: 3pt; line-height: 1.3; }
+
+  /* Leak block */
+  .leak {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-left: 3pt solid #FF66CC;
+    border-radius: 6pt;
+    padding: 8pt 12pt;
+    margin: 6pt 0;
+  }
+  .leak .tag {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #FF66CC;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    font-weight: 700;
+  }
+  .leak .title { color: #FFD400; font-weight: 700; font-size: 10.5pt; margin-top: 2pt; }
+  .leak .body { color: #E8F0E9; font-size: 9.5pt; margin-top: 3pt; }
+
+  /* Lever rows */
+  .lever {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 12pt;
+    margin: 5pt 0;
+    display: table; width: 100%;
+  }
+  .lever .num {
+    display: table-cell; width: 24pt;
+    font-family: 'Courier New', monospace;
+    font-size: 18pt; font-weight: 800;
+    color: #4ADC7A;
+    vertical-align: top;
+    line-height: 1;
+  }
+  .lever .body { display: table-cell; vertical-align: top; padding-left: 6pt; }
+  .lever .ttl { color: #FFD400; font-weight: 700; font-size: 10.5pt; }
+  .lever .desc { color: #E8F0E9; font-size: 9.5pt; margin-top: 2pt; }
+  .lever.shipped { border-left: 3pt solid #4ADC7A; }
+  .lever.shipped .num { color: #4ADC7A; }
+  .lever.partial { border-left: 3pt solid #FFD400; }
+  .lever.partial .num { color: #FFD400; }
+  .lever.open    { border-left: 3pt solid #4AD9FF; }
+  .lever.open    .num { color: #4AD9FF; }
+
+  .status-pill {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 1pt 6pt;
+    border-radius: 8pt;
+    margin-left: 4pt;
+    vertical-align: 1pt;
+  }
+  .status-pill.s { background: rgba(74,220,122,0.18); color: #4ADC7A; border: 1px solid #4ADC7A; }
+  .status-pill.p { background: rgba(255,212,0,0.18); color: #FFD400; border: 1px solid #FFD400; }
+  .status-pill.o { background: rgba(74,217,255,0.18); color: #4AD9FF; border: 1px solid #4AD9FF; }
+
+  .section-mock {
+    color: #4AD9FF; font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.14em; text-transform: uppercase;
+    margin: 12pt 0 4pt;
+    border-bottom: 1px solid #2D4A2F;
+    padding-bottom: 3pt;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 14pt 0 10pt;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 14pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">MOTM / DOTD · Engagement Review</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P601 · ANALYSIS</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>Brief (19 Jun 2026):</strong> "MOTM and DOTD voting works but engagement isn't high. Looking at the UX, it feels sub-optimal. Review the workflow, layout and provide suggested improvements that will maximise engagement." This is the diagnosis that drove the June 2026 voting rework.
+</div>
+
+<h2>The numbers</h2>
+<p>Turnout per completed match. <em>Eligible</em> = rostered players; <em>Voted</em> = distinct people who cast at least one vote.</p>
+
+<table class="turnout">
+  <thead>
+    <tr>
+      <th>Match</th>
+      <th>Eligible</th>
+      <th>Voted</th>
+      <th>Turnout</th>
+      <th>MOTM</th>
+      <th>DOTD</th>
+      <th>Drop-off</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>18 Jun (9v9)</td><td>36</td><td>18</td><td class="pct-mid">50%</td><td>17</td><td>13</td><td class="drop">-4</td></tr>
+    <tr><td>11 Jun</td><td>32</td><td>11</td><td class="pct-bad">34%</td><td>11</td><td>6</td><td class="drop">-5</td></tr>
+    <tr><td>04 Jun</td><td>32</td><td>14</td><td class="pct-bad">44%</td><td>14</td><td>10</td><td class="drop">-4</td></tr>
+    <tr><td>28 May</td><td>32</td><td>15</td><td class="pct-mid">47%</td><td>15</td><td>8</td><td class="drop">-7</td></tr>
+    <tr><td>21 May</td><td>32</td><td>15</td><td class="pct-mid">47%</td><td>15</td><td>9</td><td class="drop">-6</td></tr>
+  </tbody>
+</table>
+
+<div class="stat-strip">
+  <div class="stat-card red">
+    <div class="big">44%</div>
+    <div class="lab">Avg turnout</div>
+    <div class="sub">Half the squad never votes.</div>
+  </div>
+  <div class="stat-card yellow">
+    <div class="big">~40%</div>
+    <div class="lab">DOTD drop-off</div>
+    <div class="sub">Of MOTM voters bail before the second award.</div>
+  </div>
+  <div class="stat-card cyan">
+    <div class="big">11h</div>
+    <div class="lab">Vote window</div>
+    <div class="sub">22:00 → 09:00. Most of it while you're asleep.</div>
+  </div>
+</div>
+
+<h2>Two distinct leaks</h2>
+
+<div class="leak">
+  <div class="tag">Leak 1 · Acquisition</div>
+  <div class="title">~Half the squad never votes at all</div>
+  <div class="body">Average turnout sits at ~44%. The other half don't engage with either award — they're never in the funnel.</div>
+</div>
+
+<div class="leak">
+  <div class="tag">Leak 2 · Drop-off</div>
+  <div class="title">Quarter-to-half of MOTM voters bail before DOTD</div>
+  <div class="body">28 May: 15 → 8. The second award, sitting below the first, lost people to scroll fatigue. Two awards × ~32 players ≈ 70 chips on screen.</div>
+</div>
+
+<h2>Why — structural causes</h2>
+<ul>
+  <li><strong>Overnight window.</strong> Voting opened 22:00 match night, closed 09:00. Most of it while people are asleep. Miss it Thursday night → missed it.</li>
+  <li><strong>No reminder of any kind.</strong> No push, no nudge. A voter had to remember on their own, open the app, navigate to Match.</li>
+  <li><strong>High voting effort.</strong> Each award rendered <em>all</em> 32–36 players as an alphabetical wall of chips, no search, no grouping. Directly explains the DOTD drop-off.</li>
+  <li><strong>No payoff loop.</strong> Results only appeared after close, with nothing signalling they were in. You voted into a void.</li>
+</ul>
+
+<div class="callout green">
+  <strong>Key insight:</strong> the match report is fully decoupled from voting — it publishes the instant an admin saves the result. So widening the voting window never delays the report; only the <em>award reveal</em> moves. This unlocks the biggest single lever at zero cost to the rest of the night.
+</div>
+
+<h2>Prioritised levers</h2>
+<p>By impact ÷ effort. Shipped highlighted in <strong style="color:#4ADC7A">green</strong>, partial in <strong>yellow</strong>, still open in <strong style="color:#4AD9FF">cyan</strong>.</p>
+
+<div class="lever partial">
+  <div class="num">1</div>
+  <div class="body">
+    <div class="ttl">Widen / re-time the window <span class="status-pill p">PARTIAL</span></div>
+    <div class="desc">Biggest single lever, tiny change. Two independent knobs — <em>open time</em> (earlier = pure win, zero report cost) and <em>close time</em> (only delays reveal). Squad chose to keep it tight (close 10:00) so awards still land Friday morning.</div>
+  </div>
+</div>
+
+<div class="lever open">
+  <div class="num">2</div>
+  <div class="body">
+    <div class="ttl">Add a reminder <span class="status-pill o">OPEN</span></div>
+    <div class="desc">Highest impact, highest effort. PWA scaffolding (manifest + service worker) exists, so web-push is feasible. Cheaper interim: nav-badge on Match tab when you have an un-voted open ballot.</div>
+  </div>
+</div>
+
+<div class="lever shipped">
+  <div class="num">3</div>
+  <div class="body">
+    <div class="ttl">Single-pass ballot <span class="status-pill s">SHIPPED</span></div>
+    <div class="desc">Render the roster once, each player with a 🏆 and 🤡 button. Kills the DOTD drop-off directly.</div>
+  </div>
+</div>
+
+<div class="lever shipped">
+  <div class="num">4</div>
+  <div class="body">
+    <div class="ttl">Cut the candidate wall <span class="status-pill s">SHIPPED</span></div>
+    <div class="desc">Surface that night's goalscorers first with a ⚽ tag (and/or your team), "show everyone" expander, type-to-filter. Scanning 6 names beats scanning 36.</div>
+  </div>
+</div>
+
+<div class="lever shipped">
+  <div class="num">5</div>
+  <div class="body">
+    <div class="ttl">Pin it open <span class="status-pill s">SHIPPED</span></div>
+    <div class="desc">Default-expanded at the top of the Match tab while the window is live. Once closed, results return to the mid-slot.</div>
+  </div>
+</div>
+
+<h2>What shipped (19 Jun 2026)</h2>
+<ul>
+  <li><strong>Single-pass ballot</strong> — one row per player, 🏆 + 🤡 buttons, both awards cast in one scroll.</li>
+  <li><strong>Goalscorers sorted to the top</strong> with a ⚽ tag (from the goals table) so MOTM candidates surface without scrolling.</li>
+  <li><strong>Search box</strong> to filter the roster live.</li>
+  <li><strong>Pinned open</strong> while voting is live; collapses back to History-style mid-slot once closed.</li>
+  <li><strong>Window close moved 09:00 → 10:00</strong> the next day (open unchanged at 22:00 / full time).</li>
+</ul>
+
+<h2>Still open (backlog)</h2>
+
+<div class="callout magenta">
+  <strong>Reminders</strong> — web-push at full time ("🏆 Vote for tonight's MOTM") and on results publish ("Emmanuel won MOTM"); or, cheaper, a nav-badge nudge on the Match tab. <em>This is the single biggest remaining lever.</em>
+</div>
+
+<ul>
+  <li><strong>Social proof / light shaming</strong> — "14 voted · 22 haven't" fits the fines-and-banter culture.</li>
+  <li><strong>Voting streaks</strong> — give the regulars something to defend.</li>
+  <li><strong>Results-reveal moment</strong> — make the award announcement feel like an event, not a quiet write to a row.</li>
+  <li><strong>Context-mismatch bug</strong> — <em>MotmVotingCard</em> loads the latest voting window independently of the displayed match. During an open window before the result is entered, the page shows last week's result + report with this week's ballot wedged in. Worth tightening when this area is next touched.</li>
+</ul>
+
+<div class="closer">
+  Tracked live in <strong>docs/ROADMAP.md</strong> under <strong>Engagement</strong>.<br>
+  Source markdown: docs/MOTM_DOTD_ENGAGEMENT_REVIEW.md
+</div>
+
+</body>
+</html>

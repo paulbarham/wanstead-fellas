@@ -4,6 +4,7 @@ Shareable, Wanstead-Fellas-branded PDFs covering two things:
 
 - **Primers** — post-launch comms ("here's what just shipped"), for distributing to the WhatsApp group.
 - **Proposals** — pre-build pitches ("here's what we could do and why"), kept here so the design rationale is searchable later.
+- **Analyses** — one-off deep dives ("here's what the data showed and what we did about it"), kept here so the diagnosis is searchable later.
 
 Stored in the repo so they don't get lost when a dev container is cleaned up, and so anyone can browse them on GitHub.
 
@@ -22,6 +23,7 @@ Stored in the repo so they don't get lost when a dev container is cleaned up, an
 | 07 | [`pdf/07-balancer-peer-rating.pdf`](pdf/07-balancer-peer-rating.pdf) | Proposal | Balancer v2 (categorical balance constraints + simulated annealing) + peer-rating system. **Note**: peer-rating section was revised in-chat to extend the existing MotmVotingCard ballot rather than build a new screen — see ROADMAP. | Jun 2026 |
 | 08 | [`pdf/08-user-guide-v4.pdf`](pdf/08-user-guide-v4.pdf) | Primer | **User guide v4** · supersedes 06 · same 6-page structure with three new "Coming Next" pull-quotes on the relevant feature pages (smarter team balancing · voting reminders + position-aware leaderboards · cards going live). Tells readers what's in flight without committing to dates. | Jun 2026 |
 | 09 | [`pdf/09-roadmap.pdf`](pdf/09-roadmap.pdf) | Snapshot | **Roadmap snapshot** · branded PDF render of [`docs/ROADMAP.md`](../ROADMAP.md) as of 21 Jun 2026. Same teletext format as the user guide. 3 pages covering all themes (Identity · Operations · Stats Theatre · Engagement · Community · Data quality · Known issues) with at-a-glance totals. Re-render when the markdown materially changes. | Jun 2026 |
+| 10 | [`pdf/10-motm-dotd-engagement.pdf`](pdf/10-motm-dotd-engagement.pdf) | Analysis | **MOTM / DOTD engagement review** · branded PDF render of [`docs/MOTM_DOTD_ENGAGEMENT_REVIEW.md`](../MOTM_DOTD_ENGAGEMENT_REVIEW.md). 2 pages: per-match turnout table, two leaks (acquisition + DOTD drop-off), structural causes, and five prioritised levers (3 ✅ / 1 partial / 1 open) with what shipped on 19 Jun 2026 and what's still on the backlog. | Jun 2026 |
 
 > ✏️ **Versioning note.** User guides (and any other primer that gets a refresh) are kept as siblings rather than overwritten so the audit trail of what we told the squad — and when — stays intact. When a primer is superseded, flag the older row with *"superseded by NN"* but don't delete the file.
 
