@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — App Engagement Review</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · ENGAGEMENT REVIEW · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10pt;
+    line-height: 1.45;
+  }
+
+  /* Masthead */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #fff;
+    padding: 12pt 14pt;
+    border-radius: 12pt;
+    margin-bottom: 10pt;
+    display: table; width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 22pt; margin: 0;
+    color: #FFD400; letter-spacing: 0.03em; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 12pt;
+    margin: 12pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: #4ADC7A; font-size: 10pt;
+    margin: 8pt 0 3pt;
+    letter-spacing: 0.04em; page-break-after: avoid;
+  }
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  /* Callouts */
+  .callout {
+    background: rgba(74,217,255,0.06);
+    border-left: 3pt solid #4AD9FF;
+    padding: 7pt 10pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 9.5pt;
+  }
+  .callout.yellow { background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.red { background: rgba(255,85,85,0.08); border-left-color: #FF5555; }
+  .callout.magenta { background: rgba(255,102,204,0.08); border-left-color: #FF66CC; }
+
+  /* Hero strip — 3 big cards */
+  .hero-strip {
+    display: table; width: 100%; margin: 8pt 0;
+    border-spacing: 6pt 0;
+  }
+  .hero-card {
+    display: table-cell; width: 33%;
+    background: #15211A; border-radius: 8pt;
+    padding: 10pt;
+    vertical-align: top;
+    text-align: center;
+  }
+  .hero-card.green { border: 1px solid rgba(74,220,122,0.5); }
+  .hero-card.yellow { border: 1px solid rgba(255,212,0,0.5); }
+  .hero-card.red { border: 1px solid rgba(255,85,85,0.5); }
+  .hero-card .lab {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #9CA897;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .hero-card .big {
+    font-family: 'Courier New', monospace;
+    font-size: 28pt; font-weight: 800;
+    line-height: 1; margin-top: 4pt;
+  }
+  .hero-card.green .big { color: #4ADC7A; }
+  .hero-card.yellow .big { color: #FFD400; }
+  .hero-card.red .big { color: #FF5555; }
+  .hero-card .who { color: #E8F0E9; font-weight: 700; font-size: 9.5pt; margin-top: 4pt; }
+  .hero-card .sub { color: #9CA897; font-size: 8pt; margin-top: 2pt; line-height: 1.3; }
+
+  /* Bar chart panel */
+  .panel {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 12pt;
+    margin: 8pt 0;
+  }
+  .panel .head {
+    color: #E8F0E9; font-weight: 700;
+    font-size: 10.5pt; margin-bottom: 6pt;
+  }
+  .panel .head .icon { color: #4AD9FF; margin-right: 4pt; }
+  .panel .sub {
+    color: #9CA897; font-size: 8.5pt;
+    margin-bottom: 6pt;
+  }
+
+  /* Horizontal bar rows (CSS-only) */
+  .bar-row {
+    display: table; width: 100%;
+    font-family: 'Helvetica', sans-serif;
+    margin: 3pt 0;
+    font-size: 9pt;
+  }
+  .bar-row .name {
+    display: table-cell; width: 22%;
+    color: #E8F0E9; font-weight: 600;
+    padding-right: 6pt;
+    vertical-align: middle;
+  }
+  .bar-row .track {
+    display: table-cell; width: 58%;
+    vertical-align: middle;
+  }
+  .bar-row .track .fill {
+    height: 10pt; border-radius: 5pt;
+    background: linear-gradient(90deg, #4ADC7A, #4AD9FF);
+  }
+  .bar-row .track .fill.warn { background: linear-gradient(90deg, #FFD400, #FF9D00); }
+  .bar-row .track .fill.bad  { background: linear-gradient(90deg, #FF5555, #FF66CC); }
+  .bar-row .val {
+    display: table-cell; width: 20%;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    color: #FFD400; font-weight: 700;
+    padding-left: 8pt;
+    vertical-align: middle;
+    font-size: 9pt;
+  }
+  .bar-row .val .pct { color: #FFD400; }
+  .bar-row .val .denom { color: #9CA897; font-size: 8pt; margin-left: 2pt; }
+
+  /* Vertical bar chart (per-match) */
+  .vbar-chart {
+    display: table; width: 100%;
+    margin: 6pt 0 4pt;
+    border-spacing: 6pt 0;
+    table-layout: fixed;
+  }
+  .vbar-col {
+    display: table-cell;
+    vertical-align: bottom;
+    text-align: center;
+    width: 20%;
+  }
+  .vbar-col .stack {
+    height: 70pt; position: relative;
+    background: rgba(45,74,47,0.4);
+    border-radius: 4pt 4pt 0 0;
+    margin-bottom: 2pt;
+  }
+  .vbar-col .voted {
+    position: absolute; bottom: 0;
+    left: 0; right: 0;
+    background: linear-gradient(180deg, #4AD9FF, #4ADC7A);
+    border-radius: 4pt 4pt 0 0;
+  }
+  .vbar-col .voted-val {
+    position: absolute; top: 4pt; left: 0; right: 0;
+    color: #0F1710; font-weight: 800;
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+  }
+  .vbar-col .label {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; color: #9CA897;
+    letter-spacing: 0.05em;
+  }
+  .vbar-col .pct {
+    color: #FFD400; font-weight: 700;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+  }
+
+  /* Drop-off row */
+  .drop-row {
+    display: table; width: 100%;
+    margin-top: 4pt;
+    border-spacing: 6pt 0;
+    table-layout: fixed;
+  }
+  .drop-row .cell {
+    display: table-cell; width: 20%;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    padding: 3pt;
+    background: rgba(255,102,204,0.08);
+    border: 1px solid rgba(255,102,204,0.3);
+    border-radius: 4pt;
+  }
+  .drop-row .cell .motm { color: #FFD400; font-weight: 700; }
+  .drop-row .cell .arrow { color: #FF66CC; }
+  .drop-row .cell .dotd { color: #FF66CC; font-weight: 700; }
+
+  /* Sparkline-ish ramp */
+  .ramp {
+    display: table; width: 100%;
+    border-spacing: 2pt 0;
+    margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .ramp .col {
+    display: table-cell;
+    vertical-align: bottom;
+    text-align: center;
+  }
+  .ramp .col .bar {
+    background: linear-gradient(180deg, #FFD400, #FF9D00);
+    border-radius: 2pt 2pt 0 0;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .ramp .col .lab {
+    font-family: 'Courier New', monospace;
+    font-size: 6pt; color: #9CA897;
+    margin-top: 2pt;
+  }
+
+  /* Funnel */
+  .funnel {
+    display: table; width: 100%;
+    border-spacing: 4pt 4pt;
+    margin: 6pt 0;
+  }
+  .funnel .step {
+    display: table-row;
+  }
+  .funnel .step .lab {
+    display: table-cell;
+    color: #9CA897; font-size: 8.5pt;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding-right: 8pt;
+    vertical-align: middle;
+    width: 30%;
+  }
+  .funnel .step .bar {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  .funnel .step .bar .fill {
+    height: 16pt;
+    background: linear-gradient(90deg, #4ADC7A, #4AD9FF);
+    border-radius: 8pt;
+    padding: 0 10pt;
+    color: #0F1710; font-weight: 800;
+    line-height: 16pt;
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+  }
+  .funnel .step.s2 .bar .fill { background: linear-gradient(90deg, #4AD9FF, #4AD9FF); width: 76%; }
+  .funnel .step.s3 .bar .fill { background: linear-gradient(90deg, #FFD400, #FFD400); width: 65%; color: #0F1710; }
+
+  /* Donut — SVG */
+  .donut-row {
+    display: table; width: 100%; margin: 6pt 0;
+    border-spacing: 8pt 0;
+  }
+  .donut-cell {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  .donut-cell.viz { width: 110pt; text-align: center; }
+  .donut-cell.txt { color: #E8F0E9; font-size: 9.5pt; }
+  .donut-cell.txt .big {
+    color: #FF5555; font-family: 'Arial Black', sans-serif;
+    font-size: 16pt;
+    display: block;
+    margin-bottom: 4pt;
+  }
+
+  /* Lever cards */
+  .lever {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 12pt;
+    margin: 5pt 0;
+    display: table; width: 100%;
+  }
+  .lever.h { border-left: 3pt solid #4ADC7A; }
+  .lever.m { border-left: 3pt solid #FFD400; }
+  .lever.l { border-left: 3pt solid #4AD9FF; }
+  .lever .num {
+    display: table-cell; width: 26pt;
+    font-family: 'Courier New', monospace;
+    font-size: 16pt; font-weight: 800;
+    vertical-align: top; line-height: 1;
+  }
+  .lever.h .num { color: #4ADC7A; }
+  .lever.m .num { color: #FFD400; }
+  .lever.l .num { color: #4AD9FF; }
+  .lever .body { display: table-cell; vertical-align: top; padding-left: 4pt; }
+  .lever .ttl { color: #FFD400; font-weight: 700; font-size: 10pt; }
+  .lever .desc { color: #E8F0E9; font-size: 9pt; margin-top: 2pt; }
+  .lever .tag {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt; letter-spacing: 0.1em;
+    padding: 1pt 5pt; border-radius: 8pt;
+    margin-left: 4pt;
+    vertical-align: 1pt;
+  }
+  .lever .tag.h { background: rgba(74,220,122,0.18); color: #4ADC7A; border: 1px solid #4ADC7A; }
+  .lever .tag.m { background: rgba(255,212,0,0.18); color: #FFD400; border: 1px solid #FFD400; }
+  .lever .tag.l { background: rgba(74,217,255,0.18); color: #4AD9FF; border: 1px solid #4AD9FF; }
+
+  .why-grid {
+    display: table; width: 100%;
+    border-spacing: 5pt 5pt;
+  }
+  .why-grid .why {
+    display: table-cell; width: 33%;
+    background: #15211A;
+    border: 1px solid rgba(255,85,85,0.3);
+    border-radius: 6pt;
+    padding: 8pt;
+    vertical-align: top;
+  }
+  .why .ico {
+    font-size: 14pt;
+    color: #FF5555;
+    margin-bottom: 2pt;
+  }
+  .why .ttl { color: #FFD400; font-weight: 700; font-size: 9.5pt; }
+  .why .desc { color: #E8F0E9; font-size: 8.5pt; margin-top: 2pt; line-height: 1.35; }
+
+  /* Page break helper */
+  .pagebreak { page-break-after: always; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.1em;
+    margin-top: 10pt;
+    padding: 7pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- =================== PAGE 1 =================== -->
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">App Engagement Review · last 90 days</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P602 · ANALYSIS</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>What this is.</strong> A by-feature look at who's actually using the app, and what for. Data pulled live from the database on <strong>24 Jun 2026</strong> covering the last 90 days. Denominator throughout is <strong>49</strong> — players who both played in the last 90 days <em>and</em> have a working login (the realistic "could engage" set).
+</div>
+
+<h2>The squad funnel</h2>
+<p style="font-size:9pt;color:#9CA897;margin-bottom:4pt">From everyone in the database, down to who can actually open the app.</p>
+<div class="funnel">
+  <div class="step s1">
+    <div class="lab">Total profiles</div>
+    <div class="bar"><div class="fill" style="width:100%">75</div></div>
+  </div>
+  <div class="step s2">
+    <div class="lab">Active (last 90 days)</div>
+    <div class="bar"><div class="fill" style="width:76%">57</div></div>
+  </div>
+  <div class="step s3">
+    <div class="lab">Active &amp; can log in</div>
+    <div class="bar"><div class="fill" style="width:65%">49 ← denominator</div></div>
+  </div>
+</div>
+
+<h2>Headline engagement</h2>
+<div class="hero-strip">
+  <div class="hero-card green">
+    <div class="lab">Sign-ups (in/out)</div>
+    <div class="big">100%</div>
+    <div class="who">Universal use</div>
+    <div class="sub">228 events · the core loop</div>
+  </div>
+  <div class="hero-card yellow">
+    <div class="lab">MOTM / DOTD votes</div>
+    <div class="big">59%</div>
+    <div class="who">29 of 49 voting</div>
+    <div class="sub">Improving · post-Jun rework</div>
+  </div>
+  <div class="hero-card red">
+    <div class="lab">Fitness uploads</div>
+    <div class="big">2%</div>
+    <div class="who">1 of 49 uploading</div>
+    <div class="sub">Built but invisible</div>
+  </div>
+</div>
+
+<h2>Every feature, ranked by reach</h2>
+<div class="panel">
+  <div class="head"><span class="icon">▮</span> % of active &amp; authed squad (49) using each feature · last 90 days</div>
+
+  <div class="bar-row">
+    <span class="name">Sign-ups</span>
+    <span class="track"><div class="fill" style="width:100%"></div></span>
+    <span class="val"><span class="pct">100%</span><span class="denom">· 228 events</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Preferred position</span>
+    <span class="track"><div class="fill" style="width:88%"></div></span>
+    <span class="val"><span class="pct">88%</span><span class="denom">· primary set</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">MOTM / DOTD voting</span>
+    <span class="track"><div class="fill warn" style="width:59%"></div></span>
+    <span class="val"><span class="pct">59%</span><span class="denom">· 118 votes</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Cup predictor</span>
+    <span class="track"><div class="fill warn" style="width:49%"></div></span>
+    <span class="val"><span class="pct">49%</span><span class="denom">· 1,225 picks</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Profile photo</span>
+    <span class="track"><div class="fill warn" style="width:35%"></div></span>
+    <span class="val"><span class="pct">35%</span><span class="denom">· 20 uploaded</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">DOB / age group</span>
+    <span class="track"><div class="fill bad" style="width:32%"></div></span>
+    <span class="val"><span class="pct">32%</span><span class="denom">· 18 set</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Favourite club</span>
+    <span class="track"><div class="fill bad" style="width:28%"></div></span>
+    <span class="val"><span class="pct">28%</span><span class="denom">· 16 set</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Feedback submitted</span>
+    <span class="track"><div class="fill bad" style="width:10%"></div></span>
+    <span class="val"><span class="pct">10%</span><span class="denom">· 8 reports</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Secondary position</span>
+    <span class="track"><div class="fill bad" style="width:4%"></div></span>
+    <span class="val"><span class="pct">4%</span><span class="denom">· 2 set</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Fitness upload</span>
+    <span class="track"><div class="fill bad" style="width:2%"></div></span>
+    <span class="val"><span class="pct">2%</span><span class="denom">· 1 user, 3 sessions</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Polar link</span>
+    <span class="track"><div class="fill bad" style="width:1%"></div></span>
+    <span class="val"><span class="pct">0%</span><span class="denom">· 0 linked</span></span>
+  </div>
+</div>
+
+<div class="callout green">
+  <strong>The pattern.</strong> Anything tied to <em>the night itself</em> (signing up, voting, predicting) lands. Anything that needs proactive effort with <em>no in-app payoff</em> (fitness, secondary position, profile completion) doesn't.
+</div>
+
+<div class="pagebreak"></div>
+
+<!-- =================== PAGE 2 =================== -->
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Feature deep-dive · what's healthy / where it bends</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P602 · ANALYSIS</span>
+  </div>
+</div>
+
+<h2>MOTM / DOTD turnout per match</h2>
+<div class="panel">
+  <div class="head"><span class="icon">▮</span> Distinct voters per match · % of eligible (confirmed players)</div>
+  <div class="sub">Bars show turnout %. Voting rework shipped <strong style="color:#4ADC7A">19 Jun</strong> — first effect already visible on 18 Jun's 50%.</div>
+
+  <div class="vbar-chart">
+    <div class="vbar-col">
+      <div class="stack"><div class="voted" style="height:62%"><div class="voted-val">15</div></div></div>
+      <div class="pct">44%</div>
+      <div class="label">21 MAY</div>
+    </div>
+    <div class="vbar-col">
+      <div class="stack"><div class="voted" style="height:66%"><div class="voted-val">15</div></div></div>
+      <div class="pct">47%</div>
+      <div class="label">28 MAY</div>
+    </div>
+    <div class="vbar-col">
+      <div class="stack"><div class="voted" style="height:58%"><div class="voted-val">14</div></div></div>
+      <div class="pct">41%</div>
+      <div class="label">04 JUN</div>
+    </div>
+    <div class="vbar-col">
+      <div class="stack"><div class="voted" style="height:48%"><div class="voted-val">11</div></div></div>
+      <div class="pct">34%</div>
+      <div class="label">11 JUN</div>
+    </div>
+    <div class="vbar-col">
+      <div class="stack"><div class="voted" style="height:70%"><div class="voted-val">18</div></div></div>
+      <div class="pct">50%</div>
+      <div class="label">18 JUN</div>
+    </div>
+  </div>
+
+  <div style="font-family:'Courier New',monospace;font-size:7.5pt;color:#9CA897;letter-spacing:0.1em;text-transform:uppercase;margin-top:8pt;margin-bottom:2pt">MOTM vs DOTD votes cast (drop-off)</div>
+  <div class="drop-row">
+    <div class="cell"><span class="motm">15</span> <span class="arrow">→</span> <span class="dotd">9</span></div>
+    <div class="cell"><span class="motm">15</span> <span class="arrow">→</span> <span class="dotd">8</span></div>
+    <div class="cell"><span class="motm">14</span> <span class="arrow">→</span> <span class="dotd">10</span></div>
+    <div class="cell"><span class="motm">11</span> <span class="arrow">→</span> <span class="dotd">6</span></div>
+    <div class="cell"><span class="motm">17</span> <span class="arrow">→</span> <span class="dotd">13</span></div>
+  </div>
+</div>
+
+<h2>Cup predictor · daily picks</h2>
+<div class="panel">
+  <div class="head"><span class="icon">▮</span> 1,225 picks total · 28 distinct predictors · avg <strong>44</strong> picks per predictor</div>
+  <div class="sub">Picks per day, 6 Jun → 24 Jun. Massive spikes on group-stage match days (13/14/18 Jun).</div>
+  <div class="ramp" style="height:48pt">
+    <div class="col"><div class="bar" style="height:5pt"></div><div class="lab">06</div></div>
+    <div class="col"><div class="bar" style="height:3pt"></div><div class="lab">07</div></div>
+    <div class="col"><div class="bar" style="height:1pt"></div><div class="lab">08</div></div>
+    <div class="col"><div class="bar" style="height:3pt"></div><div class="lab">09</div></div>
+    <div class="col"><div class="bar" style="height:14pt"></div><div class="lab">10</div></div>
+    <div class="col"><div class="bar" style="height:17pt"></div><div class="lab">11</div></div>
+    <div class="col"><div class="bar" style="height:8pt"></div><div class="lab">12</div></div>
+    <div class="col"><div class="bar" style="height:44pt"></div><div class="lab">13</div></div>
+    <div class="col"><div class="bar" style="height:46pt"></div><div class="lab">14</div></div>
+    <div class="col"><div class="bar" style="height:34pt"></div><div class="lab">15</div></div>
+    <div class="col"><div class="bar" style="height:32pt"></div><div class="lab">16</div></div>
+    <div class="col"><div class="bar" style="height:25pt"></div><div class="lab">17</div></div>
+    <div class="col"><div class="bar" style="height:32pt"></div><div class="lab">18</div></div>
+    <div class="col"><div class="bar" style="height:9pt"></div><div class="lab">19</div></div>
+    <div class="col"><div class="bar" style="height:25pt"></div><div class="lab">20</div></div>
+    <div class="col"><div class="bar" style="height:14pt"></div><div class="lab">21</div></div>
+    <div class="col"><div class="bar" style="height:14pt"></div><div class="lab">22</div></div>
+    <div class="col"><div class="bar" style="height:10pt"></div><div class="lab">23</div></div>
+    <div class="col"><div class="bar" style="height:7pt"></div><div class="lab">24</div></div>
+  </div>
+</div>
+
+<h2>Profile completeness</h2>
+<div class="panel">
+  <div class="head"><span class="icon">▮</span> Of the 57-strong active squad · how much have they filled in?</div>
+  <div class="bar-row">
+    <span class="name">Login set up</span>
+    <span class="track"><div class="fill" style="width:86%"></div></span>
+    <span class="val"><span class="pct">49</span><span class="denom">/ 57 · 86%</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Primary position</span>
+    <span class="track"><div class="fill" style="width:88%"></div></span>
+    <span class="val"><span class="pct">50</span><span class="denom">/ 57 · 88%</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Profile photo</span>
+    <span class="track"><div class="fill warn" style="width:35%"></div></span>
+    <span class="val"><span class="pct">20</span><span class="denom">/ 57 · 35%</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">DOB</span>
+    <span class="track"><div class="fill bad" style="width:32%"></div></span>
+    <span class="val"><span class="pct">18</span><span class="denom">/ 57 · 32%</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Favourite club</span>
+    <span class="track"><div class="fill bad" style="width:28%"></div></span>
+    <span class="val"><span class="pct">16</span><span class="denom">/ 57 · 28%</span></span>
+  </div>
+  <div class="bar-row">
+    <span class="name">Secondary position</span>
+    <span class="track"><div class="fill bad" style="width:4%"></div></span>
+    <span class="val"><span class="pct">2</span><span class="denom">/ 57 · 4%</span></span>
+  </div>
+</div>
+
+<div class="callout yellow">
+  <strong>What stands out.</strong> Primary position at 88% is the position-nudge banner doing its job. <em>Secondary</em> at 4% — same field, one tap deeper — shows just how steep the drop-off is when a thing isn't visibly asked for.
+</div>
+
+<div class="pagebreak"></div>
+
+<!-- =================== PAGE 3 =================== -->
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">The fitness gap · why it isn't landing · what to do</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P602 · ANALYSIS</span>
+  </div>
+</div>
+
+<h2>The biggest gap: fitness uploads</h2>
+<div class="panel">
+  <div class="donut-row">
+    <div class="donut-cell viz">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#2D4A2F" stroke-width="12"/>
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#FF5555" stroke-width="12"
+                stroke-dasharray="5.4 263.6" stroke-dashoffset="0"
+                transform="rotate(-90 50 50)"/>
+        <text x="50" y="48" text-anchor="middle" fill="#FF5555" font-family="Arial Black" font-size="20">1</text>
+        <text x="50" y="63" text-anchor="middle" fill="#9CA897" font-family="Courier New" font-size="7" letter-spacing="1">OF 49</text>
+      </svg>
+      <div style="font-family:'Courier New',monospace;font-size:8pt;color:#9CA897;letter-spacing:0.1em;text-transform:uppercase;margin-top:2pt">Fitness uploaders</div>
+    </div>
+    <div class="donut-cell viz">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#2D4A2F" stroke-width="12"/>
+        <text x="50" y="48" text-anchor="middle" fill="#FF5555" font-family="Arial Black" font-size="20">0</text>
+        <text x="50" y="63" text-anchor="middle" fill="#9CA897" font-family="Courier New" font-size="7" letter-spacing="1">OF 49</text>
+      </svg>
+      <div style="font-family:'Courier New',monospace;font-size:8pt;color:#9CA897;letter-spacing:0.1em;text-transform:uppercase;margin-top:2pt">Polar accounts linked</div>
+    </div>
+    <div class="donut-cell txt">
+      <div class="big">Only the admin uploads.</div>
+      3 sessions, 90 days. 2 via <strong>GPX file</strong>, 1 via <strong>Strava</strong>. The Polar integration that the team built lives behind a button nobody has tapped.
+      <br><br>
+      The data is there, the parsing works, the suggestions engine works. <em>People just aren't bringing it to the app.</em>
+    </div>
+  </div>
+</div>
+
+<h2>Why it isn't landing</h2>
+<div class="why-grid">
+  <div class="why">
+    <div class="ico">🔍</div>
+    <div class="ttl">1 · Discovery</div>
+    <div class="desc">Lives buried on the Cards page. Most opens are Sign-up, Match, Stats, Cup — nobody passes the upload button on a Thursday.</div>
+  </div>
+  <div class="why">
+    <div class="ico">⛰️</div>
+    <div class="ttl">2 · Effort</div>
+    <div class="desc">Demands a GPX/TCX export, a Polar link, or manual entry. Compared to a 2-tap MOTM vote, it's a chore.</div>
+  </div>
+  <div class="why">
+    <div class="ico">🌑</div>
+    <div class="ttl">3 · No payoff</div>
+    <div class="desc">Upload doesn't update your card stats. Doesn't appear on Stats leaderboards. No "Most Distance Tonight" hero. You upload into a void.</div>
+  </div>
+  <div class="why">
+    <div class="ico">⏰</div>
+    <div class="ttl">4 · No nudge</div>
+    <div class="desc">No prompt Friday morning, no nag if you've signed up. Voting at least has the pinned ballot — fitness has nothing.</div>
+  </div>
+  <div class="why">
+    <div class="ico">👥</div>
+    <div class="ttl">5 · No social proof</div>
+    <div class="desc">One uploader (the admin) means no peer pressure, no league table, no quiet shame in being the lazy one.</div>
+  </div>
+  <div class="why">
+    <div class="ico">🔗</div>
+    <div class="ttl">6 · Strava sync</div>
+    <div class="desc">Strava is where the data already lives for many. A "connect once, auto-pull Thursday's session" flow would beat any per-match upload prompt.</div>
+  </div>
+</div>
+
+<h2>What to do — three levers ranked by impact ÷ effort</h2>
+
+<div class="lever h">
+  <div class="num">1</div>
+  <div class="body">
+    <div class="ttl">Surface fitness on Stats &amp; Cards <span class="tag h">HIGH IMPACT · LOW EFFORT</span></div>
+    <div class="desc">Add a <strong>"Most Distance Tonight"</strong> hero on Stats and a <strong>k/m + avg HR</strong> line on each Card. Suddenly uploading earns you something visible — same loop that made the 100% sign-up rate work.</div>
+  </div>
+</div>
+
+<div class="lever h">
+  <div class="num">2</div>
+  <div class="body">
+    <div class="ttl">One-tap nudge after the match <span class="tag h">HIGH IMPACT · MED EFFORT</span></div>
+    <div class="desc">Friday-morning nav badge on Cards: <em>"Upload your stats from last night"</em> — same play that fixed voting. Pair with a copy tweak that makes manual entry (km + minutes) acceptable for non-wearable owners.</div>
+  </div>
+</div>
+
+<div class="lever m">
+  <div class="num">3</div>
+  <div class="body">
+    <div class="ttl">Strava connect-once, auto-pull <span class="tag m">HIGH IMPACT · HIGH EFFORT</span></div>
+    <div class="desc">OAuth + webhook so a Strava activity tagged <em>Football</em> auto-imports against that Thursday. Solves the effort problem permanently for the ~half the squad already on Strava.</div>
+  </div>
+</div>
+
+<div class="callout magenta">
+  <strong>Other quick wins worth noting.</strong>
+  <br>· <strong>Secondary position prompt</strong> (4% set) — add a one-line nag inside the position picker after primary is saved.
+  <br>· <strong>Profile photo prompt</strong> (35% set) — pin a soft nudge on the Cards tab for the 37 players without one; photos drive identity, which drives engagement.
+  <br>· <strong>DOB / favourite club</strong> (32% / 28%) — could batch into a 30-second "complete your card" flow at first login.
+</div>
+
+<div class="closer">
+  Data source · live DB pull · 24 Jun 2026 · denominator 49 authed-active.<br>
+  Tracked alongside levers in <strong>docs/ROADMAP.md</strong>.
+</div>
+
+</body>
+</html>

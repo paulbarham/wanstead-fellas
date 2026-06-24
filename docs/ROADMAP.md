@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-24 (DB-side auto-promote of top reserve)_
+_Last updated: 2026-06-24 (app engagement review — surfaced fitness 2% / Polar 0% gap; added Adoption theme)_
 
 ---
 
@@ -121,6 +121,20 @@ Keeping the books straight and chasing what's owed without admin having to nag m
 | Player-facing notice when grace is approaching | 🟢 | chat | "You owe £X — pay by Sat or you'll be blocked from next Thu" |
 | Stripe / online payment | 🟢 | chat | One-tap settle from the app instead of cash to admin |
 | Auto-apply credit when payment recorded | 🟢 | chat | Single UI: "Mike paid £5" → marks £2 fine paid, adds £3 credit automatically |
+
+## 📊 Adoption — closing the feature-reach gaps
+
+Surfaced by the [app engagement review (11)](primers/pdf/11-app-engagement-review.pdf) on 24 Jun 2026. Denominator: 49 active-and-authed players. Fitness uploads at 2% (1/49), Polar link 0/49, secondary position 4%, profile photo 35% — features built and shipped that no-one is actually using because there's no payoff loop or nudge.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| "Most Distance Tonight" hero card on Stats | 🟢 | [11](primers/pdf/11-app-engagement-review.pdf) | High impact / low effort. Makes fitness upload visibly worth it, same loop as the existing top-scorer hero |
+| Fitness line on PlayerCard (km + avg HR) | 🟢 | [11](primers/pdf/11-app-engagement-review.pdf) | Gives the upload a permanent home on your card |
+| Friday-morning fitness-upload nav badge on Cards | 🟢 | [11](primers/pdf/11-app-engagement-review.pdf) | Same play that fixed voting; nudges only players who signed up the night before |
+| Strava connect-once auto-pull (OAuth + webhook) | 🟢 | [11](primers/pdf/11-app-engagement-review.pdf) | Largest single fitness-adoption lever for the Strava-using half of the squad. Auto-imports Thursday "Football" activities |
+| Secondary-position prompt inside PositionPicker | 🟢 | [11](primers/pdf/11-app-engagement-review.pdf) | After primary saved, one-line nag for the secondary (currently 2/57) |
+| Profile-photo nudge on Cards tab | 🟢 | [11](primers/pdf/11-app-engagement-review.pdf) | 37 active players still photo-less; photos drive identity → engagement |
+| "Complete your card" 30-second flow at first login | 🟢 | [11](primers/pdf/11-app-engagement-review.pdf) | Bundles DOB / club / position / photo into one onboarding pass |
 
 ## 📈 Data quality
 
