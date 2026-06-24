@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-21 (Player credits + green-vs-red surfaced)_
+_Last updated: 2026-06-24 (DB-side auto-promote of top reserve)_
 
 ---
 
@@ -115,6 +115,7 @@ Keeping the books straight and chasing what's owed without admin having to nag m
 | Unpaid signup block (2-week grace, DB + UI) | ✅ | chat · migration `026` · commit `f75eef8` | Blocked players can't confirm; admin can override; auto-promotion skips them |
 | Block-start cutoff (only Jun 2026 onwards charges count) | ✅ | chat · migration `027` | May & earlier carryover still visible/owed but doesn't gate signups |
 | Player credits (overpayments + goodwill, green vs red) | ✅ | chat · migration `028` · commit `c20bc79` | Net balance shown everywhere; admin "+ Credit" button; My Finances "In Credit" state |
+| DB-side auto-promote of top reserve on drop | ✅ | chat · migration `030` | Was only in frontend; any drop via SQL / admin tool / direct API silently left reserves stranded (Charlie 24 Jun). Trigger mirrors `pickPromotion`: wtp_priority first → wtp; FIFO within tier; skips blocked players |
 | Make block-start cutoff a setting (not hardcoded in fn) | 🟢 | chat | Move `block_start` to a settings table the admin can edit |
 | All-Time view toggle on AdminFinancePanel | 🟢 | chat | Aggregate per player across every month — full chase list |
 | Player-facing notice when grace is approaching | 🟢 | chat | "You owe £X — pay by Sat or you'll be blocked from next Thu" |
