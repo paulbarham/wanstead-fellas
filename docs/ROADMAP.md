@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-25 (DEBUT tag in WhatsApp export)_
+_Last updated: 2026-06-25 (debutant detection: server-side view + per-player veteran override)_
 
 ---
 
@@ -128,8 +128,9 @@ Quality-of-life on the AdminTeamBuilder publish + share flow.
 
 | Item | Status | Source | Notes |
 |---|---|---|---|
-| Tag debutants automatically in WhatsApp export | ✅ | chat · commit `59b6311` | Computes "no prior team_players for an earlier match" client-side, renders `🆕 DEBUT` per player. First-night drop tagged Neil/Rob/Ed/Charlie |
-| Surface DEBUT badge in the in-app team list (not just export) | 🟢 | chat · follow-up to `59b6311` | Same Set<id> is already in state; just needs a chip in the player row |
+| Tag debutants automatically in WhatsApp export | ✅ | chat · commits `59b6311` / `18a0068` / `d24128a` | Reads from server-side view `v_player_match_history` (migration 031) with a `profiles.debut_at` per-player override (migration 032) for pre-app veterans like Charlie Nicholls-Petrie |
+| "Mark as veteran" toggle on admin profile editor | 🟢 | chat · follow-up to `d24128a` | Set `debut_at` from the UI instead of via SQL — saves chasing data fixes for known-but-unrecorded players |
+| Surface DEBUT badge in the in-app team list (not just export) | 🟢 | chat | Same view query is already in state; just needs a chip in the player row |
 | One-click "swap any two players" between teams | 🟢 | chat | Currently requires drag — keyboard-friendly modal would help mid-WhatsApp tweaks |
 
 ## 📊 Adoption — closing the feature-reach gaps
