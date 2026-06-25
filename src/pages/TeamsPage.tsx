@@ -40,11 +40,18 @@ export default function TeamsPage() {
     const captainIds = teamsData.map((t: Team) => t.captain_id).filter(Boolean)
     const allIds = [...new Set([...playerIds, ...captainIds])]
 
+    // Admin needs the full profile (attributes, card_*, player_type, cunt) so
+    // AdminTeamBuilder's predictTable and talking-points logic has the data it
+    // needs. Non-admin team-sheet view only renders avatar / name / badges /
+    // age, so keep that projection minimal.
     let playersData: Profile[] = []
     if (allIds.length > 0) {
+      const projection = profile?.is_admin
+        ? '*'
+        : 'id, name, surname, photo_url, overall_rating, badges, age_group'
       const { data } = await supabase
-        .from('profiles').select('id, name, surname, photo_url, overall_rating, badges, age_group').in('id', allIds)
-      playersData = (data as Profile[]) || []
+        .from('profiles').select(projection).in('id', allIds)
+      playersData = (data as unknown as Profile[]) || []
     }
 
     const enriched: TeamWithPlayers[] = teamsData.map((t: Team) => {

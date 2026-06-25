@@ -314,18 +314,14 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
       if (!playerIdsKey) { setDebutantIds(new Set()); return }
       const allIds = playerIdsKey.split(',')
       const { data, error } = await supabase
-        .from('team_players')
-        .select('player_id, teams!inner(matches!inner(match_date))')
+        .from('v_player_match_history')
+        .select('player_id, first_match_date')
         .in('player_id', allIds)
       if (cancelled) return
       if (error) { console.error('AdminTeamBuilder debutant fetch failed:', error); return }
-      // PostgREST returns the nested relations as arrays; for each team_players
-      // row there is exactly one team and exactly one match, so [0] is safe.
       const veterans = new Set<string>()
-      type Row = { player_id: string; teams: Array<{ matches: Array<{ match_date: string }> }> }
-      for (const row of (data ?? []) as Row[]) {
-        const date = row.teams[0]?.matches[0]?.match_date
-        if (date && date < nextThursday) veterans.add(row.player_id)
+      for (const row of (data ?? []) as Array<{ player_id: string; first_match_date: string }>) {
+        if (row.first_match_date && row.first_match_date < nextThursday) veterans.add(row.player_id)
       }
       setDebutantIds(new Set(allIds.filter(id => !veterans.has(id))))
     }
