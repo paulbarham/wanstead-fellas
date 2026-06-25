@@ -48,6 +48,10 @@ export interface Profile {
   cunt: number
   badges: string[]
   is_admin: boolean
+  // Delegate permission: enter full-time scores + goal scorers. Grants
+  // write access to fixtures/goals/results/matches.status only. Does NOT
+  // grant any other admin capability.
+  can_enter_results?: boolean
   player_type: PlayerType
   created_at: string
   // Phase 2 card stats (nullable — older profiles may be blank)

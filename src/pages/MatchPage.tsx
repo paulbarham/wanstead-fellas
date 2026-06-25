@@ -155,13 +155,16 @@ export default function MatchPage() {
 
   useEffect(() => { fetchMatch() }, [fetchMatch])
 
-  const canEnterResult = !!profile?.is_admin && !!weekMatch
+  // `can_enter_results` is a narrow delegate role — same access as admin
+  // for entering scores/scorers, but no other admin capability.
+  const canManageResults = !!(profile?.is_admin || profile?.can_enter_results)
+  const canEnterResult = canManageResults && !!weekMatch
 
   if (loading) {
     return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</div>
   }
 
-  if (profile?.is_admin && canEnterResult) {
+  if (canEnterResult) {
     return (
       <>
         <AdminMatchEntry
@@ -179,7 +182,7 @@ export default function MatchPage() {
     )
   }
 
-  if (profile?.is_admin && editingResult && match) {
+  if (canManageResults && editingResult && match) {
     return (
       <>
         <div className="px-4 pt-4 flex items-center justify-between">
@@ -216,7 +219,7 @@ export default function MatchPage() {
         pageId="P303 · MATCH REPORT"
         title="RESULTS"
         meta={matchDateLabel ? matchDateLabel.toUpperCase() : undefined}
-        trailing={profile?.is_admin && match ? (
+        trailing={canManageResults && match ? (
           <button
             onClick={() => setEditingResult(true)}
             className="text-xs font-medium px-2 py-1 rounded-lg"
