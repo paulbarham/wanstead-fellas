@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-25 (debutant detection: server-side view + per-player veteran override)_
+_Last updated: 2026-06-25 (can_enter_results delegate role for Ross Marks)_
 
 ---
 
@@ -121,6 +121,17 @@ Keeping the books straight and chasing what's owed without admin having to nag m
 | Player-facing notice when grace is approaching | 🟢 | chat | "You owe £X — pay by Sat or you'll be blocked from next Thu" |
 | Stripe / online payment | 🟢 | chat | One-tap settle from the app instead of cash to admin |
 | Auto-apply credit when payment recorded | 🟢 | chat | Single UI: "Mike paid £5" → marks £2 fine paid, adds £3 credit automatically |
+
+## 🛂 Delegate roles
+
+Granular permissions so admin can hand off narrow tasks (scoring, fines, etc.) to trusted players without minting another full admin.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| `can_enter_results` delegate role (scores + scorers only) | ✅ | chat · migration `033` · commit `9c8e0a8` | Ross Marks granted. RLS helper `can_manage_results()` covers fixtures/goals/results full write + matches UPDATE only. All other admin gates still check `is_admin`. |
+| Admin UI: toggle delegate roles per player on the admin profile editor | 🟢 | chat · follow-up to `9c8e0a8` | Avoids manual SQL when granting/revoking |
+| Indicator on Admin profile page showing who holds each delegate | 🟢 | chat | "Score entry: Ross Marks" — easy audit |
+| Additional delegate roles as needed (e.g. `can_manage_fines`, `can_publish_teams`) | 🟢 | chat | Same pattern — helper fn + replace policy condition |
 
 ## 🧢 Team builder polish
 
