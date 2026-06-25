@@ -194,6 +194,7 @@ function buildWhatsAppText(
   nextThursday: string,
   weights: Record<string, number>,
   weather: WeatherData | null,
+  debutantIds: Set<string>,
 ): string {
   const dateLabel = format(new Date(nextThursday + 'T12:00:00'), 'do MMMM')
   const totalPlayers = teams.reduce((sum, t) => sum + t.players.length, 0)
@@ -210,7 +211,8 @@ function buildWhatsAppText(
   for (const team of teams) {
     text += `\n*${team.name}* ${team.bibs ? '🟡 BIBS' : '⬜ NO BIBS'}\n`
     for (const p of [...team.players].sort(byName)) {
-      text += `${p.name} ${p.surname}\n`
+      const debutTag = debutantIds.has(p.id) ? ' 🆕 DEBUT' : ''
+      text += `${p.name} ${p.surname}${debutTag}\n`
     }
   }
 
@@ -292,8 +294,44 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const [republishConfirm, setRepublishConfirm] = useState(false)
   const [showWeights, setShowWeights] = useState(false)
   const [copied, setCopied] = useState<'whatsapp' | 'flat' | null>(null)
+  const [debutantIds, setDebutantIds] = useState<Set<string>>(new Set())
 
   useEffect(() => { setPublished(publishedTeams.length > 0) }, [publishedTeams])
+
+  // A player debuts when they have no prior team_players row for a match
+  // earlier than nextThursday — i.e. they've never been picked for a team
+  // before. Re-fetches whenever the draft or published line-up changes so
+  // tags are accurate before the WhatsApp export.
+  const playerIdsKey = React.useMemo(() => {
+    const draftIds = draftTeams.flatMap(t => t.players.map(p => p.id))
+    const publishedIds = publishedTeams.flatMap(t => t.players.map(p => p.id))
+    return Array.from(new Set([...draftIds, ...publishedIds])).sort().join(',')
+  }, [draftTeams, publishedTeams])
+
+  useEffect(() => {
+    let cancelled = false
+    async function fetchDebutants() {
+      if (!playerIdsKey) { setDebutantIds(new Set()); return }
+      const allIds = playerIdsKey.split(',')
+      const { data, error } = await supabase
+        .from('team_players')
+        .select('player_id, teams!inner(matches!inner(match_date))')
+        .in('player_id', allIds)
+      if (cancelled) return
+      if (error) { console.error('AdminTeamBuilder debutant fetch failed:', error); return }
+      // PostgREST returns the nested relations as arrays; for each team_players
+      // row there is exactly one team and exactly one match, so [0] is safe.
+      const veterans = new Set<string>()
+      type Row = { player_id: string; teams: Array<{ matches: Array<{ match_date: string }> }> }
+      for (const row of (data ?? []) as Row[]) {
+        const date = row.teams[0]?.matches[0]?.match_date
+        if (date && date < nextThursday) veterans.add(row.player_id)
+      }
+      setDebutantIds(new Set(allIds.filter(id => !veterans.has(id))))
+    }
+    fetchDebutants()
+    return () => { cancelled = true }
+  }, [playerIdsKey, nextThursday])
 
   useEffect(() => {
     let cancelled = false
@@ -699,7 +737,7 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {/* Primary: WhatsApp */}
                 <button
-                  onClick={() => copyToClipboard(buildWhatsAppText(teamsToShow, nextThursday, weights, weather), 'whatsapp')}
+                  onClick={() => copyToClipboard(buildWhatsAppText(teamsToShow, nextThursday, weights, weather, debutantIds), 'whatsapp')}
                   style={{
                     width: '100%',
                     padding: '14px 16px',
