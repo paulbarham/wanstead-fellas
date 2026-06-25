@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-24 (app engagement review — surfaced fitness 2% / Polar 0% gap; added Adoption theme)_
+_Last updated: 2026-06-25 (DEBUT tag in WhatsApp export)_
 
 ---
 
@@ -121,6 +121,16 @@ Keeping the books straight and chasing what's owed without admin having to nag m
 | Player-facing notice when grace is approaching | 🟢 | chat | "You owe £X — pay by Sat or you'll be blocked from next Thu" |
 | Stripe / online payment | 🟢 | chat | One-tap settle from the app instead of cash to admin |
 | Auto-apply credit when payment recorded | 🟢 | chat | Single UI: "Mike paid £5" → marks £2 fine paid, adds £3 credit automatically |
+
+## 🧢 Team builder polish
+
+Quality-of-life on the AdminTeamBuilder publish + share flow.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| Tag debutants automatically in WhatsApp export | ✅ | chat · commit `59b6311` | Computes "no prior team_players for an earlier match" client-side, renders `🆕 DEBUT` per player. First-night drop tagged Neil/Rob/Ed/Charlie |
+| Surface DEBUT badge in the in-app team list (not just export) | 🟢 | chat · follow-up to `59b6311` | Same Set<id> is already in state; just needs a chip in the player row |
+| One-click "swap any two players" between teams | 🟢 | chat | Currently requires drag — keyboard-friendly modal would help mid-WhatsApp tweaks |
 
 ## 📊 Adoption — closing the feature-reach gaps
 
