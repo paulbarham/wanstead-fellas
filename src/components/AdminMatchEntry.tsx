@@ -10,35 +10,51 @@ interface RosterPlayer {
   team_id: string
 }
 
-interface ScorerRow {
+// One slot = one goal. Slot count per team per fixture is locked to that
+// team's score, so we can't ever over-attribute. Hat-tricks are 3 slots all
+// pointing at the same player. Was previously a free ScorerRow with goals_count
+// — that allowed over/under-attribution and had a delete-all-and-re-insert save
+// pattern that lost in-progress edits on parent re-renders.
+interface Slot {
   rowId: string
-  player_id: string
-  goals_count: number
-  own_goal: boolean
+  player_id: string  // '' until picked
+  own_goal: boolean  // when true, dropdown shows the OTHER team's roster
 }
 
-function scorerSummary(rows: ScorerRow[], roster: RosterPlayer[]): string {
+interface FixtureSlots {
+  team1: Slot[]  // length === fixture.score1 (0 if score null)
+  team2: Slot[]  // length === fixture.score2
+}
+
+const newSlot = (): Slot => ({ rowId: crypto.randomUUID(), player_id: '', own_goal: false })
+
+// Resize a slot array to `target` length: append empty slots if growing,
+// drop tail if shrinking. Preserves any already-filled prefix.
+function resizeSlots(current: Slot[], target: number): Slot[] {
+  if (target < 0) target = 0
+  if (current.length === target) return current
+  if (current.length > target) return current.slice(0, target)
+  return [...current, ...Array.from({ length: target - current.length }, newSlot)]
+}
+
+function scorerSummary(slots: Slot[], roster: RosterPlayer[]): string {
   const tally: Record<string, number> = {}
-  for (const r of rows) {
-    if (r.own_goal || !r.player_id || r.goals_count <= 0) continue
-    tally[r.player_id] = (tally[r.player_id] ?? 0) + r.goals_count
-  }
   const ogTally: Record<string, number> = {}
-  for (const r of rows) {
-    if (!r.own_goal || !r.player_id || r.goals_count <= 0) continue
-    ogTally[r.player_id] = (ogTally[r.player_id] ?? 0) + r.goals_count
+  for (const s of slots) {
+    if (!s.player_id) continue
+    const bucket = s.own_goal ? ogTally : tally
+    bucket[s.player_id] = (bucket[s.player_id] ?? 0) + 1
   }
-  const parts = Object.entries(tally).map(([pid, n]) => {
+  const fmt = (pid: string, n: number, og: boolean) => {
     const p = roster.find(x => x.id === pid)
     const label = p ? `${p.name} ${p.surname}` : 'Unknown'
-    return n > 1 ? `${label} ${n}` : label
-  })
-  const ogParts = Object.entries(ogTally).map(([pid, n]) => {
-    const p = roster.find(x => x.id === pid)
-    const label = p ? `${p.name} ${p.surname}` : 'Unknown'
-    return n > 1 ? `${label} ${n} OG` : `${label} OG`
-  })
-  return [...parts, ...ogParts].join(', ')
+    const suffix = og ? ' OG' : ''
+    return n > 1 ? `${label} ${n}${suffix}` : `${label}${suffix}`
+  }
+  return [
+    ...Object.entries(tally).map(([pid, n]) => fmt(pid, n, false)),
+    ...Object.entries(ogTally).map(([pid, n]) => fmt(pid, n, true)),
+  ].join(', ')
 }
 
 interface FixtureWithTeams extends Fixture {
@@ -95,6 +111,83 @@ function buildTable(teams: Team[], fixtures: FixtureWithTeams[]): GroupRow[] {
   return Object.values(rows).sort((a, b) => b.pts !== a.pts ? b.pts - a.pts : (b.gf - b.ga) - (a.gf - a.ga))
 }
 
+function SlotSection({
+  label,
+  slots,
+  ownTeam,
+  otherTeam,
+  roster,
+  onPick,
+  onToggleOG,
+}: {
+  label: string
+  slots: Slot[]
+  ownTeam: Team
+  otherTeam?: Team
+  roster: RosterPlayer[]
+  onPick: (rowId: string, playerId: string) => void
+  onToggleOG: (rowId: string) => void
+}) {
+  const ownPlayers = roster.filter(p => p.team_id === ownTeam.id)
+  const otherPlayers = otherTeam ? roster.filter(p => p.team_id === otherTeam.id) : []
+  const filled = slots.filter(s => !!s.player_id).length
+  return (
+    <div className="rounded-xl px-3 py-2" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+          {label} goals
+        </span>
+        <span
+          className="text-[10px] font-mono"
+          style={{ color: filled === slots.length ? 'var(--color-success-text, #4ADC7A)' : 'var(--color-text-muted)' }}
+        >
+          {filled}/{slots.length}
+        </span>
+      </div>
+      <div className="space-y-1.5">
+        {slots.map((slot, i) => {
+          // Own-goal slots show the OPPOSITE team's roster (an OG is committed
+          // by a defender on the conceding team).
+          const players = slot.own_goal ? otherPlayers : ownPlayers
+          const empty = !slot.player_id
+          return (
+            <div key={slot.rowId} className="flex items-center gap-2">
+              <span className="w-5 text-[10px] font-mono text-right" style={{ color: 'var(--color-text-muted)' }}>{i + 1}.</span>
+              <select
+                value={slot.player_id}
+                onChange={e => onPick(slot.rowId, e.target.value)}
+                className="flex-1 min-w-0 px-2 py-1.5 rounded-lg text-xs outline-none"
+                style={{
+                  background: 'var(--color-surface)',
+                  color: empty ? 'var(--color-text-muted)' : 'var(--color-text)',
+                  border: `1px solid ${empty ? 'var(--color-border)' : 'var(--color-primary)'}`,
+                }}
+              >
+                <option value="">— scorer —</option>
+                {players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
+              </select>
+              <button
+                type="button"
+                onClick={() => onToggleOG(slot.rowId)}
+                className="text-[10px] font-semibold px-2 py-1.5 rounded-lg"
+                style={{
+                  background: slot.own_goal ? 'var(--color-warning-bg)' : 'var(--color-surface)',
+                  color: slot.own_goal ? 'var(--color-warning-text)' : 'var(--color-text-muted)',
+                  border: `1px solid ${slot.own_goal ? '#C9A227' : 'var(--color-border)'}`,
+                }}
+                aria-label="Toggle own goal"
+                title={slot.own_goal ? 'Own goal (scored by opposite team)' : 'Mark as own goal'}
+              >
+                OG
+              </button>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function AdminMatchEntry({ match, nextThursday: _nextThursday, teams, fixtures: initialFixtures, result: initialResult, onSaved, canWriteReport = true }: Props) {
   const isElevenVEleven = match?.format === '11v11' || teams.length <= 2
@@ -102,10 +195,14 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   const [reportText, setReportText] = useState(initialResult?.report_text ?? '')
   const [highlights, setHighlights] = useState(initialResult?.highlights ?? '')
   const [roster, setRoster] = useState<RosterPlayer[]>([])
-  const [fixtureScorers, setFixtureScorers] = useState<Record<string, ScorerRow[]>>({})
-  const [saving, setSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
+  const [fixtureScorers, setFixtureScorers] = useState<Record<string, FixtureSlots>>({})
+  const [hydrated, setHydrated] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [scoreError, setScoreError] = useState<string | null>(null)
+  const [autosaveError, setAutosaveError] = useState<string | null>(null)
+  const [autosaveTick, setAutosaveTick] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [confirmSubmit, setConfirmSubmit] = useState(false)
   const [copied, setCopied] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [fixturesError, setFixturesError] = useState<string | null>(null)
@@ -114,12 +211,16 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
   const table = buildTable(teams, fixtures)
 
+  // Hydrate roster + existing goals ONCE per match. The previous version
+  // re-ran on every change of the `teams` prop (a new reference on each
+  // parent render), which clobbered in-progress scorer entries. Roster
+  // also gets re-fetched if the team_id set genuinely changes.
+  const teamIdsKey = teams.map(t => t.id).sort().join(',')
   useEffect(() => {
-    if (!match?.id) return
-    const teamIds = teams.map(t => t.id)
-    if (teamIds.length === 0) { setRoster([]); return }
+    if (!match?.id || !teamIdsKey) { setRoster([]); setHydrated(true); return }
     let cancelled = false
     async function load() {
+      const teamIds = teamIdsKey.split(',')
       const { data: tp } = await supabase
         .from('team_players')
         .select('team_id, player_id, profiles!inner(id, name, surname)')
@@ -132,119 +233,125 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
       const { data: g } = await supabase
         .from('goals')
-        .select('player_id, goals_count, own_goal, fixture_id')
+        .select('player_id, goals_count, own_goal, fixture_id, team_id')
         .eq('match_id', match!.id)
       if (cancelled) return
-      const byFixture: Record<string, ScorerRow[]> = {}
-      for (const r of (g as { player_id: string; goals_count: number; own_goal: boolean; fixture_id: string | null }[]) || []) {
-        const key = r.fixture_id ?? '__unattributed__'
-        if (!byFixture[key]) byFixture[key] = []
-        byFixture[key].push({ rowId: crypto.randomUUID(), player_id: r.player_id, goals_count: r.goals_count, own_goal: r.own_goal })
+
+      // Expand each goal row (which may have goals_count > 1) into individual
+      // slots, then bucket into team1/team2 of the relevant fixture. A slot's
+      // bucket is determined by who it scored FOR — i.e. team_id (player team)
+      // for normal goals, opposite team for own goals.
+      const initial: Record<string, FixtureSlots> = {}
+      for (const f of fixtures) {
+        initial[f.id] = { team1: [], team2: [] }
       }
-      setFixtureScorers(byFixture)
+      type GoalRow = { player_id: string; goals_count: number; own_goal: boolean; fixture_id: string | null; team_id: string | null }
+      for (const r of (g as GoalRow[]) || []) {
+        if (!r.fixture_id) continue
+        const fx = fixtures.find(x => x.id === r.fixture_id)
+        if (!fx) continue
+        // A normal goal credits the player's team; an OG credits the opposite team.
+        const creditedTeamId = r.own_goal
+          ? (r.team_id === fx.team1.id ? fx.team2.id : fx.team1.id)
+          : r.team_id
+        const bucket: 'team1' | 'team2' = creditedTeamId === fx.team1.id ? 'team1' : 'team2'
+        const count = Math.max(1, r.goals_count)
+        for (let i = 0; i < count; i++) {
+          initial[r.fixture_id][bucket].push({ rowId: crypto.randomUUID(), player_id: r.player_id, own_goal: r.own_goal })
+        }
+      }
+
+      // Pad/truncate to match current scores so slot counts always === scores
+      for (const f of fixtures) {
+        initial[f.id].team1 = resizeSlots(initial[f.id].team1, f.score1 ?? 0)
+        initial[f.id].team2 = resizeSlots(initial[f.id].team2, f.score2 ?? 0)
+      }
+
+      setFixtureScorers(initial)
+      setHydrated(true)
     }
     load()
     return () => { cancelled = true }
-  }, [match?.id, teams])
+  // fixtures intentionally excluded — only re-hydrate when the match or roster genuinely changes;
+  // score-stepper code resizes slot arrays in place so we don't lose entries.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [match?.id, teamIdsKey])
 
-  function addScorer(fixtureId: string) {
-    setFixtureScorers(prev => ({
-      ...prev,
-      [fixtureId]: [...(prev[fixtureId] ?? []), { rowId: crypto.randomUUID(), player_id: '', goals_count: 1, own_goal: false }],
-    }))
+  function setSlotPlayer(fixtureId: string, team: 'team1' | 'team2', rowId: string, playerId: string) {
+    setFixtureScorers(prev => {
+      const slots = prev[fixtureId] ?? { team1: [], team2: [] }
+      return {
+        ...prev,
+        [fixtureId]: { ...slots, [team]: slots[team].map(s => s.rowId === rowId ? { ...s, player_id: playerId } : s) },
+      }
+    })
   }
-  function updateScorer(fixtureId: string, rowId: string, patch: Partial<ScorerRow>) {
-    setFixtureScorers(prev => ({
-      ...prev,
-      [fixtureId]: (prev[fixtureId] ?? []).map(r => r.rowId === rowId ? { ...r, ...patch } : r),
-    }))
-  }
-  function removeScorer(fixtureId: string, rowId: string) {
-    setFixtureScorers(prev => ({
-      ...prev,
-      [fixtureId]: (prev[fixtureId] ?? []).filter(r => r.rowId !== rowId),
-    }))
+  function toggleSlotOG(fixtureId: string, team: 'team1' | 'team2', rowId: string) {
+    setFixtureScorers(prev => {
+      const slots = prev[fixtureId] ?? { team1: [], team2: [] }
+      return {
+        ...prev,
+        [fixtureId]: { ...slots, [team]: slots[team].map(s => s.rowId === rowId ? { ...s, own_goal: !s.own_goal, player_id: '' } : s) },
+      }
+    })
   }
 
   function renderFixtureScorers(fixtureId: string, team1?: Team, team2?: Team) {
-    const rows = fixtureScorers[fixtureId] ?? []
-    const team1Players = roster.filter(p => p.team_id === team1?.id)
-    const team2Players = roster.filter(p => p.team_id === team2?.id)
+    const slots = fixtureScorers[fixtureId] ?? { team1: [], team2: [] }
+    if (slots.team1.length === 0 && slots.team2.length === 0) return null
     return (
-      <div className="mt-3 pl-1 space-y-1.5">
-        {rows.map(row => (
-          <div key={row.rowId} className="flex items-center gap-2">
-            <select
-              value={row.player_id}
-              onChange={e => updateScorer(fixtureId, row.rowId, { player_id: e.target.value })}
-              className="flex-1 min-w-0 px-2 py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-            >
-              <option value="">— scorer —</option>
-              {team1 && team1Players.length > 0 && (
-                <optgroup label={stripFC(team1.name)}>
-                  {team1Players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
-                </optgroup>
-              )}
-              {team2 && team2Players.length > 0 && (
-                <optgroup label={stripFC(team2.name)}>
-                  {team2Players.map(p => <option key={p.id} value={p.id}>{p.name} {p.surname}</option>)}
-                </optgroup>
-              )}
-            </select>
-            <input
-              type="number"
-              min={1}
-              value={row.goals_count}
-              onChange={e => updateScorer(fixtureId, row.rowId, { goals_count: parseInt(e.target.value || '1', 10) })}
-              className="w-10 text-center py-1.5 rounded-lg text-[var(--color-text)] text-xs outline-none"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-            />
-            <button
-              type="button"
-              onClick={() => updateScorer(fixtureId, row.rowId, { own_goal: !row.own_goal })}
-              className="text-[10px] font-semibold px-1.5 py-1.5 rounded-lg"
-              style={{
-                background: row.own_goal ? 'var(--color-warning-bg)' : 'var(--color-surface)',
-                color: row.own_goal ? 'var(--color-warning-text)' : 'var(--color-text-muted)',
-                border: `1px solid ${row.own_goal ? '#C9A227' : 'var(--color-border)'}`,
-              }}
-              aria-label="Toggle own goal"
-            >
-              OG
-            </button>
-            <button
-              type="button"
-              onClick={() => removeScorer(fixtureId, row.rowId)}
-              className="text-xs px-1.5 py-1.5 rounded-lg"
-              style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
-              aria-label="Remove scorer"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => addScorer(fixtureId)}
-          className="w-full py-1.5 rounded-lg text-[11px] font-medium"
-          style={{ background: 'transparent', color: 'var(--color-text-muted)', border: '1px dashed var(--color-border)' }}
-        >
-          + Add scorer
-        </button>
+      <div className="mt-3 space-y-3">
+        {team1 && slots.team1.length > 0 && (
+          <SlotSection
+            label={stripFC(team1.name)}
+            slots={slots.team1}
+            ownTeam={team1}
+            otherTeam={team2}
+            roster={roster}
+            onPick={(rowId, pid) => setSlotPlayer(fixtureId, 'team1', rowId, pid)}
+            onToggleOG={rowId => toggleSlotOG(fixtureId, 'team1', rowId)}
+          />
+        )}
+        {team2 && slots.team2.length > 0 && (
+          <SlotSection
+            label={stripFC(team2.name)}
+            slots={slots.team2}
+            ownTeam={team2}
+            otherTeam={team1}
+            roster={roster}
+            onPick={(rowId, pid) => setSlotPlayer(fixtureId, 'team2', rowId, pid)}
+            onToggleOG={rowId => toggleSlotOG(fixtureId, 'team2', rowId)}
+          />
+        )}
       </div>
     )
   }
 
-  function flattenScorers(): { fixture_id: string | null; row: ScorerRow }[] {
-    const out: { fixture_id: string | null; row: ScorerRow }[] = []
-    for (const [fxId, rows] of Object.entries(fixtureScorers)) {
-      for (const row of rows) {
-        if (!row.player_id || row.goals_count <= 0) continue
-        out.push({ fixture_id: fxId === '__unattributed__' ? null : fxId, row })
+  // Flatten current state into goal rows (1 slot = 1 goal, goals_count always 1).
+  function slotsToGoalRows(): Array<{ match_id: string; fixture_id: string; player_id: string; team_id: string | null; goals_count: number; own_goal: boolean }> {
+    if (!match?.id) return []
+    const out: Array<{ match_id: string; fixture_id: string; player_id: string; team_id: string | null; goals_count: number; own_goal: boolean }> = []
+    for (const f of fixtures) {
+      const sl = fixtureScorers[f.id]
+      if (!sl) continue
+      for (const s of [...sl.team1, ...sl.team2]) {
+        if (!s.player_id) continue
+        const playerTeamId = roster.find(p => p.id === s.player_id)?.team_id ?? null
+        out.push({
+          match_id: match.id,
+          fixture_id: f.id,
+          player_id: s.player_id,
+          team_id: playerTeamId,
+          goals_count: 1,
+          own_goal: s.own_goal,
+        })
       }
     }
     return out
+  }
+
+  function allSlotsForSummary(): Slot[] {
+    return Object.values(fixtureScorers).flatMap(sl => [...sl.team1, ...sl.team2])
   }
 
   function ScoreStepper({ fixtureId, field, value }: { fixtureId: string; field: 'score1' | 'score2'; value: number | null }) {
@@ -295,6 +402,27 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
     setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, ...update } : f))
     setScoreError(null)
+    // Resize slot arrays in step with the score: extra slots get an empty
+    // entry to fill, removed ones drop the trailing slot(s).
+    setFixtureScorers(prev => {
+      const cur = prev[fixtureId] ?? { team1: [], team2: [] }
+      const next: FixtureSlots = {
+        team1: field === 'score1' || shouldDefaultOther
+          ? resizeSlots(cur.team1, field === 'score1' ? (num ?? 0) : cur.team1.length)
+          : cur.team1,
+        team2: field === 'score2' || shouldDefaultOther
+          ? resizeSlots(cur.team2, field === 'score2' ? (num ?? 0) : cur.team2.length)
+          : cur.team2,
+      }
+      if (shouldDefaultOther) {
+        // Defaulted-other side starts at 0 → drop any leftover slots
+        next[otherField === 'score1' ? 'team1' : 'team2'] = resizeSlots(
+          otherField === 'score1' ? cur.team1 : cur.team2,
+          0,
+        )
+      }
+      return { ...prev, [fixtureId]: next }
+    })
     const { error } = await supabase.from('fixtures').update(update).eq('id', fixtureId)
     if (error) {
       console.error('Score update failed:', error)
@@ -307,16 +435,52 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     }
   }
 
-  async function saveResult() {
+  // Debounced auto-save: any change to fixtureScorers (slot edits, OG toggles,
+  // score-stepper-driven resizes) writes the current goal set to the DB ~600ms
+  // later. Replaces the previous "big save" button that nuked all rows and
+  // re-inserted them, which both lost in-progress edits and required the user
+  // to remember to press save.
+  //
+  // Strategy: delete + insert all goals for the match in one transaction-ish
+  // sequence. Cheap (≤16 rows for a 4-team tournament) and trivially correct.
+  useEffect(() => {
+    if (!hydrated || !match?.id) return
+    setAutosaveTick('saving')
+    setAutosaveError(null)
+    const handle = setTimeout(async () => {
+      const rows = slotsToGoalRows()
+      const { error: delErr } = await supabase.from('goals').delete().eq('match_id', match.id)
+      if (delErr) {
+        setAutosaveError(`Scorers not saved: ${delErr.message}`)
+        setAutosaveTick('idle')
+        return
+      }
+      if (rows.length > 0) {
+        const { error: insErr } = await supabase.from('goals').insert(rows)
+        if (insErr) {
+          setAutosaveError(`Scorers not saved: ${insErr.message}`)
+          setAutosaveTick('idle')
+          return
+        }
+      }
+      setAutosaveTick('saved')
+      // Drop the "saved" indicator after a beat
+      setTimeout(() => setAutosaveTick(t => t === 'saved' ? 'idle' : t), 1500)
+    }, 600)
+    return () => clearTimeout(handle)
+  // slotsToGoalRows is stable enough — it reads from state that's already in deps.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fixtureScorers, hydrated, match?.id])
+
+  // Scores + scorers are already auto-saved continuously. Submit is the
+  // explicit commit: writes the results row (narrative for admin, just the
+  // scorers summary for delegate), then flips match.status='completed'.
+  async function submitResults() {
     if (!match?.id) return
-    setSaving(true)
-    setSaveError(null)
+    setSubmitting(true)
+    setSubmitError(null)
     try {
-      const validScorers = flattenScorers()
-      const scorersText = scorerSummary(validScorers.map(v => v.row), roster)
-      // Delegate writers omit the narrative fields entirely (UI hides them
-      // too). The results_protect_narrative DB trigger is the backstop if
-      // someone bypasses the UI.
+      const scorersText = scorerSummary(allSlotsForSummary(), roster)
       const payload = canWriteReport
         ? { match_id: match.id, report_text: reportText, scorers: scorersText, highlights }
         : { match_id: match.id, scorers: scorersText }
@@ -327,33 +491,30 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
         const { error } = await supabase.from('results').insert(payload)
         if (error) throw new Error(`Couldn't save result: ${error.message}`)
       }
-
-      const { error: delErr } = await supabase.from('goals').delete().eq('match_id', match.id)
-      if (delErr) throw new Error(`Couldn't clear old goals: ${delErr.message}`)
-      if (validScorers.length > 0) {
-        const goalRows = validScorers.map(({ fixture_id, row: r }) => ({
-          match_id: match.id,
-          fixture_id,
-          player_id: r.player_id,
-          team_id: roster.find(p => p.id === r.player_id)?.team_id ?? null,
-          goals_count: r.goals_count,
-          own_goal: r.own_goal,
-        }))
-        const { error: insErr } = await supabase.from('goals').insert(goalRows)
-        if (insErr) throw new Error(`Couldn't save goals: ${insErr.message}`)
-      }
-
       const { error: matchErr } = await supabase.from('matches').update({ status: 'completed' }).eq('id', match.id)
       if (matchErr) throw new Error(`Couldn't mark match completed: ${matchErr.message}`)
+      setConfirmSubmit(false)
       onSaved()
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
-      console.error('Save result failed:', e)
-      setSaveError(msg)
+      console.error('Submit failed:', e)
+      setSubmitError(msg)
     } finally {
-      setSaving(false)
+      setSubmitting(false)
     }
   }
+
+  // A fixture is "complete" when both scores are set AND every allocated slot
+  // has a player chosen. Submit is gated on all played fixtures being complete.
+  function fixtureCompletion(f: FixtureWithTeams): { played: boolean; total: number; filled: number } {
+    const played = f.score1 != null && f.score2 != null
+    const slots = fixtureScorers[f.id]
+    const total = (slots?.team1.length ?? 0) + (slots?.team2.length ?? 0)
+    const filled = [...(slots?.team1 ?? []), ...(slots?.team2 ?? [])].filter(s => !!s.player_id).length
+    return { played, total, filled }
+  }
+  const completion = fixtures.map(f => ({ f, ...fixtureCompletion(f) }))
+  const allReady = completion.length > 0 && completion.every(({ played, total, filled }) => played && filled === total)
 
   function roundRobinRows(matchId: string): { match_id: string; team1_id: string; team2_id: string }[] {
     const rows: { match_id: string; team1_id: string; team2_id: string }[] = []
@@ -436,10 +597,11 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   function formatElevenReport(): string {
     const main = fixtures[0]
     const score = main ? `${main.score1 ?? '?'} - ${main.score2 ?? '?'}` : ''
+    const allScorers = scorerSummary(allSlotsForSummary(), roster)
     const lines = [
       `⚽ WF Match Report`,
       `${main?.team1?.name ?? ''} ${score} ${main?.team2?.name ?? ''}`,
-      scorerSummary(flattenScorers().map(v => v.row), roster) ? `\nScorers: ${scorerSummary(flattenScorers().map(v => v.row), roster)}` : '',
+      allScorers ? `\nScorers: ${allScorers}` : '',
       reportText ? `\n${reportText}` : '',
     ]
     return lines.filter(Boolean).join('\n')
@@ -667,19 +829,38 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
             ⚠ {scoreError}
           </div>
         )}
-        {saveError && (
+        {autosaveError && (
           <div className="px-3 py-2 rounded-xl text-xs font-medium"
             style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
-            ⚠ Result not saved. {saveError}
+            ⚠ {autosaveError}
           </div>
         )}
+        {submitError && (
+          <div className="px-3 py-2 rounded-xl text-xs font-medium"
+            style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
+            ⚠ Submit failed. {submitError}
+          </div>
+        )}
+
+        {/* Live autosave indicator + completion summary */}
+        <div className="flex items-center justify-between text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+          <span style={{ fontFamily: 'var(--font-mono)' }}>
+            {autosaveTick === 'saving' && '· saving…'}
+            {autosaveTick === 'saved' && '✓ saved'}
+            {autosaveTick === 'idle' && 'auto-saves as you go'}
+          </span>
+          <span style={{ fontFamily: 'var(--font-mono)' }}>
+            {completion.filter(c => c.played && c.filled === c.total && c.total > 0).length}/{fixtures.length} fixtures ready
+          </span>
+        </div>
+
         <button
-          onClick={saveResult}
-          disabled={saving}
-          className="w-full py-3 rounded-xl disabled:opacity-50"
+          onClick={() => setConfirmSubmit(true)}
+          disabled={submitting || !allReady}
+          className="w-full py-3 rounded-xl disabled:opacity-40"
           style={{
-            background: 'transparent',
-            color: 'var(--tt-yellow)',
+            background: allReady ? 'var(--tt-yellow)' : 'transparent',
+            color: allReady ? '#0F1710' : 'var(--tt-yellow)',
             border: '1px solid var(--tt-yellow)',
             fontFamily: 'var(--font-mono)',
             fontSize: 13,
@@ -687,8 +868,49 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
             letterSpacing: '0.12em',
           }}
         >
-          {saving ? 'SAVING…' : '▶ SAVE RESULT'}
+          {submitting ? 'SUBMITTING…' : allReady ? '▶ SUBMIT RESULTS' : '· enter all scores + scorers ·'}
         </button>
+
+        {confirmSubmit && (
+          <div className="rounded-2xl p-4 space-y-3" style={{ background: 'var(--color-surface)', border: '2px solid var(--tt-yellow)' }}>
+            <div className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>Confirm final results</div>
+            <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              Once submitted, the match will be marked completed and the result published. You can still edit afterwards via the ✎ button.
+            </div>
+            <div className="space-y-2">
+              {fixtures.map(f => {
+                const sl = fixtureScorers[f.id] ?? { team1: [], team2: [] }
+                const scorers = scorerSummary([...sl.team1, ...sl.team2], roster)
+                return (
+                  <div key={f.id} className="text-xs">
+                    <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-text)' }}>
+                      {stripFC(f.team1?.name)} <strong style={{ color: 'var(--tt-yellow)' }}>{f.score1 ?? '?'} - {f.score2 ?? '?'}</strong> {stripFC(f.team2?.name)}
+                    </div>
+                    {scorers && <div style={{ color: 'var(--color-text-muted)', marginLeft: 8 }}>↳ {scorers}</div>}
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={submitResults}
+                disabled={submitting}
+                className="flex-1 py-2.5 rounded-lg text-xs font-semibold disabled:opacity-50"
+                style={{ background: 'var(--tt-yellow)', color: '#0F1710', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}
+              >
+                {submitting ? 'SUBMITTING…' : 'YES, FINALISE'}
+              </button>
+              <button
+                onClick={() => setConfirmSubmit(false)}
+                disabled={submitting}
+                className="flex-1 py-2.5 rounded-lg text-xs font-medium"
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         <button
           onClick={copyToClipboard}
