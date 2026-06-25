@@ -174,6 +174,7 @@ export default function MatchPage() {
           fixtures={weekFixtures}
           result={weekResult}
           onSaved={fetchMatch}
+          canWriteReport={!!profile?.is_admin}
         />
         <div className="px-4 pb-4">
           <MotmVotingCard />
@@ -204,6 +205,7 @@ export default function MatchPage() {
           fixtures={fixtures}
           result={result}
           onSaved={() => { setEditingResult(false); fetchMatch() }}
+          canWriteReport={!!profile?.is_admin}
         />
       </>
     )

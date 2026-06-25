@@ -53,6 +53,11 @@ interface Props {
   fixtures: FixtureWithTeams[]
   result: Result | null
   onSaved: () => void
+  // Admin path passes true (default). Delegate path (can_enter_results
+  // without is_admin) passes false: report/highlights inputs are hidden
+  // and those fields are omitted from the save payload. Backstopped by
+  // a DB trigger (results_protect_narrative, migration 034).
+  canWriteReport?: boolean
 }
 
 interface GroupRow {
@@ -91,7 +96,7 @@ function buildTable(teams: Team[], fixtures: FixtureWithTeams[]): GroupRow[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function AdminMatchEntry({ match, nextThursday: _nextThursday, teams, fixtures: initialFixtures, result: initialResult, onSaved }: Props) {
+export default function AdminMatchEntry({ match, nextThursday: _nextThursday, teams, fixtures: initialFixtures, result: initialResult, onSaved, canWriteReport = true }: Props) {
   const isElevenVEleven = match?.format === '11v11' || teams.length <= 2
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>(initialFixtures)
   const [reportText, setReportText] = useState(initialResult?.report_text ?? '')
@@ -309,7 +314,12 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     try {
       const validScorers = flattenScorers()
       const scorersText = scorerSummary(validScorers.map(v => v.row), roster)
-      const payload = { match_id: match.id, report_text: reportText, scorers: scorersText, highlights }
+      // Delegate writers omit the narrative fields entirely (UI hides them
+      // too). The results_protect_narrative DB trigger is the backstop if
+      // someone bypasses the UI.
+      const payload = canWriteReport
+        ? { match_id: match.id, report_text: reportText, scorers: scorersText, highlights }
+        : { match_id: match.id, scorers: scorersText }
       if (initialResult?.id) {
         const { error } = await supabase.from('results').update(payload).eq('id', initialResult.id)
         if (error) throw new Error(`Couldn't update result: ${error.message}`)
@@ -617,31 +627,37 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
         </div>
       )}
 
-      <div className="space-y-4 mt-4">
-        <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-          <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Match Report</label>
-          <textarea
-            value={reportText}
-            onChange={e => setReportText(e.target.value)}
-            rows={5}
-            placeholder="Write the match report here..."
-            className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none resize-none"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-          />
-        </div>
+      {canWriteReport ? (
+        <div className="space-y-4 mt-4">
+          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Match Report</label>
+            <textarea
+              value={reportText}
+              onChange={e => setReportText(e.target.value)}
+              rows={5}
+              placeholder="Write the match report here..."
+              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none resize-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+            />
+          </div>
 
-        <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-          <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Highlights</label>
-          <input
-            type="text"
-            value={highlights}
-            onChange={e => setHighlights(e.target.value)}
-            placeholder="Link or notes..."
-            className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
-          />
+          <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <label className="block text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Highlights</label>
+            <input
+              type="text"
+              value={highlights}
+              onChange={e => setHighlights(e.target.value)}
+              placeholder="Link or notes..."
+              className="w-full px-3 py-2 rounded-lg text-[var(--color-text)] text-sm outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="mt-4 p-3 rounded-xl text-xs" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
+          Match report &amp; highlights are written by the admin afterwards. Your saved scores and scorers will appear in the report automatically.
+        </div>
+      )}
 
       {/* Actions */}
       <div className="mt-4 space-y-2 pb-4">
