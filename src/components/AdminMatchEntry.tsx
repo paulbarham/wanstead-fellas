@@ -392,44 +392,51 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
   async function updateFixtureScore(fixtureId: string, field: 'score1' | 'score2', value: string) {
     const num = value === '' ? null : parseInt(value)
     const prevFixture = fixtures.find(f => f.id === fixtureId)
-    // If this side is gaining a real value while the other side is still
-    // null (admin tapped + on one stepper only), explicitly write 0 to the
-    // other side so the live table treats the fixture as played.
     const otherField: 'score1' | 'score2' = field === 'score1' ? 'score2' : 'score1'
-    const shouldDefaultOther = num != null && prevFixture && prevFixture[otherField] == null
-    const update: Partial<{ score1: number | null; score2: number | null }> = { [field]: num }
-    if (shouldDefaultOther) update[otherField] = 0
+    const otherCurrent = prevFixture?.[otherField] ?? null
+
+    // Walked the score back to 0 (or null) while the other side is also 0
+    // (typically because the other side was eagerly defaulted by an earlier
+    // +1 tap). Reset BOTH sides to null so the live table treats the
+    // fixture as "not played" again. Trade-off: this prevents the steppers
+    // from ever expressing a real 0-0 result; rare enough at WF that the
+    // bug fix is worth it. Add an explicit "Mark 0-0" affordance later if
+    // it ever bites.
+    const bothEffectivelyZero = (num ?? 0) === 0 && (otherCurrent ?? 0) === 0
+    // Tapping +1 on a fresh fixture: explicitly write 0 to the other side
+    // so the live table treats it as played (single-tap 1-0 / 0-1 wins).
+    const shouldDefaultOther = num != null && num > 0 && otherCurrent == null
+
+    const update: Partial<{ score1: number | null; score2: number | null }> = bothEffectivelyZero
+      ? { score1: null, score2: null }
+      : { [field]: num, ...(shouldDefaultOther ? { [otherField]: 0 } : {}) }
 
     setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, ...update } : f))
     setScoreError(null)
-    // Resize slot arrays in step with the score: extra slots get an empty
-    // entry to fill, removed ones drop the trailing slot(s).
+    // Resize slot arrays in step with the new scores. Slot count for a
+    // team === its score (null counts as 0). Preserves the leading filled
+    // slots when shrinking.
+    const finalScore1 = 'score1' in update ? update.score1 : prevFixture?.score1
+    const finalScore2 = 'score2' in update ? update.score2 : prevFixture?.score2
     setFixtureScorers(prev => {
       const cur = prev[fixtureId] ?? { team1: [], team2: [] }
-      const next: FixtureSlots = {
-        team1: field === 'score1' || shouldDefaultOther
-          ? resizeSlots(cur.team1, field === 'score1' ? (num ?? 0) : cur.team1.length)
-          : cur.team1,
-        team2: field === 'score2' || shouldDefaultOther
-          ? resizeSlots(cur.team2, field === 'score2' ? (num ?? 0) : cur.team2.length)
-          : cur.team2,
+      return {
+        ...prev,
+        [fixtureId]: {
+          team1: resizeSlots(cur.team1, finalScore1 ?? 0),
+          team2: resizeSlots(cur.team2, finalScore2 ?? 0),
+        },
       }
-      if (shouldDefaultOther) {
-        // Defaulted-other side starts at 0 → drop any leftover slots
-        next[otherField === 'score1' ? 'team1' : 'team2'] = resizeSlots(
-          otherField === 'score1' ? cur.team1 : cur.team2,
-          0,
-        )
-      }
-      return { ...prev, [fixtureId]: next }
     })
     const { error } = await supabase.from('fixtures').update(update).eq('id', fixtureId)
     if (error) {
       console.error('Score update failed:', error)
       setScoreError(`Score not saved: ${error.message}`)
       if (prevFixture) {
+        // Roll back both fields to their prior state — the update may have
+        // touched either or both depending on which branch above fired.
         setFixtures(prev => prev.map(f => f.id === fixtureId
-          ? { ...f, [field]: prevFixture[field], ...(shouldDefaultOther ? { [otherField]: prevFixture[otherField] } : {}) }
+          ? { ...f, score1: prevFixture.score1, score2: prevFixture.score2 }
           : f))
       }
     }
