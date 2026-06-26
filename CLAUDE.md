@@ -54,3 +54,25 @@ Both live in `docs/primers/`. The index in `docs/primers/README.md` flags each r
 - Migrations live in `supabase/migrations/NNN_name.sql`, applied via the Supabase MCP `apply_migration` tool. Always commit the SQL file in the same change as the application so source of truth stays in git.
 - Edge functions in `supabase/functions/`.
 - The Wanstead Fellas project ID is `qvvlxjftrteyrsscqidc`.
+
+## Match reports — always use the structured JSON shape
+
+When writing or editing a match report on the `results` row, **populate the structured fields, not `report_text`**. The Match tab + History tab render the JSON fields via dedicated components (`PredictedVsActual`, `MatchResultView`, etc); `report_text` is a legacy free-prose field and should be left `NULL` going forward. The reference shape (see 18 Jun and 11 Jun for canonical examples):
+
+| Field | Type | What goes in it |
+|---|---|---|
+| `summary` | `text` | Tweet-length lede paragraph — the headline narrative of the night |
+| `predictions` | `jsonb` | `{ note, rows: [{position, predicted, actual}] }` — pre-match predicted finish vs actual final standings + 1-line commentary on accuracy |
+| `key_highlights` | `jsonb` | Array of `{player?, label?, note}` — standout players, collective shoutouts, MOTM/DOTD, team-by-team commentary |
+| `team_awards` | `jsonb` | Object with optional `forward`, `defensive`, `safe_hands` keys, each `{title, players, note}` — the formal team-award trio |
+| `player_of_tournament` | `jsonb` | `{name, note}` or `null` — single standout player of the night |
+| `banter` | `jsonb` | Array of `{player?, label?, note}` — funny moments, side-stories, in-jokes |
+| `app_watch` | `jsonb` | Array of `{player?, label?, note}` — fines, admin reminders, app/feature updates |
+| `conclusion` | `text` | 2–4 short lines (separated with `\n`) — the closing punch |
+| `closer` | `text` or `null` | One-line sign-off (e.g. "Roll on next Thursday. 📟 Ratings update to follow.") |
+| `scorers` | `text` | Auto-generated from `goals` table by AdminMatchEntry — don't hand-edit |
+| `report_text` | `text` | **Legacy — leave NULL.** Will double-render if both this and the structured fields are set. |
+
+**Always include `predictions`.** Pull the actual final table from `fixtures` for the match, compare to the pre-match `LIKELY FINAL TABLE` (computed by `AdminTeamBuilder.predictTable`), and write a 4-row table with a short note on accuracy. The algorithm's track record is a recurring narrative thread — every week's report leans on it.
+
+**Cross-check rule.** Before writing, verify every named scorer against the `goals` table for the match. Flag any mismatch (player named in prose who didn't score; player who scored but isn't mentioned) — surface it to the admin rather than silently editing the prose.
