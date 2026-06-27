@@ -418,36 +418,78 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
         ▶ HALL OF FAME · BEST STREAKS
       </p>
       <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
-        <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: '32px 1fr 56px', background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-          <span>#</span><span>NAME</span>
-          <span style={{ textAlign: 'right', color: TT_YELLOW }}>BEST</span>
-        </div>
         {ranked.map((r, i) => {
           const rank = i + 1
-          const isTop = r.best_streak === topStreak
           const isMe = meId === r.player_id
           const stillOnIt = r.current_streak === r.best_streak && isStreak(r.current_streak)
+          // Bar width as a fraction of the table-topper's streak. Visually
+          // shows the gap to first; fills the horizontal space that the
+          // BEST number used to leave empty when it was right-aligned.
+          const widthPct = topStreak > 0 ? Math.max(8, (r.best_streak / topStreak) * 100) : 0
+          // Podium colour scheme for top 3 — matches the Stats page leaders.
+          const podiumColour = rank === 1 ? TT_YELLOW : rank === 2 ? '#C8D2C2' : rank === 3 ? '#D69A4A' : null
+          const barGradient = rank === 1
+            ? 'linear-gradient(90deg, #FFD400, #FF9D00)'
+            : rank === 2
+              ? 'linear-gradient(90deg, #C8D2C2, #9CA897)'
+              : rank === 3
+                ? 'linear-gradient(90deg, #D69A4A, #C9A227)'
+                : 'linear-gradient(90deg, #4ADC7A, #4AD9FF)'
           return (
             <div
               key={r.player_id}
-              className="grid gap-2 px-3 py-2 items-center"
+              className="px-3 py-2.5"
               style={{
-                gridTemplateColumns: '32px 1fr 56px',
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
-                background: isTop ? 'rgba(74,220,122,0.10)' : isMe ? 'rgba(14,116,144,0.10)' : 'transparent',
-                fontSize: 13,
+                background: isMe ? 'rgba(14,116,144,0.10)' : 'transparent',
               }}
             >
-              <span style={{ color: isTop ? TT_GREEN : 'var(--color-text-muted)', fontSize: 11, fontWeight: isTop ? 700 : 400 }}>
-                {String(rank).padStart(2, '0')}
-              </span>
-              <span className="truncate" style={{ color: isTop ? TT_GREEN : isMe ? TT_CYAN : 'var(--color-text)', fontWeight: isTop || isMe ? 700 : 400 }}>
-                {r.name} {r.surname}
-                {stillOnIt && <span style={{ marginLeft: 6, color: TT_YELLOW, fontSize: 10 }}>STILL ON IT</span>}
-              </span>
-              <span style={{ textAlign: 'right', color: isTop ? TT_GREEN : TT_YELLOW, fontWeight: 700 }}>
-                {formatStreak(r.best_streak)}
-              </span>
+              <div className="grid items-baseline gap-3" style={{ gridTemplateColumns: '24px 1fr auto', fontSize: 13 }}>
+                <span style={{
+                  color: podiumColour ?? 'var(--color-text-muted)',
+                  fontSize: 11,
+                  fontWeight: podiumColour ? 800 : 400,
+                  textAlign: 'center',
+                }}>
+                  {String(rank).padStart(2, '0')}
+                </span>
+                <span className="truncate" style={{
+                  color: rank === 1 ? TT_YELLOW : isMe ? TT_CYAN : 'var(--color-text)',
+                  fontWeight: rank <= 3 || isMe ? 700 : 400,
+                }}>
+                  {r.name} {r.surname}
+                  {stillOnIt && (
+                    <span style={{ marginLeft: 6, color: TT_GREEN, fontSize: 9, letterSpacing: '0.1em' }}>
+                      · STILL ON IT
+                    </span>
+                  )}
+                </span>
+                <span style={{
+                  color: podiumColour ?? TT_YELLOW,
+                  fontWeight: 800,
+                  fontSize: 14,
+                  fontVariantNumeric: 'tabular-nums',
+                }}>
+                  {formatStreak(r.best_streak)}
+                </span>
+              </div>
+              {/* Proportional flame bar — fills the empty horizontal space the
+                  right-aligned number used to create, and visually conveys
+                  how the player's peak compares to the chart-topper. */}
+              <div className="mt-1.5" style={{
+                marginLeft: 24 + 12,  // align under the name column
+                height: 3,
+                background: 'rgba(255,255,255,0.05)',
+                borderRadius: 999,
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  width: `${widthPct}%`,
+                  height: '100%',
+                  background: barGradient,
+                  borderRadius: 999,
+                }} />
+              </div>
             </div>
           )
         })}
