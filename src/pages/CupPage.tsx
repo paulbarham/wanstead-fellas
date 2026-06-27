@@ -20,6 +20,7 @@ interface LeaderRow {
   points: number
   settled: number
   correct: number
+  best_streak: number  // longest consecutive correct group-stage picks
 }
 
 const TT_YELLOW = 'var(--tt-yellow)'
@@ -49,7 +50,7 @@ export default function CupPage() {
       // don't blow past Supabase's default 1000-row cap (>1100 predictions
       // as of June 2026 would silently lose ~123 points across the table).
       // Replaces the prior client-side reduce over the raw predictions table.
-      supabase.from('v_cup_leaderboard').select('player_id, name, surname, points, correct'),
+      supabase.from('v_cup_leaderboard').select('player_id, name, surname, points, correct, best_streak'),
     ])
     setMatches((matchRes.data as CupMatch[]) ?? [])
     const picksMap: Record<string, CupPrediction> = {}
@@ -64,7 +65,7 @@ export default function CupPage() {
     const totalSettled = ((matchRes.data as CupMatch[] | null) ?? [])
       .filter(m => m.actual_outcome != null).length
 
-    type LbView = { player_id: string; name: string; surname: string; points: number; correct: number }
+    type LbView = { player_id: string; name: string; surname: string; points: number; correct: number; best_streak: number }
     const lb = ((lbRes.data as LbView[]) ?? [])
       .map(r => ({
         player_id: r.player_id,
@@ -73,11 +74,14 @@ export default function CupPage() {
         points: r.points,
         settled: totalSettled,
         correct: r.correct,
+        best_streak: r.best_streak ?? 0,
       }))
-      // Tiebreak by points first (which equals correct count since each correct
-      // pick = 1 point), then alphabetical — hit-rate clause collapses now that
-      // the denominator is global.
-      .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
+      // Tiebreak: points (knockouts can score 2) → best streak → alphabetical.
+      // Streak as second tiebreak rewards consistency over a lucky one-off run.
+      .sort((a, b) =>
+        b.points - a.points
+        || b.best_streak - a.best_streak
+        || a.name.localeCompare(b.name))
     setLeaderboard(lb)
     setLoading(false)
   }, [profile?.id])
@@ -401,6 +405,25 @@ function CupMyPicks({
   // "Correct" = got the team right, regardless of route. Knockouts can score 2
   // (right team + right method); groups still score 1. Anything > 0 is correct.
   const correct = settledMine.filter(m => (myPicks[m.id].points_awarded ?? 0) > 0).length
+
+  // Personal best streak — longest run of consecutive correct picks on
+  // settled GROUP-STAGE matches in kickoff order. Mirrors v_cup_leaderboard's
+  // server-side calc; computed locally so we don't need to thread the
+  // leaderboard row down into this component. Missed picks break the streak.
+  const settledGroupSorted = settled
+    .filter(m => !m.is_knockout)
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+  let bestStreak = 0
+  let runningStreak = 0
+  for (const m of settledGroupSorted) {
+    const pts = myPicks[m.id]?.points_awarded ?? 0
+    if (pts > 0) {
+      runningStreak += 1
+      if (runningStreak > bestStreak) bestStreak = runningStreak
+    } else {
+      runningStreak = 0
+    }
+  }
   const wrong = settledMine.length - correct
   const missed = totalSettled - settledMine.length
   // Two denominators on purpose: the LEAGUE uses tournament-wide settled
@@ -442,6 +465,9 @@ function CupMyPicks({
           <span style={{ color: TT_GREEN }}>{correct}</span> right
           <span style={{ color: TT_RED }}> · {wrong}</span> wrong
           {missed > 0 && <span style={{ color: TT_MAGENTA }}> · {missed} missed</span>}
+          {bestStreak > 0 && (
+            <span style={{ color: TT_YELLOW }}> · {bestStreak >= 3 ? `🔥${bestStreak}` : bestStreak} best streak</span>
+          )}
         </p>
         {missed > 0 && (
           <p style={{ color: 'var(--color-text-muted)', fontSize: 9, marginTop: 6, opacity: 0.7, letterSpacing: '0.02em' }}>
@@ -757,21 +783,30 @@ function SettledMatchRow({ match, myPick }: { match: CupMatch; myPick?: CupPredi
 }
 
 function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRank: number | null | undefined; highlightMeId?: string }) {
+  // Streak column is hidden until at least one player has a streak > 0
+  // (i.e. at least one group match has been settled). Keeps the early-
+  // tournament table tidy.
+  const showStreak = rows.some(r => r.best_streak > 0)
+  const gridCols = showStreak ? '32px 1fr 42px 46px 46px' : '32px 1fr 46px 46px'
   return (
     <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
-      <div className="grid grid-cols-[32px_1fr_46px_46px] gap-2 px-3 py-1.5" style={{ background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-        <span>#</span><span>NAME</span><span style={{ textAlign: 'right' }}>%</span><span style={{ textAlign: 'right', color: TT_YELLOW }}>PTS</span>
+      <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: gridCols, background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        <span>#</span><span>NAME</span><span style={{ textAlign: 'right' }}>%</span>
+        {showStreak && <span style={{ textAlign: 'right' }} title="Best consecutive correct picks in the group stage">STRK</span>}
+        <span style={{ textAlign: 'right', color: TT_YELLOW }}>PTS</span>
       </div>
       {rows.map((r, i) => {
         const rank = i + 1
         const isTop = rank === 1
         const isMe = highlightMeId === r.player_id || (meRank != null && rank === meRank)
         const pct = r.settled > 0 ? Math.round((r.correct / r.settled) * 100) : 0
+        const topStreak = showStreak && rows[0].best_streak === r.best_streak && r.best_streak > 0
         return (
           <div
             key={r.player_id}
-            className="grid grid-cols-[32px_1fr_46px_46px] gap-2 px-3 py-2 items-center"
+            className="grid gap-2 px-3 py-2 items-center"
             style={{
+              gridTemplateColumns: gridCols,
               borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
               background: isTop ? 'rgba(201,162,39,0.10)' : isMe ? 'rgba(14,116,144,0.10)' : 'transparent',
               fontSize: 13,
@@ -784,6 +819,11 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
               {r.name} {r.surname}
             </span>
             <span style={{ textAlign: 'right', color: 'var(--color-text-muted)', fontSize: 11 }}>{pct}%</span>
+            {showStreak && (
+              <span style={{ textAlign: 'right', color: topStreak ? TT_GREEN : 'var(--color-text-muted)', fontSize: 11, fontWeight: topStreak ? 700 : 400 }}>
+                {r.best_streak > 0 ? (r.best_streak >= 3 ? `🔥${r.best_streak}` : r.best_streak) : '–'}
+              </span>
+            )}
             <span style={{ textAlign: 'right', color: isTop ? TT_YELLOW : TT_CYAN, fontWeight: 700 }}>{r.points}</span>
           </div>
         )
