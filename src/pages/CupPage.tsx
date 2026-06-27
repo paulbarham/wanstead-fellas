@@ -31,6 +31,14 @@ const TT_MAGENTA = 'var(--tt-magenta)'
 const TT_RED = 'var(--tt-red)'
 const MONO = 'var(--font-mono)'
 
+// A single correct pick isn't a streak yet — you need at least 2-in-a-row.
+// Shared with the personal card and Hall of Fame so the rule reads the same
+// everywhere. 🔥 emoji kicks in once you're at 3+.
+const MIN_STREAK = 2
+const isStreak = (n: number) => n >= MIN_STREAK
+const formatStreak = (n: number): string =>
+  n < MIN_STREAK ? '–' : n >= 3 ? `🔥${n}` : String(n)
+
 export default function CupPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
@@ -383,7 +391,7 @@ function CupLeaderboard({ leaderboard, meId }: { leaderboard: LeaderRow[]; meId?
       <LeaderTable rows={leaderboard} meRank={null} highlightMeId={meId} />
       <p className="text-[10px] mt-3 leading-relaxed" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>
         % = HIT RATE · CORRECT / TOTAL SETTLED MATCHES<br />
-        NOW = LIVE STREAK (🔥 ALIVE · – BROKEN) · MISSED COUNTS AS WRONG
+        STREAK = LIVE RUN OF CORRECT GROUP-STAGE PICKS · MIN 2 IN A ROW · MISSED COUNTS AS WRONG
       </p>
       <BestStreakBoard rows={leaderboard} meId={meId} />
     </>
@@ -392,11 +400,11 @@ function CupLeaderboard({ leaderboard, meId }: { leaderboard: LeaderRow[]; meId?
 
 // Hall-of-fame counterpart to LeaderTable: ranks players by best_streak
 // (peak run of correct group-stage picks) rather than total points / live
-// streak. Hidden until at least one player has a streak ≥ 1. Top 10 only —
-// it's a flex, not the chase list.
+// streak. Requires a streak of at least 2 to qualify (single correct pick
+// doesn't count). Top 10 only — it's a flex, not the chase list.
 function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
   const ranked = [...rows]
-    .filter(r => r.best_streak > 0)
+    .filter(r => isStreak(r.best_streak))
     .sort((a, b) =>
       b.best_streak - a.best_streak
       || b.points - a.points
@@ -410,22 +418,23 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
         ▶ HALL OF FAME · BEST STREAKS
       </p>
       <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
-        <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: '32px 1fr 46px 46px', background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: '32px 1fr 56px 56px', background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
           <span>#</span><span>NAME</span>
-          <span style={{ textAlign: 'right' }} title="Live streak right now">NOW</span>
+          <span style={{ textAlign: 'right' }} title="Live streak (min 2)">STREAK</span>
           <span style={{ textAlign: 'right', color: TT_YELLOW }}>BEST</span>
         </div>
         {ranked.map((r, i) => {
           const rank = i + 1
           const isTop = r.best_streak === topStreak
           const isMe = meId === r.player_id
-          const stillOnIt = r.current_streak === r.best_streak && r.current_streak > 0
+          const stillOnIt = r.current_streak === r.best_streak && isStreak(r.current_streak)
+          const onStreak = isStreak(r.current_streak)
           return (
             <div
               key={r.player_id}
               className="grid gap-2 px-3 py-2 items-center"
               style={{
-                gridTemplateColumns: '32px 1fr 46px 46px',
+                gridTemplateColumns: '32px 1fr 56px 56px',
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
                 background: isTop ? 'rgba(74,220,122,0.10)' : isMe ? 'rgba(14,116,144,0.10)' : 'transparent',
                 fontSize: 13,
@@ -438,18 +447,18 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
                 {r.name} {r.surname}
                 {stillOnIt && <span style={{ marginLeft: 6, color: TT_YELLOW, fontSize: 10 }}>STILL ON IT</span>}
               </span>
-              <span style={{ textAlign: 'right', color: r.current_streak > 0 ? TT_GREEN : 'var(--color-text-muted)', fontSize: 11 }}>
-                {r.current_streak > 0 ? (r.current_streak >= 3 ? `🔥${r.current_streak}` : r.current_streak) : '–'}
+              <span style={{ textAlign: 'right', color: onStreak ? TT_GREEN : 'var(--color-text-muted)', fontSize: 11 }}>
+                {formatStreak(r.current_streak)}
               </span>
               <span style={{ textAlign: 'right', color: isTop ? TT_GREEN : TT_YELLOW, fontWeight: 700 }}>
-                {r.best_streak >= 3 ? `🔥${r.best_streak}` : r.best_streak}
+                {formatStreak(r.best_streak)}
               </span>
             </div>
           )
         })}
       </div>
       <p className="text-[10px] mt-2 leading-relaxed" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>
-        BEST = LONGEST RUN OF CORRECT GROUP-STAGE PICKS · NOW = LIVE STREAK
+        BEST = LONGEST RUN OF CORRECT GROUP-STAGE PICKS · MIN 2 IN A ROW
       </p>
     </div>
   )
@@ -537,13 +546,13 @@ function CupMyPicks({
           <span style={{ color: TT_RED }}> · {wrong}</span> wrong
           {missed > 0 && <span style={{ color: TT_MAGENTA }}> · {missed} missed</span>}
         </p>
-        {bestStreak > 0 && (
+        {isStreak(bestStreak) && (
           <p style={{ color: 'var(--color-text-muted)', fontSize: 11, marginTop: 4, letterSpacing: '0.04em' }}>
-            {currentStreak > 0
-              ? <>on <span style={{ color: TT_GREEN, fontWeight: 700 }}>{currentStreak >= 3 ? `🔥${currentStreak}` : currentStreak}</span>{' '}</>
+            {isStreak(currentStreak)
+              ? <>on <span style={{ color: TT_GREEN, fontWeight: 700 }}>{formatStreak(currentStreak)}</span>{' '}</>
               : <>streak broken · </>}
-            <span style={{ color: TT_YELLOW, fontWeight: 700 }}>{bestStreak >= 3 ? `🔥${bestStreak}` : bestStreak}</span> best
-            {currentStreak === bestStreak && currentStreak > 0 && (
+            <span style={{ color: TT_YELLOW, fontWeight: 700 }}>{formatStreak(bestStreak)}</span> best
+            {currentStreak === bestStreak && isStreak(currentStreak) && (
               <span style={{ color: TT_YELLOW, marginLeft: 4 }}>· personal best alive</span>
             )}
           </p>
@@ -862,17 +871,17 @@ function SettledMatchRow({ match, myPick }: { match: CupMatch; myPick?: CupPredi
 }
 
 function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRank: number | null | undefined; highlightMeId?: string }) {
-  // NOW column shows the LIVE running streak (🔥 if alive). Hidden until
-  // someone has had a streak at any point — keeps the early-tournament
-  // table tidy. For a separate Hall of Fame of best-ever streaks, see
-  // <BestStreakBoard /> rendered below the main leaderboard.
-  const showStreak = rows.some(r => r.best_streak > 0)
+  // STREAK column shows the LIVE running streak. A single correct pick
+  // doesn't count — minimum 2 in a row to be on a "streak". Hidden until
+  // someone has at least once cleared that bar. For a separate Hall of
+  // Fame of best-ever streaks, see <BestStreakBoard /> rendered below.
+  const showStreak = rows.some(r => isStreak(r.best_streak))
   const gridCols = showStreak ? '32px 1fr 42px 46px 46px' : '32px 1fr 46px 46px'
   return (
     <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
       <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: gridCols, background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
         <span>#</span><span>NAME</span><span style={{ textAlign: 'right' }}>%</span>
-        {showStreak && <span style={{ textAlign: 'right' }} title="Current run of consecutive correct group-stage picks">NOW</span>}
+        {showStreak && <span style={{ textAlign: 'right' }} title="Live run of consecutive correct group-stage picks (min 2)">STREAK</span>}
         <span style={{ textAlign: 'right', color: TT_YELLOW }}>PTS</span>
       </div>
       {rows.map((r, i) => {
@@ -880,7 +889,7 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
         const isTop = rank === 1
         const isMe = highlightMeId === r.player_id || (meRank != null && rank === meRank)
         const pct = r.settled > 0 ? Math.round((r.correct / r.settled) * 100) : 0
-        const onStreak = r.current_streak > 0
+        const onStreak = isStreak(r.current_streak)
         return (
           <div
             key={r.player_id}
@@ -901,7 +910,7 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
             <span style={{ textAlign: 'right', color: 'var(--color-text-muted)', fontSize: 11 }}>{pct}%</span>
             {showStreak && (
               <span style={{ textAlign: 'right', color: onStreak ? TT_GREEN : 'var(--color-text-muted)', fontSize: 11, fontWeight: onStreak ? 700 : 400 }}>
-                {onStreak ? (r.current_streak >= 3 ? `🔥${r.current_streak}` : r.current_streak) : '–'}
+                {formatStreak(r.current_streak)}
               </span>
             )}
             <span style={{ textAlign: 'right', color: isTop ? TT_YELLOW : TT_CYAN, fontWeight: 700 }}>{r.points}</span>
