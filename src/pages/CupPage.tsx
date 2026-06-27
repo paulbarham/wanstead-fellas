@@ -418,9 +418,8 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
         ▶ HALL OF FAME · BEST STREAKS
       </p>
       <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
-        <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: '32px 1fr 56px 56px', background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: '32px 1fr 56px', background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
           <span>#</span><span>NAME</span>
-          <span style={{ textAlign: 'right' }} title="Live streak (min 2)">STREAK</span>
           <span style={{ textAlign: 'right', color: TT_YELLOW }}>BEST</span>
         </div>
         {ranked.map((r, i) => {
@@ -428,13 +427,12 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
           const isTop = r.best_streak === topStreak
           const isMe = meId === r.player_id
           const stillOnIt = r.current_streak === r.best_streak && isStreak(r.current_streak)
-          const onStreak = isStreak(r.current_streak)
           return (
             <div
               key={r.player_id}
               className="grid gap-2 px-3 py-2 items-center"
               style={{
-                gridTemplateColumns: '32px 1fr 56px 56px',
+                gridTemplateColumns: '32px 1fr 56px',
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
                 background: isTop ? 'rgba(74,220,122,0.10)' : isMe ? 'rgba(14,116,144,0.10)' : 'transparent',
                 fontSize: 13,
@@ -446,9 +444,6 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
               <span className="truncate" style={{ color: isTop ? TT_GREEN : isMe ? TT_CYAN : 'var(--color-text)', fontWeight: isTop || isMe ? 700 : 400 }}>
                 {r.name} {r.surname}
                 {stillOnIt && <span style={{ marginLeft: 6, color: TT_YELLOW, fontSize: 10 }}>STILL ON IT</span>}
-              </span>
-              <span style={{ textAlign: 'right', color: onStreak ? TT_GREEN : 'var(--color-text-muted)', fontSize: 11 }}>
-                {formatStreak(r.current_streak)}
               </span>
               <span style={{ textAlign: 'right', color: isTop ? TT_GREEN : TT_YELLOW, fontWeight: 700 }}>
                 {formatStreak(r.best_streak)}
