@@ -398,7 +398,9 @@ function CupMyPicks({
   const settledMine = settled.filter(m => myPicks[m.id])
 
   const totalSettled = settled.length
-  const correct = settledMine.filter(m => myPicks[m.id].points_awarded === 1).length
+  // "Correct" = got the team right, regardless of route. Knockouts can score 2
+  // (right team + right method); groups still score 1. Anything > 0 is correct.
+  const correct = settledMine.filter(m => (myPicks[m.id].points_awarded ?? 0) > 0).length
   const wrong = settledMine.length - correct
   const missed = totalSettled - settledMine.length
   // Two denominators on purpose: the LEAGUE uses tournament-wide settled
@@ -644,6 +646,9 @@ function KOOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPre
   const shortMode = (m: '90' | 'et' | 'pen') => m === '90' ? "90'" : m === 'et' ? 'ET' : 'PENS'
   return (
     <div className="space-y-2 mt-3">
+      <p className="px-1" style={{ fontFamily: MONO, fontSize: 10, color: 'var(--color-text-muted)', letterSpacing: '0.06em' }}>
+        +1 RIGHT TEAM · +2 RIGHT TEAM &amp; METHOD
+      </p>
       {[
         { team: match.team1, opts: side1 },
         { team: match.team2, opts: side2 },
@@ -722,7 +727,13 @@ function PendingPickRow({ match, pick, onPick }: { match: CupMatch; pick: CupPre
 }
 
 function SettledMatchRow({ match, myPick }: { match: CupMatch; myPick?: CupPrediction }) {
-  const correct = myPick?.points_awarded === 1
+  const pts = myPick?.points_awarded ?? 0
+  // Knockouts score 0/1/2 (right team / right team + method). Groups score 0/1.
+  // Colour by how good the call was: green = max possible for that match,
+  // yellow = partial (knockouts only), red = wrong.
+  const maxPts = match.is_knockout ? 2 : 1
+  const verdictColour = pts === 0 ? TT_RED : pts === maxPts ? TT_GREEN : TT_YELLOW
+  const verdictLabel = pts === 0 ? '✕' : `✓ +${pts}`
   return (
     <div className="rounded-xl p-3 mb-2" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
       <div className="flex items-center justify-between mb-1.5" style={{ fontSize: 10, letterSpacing: '0.1em', color: TT_CYAN }}>
@@ -738,7 +749,7 @@ function SettledMatchRow({ match, myPick }: { match: CupMatch; myPick?: CupPredi
       </div>
       <p className="mt-1.5 text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
         {myPick
-          ? <>PICK: <span style={{ color: correct ? TT_GREEN : TT_RED, fontWeight: 700 }}>{pickLabel(myPick.pick, match)} {correct ? '✓ +1' : '✕'}</span></>
+          ? <>PICK: <span style={{ color: verdictColour, fontWeight: 700 }}>{pickLabel(myPick.pick, match)} {verdictLabel}</span></>
           : <span style={{ color: 'var(--color-text-muted)' }}>NO PICK SUBMITTED</span>}
       </p>
     </div>
