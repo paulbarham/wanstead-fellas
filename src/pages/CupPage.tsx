@@ -20,7 +20,7 @@ interface LeaderRow {
   points: number
   settled: number
   correct: number
-  best_streak: number     // peak run across the group stage so far
+  best_streak: number     // peak run of "right team" picks across the tournament so far
   current_streak: number  // active run ending at the most recent settled match (0 if broken)
 }
 
@@ -391,7 +391,7 @@ function CupLeaderboard({ leaderboard, meId }: { leaderboard: LeaderRow[]; meId?
       <LeaderTable rows={leaderboard} meRank={null} highlightMeId={meId} />
       <p className="text-[10px] mt-3 leading-relaxed" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>
         % = HIT RATE · CORRECT / TOTAL SETTLED MATCHES<br />
-        STREAK = LIVE RUN OF CORRECT GROUP-STAGE PICKS · MIN 2 IN A ROW · MISSED COUNTS AS WRONG
+        STREAK = LIVE RUN OF RIGHT-TEAM PICKS (GROUPS + KO) · MIN 2 IN A ROW · MISSED COUNTS AS WRONG
       </p>
       <BestStreakBoard rows={leaderboard} meId={meId} />
     </>
@@ -399,9 +399,11 @@ function CupLeaderboard({ leaderboard, meId }: { leaderboard: LeaderRow[]; meId?
 }
 
 // Hall-of-fame counterpart to LeaderTable: ranks players by best_streak
-// (peak run of correct group-stage picks) rather than total points / live
-// streak. Requires a streak of at least 2 to qualify (single correct pick
-// doesn't count). Top 10 only — it's a flex, not the chase list.
+// (peak run of right-team picks across the whole tournament — groups and
+// knockouts) rather than total points / live streak. In knockouts a "right
+// team" call is any pick scoring ≥1pt (1 = right team / wrong method,
+// 2 = right team + method). Requires a streak of at least 2 to qualify
+// (single correct pick doesn't count). Top 10 only — it's a flex.
 function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
   const ranked = [...rows]
     .filter(r => isStreak(r.best_streak))
@@ -495,7 +497,7 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
         })}
       </div>
       <p className="text-[10px] mt-2 leading-relaxed" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.08em' }}>
-        BEST = LONGEST RUN OF CORRECT GROUP-STAGE PICKS · MIN 2 IN A ROW
+        BEST = LONGEST RUN OF RIGHT-TEAM PICKS (GROUPS + KO) · MIN 2 IN A ROW
       </p>
     </div>
   )
@@ -520,16 +522,17 @@ function CupMyPicks({
   // (right team + right method); groups still score 1. Anything > 0 is correct.
   const correct = settledMine.filter(m => (myPicks[m.id].points_awarded ?? 0) > 0).length
 
-  // Personal streaks — best and current — for the group stage. Mirrors
-  // v_cup_leaderboard's server-side calc; computed locally so we don't need
-  // to thread the leaderboard row down into this component. Missed picks
-  // break the streak.
-  const settledGroupSorted = settled
-    .filter(m => !m.is_knockout)
+  // Personal streaks — best and current — across the whole tournament
+  // (groups + knockouts). Mirrors v_cup_leaderboard's server-side calc.
+  // Computed locally so we don't need to thread the leaderboard row down
+  // into this component. Any non-zero points_awarded counts as a hit (so
+  // a 1-pt 'right team / wrong method' knockout call still extends the
+  // streak); missed picks and 0-pt picks break it.
+  const settledSorted = [...settled]
     .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
   let bestStreak = 0
   let runningStreak = 0
-  for (const m of settledGroupSorted) {
+  for (const m of settledSorted) {
     const pts = myPicks[m.id]?.points_awarded ?? 0
     if (pts > 0) {
       runningStreak += 1
@@ -539,7 +542,7 @@ function CupMyPicks({
     }
   }
   // After the loop, runningStreak is the active streak (0 if the most
-  // recent settled group pick was wrong/missed).
+  // recent settled pick was wrong/missed).
   const currentStreak = runningStreak
   const wrong = settledMine.length - correct
   const missed = totalSettled - settledMine.length
@@ -918,7 +921,7 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
     <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
       <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: gridCols, background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
         <span>#</span><span>NAME</span><span style={{ textAlign: 'right' }}>%</span>
-        {showStreak && <span style={{ textAlign: 'right' }} title="Live run of consecutive correct group-stage picks (min 2)">STREAK</span>}
+        {showStreak && <span style={{ textAlign: 'right' }} title="Live run of right-team picks (groups + knockouts, min 2)">STREAK</span>}
         <span style={{ textAlign: 'right', color: TT_YELLOW }}>PTS</span>
       </div>
       {rows.map((r, i) => {
