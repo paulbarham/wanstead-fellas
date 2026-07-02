@@ -185,10 +185,15 @@ function MatchAdminCard({
   async function save() {
     onError(null)
     setSaving(true)
-    const update: Partial<CupMatch> = {
+    // Lock the outcome when an admin sets it — the auto-sync will then
+    // stop rewriting it back. If they clear it (set to null), unlock so
+    // the sync can freshly settle the match. See migration 042.
+    const outcomeVal = outcome === '' ? null : outcome
+    const update = {
       score1: score1 === '' ? null : parseInt(score1, 10),
       score2: score2 === '' ? null : parseInt(score2, 10),
-      actual_outcome: outcome === '' ? null : outcome,
+      actual_outcome: outcomeVal,
+      outcome_locked_by_admin: outcomeVal !== null,
     }
     const { error } = await supabase.from('cup_matches').update(update).eq('id', match.id)
     setSaving(false)

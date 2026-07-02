@@ -66,6 +66,7 @@ interface FdMatch {
 interface CupMatchRow {
   id: string; team1: string; team2: string; kickoff: string
   is_knockout: boolean; actual_outcome: string | null; cards_synced_at: string | null
+  outcome_locked_by_admin: boolean
 }
 interface AfFixtureListItem { fixture: { id: number; date: string }; teams: { home: { name: string }; away: { name: string } } }
 interface AfEvent { team: { name: string }; type: string; detail: string }
@@ -114,7 +115,7 @@ Deno.serve(async () => {
   if (!fdRes.ok) return new Response(JSON.stringify({ error: `FD ${fdRes.status}: ${await fdRes.text()}` }), { status: 502, headers: { 'Content-Type': 'application/json' } })
   const fdMatches = ((await fdRes.json()) as { matches: FdMatch[] }).matches ?? []
 
-  const { data: allRows, error: fetchErr } = await supabase.from('cup_matches').select('id, team1, team2, kickoff, is_knockout, actual_outcome, cards_synced_at')
+  const { data: allRows, error: fetchErr } = await supabase.from('cup_matches').select('id, team1, team2, kickoff, is_knockout, actual_outcome, cards_synced_at, outcome_locked_by_admin')
   if (fetchErr) return new Response(JSON.stringify({ error: `DB fetch: ${fetchErr.message}` }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   const ourMatches = (allRows as CupMatchRow[]) ?? []
 
@@ -151,13 +152,33 @@ Deno.serve(async () => {
       else inserts.push({ team1, team2, kickoff: a.utcDate, stage: stageInfo.stage })
       continue
     }
-    if (a.status !== 'FINISHED' || ours.actual_outcome != null) continue
+    if (a.status !== 'FINISHED') continue
+
+    // Admin locks are permanent — never overwrite a hand-corrected outcome.
+    if (ours.outcome_locked_by_admin) continue
+
+    // Reconciliation window: within 48h of kickoff we still re-read FD in
+    // case they've published a correction (their `duration` flag is often
+    // late to flip from REGULAR to EXTRA_TIME on ties that end in ET, which
+    // is what mis-tagged Belgium 3-2 Senegal on 2 Jul 2026). After 48h,
+    // freeze the outcome — anything wrong at that point needs an admin
+    // override and will get locked automatically via the UI.
+    const kickoffMs = new Date(ours.kickoff).getTime()
+    const withinReconcileWindow = Date.now() - kickoffMs < 48 * 60 * 60 * 1000
+    if (ours.actual_outcome != null && !withinReconcileWindow) continue
+
     const swap = fdNormalize(a.homeTeam.name) === ours.team2
     const result = computeOutcome(a, ours.is_knockout, swap)
     if (!result) continue
+
+    // No-op if FD is still reporting the same outcome — avoids trigger
+    // side-effects (predictions re-settle) when nothing actually changed.
+    if (ours.actual_outcome === result.outcome) continue
+
     const { error: updErr, count } = await supabase.from('cup_matches')
       .update({ score1: result.score1, score2: result.score2, actual_outcome: result.outcome }, { count: 'exact' })
-      .eq('id', ours.id).is('actual_outcome', null)
+      .eq('id', ours.id)
+      .eq('outcome_locked_by_admin', false)  // Extra safety: race-condition guard in case admin locks between fetch + update
     if (updErr) errors.push({ team1: ours.team1, team2: ours.team2, error: updErr.message })
     else if ((count ?? 0) > 0) updates.push({ team1: ours.team1, team2: ours.team2, outcome: result.outcome, score: `${result.score1}-${result.score2}` })
   }
