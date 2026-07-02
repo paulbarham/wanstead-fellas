@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Result } from '../types'
-import { getNextThursdayDate } from '../lib/time'
+import { getNextThursdayDate, nowLondon } from '../lib/time'
 import AdminMatchEntry from '../components/AdminMatchEntry'
 import MatchReport from '../components/MatchReport'
 import SectionHeader from '../components/SectionHeader'
@@ -106,7 +106,21 @@ export default function MatchPage() {
       .order('match_date', { ascending: false })
       .limit(1)
       .maybeSingle()
-    const displayMatch = (latestRaw as Match | null) ?? null
+    let displayMatch = (latestRaw as Match | null) ?? null
+
+    // On the day of the next scheduled match, hide the previous week's
+    // completed match until this week's result is submitted. Otherwise a
+    // player opening the Match tab on Thursday afternoon sees "MATCH
+    // REPORT · 25 JUN" as the headline, which is stale — tonight's game
+    // is a few hours away, not last week's. The awaiting-result placeholder
+    // is a better read. Once the admin submits tonight's result the newer
+    // completed match returns naturally.
+    const now = nowLondon()
+    const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    const nextThursdayIso = getNextThursdayDate()
+    if (todayIso === nextThursdayIso && displayMatch && displayMatch.match_date < nextThursdayIso) {
+      displayMatch = null
+    }
     setMatch(displayMatch)
 
     if (displayMatch) {
