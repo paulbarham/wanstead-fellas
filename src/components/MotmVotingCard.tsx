@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import PlayerAvatar from './PlayerAvatar'
+import { getNextThursdayDate, nowLondon } from '../lib/time'
 import type { Profile, AwardType, AwardResult, VotingWindow } from '../types'
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'surname' | 'photo_url'>
@@ -68,11 +69,28 @@ export default function MotmVotingCard() {
     async function load() {
       const { data: vw } = await supabase
         .from('voting_windows')
-        .select('*')
+        .select('*, matches!inner(match_date)')
         .order('closes_at', { ascending: false })
         .limit(1)
         .maybeSingle()
-      const w = vw as VotingWindow | null
+      const wRaw = vw as (VotingWindow & { matches: { match_date: string } }) | null
+
+      // On the day of a new scheduled match, don't linger on last week's
+      // voting results. Same rationale as the MatchPage stale-report hide —
+      // Thursday afternoon shouldn't headline last Thursday's MOTM/DOTD.
+      // Once tonight's teams are published a fresh voting_windows row lands
+      // for today's match_date and this check flips back on.
+      const n = nowLondon()
+      const todayIso = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`
+      const nextThursdayIso = getNextThursdayDate()
+      const isMatchDay = todayIso === nextThursdayIso
+      const windowMatchDate = wRaw?.matches?.match_date ?? null
+      if (isMatchDay && windowMatchDate && windowMatchDate < todayIso) {
+        setLoading(false)
+        return
+      }
+
+      const w = wRaw as VotingWindow | null
       setWindow(w)
       if (!w) { setLoading(false); return }
 

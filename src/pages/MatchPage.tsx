@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Match, Team, Fixture, Result } from '../types'
+import { useNavigate } from 'react-router-dom'
 import { getNextThursdayDate, nowLondon } from '../lib/time'
 import AdminMatchEntry from '../components/AdminMatchEntry'
 import MatchReport from '../components/MatchReport'
@@ -59,9 +60,15 @@ async function loadMatchData(matchId: string): Promise<{
 
 export default function MatchPage() {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const nextThursday = getNextThursdayDate()
 
   const [match, setMatch] = useState<Match | null>(null)
+  // Admin-only signal: is there an unpublished draft for the next scheduled
+  // match? If so, on match day the placeholder branch shows a Publish CTA
+  // linking back to the Team Builder — otherwise admin has to guess why
+  // AdminMatchEntry hasn't appeared.
+  const [hasUnpublishedDraft, setHasUnpublishedDraft] = useState(false)
   const [teams, setTeams] = useState<Team[]>([])
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>([])
   const [result, setResult] = useState<Result | null>(null)
@@ -156,6 +163,19 @@ export default function MatchPage() {
       .order('closes_at', { ascending: false })
       .limit(1)
       .maybeSingle()
+    // Admin-only: check for an unpublished draft for the next Thursday so
+    // we can surface a Publish CTA on the placeholder view.
+    if (profile?.is_admin) {
+      const { data: draft } = await supabase
+        .from('team_drafts')
+        .select('match_date')
+        .eq('match_date', nextThursday)
+        .maybeSingle()
+      setHasUnpublishedDraft(!!draft && !thisWeek)
+    } else {
+      setHasUnpublishedDraft(false)
+    }
+
     if (vw) {
       const v = vw as { opens_at: string; closes_at: string }
       const nowMs = Date.now()
@@ -253,6 +273,23 @@ export default function MatchPage() {
             <p className="font-medium text-[var(--color-text)]">No result yet</p>
             <p className="text-sm mt-1">Results posted after the match</p>
           </div>
+          {hasUnpublishedDraft && (
+            <div className="mb-4 p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
+              <p className="text-sm font-semibold mb-1" style={{ color: 'var(--color-primary)' }}>
+                Teams drafted but not published
+              </p>
+              <p className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>
+                Publish tonight's teams to unlock fixture entry and open the voting window. Fixtures generate automatically.
+              </p>
+              <button
+                onClick={() => navigate('/teams')}
+                className="w-full py-2 rounded-xl text-sm font-semibold"
+                style={{ background: 'var(--color-primary)', color: '#FFFFFF' }}
+              >
+                Go to Team Builder →
+              </button>
+            </div>
+          )}
           <MotmVotingCard />
         </>
       ) : (
