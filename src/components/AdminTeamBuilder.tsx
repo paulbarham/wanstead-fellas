@@ -498,19 +498,11 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
       )
       if (vwErr) throw new Error(`Couldn't open voting window: ${vwErr.message}`)
 
-      // Auto-create WTP game entries for all WTP players in the published teams
-      const allPlayers = draftTeams.flatMap(t => t.players)
-      const wtpPlayers = allPlayers.filter(p => {
-        const t = p.player_type ?? 'wtp'
-        return t === 'wtp' || t === 'wtp_priority'
-      })
-      if (wtpPlayers.length > 0) {
-        const { error: wtpErr } = await supabase.from('wtp_games').upsert(
-          wtpPlayers.map(p => ({ player_id: p.id, match_date: nextThursday, amount: 5.00 })),
-          { onConflict: 'player_id,match_date' }
-        )
-        if (wtpErr) throw new Error(`Couldn't create WTP entries: ${wtpErr.message}`)
-      }
+      // WTP charges are no longer created at publish time — they now fire
+      // via the DB trigger (migration 044) when the match is marked
+      // completed. This keeps a player's finances tab clean until they've
+      // actually played (matches the admin's expectation that pre-match
+      // signup shouldn't show as owing until the game has been played).
 
       setPublished(true)
       onPublished()
