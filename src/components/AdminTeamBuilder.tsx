@@ -474,21 +474,50 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         const oldIds = oldTeams.map((t: { id: string }) => t.id)
         const { error: tpDelErr } = await supabase.from('team_players').delete().in('team_id', oldIds)
         if (tpDelErr) throw new Error(`Couldn't clear old team_players: ${tpDelErr.message}`)
+        // Delete fixtures BEFORE teams — fixtures.team1_id/team2_id FKs
+        // would otherwise block the team delete on RESTRICT.
+        const { error: fxDelErr } = await supabase.from('fixtures').delete().eq('match_id', matchId)
+        if (fxDelErr) throw new Error(`Couldn't clear old fixtures: ${fxDelErr.message}`)
         const { error: tDelErr } = await supabase.from('teams').delete().eq('match_id', matchId)
         if (tDelErr) throw new Error(`Couldn't clear old teams: ${tDelErr.message}`)
       }
 
+      const insertedTeamIds: string[] = []
       for (const team of draftTeams) {
         const { data: teamRow, error: teamErr } = await supabase
           .from('teams')
           .insert({ match_id: matchId, name: team.name, captain_id: team.captain?.id ?? null, bibs: team.bibs })
           .select().single()
         if (teamErr || !teamRow) throw new Error(`Couldn't save team "${team.name}": ${teamErr?.message ?? 'no row returned'}`)
+        insertedTeamIds.push(teamRow.id)
         const { error: tpErr } = await supabase.from('team_players').insert(
           team.players.map(p => ({ team_id: teamRow.id, player_id: p.id }))
         )
         if (tpErr) throw new Error(`Couldn't save players for "${team.name}": ${tpErr.message}`)
       }
+
+      // Auto-generate round-robin fixtures so the admin doesn't have to hit
+      // "Generate Fixtures" separately on the Match tab. Each pair of teams
+      // plays once. For 4 teams that's 6 fixtures; for 2 teams (11v11) it's
+      // 1 fixture. Matches the loop shape in AdminMatchEntry.roundRobinRows.
+      // On re-publish the old team_players / teams / fixtures were already
+      // cleared above, so this insert always starts from a clean slate.
+      if (insertedTeamIds.length >= 2) {
+        const fixtureRows: { match_id: string; team1_id: string; team2_id: string }[] = []
+        for (let i = 0; i < insertedTeamIds.length; i++) {
+          for (let j = i + 1; j < insertedTeamIds.length; j++) {
+            fixtureRows.push({ match_id: matchId, team1_id: insertedTeamIds[i], team2_id: insertedTeamIds[j] })
+          }
+        }
+        const { error: fxErr } = await supabase.from('fixtures').insert(fixtureRows)
+        // Non-fatal — a unique-constraint clash (rare, means the fixtures
+        // somehow survived the earlier delete) shouldn't block the whole
+        // publish. Admin can regenerate manually.
+        if (fxErr && fxErr.code !== '23505') {
+          throw new Error(`Couldn't create fixtures: ${fxErr.message}`)
+        }
+      }
+
       // Open the MOTM/DOTD voting window for this match (10pm match night →
       // 9am next day). Preserves results_published if the row already exists.
       const { opens_at, closes_at } = getVotingWindow(nextThursday)
