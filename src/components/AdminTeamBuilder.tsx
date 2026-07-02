@@ -75,15 +75,60 @@ function calcWeightedScore(player: Profile, weights: Record<string, number>): nu
   return ATTR_LABELS.reduce((sum, { key }) => sum + (attrs[key as string] || 0) * (weights[key] || 0), 0)
 }
 
+// Snake draft with position priority — the previous single-list sort was
+// position-blind, which frequently clumped goalkeepers onto one team and
+// left other teams with none (or with no attackers, no defenders, etc.).
+//
+// New approach: split the roster into pools by primary position, snake
+// each pool in turn — GKs first (scarcest, most position-critical), then
+// ATTs (also scarce), then DEFs, then MIDs. Direction and cursor carry
+// over between pools so adjacent positions don't clump on the same team.
+// A max-size cap keeps team sizes even when a pool is unusually large.
 function snakeDraft(players: Profile[], numTeams: number, weights: Record<string, number>): Profile[][] {
-  const sorted = [...players].sort((a, b) => calcWeightedScore(b, weights) - calcWeightedScore(a, weights))
   const teams: Profile[][] = Array.from({ length: numTeams }, () => [])
-  sorted.forEach((player, i) => {
-    const round = Math.floor(i / numTeams)
-    const pos = i % numTeams
-    const teamIdx = round % 2 === 0 ? pos : numTeams - 1 - pos
-    teams[teamIdx].push(player)
-  })
+  const maxSize = Math.ceil(players.length / numTeams)
+  const posOf = (p: Profile): string | null =>
+    p.preferred_position_primary ?? p.position ?? null
+  const sortByScore = (arr: Profile[]) =>
+    [...arr].sort((a, b) => calcWeightedScore(b, weights) - calcWeightedScore(a, weights))
+
+  const gks  = sortByScore(players.filter(p => posOf(p) === 'GK'))
+  const atts = sortByScore(players.filter(p => posOf(p) === 'ATT'))
+  const defs = sortByScore(players.filter(p => posOf(p) === 'DEF'))
+  const mids = sortByScore(players.filter(p => posOf(p) === 'MID'))
+  const rest = sortByScore(players.filter(p => {
+    const pos = posOf(p)
+    return pos !== 'GK' && pos !== 'ATT' && pos !== 'DEF' && pos !== 'MID'
+  }))
+
+  let idx = 0
+  let dir: 1 | -1 = 1
+  const advance = () => {
+    idx += dir
+    if (idx === numTeams) { idx = numTeams - 1; dir = -1 }
+    else if (idx === -1)  { idx = 0;             dir =  1 }
+  }
+  const distribute = (pool: Profile[]) => {
+    for (const p of pool) {
+      // Skip full teams — keeps team sizes even when a position pool is
+      // large (typically DEFs/MIDs). Bounded loop for safety in case
+      // every team is full (shouldn't happen if maxSize is right).
+      let attempts = 0
+      while (teams[idx].length >= maxSize && attempts < numTeams * 2) {
+        advance()
+        attempts++
+      }
+      teams[idx].push(p)
+      advance()
+    }
+  }
+
+  distribute(gks)
+  distribute(atts)
+  distribute(defs)
+  distribute(mids)
+  distribute(rest)
+
   return teams
 }
 

@@ -38,7 +38,7 @@ The picker and DB are live. The visible payoff (position-aware cards, stats, bal
 | Position-aware Stats panels (Top 3 by position filter) | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `9e5979c` | Chip strip below period toggle; filters every panel on the page |
 | 4th hero card for Top GK on Stats | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `9e5979c` | Clean-sheet leader; green tier; shown when posFilter is 'all' |
 | Position-weighted overall rating | 🟢 | [04](primers/pdf/04-preferred-position.pdf) · [06](primers/pdf/06-user-guide-v3.pdf) p6 | Defender's "60 ATT" no longer drags their overall down |
-| Balancer hard constraint: ≥1 GK / ≥1 ATT / ≥1 DEF per team | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | Use secondaries when short on a position |
+| Balancer position-aware distribution (GK → ATT → DEF → MID priority) | ✅ | chat · commit pending | Split roster by primary position, snake each pool in turn with a shared cursor + max-size cap. Guarantees GK/ATT spread up to available pool, doesn't hard-error when pool is short (e.g. only 3 GKs signed up for 4 teams). Followup 🟢: use secondaries when short on a position |
 | Balancer soft constraint: MID count within ±1 across teams | 🟢 | [04](primers/pdf/04-preferred-position.pdf) | |
 | ⚠️ Position-aware balancer ships only once ≥80% of regulars have a position set | ⚠️ | [04](primers/pdf/04-preferred-position.pdf) | Currently 83% — clears the bar; chase the last 10 first |
 
