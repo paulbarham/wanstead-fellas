@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Formation Picker</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · FORMATION PICKER · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.mag   { background: rgba(255,102,204,0.07); border-left-color: #FF66CC; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  /* ─── Team card mock ───────────────────────────── */
+  .card {
+    background: #FFFFFF;
+    color: #18201A;
+    border-radius: 10pt;
+    padding: 0;
+    margin: 8pt 0;
+    overflow: hidden;
+    border: 1px solid #E2E4DC;
+  }
+  .card-head {
+    background: #F7F8F5;
+    padding: 8pt 10pt;
+    border-bottom: 1px solid #E2E4DC;
+    display: table; width: 100%;
+  }
+  .card-head .name {
+    display: table-cell;
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 10.5pt;
+    color: #18201A;
+    vertical-align: middle;
+  }
+  .card-head .name .pill {
+    display: inline-block; margin-left: 6pt;
+    background: #F2F3EE; color: #647060;
+    border-radius: 3pt; padding: 1pt 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+  .card-head .save {
+    display: table-cell; text-align: right;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.12em;
+    color: #647060; vertical-align: middle;
+  }
+
+  .chips {
+    background: #FFFFFF;
+    padding: 6pt 8pt;
+    border-bottom: 1px solid #E2E4DC;
+  }
+  .chip {
+    display: inline-block;
+    padding: 2pt 6pt;
+    border-radius: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #647060;
+    background: #F7F8F5;
+    border: 1px solid #E2E4DC;
+    margin-right: 3pt; margin-bottom: 2pt;
+  }
+  .chip.on { background: #0D6B52; color: #FFFFFF; border-color: #0D6B52; }
+  .chip.auto {
+    background: #F7F8F5; color: #647060;
+    border-color: #E2E4DC; float: right;
+  }
+
+  /* Pitch */
+  .pitch {
+    background: linear-gradient(180deg, #0F8566 0%, #0D6B52 100%);
+    padding: 12pt 8pt;
+    position: relative;
+    overflow: hidden;
+  }
+  .pitch::after {
+    content: '';
+    position: absolute; left: 8pt; right: 8pt; top: 50%;
+    height: 1px; background: rgba(255,255,255,0.35);
+  }
+  .row {
+    display: table; width: 100%;
+    margin-bottom: 8pt;
+    table-layout: fixed;
+  }
+  .row:last-child { margin-bottom: 0; }
+  .row .slot {
+    display: table-cell;
+    text-align: center;
+    vertical-align: top;
+  }
+  .puck {
+    width: 34pt; height: 34pt; border-radius: 50%;
+    display: inline-block;
+    background: #FFFFFF;
+    border: 2pt solid #FFFFFF;
+    text-align: center;
+    line-height: 30pt;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9pt;
+    color: #0D6B52;
+  }
+  .puck.empty {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.85);
+    border-color: rgba(255,255,255,0.6);
+  }
+  .puck.selected {
+    border-color: #FFD400;
+    box-shadow: 0 0 0 2pt rgba(255,212,0,0.35);
+  }
+  .lbl {
+    display: block;
+    margin-top: 3pt;
+    background: rgba(0,0,0,0.35);
+    color: #FFFFFF;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 1pt 3pt;
+    border-radius: 3pt;
+    display: inline-block;
+    max-width: 70pt;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bench {
+    padding: 8pt 10pt;
+    background: #FFFFFF;
+  }
+  .bench .head {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.14em;
+    color: #647060; text-transform: uppercase;
+    margin-bottom: 4pt;
+  }
+  .bpill {
+    display: inline-block;
+    padding: 2pt 8pt 2pt 5pt;
+    border-radius: 999pt;
+    background: #F7F8F5;
+    border: 1px solid #E2E4DC;
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #18201A;
+    margin: 0 2pt 3pt 0;
+    line-height: 1.4;
+  }
+  .bpill .av {
+    display: inline-block;
+    width: 12pt; height: 12pt;
+    border-radius: 50%;
+    background: #0D6B52; color: #FFFFFF;
+    font-size: 6.5pt; font-weight: 700;
+    text-align: center; line-height: 12pt;
+    margin-right: 3pt;
+    vertical-align: middle;
+  }
+  .bpill .pos {
+    color: #647060; font-family: 'Courier New', monospace;
+    font-size: 7pt; letter-spacing: 0.08em;
+    margin-left: 3pt;
+  }
+  .bpill.active { background: #0D6B52; color: #FFFFFF; border-color: #0D6B52; }
+  .bpill.active .av { background: #FFFFFF; color: #0D6B52; }
+  .bpill.active .pos { color: rgba(255,255,255,0.7); }
+
+  .prompt {
+    padding: 5pt 10pt;
+    background: #F2F3EE;
+    border-bottom: 1px solid #E2E4DC;
+    display: table; width: 100%;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.12em;
+    color: #647060;
+  }
+  .prompt .left { display: table-cell; text-transform: uppercase; }
+  .prompt .right { display: table-cell; text-align: right; }
+  .prompt .btn {
+    display: inline-block;
+    padding: 1pt 5pt;
+    border: 1px solid #E2E4DC;
+    background: #FFFFFF;
+    border-radius: 3pt;
+    font-size: 7pt;
+    margin-left: 3pt;
+    font-weight: 700;
+  }
+  .prompt .btn.warn { color: #B91C1C; }
+
+  /* Step-by-step callouts */
+  .steps {
+    display: table;
+    width: 100%;
+    border-spacing: 6pt 0;
+    margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .step {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+    font-size: 9pt;
+  }
+  .step .n {
+    display: inline-block;
+    width: 14pt; height: 14pt; border-radius: 50%;
+    background: #FFD400; color: #0F1710;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9pt; font-weight: 800;
+    text-align: center; line-height: 14pt;
+    margin-right: 4pt;
+    vertical-align: middle;
+  }
+  .step h4 {
+    display: inline;
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 9.5pt;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin: 0;
+  }
+  .step p { margin: 4pt 0 0; color: #E8F0E9; font-size: 9pt; line-height: 1.4; }
+
+  /* Shape grid */
+  .shapes {
+    display: table;
+    width: 100%;
+    border-spacing: 4pt 0;
+    margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .shape {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 6pt 4pt;
+    vertical-align: middle;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    color: #E8F0E9;
+  }
+  .shape .code {
+    display: block;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 12pt;
+    color: #FFD400;
+    letter-spacing: 0.06em;
+  }
+  .shape .lbl2 {
+    display: block;
+    font-size: 7.5pt;
+    color: #9CA897;
+    margin-top: 2pt;
+    letter-spacing: 0.06em;
+  }
+
+  .who {
+    display: table;
+    width: 100%;
+    border-spacing: 6pt 0;
+    margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .who .col {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+    font-size: 9pt;
+  }
+  .who .col.on  { border-color: #4ADC7A; }
+  .who .col.off { border-color: #B91C1C; }
+  .who h4 {
+    margin: 0 0 3pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .who .col.on  h4 { color: #4ADC7A; }
+  .who .col.off h4 { color: #FF5555; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+
+  .kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    border: 1px solid rgba(74,217,255,0.25);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Formation Picker · Update</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P512 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>TL;DR</strong> — Once the teams are published on the Match tab, every team now shows a pitch with slots for goalkeeper, defence, midfield, attack. Pick your shape (2-3-1, 3-2-1, 2-2-2, …), drop yourself and your teammates into positions, and settle the tactics before kick-off. <em>Anyone on the roster can edit — start the argument early.</em>
+</div>
+
+<h2>Where it lives</h2>
+<p>Match tab. It appears the moment teams are published for the next Thursday and disappears when the result is entered. Two cards, one per team, stacked vertically.</p>
+
+<h2>Anatomy of the card</h2>
+
+<div class="card">
+  <div class="card-head">
+    <div class="name">Daren Low FC <span class="pill">🟠 BIBS</span></div>
+    <div class="save">✓ SAVED</div>
+  </div>
+
+  <div class="chips">
+    <span class="chip on">2-3-1</span>
+    <span class="chip">3-2-1</span>
+    <span class="chip">2-2-2</span>
+    <span class="chip">3-1-2</span>
+    <span class="chip">1-3-2</span>
+    <span class="chip">1-4-1</span>
+    <span class="chip auto">⚡ AUTO-FILL</span>
+  </div>
+
+  <div class="pitch">
+    <div class="row">
+      <div class="slot">
+        <span class="puck">N</span><br><span class="lbl">N. HIGGINS</span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="slot"><span class="puck">P</span><br><span class="lbl">P. SCHAEFER</span></div>
+      <div class="slot"><span class="puck">M</span><br><span class="lbl">M. WINTER</span></div>
+      <div class="slot"><span class="puck">S</span><br><span class="lbl">S. DUNCAN</span></div>
+    </div>
+    <div class="row">
+      <div class="slot"><span class="puck">D</span><br><span class="lbl">D. LOW</span></div>
+      <div class="slot"><span class="puck">K</span><br><span class="lbl">K. ELKINER</span></div>
+    </div>
+    <div class="row">
+      <div class="slot"><span class="puck">P</span><br><span class="lbl">P. MAY</span></div>
+    </div>
+  </div>
+
+  <div class="bench">
+    <div class="head">BENCH · 0</div>
+    <span style="color:#647060; font-size:9pt;">Everyone's on the pitch.</span>
+  </div>
+</div>
+
+<p style="font-size:9.5pt; color:#9CA897;">Reading the pitch <strong>top-to-bottom</strong> = <span style="color:#FFD400;">attack → midfield → defence → GK</span>. Same orientation as FIFA: your keeper's at the base, you're attacking upward.</p>
+
+<h2>How to pick a shape</h2>
+<p>The chips row across the top lists every formation that fits your roster size. Tap one and the pitch reshuffles. Auto-fill puts each player in their preferred position (see below).</p>
+
+<div class="shapes">
+  <div class="shape"><span class="code">2-3-1</span><span class="lbl2">DEFAULT</span></div>
+  <div class="shape"><span class="code">3-2-1</span><span class="lbl2">SOLID</span></div>
+  <div class="shape"><span class="code">2-2-2</span><span class="lbl2">BALANCED</span></div>
+  <div class="shape"><span class="code">3-1-2</span><span class="lbl2">COUNTER</span></div>
+  <div class="shape"><span class="code">1-3-2</span><span class="lbl2">GUNG-HO</span></div>
+  <div class="shape"><span class="code">1-4-1</span><span class="lbl2">MIDFIELD</span></div>
+</div>
+<p style="font-size:9pt; color:#9CA897;">Numbers read <em>DEF – MID – ATT</em>; goalkeeper is implicit. 5v5 (2-1-1, 1-2-1, 1-1-2) and 8v8 (3-3-1, 2-3-2, 2-4-1, …) shapes also available when the roster size matches.</p>
+
+<h2>How to assign a player</h2>
+
+<div class="steps">
+  <div class="step">
+    <span class="n">1</span><h4>Tap a slot</h4>
+    <p>Slot on the pitch — empty or occupied. It highlights yellow. A prompt bar appears below the pitch:</p>
+    <div style="margin-top:5pt;">
+      <div class="prompt" style="border-radius:4pt; border:1px solid #E2E4DC;">
+        <div class="left">PICK PLAYER FOR MID</div>
+        <div class="right">
+          <span class="btn warn">CLEAR</span>
+          <span class="btn">CANCEL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <span class="n">2</span><h4>Tap a bench player</h4>
+    <p>The bench pills below the pitch turn green while a slot is selected. Tap one:</p>
+    <div style="margin-top:5pt; background:#FFFFFF; padding:6pt; border-radius:4pt;">
+      <span class="bpill active"><span class="av">MW</span>M. Winter<span class="pos">MID</span></span>
+      <span class="bpill active"><span class="av">SD</span>S. Duncan<span class="pos">ATT</span></span>
+    </div>
+    <p style="margin-top:5pt;">Player drops into the slot; the pill disappears from the bench.</p>
+  </div>
+  <div class="step">
+    <span class="n">3</span><h4>Swap or clear</h4>
+    <p>Tap an <em>occupied</em> slot to swap — pick a bench player and they take over (the previous occupant drops back to the bench). Or hit <span class="kbd">CLEAR</span> to empty the slot.</p>
+  </div>
+</div>
+
+<h2>Auto-fill</h2>
+<p>The <span class="kbd">⚡ AUTO-FILL</span> button top-right re-runs the suggester:</p>
+<ol>
+  <li><strong>GK first</strong> — anyone whose primary position is GK; otherwise the strongest secondary GK; otherwise whoever's left.</li>
+  <li><strong>Then DEF / MID / ATT rows</strong> — matched by primary position first, then secondary, then whoever's left.</li>
+</ol>
+<p style="font-size:9.5pt; color:#9CA897;">The more players have set a primary + secondary position on their Profile page, the better this gets. Currently 83% of the squad have set a primary; 4% have set a secondary (see the app engagement review — chase that number up and auto-fill practically does the whole job for you).</p>
+
+<h2>Who can edit</h2>
+
+<div class="who">
+  <div class="col on">
+    <h4>▶ CAN EDIT</h4>
+    <ul style="padding-left:14pt; margin:3pt 0;">
+      <li>Anyone on the team's roster</li>
+      <li>Admin</li>
+      <li>Parents acting on behalf of a linked child on the roster</li>
+    </ul>
+  </div>
+  <div class="col off">
+    <h4>■ READ-ONLY</h4>
+    <ul style="padding-left:14pt; margin:3pt 0;">
+      <li>Players on the other team (they can look, but the shape/AUTO-FILL/slots are frozen)</li>
+      <li>Reserves who didn't get subbed in</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout mag">
+  <strong>Consequence:</strong> If seven of you all live-edit at the same time on Thursday evening, last-write-wins. Don't overthink it — the shape is a talking point, not a legal contract. Talk it out in the group chat first if you're all about to fiddle.
+</div>
+
+<h2>What it saves</h2>
+<ul>
+  <li><strong>Shape</strong> — one of 20-odd formation codes.</li>
+  <li><strong>Slots</strong> — a map of slot → player, e.g. <code>gk: Peter May</code>, <code>def_0: Daren Low</code>, …</li>
+  <li><strong>Who last edited it</strong> + when — for the audit trail if there's a dispute.</li>
+</ul>
+<p style="font-size:9pt; color:#9CA897;">Save is auto — half a second after your last tap. Watch the header pill: <span class="kbd">SAVING…</span> → <span class="kbd">✓ SAVED</span>. No submit button.</p>
+
+<h2>What hasn't changed</h2>
+<ul>
+  <li>Sign-up, sign-out, reserve promotion, WTP charges — all untouched.</li>
+  <li>The team lineup itself (who's on which team) is still set in the Team Builder by admin.</li>
+  <li>Match results, MOTM/DOTD voting, match reports — same as before.</li>
+</ul>
+
+<h2>Coming next</h2>
+<ul>
+  <li><strong>Formation snapshot in the match report</strong> — a small pitch thumbnail per team in the History view, so "3-2-1 vs 2-3-1, they overloaded midfield" becomes a visible narrative.</li>
+  <li><strong>Position-played-per-player</strong> — using the on-the-night formation to feed the stats engine, so a defender's 1 goal weighs differently to a striker's.</li>
+  <li><strong>Captain badge → gated edit</strong> — if the free-for-all gets messy, edit rights get pulled back to captain + admin.</li>
+</ul>
+
+<hr>
+
+<div class="closer">
+  Force-refresh the app · <strong>⚽ Match tab</strong> · pick your shape · argue about it.<br>
+  Bugs / ideas → admin in the WhatsApp group.
+</div>
+
+</body>
+</html>
