@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-06-25 (can_enter_results delegate role for Ross Marks)_
+_Last updated: 2026-07-03 (Team tactics theme + FormationPicker shipped, migration 045)_
 
 ---
 
@@ -132,6 +132,19 @@ Granular permissions so admin can hand off narrow tasks (scoring, fines, etc.) t
 | Admin UI: toggle delegate roles per player on the admin profile editor | 🟢 | chat · follow-up to `9c8e0a8` | Avoids manual SQL when granting/revoking |
 | Indicator on Admin profile page showing who holds each delegate | 🟢 | chat | "Score entry: Ross Marks" — easy audit |
 | Additional delegate roles as needed (e.g. `can_manage_fines`, `can_publish_teams`) | 🟢 | chat | Same pattern — helper fn + replace policy condition |
+
+## ⚽ Team tactics
+
+Tools that turn a published team from "here's who's playing" into "here's how we're playing" — pre-match talking points, formation debate, hopefully some kickabout banter.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| FormationPicker on Match tab (per team, shape + slot assign) | ✅ | chat · migration `045` | 5v5 / 6v6 / 7v7 / 8v8 shapes; auto-suggest by preferred position; anyone on the team (or admin) can edit; saves live |
+| Auto-suggest by primary/secondary position | ✅ | chat · migration `045` | GK → row-fill DEF/MID/ATT by primary, secondary, then whoever's left. Auto-fill button re-runs it. |
+| In-app team chat / tactics thread | 🟢 | chat | Deferred. WhatsApp already carries the group chatter; risk is duplicating not adding. Revisit if the formation debate outgrows what's practical in the picker UI. |
+| Captain badge → who defaults to edit | 🟢 | chat | Currently open to all team members. If it gets messy (constant re-shuffles), gate edit to captain + admin. |
+| Formation snapshot in match report | 🟢 | chat | Small pitch thumbnail per team in the History view — "3-2-1 vs 2-3-1, they overloaded midfield" |
+| Position played per player (from formation on match day) | 🟢 | chat | Formation gives us free "position played" data for the stats engine — feeds Data quality below |
 
 ## 🧢 Team builder polish
 
