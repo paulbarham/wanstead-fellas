@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-03 (Team tactics theme + FormationPicker shipped, migration 045)_
+_Last updated: 2026-07-03 (Preferred foot: column + FootPicker + nudge + card badge, migration 046)_
 
 ---
 
@@ -22,12 +22,17 @@ Source links: <code>[NN]</code> refers to `docs/primers/pdf/NN-…pdf`; `chat` m
 
 ---
 
-## 🪪 Identity — preferred position
+## 🪪 Identity — preferred position & foot
 
 The picker and DB are live. The visible payoff (position-aware cards, stats, balancer) is still to come.
 
 | Item | Status | Source | Notes |
 |---|---|---|---|
+| `preferred_foot` column on `profiles` (left/right/both, nullable) | ✅ | chat · migration `046` | Player-set on Profile page or via inline nudge |
+| FootPicker component (3-option, tap-cycle) | ✅ | chat · commit pending | LEFT · RIGHT · BOTH, mirrors PositionPicker's tap-cycle |
+| Preferred-foot nudge on Next Game | ✅ | chat · commit pending | Yellow banner when `preferred_foot` is null; dismissable per session, persists across sessions until set |
+| Foot badge on PlayerCard (compact + full) | ✅ | chat · commit pending | Coloured pill — cyan LEFT (icon flipped), yellow RIGHT, green BOTH; sits under position badge stack |
+| Balancer soft constraint: spread lefties across teams | 🟢 | chat | Blocked on adoption ≥80% |
 | `preferred_position_primary` + `_secondary` columns on `profiles` | ✅ | [04](primers/pdf/04-preferred-position.pdf) · commit `86c6edd` | Backfilled from legacy `position` |
 | PositionPicker component (4-button grid, tap-cycle) | ✅ | `86c6edd` | Reusable, supports compact mode |
 | Profile page picker | ✅ | `86c6edd` | Saved with the existing form |

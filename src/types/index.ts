@@ -14,6 +14,16 @@ export const PREFERRED_POSITIONS: { value: PreferredPosition; label: string; ico
   { value: 'ATT', label: 'ATT', icon: '⚽', full: 'Attacker' },
 ]
 
+// Preferred foot — player-set on Profile page. Balancer input long-term:
+// spread lefties across teams so at least one side gets natural width.
+export type PreferredFoot = 'left' | 'right' | 'both'
+
+export const PREFERRED_FEET: { value: PreferredFoot; label: string; icon: string; full: string }[] = [
+  { value: 'left',  label: 'L',    icon: '🦶', full: 'Left foot'  },
+  { value: 'right', label: 'R',    icon: '🦶', full: 'Right foot' },
+  { value: 'both',  label: 'BOTH', icon: '⚖️', full: 'Both feet'  },
+]
+
 export type CuntTier = 'saint' | 'gentleman' | 'scamp' | 'nuisance' | 'cunt'
 
 export type League = 'premier_league' | 'championship' | 'league_one'
@@ -73,6 +83,10 @@ export interface Profile {
   // while we wait for the squad to pick. See PreferredPosition type.
   preferred_position_primary: PreferredPosition | null
   preferred_position_secondary: PreferredPosition | null
+  // Player-set. Nullable until the player picks one — the Next Game
+  // nudge prompts unset players until they set it or dismiss for the
+  // session. Balancer will eventually use it as a soft constraint.
+  preferred_foot: PreferredFoot | null
   cunt_tier: CuntTier | null
   // Optional: not every profile object is loaded with this column. The Match
   // Fitness panel does NOT depend on it for visibility (only for a badge).

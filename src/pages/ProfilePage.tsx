@@ -7,7 +7,8 @@ import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
 import PositionPicker from '../components/PositionPicker'
-import type { Profile, PreferredPosition } from '../types'
+import FootPicker from '../components/FootPicker'
+import type { Profile, PreferredPosition, PreferredFoot } from '../types'
 import { CLUBS } from '../lib/clubs'
 
 const AGE_GROUPS = ['Under 20', '20–29', '30–39', '40–49', '50+']
@@ -88,6 +89,7 @@ export default function ProfilePage() {
   const [club, setClub] = useState(profile?.favourite_club ?? '')
   const [posPrimary, setPosPrimary] = useState<PreferredPosition | null>(profile?.preferred_position_primary ?? null)
   const [posSecondary, setPosSecondary] = useState<PreferredPosition | null>(profile?.preferred_position_secondary ?? null)
+  const [foot, setFoot] = useState<PreferredFoot | null>(profile?.preferred_foot ?? null)
   const parsedDob = parseDob(profile?.dob)
   const [dobDay, setDobDay] = useState(parsedDob.day)
   const [dobMonth, setDobMonth] = useState(parsedDob.month)
@@ -168,6 +170,7 @@ export default function ProfilePage() {
         favourite_club: club || null,
         preferred_position_primary: posPrimary,
         preferred_position_secondary: posSecondary,
+        preferred_foot: foot,
       })
       .eq('id', profile!.id)
     setSaving(false)
@@ -403,6 +406,7 @@ export default function ProfilePage() {
         gk_distribution: null, gk_positioning: null, gk_physicality: null,
         favourite_club: null, position: null,
         preferred_position_primary: null, preferred_position_secondary: null,
+        preferred_foot: null,
         cunt_tier: null,
       }
       setLinkedChildren(prev => [...prev, newChild])
@@ -532,6 +536,12 @@ export default function ProfilePage() {
             secondary={posSecondary}
             onChange={({ primary, secondary }) => { setPosPrimary(primary); setPosSecondary(secondary) }}
           />
+        </div>
+
+        {/* Preferred foot — shown on card + feeds future balancer spread */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Preferred foot</label>
+          <FootPicker value={foot} onChange={setFoot} />
         </div>
 
         {/* Date of birth */}

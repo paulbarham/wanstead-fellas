@@ -1,4 +1,4 @@
-import type { Profile, TierType, PreferredPosition } from '../types'
+import type { Profile, TierType, PreferredPosition, PreferredFoot } from '../types'
 import { getTier, PREFERRED_POSITIONS } from '../types'
 import PlayerTypeBadge from './PlayerTypeBadge'
 import CuntinessBadge from './CuntinessBadge'
@@ -33,6 +33,41 @@ function preferredPositionOf(p: Profile): PreferredPosition | null {
   if (legacy === 'ST') return 'ATT'
   return null
 }
+// Preferred foot badge — one glyph + a short label. Sits in the same
+// top-right stack as the position badge. Value 'left'/'right' shows a
+// mirrored foot icon; 'both' shows a scale.
+const FOOT_STYLE: Record<PreferredFoot, { label: string; icon: string; flip: boolean; fg: string; bg: string }> = {
+  left:  { label: 'LEFT',  icon: '🦶', flip: true,  fg: '#4AD9FF', bg: '#0E2434' },
+  right: { label: 'RIGHT', icon: '🦶', flip: false, fg: '#FFD400', bg: '#2A2410' },
+  both:  { label: 'BOTH',  icon: '⚖️', flip: false, fg: '#4ADC7A', bg: '#0F2E18' },
+}
+function FootBadge({ foot, size = 'lg' }: { foot: PreferredFoot; size?: 'lg' | 'sm' }) {
+  const s = FOOT_STYLE[foot]
+  const px = size === 'lg' ? 8 : 5
+  const py = size === 'lg' ? 4 : 2
+  const fs = size === 'lg' ? 10 : 8
+  const icSize = size === 'lg' ? 12 : 9
+  return (
+    <span
+      title={`Preferred foot — ${s.label.toLowerCase()}`}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        padding: `${py}px ${px}px`, borderRadius: 999,
+        background: s.bg, color: s.fg,
+        border: `1px solid ${s.fg}55`,
+        fontFamily: 'ui-monospace, monospace',
+        fontSize: fs, fontWeight: 800, letterSpacing: '0.06em',
+        lineHeight: 1,
+      }}
+    >
+      <span style={{ fontSize: icSize, lineHeight: 1, display: 'inline-block', transform: s.flip ? 'scaleX(-1)' : undefined }}>
+        {s.icon}
+      </span>
+      <span>{s.label}</span>
+    </span>
+  )
+}
+
 function PositionBadge({ pos, size = 'lg' }: { pos: PreferredPosition; size?: 'lg' | 'sm' }) {
   const s = POS_STYLE[pos]
   const px = size === 'lg' ? 8 : 5
@@ -150,10 +185,14 @@ export default function PlayerCard({ profile, compact = false }: Props) {
           </span>
         </div>
 
-        {/* Compact position badge under OVR — secondary kept off compact card */}
-        {primaryPos && (
-          <div style={{ position: 'absolute', top: 56, right: 7, zIndex: 3 }}>
-            <PositionBadge pos={primaryPos} size="sm" />
+        {/* Compact position + foot badges under OVR — secondary kept off compact card */}
+        {(primaryPos || profile.preferred_foot) && (
+          <div style={{
+            position: 'absolute', top: 56, right: 7, zIndex: 3,
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3,
+          }}>
+            {primaryPos && <PositionBadge pos={primaryPos} size="sm" />}
+            {profile.preferred_foot && <FootBadge foot={profile.preferred_foot} size="sm" />}
           </div>
         )}
 
@@ -218,13 +257,13 @@ export default function PlayerCard({ profile, compact = false }: Props) {
           </span>
         </div>
 
-        {/* Position badge stack (primary + optional secondary) below OVR */}
-        {primaryPos && (
+        {/* Position + foot badge stack (primary → optional secondary → foot) below OVR */}
+        {(primaryPos || profile.preferred_foot) && (
           <div style={{
             position: 'absolute', top: 56, right: 12, zIndex: 3,
             display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4,
           }}>
-            <PositionBadge pos={primaryPos} size="lg" />
+            {primaryPos && <PositionBadge pos={primaryPos} size="lg" />}
             {secondaryPos && (
               <span style={{
                 fontFamily: 'ui-monospace, monospace',
@@ -237,6 +276,7 @@ export default function PlayerCard({ profile, compact = false }: Props) {
                 also {POS_STYLE[secondaryPos].icon} {secondaryPos}
               </span>
             )}
+            {profile.preferred_foot && <FootBadge foot={profile.preferred_foot} size="lg" />}
           </div>
         )}
 

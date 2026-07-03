@@ -11,7 +11,8 @@ import InstallBanner from '../components/InstallBanner'
 import WeatherCard from '../components/WeatherCard'
 import CeefaxHeader from '../components/CeefaxHeader'
 import PositionPicker from '../components/PositionPicker'
-import type { PreferredPosition } from '../types'
+import FootPicker from '../components/FootPicker'
+import type { PreferredPosition, PreferredFoot } from '../types'
 import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
 
 interface LastResultSummary {
@@ -92,6 +93,10 @@ export default function TonightPage() {
   // position yet. Saving inline avoids a trip to the Profile page.
   const [savingPosition, setSavingPosition] = useState(false)
   const [positionDismissed, setPositionDismissed] = useState(false)
+  // Same nudge pattern for preferred foot — appears on next login until the
+  // player picks left/right/both or dismisses for the session.
+  const [savingFoot, setSavingFoot] = useState(false)
+  const [footDismissed, setFootDismissed] = useState(false)
   // Players currently blocked from signing up because they owe money past
   // the 2-week grace period. Populated from v_blocked_players. Used to (a)
   // show a clear "you owe £X" banner to the signed-in user, (b) skip blocked
@@ -319,6 +324,18 @@ export default function TonightPage() {
       .eq('id', profile.id)
     await refreshProfile()
     setSavingPosition(false)
+  }
+
+  // Inline save for preferred foot from the same nudge pattern.
+  async function saveFoot(next: PreferredFoot | null) {
+    if (!profile || savingFoot) return
+    setSavingFoot(true)
+    await supabase
+      .from('profiles')
+      .update({ preferred_foot: next })
+      .eq('id', profile.id)
+    await refreshProfile()
+    setSavingFoot(false)
   }
 
   // Dropping a confirmed spot auto-promotes a waiting player and can't be
@@ -562,6 +579,40 @@ export default function TonightPage() {
             primary={profile.preferred_position_primary ?? null}
             secondary={profile.preferred_position_secondary ?? null}
             onChange={savePosition}
+            compact
+          />
+        </div>
+      )}
+
+      {/* Preferred-foot nudge — same treatment as the position nudge above.
+          Dismissable per session; persists across sessions until set. */}
+      {profile && !profile.preferred_foot && !footDismissed && (
+        <div
+          className="mb-4 p-3 rounded-2xl"
+          style={{ background: 'rgba(255,212,0,0.07)', border: '1px solid rgba(255,212,0,0.35)' }}
+        >
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--tt-yellow)' }}>
+                🦶 Left, right or both?
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                Pick your preferred foot — it goes on your card. Saves instantly.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFootDismissed(true)}
+              className="text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
+              aria-label="Dismiss for this session"
+            >
+              ✕
+            </button>
+          </div>
+          <FootPicker
+            value={profile.preferred_foot ?? null}
+            onChange={saveFoot}
             compact
           />
         </div>
