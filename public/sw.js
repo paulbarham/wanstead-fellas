@@ -1,4 +1,7 @@
-const CACHE = 'wf-v4'
+// Bump cache version when the shell needs a hard refresh across the group.
+// Bumped to v5 alongside the initial push-notification handlers landing so
+// any older SW gets replaced with one that knows how to render pushes.
+const CACHE = 'wf-v5'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
@@ -52,4 +55,48 @@ self.addEventListener('fetch', event => {
       })
     })
   )
+})
+
+// ── Web push handling ──────────────────────────────────────────────────────
+//
+// Payload shape sent by the edge function:
+//   { title: string, body: string, url?: string, tag?: string }
+// tag groups multiple notifications for the same topic so a re-fire
+// replaces rather than stacks — useful when a match's voting window opens
+// and someone hasn't dismissed the previous one.
+self.addEventListener('push', event => {
+  let data = {}
+  try {
+    if (event.data) data = event.data.json()
+  } catch (err) {
+    data = { title: 'Wanstead Fellas', body: (event.data && event.data.text()) || '' }
+  }
+  const title = data.title || 'Wanstead Fellas'
+  const options = {
+    body: data.body || '',
+    icon: '/icon-192.svg',
+    badge: '/icon-192.svg',
+    tag: data.tag || 'wf-generic',
+    data: { url: data.url || '/' },
+    renotify: true,
+  }
+  event.waitUntil(self.registration.showNotification(title, options))
+})
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close()
+  const url = (event.notification.data && event.notification.data.url) || '/'
+  event.waitUntil((async () => {
+    // Focus an existing tab if one is already on the site; otherwise open new.
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    for (const client of all) {
+      const clientUrl = new URL(client.url)
+      if (clientUrl.origin === self.location.origin) {
+        client.focus()
+        client.navigate(url).catch(() => { /* older browsers: focus is enough */ })
+        return
+      }
+    }
+    await self.clients.openWindow(url)
+  })())
 })

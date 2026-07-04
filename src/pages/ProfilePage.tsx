@@ -6,6 +6,7 @@ import { cropAndResizeImage } from '../lib/imageUtils'
 import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
+import PushOptInCard from '../components/PushOptInCard'
 import PositionPicker from '../components/PositionPicker'
 import FootPicker from '../components/FootPicker'
 import type { Profile, PreferredPosition, PreferredFoot } from '../types'
@@ -570,6 +571,11 @@ export default function ProfilePage() {
           {saving ? 'Saving...' : saveDone ? '✓ Saved' : 'Save Changes'}
         </button>
       </form>
+
+      {/* Match-night push notifications */}
+      <div className="mb-6">
+        <PushOptInCard />
+      </div>
 
       {/* My Finances */}
       <div className="mb-8">
