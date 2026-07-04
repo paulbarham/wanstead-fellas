@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Card Ratings Review · Committee Sign-off</title>
+<style>
+  @page {
+    size: A4; margin: 14mm 12mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · RATINGS REVIEW · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF; font-size: 8pt; letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710; color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10pt; line-height: 1.4;
+  }
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF; padding: 12pt 14pt;
+    border-radius: 10pt; margin-bottom: 10pt;
+    display: table; width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 { font-family: 'Arial Black', sans-serif; font-size: 20pt; margin: 0; color: #FFD400; letter-spacing: 0.03em; line-height: 1; }
+  .masthead .sub { margin-top: 3pt; font-family: 'Courier New', monospace; font-size: 8.5pt; letter-spacing: 0.18em; color: #4ADC7A; text-transform: uppercase; }
+  .masthead .pageid { font-family: 'Courier New', monospace; font-size: 8.5pt; letter-spacing: 0.14em; color: #FFD400; background: rgba(0,0,0,0.25); padding: 3pt 6pt; border-radius: 4pt; }
+
+  h2 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 11.5pt;
+    margin: 10pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  .callout {
+    background: rgba(74,217,255,0.06);
+    border-left: 3pt solid #4AD9FF;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 6pt 0; font-size: 9.5pt;
+  }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+
+  table.props {
+    width: 100%; border-collapse: collapse;
+    font-size: 9.5pt; margin: 6pt 0;
+  }
+  table.props th {
+    background: #15211A; border: 1px solid #2D4A2F;
+    padding: 5pt 6pt; color: #FFD400;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: left; font-weight: 700;
+  }
+  table.props td {
+    border: 1px solid #2D4A2F;
+    background: #0F1710;
+    padding: 6pt 6pt;
+    vertical-align: top;
+  }
+  table.props tbody tr:nth-child(even) td { background: #131F17; }
+  table.props .nm { font-weight: 700; color: #E8F0E9; white-space: nowrap; }
+  table.props .pos {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #9CA897;
+  }
+  table.props .attr {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; font-weight: 700; letter-spacing: 0.04em; color: #E8F0E9;
+  }
+  table.props .change {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt; color: #4ADC7A; white-space: nowrap;
+  }
+  table.props .why { color: #E8F0E9; font-size: 9pt; line-height: 1.35; }
+  table.props .box {
+    display: inline-block; width: 12pt; height: 12pt;
+    border: 1.5pt solid #FFD400; border-radius: 3pt;
+    vertical-align: middle;
+  }
+  table.props th.dec { text-align: center; width: 45pt; }
+  table.props td.dec { text-align: center; vertical-align: middle; }
+  table.props td.dec .row { display: inline-block; text-align: left; font-size: 7.5pt; color: #9CA897; letter-spacing: 0.04em; text-transform: uppercase; }
+  table.props td.dec .row div { margin: 2pt 0; }
+
+  .signoff {
+    margin-top: 8pt;
+    display: table; width: 100%;
+    border-spacing: 6pt 0; table-layout: fixed;
+  }
+  .signoff .box {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 10pt; vertical-align: top;
+    font-size: 9pt;
+  }
+  .signoff .box h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 9pt;
+    margin: 0 0 4pt; letter-spacing: 0.04em;
+  }
+  .signoff .box.sign h3 { color: #4ADC7A; }
+  .signoff .box.wait h3 { color: #4AD9FF; }
+  .signoff .box.defer h3 { color: #FF5555; }
+  .signoff .box p { margin: 2pt 0; color: #E8F0E9; }
+
+  .closer {
+    text-align: center; color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.1em;
+    margin-top: 10pt; padding: 6pt;
+    border: 1px dashed #2D4A2F; border-radius: 6pt;
+  }
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 8pt 0; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Card Ratings Review · Committee Sign-off</div>
+  </div>
+  <div class="right"><span class="pageid">P515 · PROPOSAL</span></div>
+</div>
+
+<div class="callout">
+  <strong>The ask.</strong> Sign off six proposed card-rating tweaks based on the last ~11 matches of data (May 22 → Jul 2). The current cards are, on the whole, accurate — this is a small correction pass, not a rebuild. <em>Nothing goes live without committee green light.</em>
+</div>
+
+<h2>How we decided</h2>
+<p style="font-size:9.5pt;">Four signals used:</p>
+<ul style="font-size:9.5pt; margin-top:2pt;">
+  <li><strong>Goals per game</strong> → the shooting rating on the card</li>
+  <li><strong>MOTM votes</strong> → the overall rating (what teammates think of you)</li>
+  <li><strong>DOTD votes</strong> → the cuntiness score / tier</li>
+  <li><strong>Fitness data</strong> → pace and physical ratings (currently only 1 player tracks — inert signal until Strava auto-import ships)</li>
+</ul>
+<p style="font-size:9.5pt;">Guard-rails: minimum <strong>4 appearances</strong> before we act on the numbers; changes capped at <strong>±2 per rating</strong> in a single pass so nothing snaps. Data confirms the current card for the top scorers already at 9-10 (Beau Samuels, Josh Edwards, the Winter twins) — no changes there.</p>
+
+<h2>Proposed changes (6)</h2>
+
+<table class="props">
+  <thead>
+    <tr>
+      <th>Player</th>
+      <th>Pos</th>
+      <th>What changes</th>
+      <th class="dec">Decision</th>
+      <th>Why (data)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="nm">Noah Higgins</td>
+      <td class="pos">ATT</td>
+      <td>
+        <div class="attr">Shooting</div>
+        <div class="change">5 → 8</div>
+        <div class="attr" style="margin-top:4pt;">Pace</div>
+        <div class="change">6 → 8</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        <strong>8 goals in 11 games</strong> as our striker — the highest-scoring outfielder outside the elite Golds. The pace call-outs in match reports have been weekly. Biggest single mis-rating on the board.
+      </td>
+    </tr>
+
+    <tr>
+      <td class="nm">Adam Thorpe</td>
+      <td class="pos">MID</td>
+      <td>
+        <div class="attr">Shooting</div>
+        <div class="change">7 → 8</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        3 goals in 5 games + a MOTM win. Efficient scoring return from a midfielder.
+      </td>
+    </tr>
+
+    <tr>
+      <td class="nm">Stephen Pender</td>
+      <td class="pos">MID</td>
+      <td>
+        <div class="attr">Shooting</div>
+        <div class="change">6 → 7</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        3 goals in 6 games from midfield — running above his current shooting rating.
+      </td>
+    </tr>
+
+    <tr>
+      <td class="nm">Rory Wilson</td>
+      <td class="pos">MID</td>
+      <td>
+        <div class="attr">Overall</div>
+        <div class="change">7 → 8</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        1 MOTM win in only 4 appearances — the strongest teammate vote-per-game rate in the squad. Bumps him to Silver tier on the card.
+      </td>
+    </tr>
+
+    <tr>
+      <td class="nm">Tom Broughton</td>
+      <td class="pos">ATT</td>
+      <td>
+        <div class="attr">Cuntiness</div>
+        <div class="change">5 → 7</div>
+        <div class="attr" style="margin-top:4pt;">Tier</div>
+        <div class="change">Scamp → Nuisance</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        4 DOTD wins on 7 nominations in 11 games. Data-driven tier promotion — the group has clearly spoken.
+      </td>
+    </tr>
+
+    <tr>
+      <td class="nm">Michael Farley</td>
+      <td class="pos">MID</td>
+      <td>
+        <div class="attr">Cuntiness</div>
+        <div class="change">8 → 9</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        3 DOTD wins on 9 votes. Right on the edge of tier promotion (Nuisance → Cunt).
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout green">
+  <strong>What this validates.</strong> The current cards for Beau Samuels, Josh Edwards, Sheridan Winter, Mikel Winter, David Edwards and Paul Barham are all backed by the data. No touching required — worth noting to the group that the ratings do actually reflect performance for the top end.
+</div>
+
+<h2>Also worth knowing</h2>
+<ul style="font-size:9.5pt;">
+  <li><strong>Goalkeepers pending.</strong> GK ratings need a separate pass with clean-sheet and saves data — will come back to committee with those once pulled. (Early flag: Callum Finch's MOTM in 11 apps suggests his GK ratings may be under-set.)</li>
+  <li><strong>11 casuals have no card at all.</strong> WTPs like Sam Yeats (3 goals in 1 game) inherit default 7s until admin fills them in. Not a rating problem — a data-entry job.</li>
+  <li><strong>Fitness is a data desert.</strong> Only 1 player uploads. Once Strava auto-import ships (on the roadmap), pace and physical ratings become properly data-driven for the tracked players.</li>
+</ul>
+
+<hr>
+
+<div class="closer">
+  Tick the boxes · reply <strong>APPROVE</strong> in the WhatsApp group and the changes go live by end of week.<br>
+  Questions on any single row → admin will bring the underlying numbers to the meeting.
+</div>
+
+</body>
+</html>
