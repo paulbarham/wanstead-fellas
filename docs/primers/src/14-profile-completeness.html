@@ -177,6 +177,47 @@
     border: 1px dashed #2D4A2F; border-radius: 6pt;
   }
 
+  /* "How we're closing the gap" section — visual mock of the card */
+  .fix-callout {
+    background: rgba(74,220,122,0.08);
+    border: 1px solid rgba(74,220,122,0.5);
+    border-radius: 8pt;
+    padding: 10pt 12pt;
+    margin: 8pt 0;
+  }
+  .fix-callout h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: #4ADC7A; font-size: 11pt;
+    margin: 0 0 5pt; letter-spacing: 0.02em;
+  }
+  .fix-callout .sub {
+    font-family: 'Courier New', monospace;
+    color: #9CA897; font-size: 7.5pt;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 6pt;
+  }
+  .fix-callout p { font-size: 9pt; margin: 4pt 0; }
+  .fix-two { display: table; width: 100%; border-spacing: 8pt 0; margin-top: 8pt; table-layout: fixed; }
+  .fix-two > div { display: table-cell; vertical-align: top; }
+
+  .card-mock {
+    background: #FFFFFF; color: #18201A;
+    border-radius: 8pt; overflow: hidden;
+    border: 1px solid #4ADC7A;
+  }
+  .card-mock .head { padding: 6pt 8pt; background: rgba(74,220,122,0.10); border-bottom: 1px solid rgba(74,220,122,0.35); }
+  .card-mock .head .t { font-family: 'Arial Black', sans-serif; font-size: 9pt; color: #0D6B52; }
+  .card-mock .head .s { font-family: 'Courier New', monospace; font-size: 7pt; color: #647060; margin-top: 1pt; letter-spacing: 0.06em; }
+  .card-mock .bar { background: rgba(0,0,0,0.06); height: 4pt; margin-top: 4pt; border-radius: 999pt; overflow: hidden; }
+  .card-mock .bar span { display: block; width: 50%; background: #0D6B52; height: 100%; }
+  .card-mock .rows > div { padding: 5pt 8pt; border-top: 1px solid #E2E4DC; font-size: 8pt; color: #18201A; display: table; width: 100%; }
+  .card-mock .rows > div .ic { display: table-cell; width: 15pt; vertical-align: middle; font-size: 12pt; }
+  .card-mock .rows > div .lb { display: table-cell; vertical-align: middle; }
+  .card-mock .rows > div .lb strong { color: #18201A; font-weight: 700; font-size: 8.5pt; }
+  .card-mock .rows > div .lb em { color: #647060; font-style: normal; font-size: 7.5pt; display: block; margin-top: 1pt; }
+  .card-mock .rows > div .btn { display: table-cell; vertical-align: middle; text-align: right; width: 40pt; }
+  .card-mock .rows > div .btn span { font-family: 'Courier New', monospace; font-size: 6.5pt; color: #0D6B52; letter-spacing: 0.1em; font-weight: 800; }
+
   .page-break { page-break-before: always; }
 </style>
 </head>
@@ -235,6 +276,56 @@
 <div class="page-break"></div>
 
 <table class="prof"><thead><tr><th class="nm">Player</th><th class="tk">Tier</th><th>📸<br>Photo</th><th>🎂<br>Age</th><th>🏆<br>Club</th><th>⚙️<br>Pos 1</th><th>🛡️<br>Pos 2</th><th>🦶<br>Foot</th><th class="gk">Gaps</th></tr></thead><tbody><tr><td class="nm">Max Farley</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="ok">✓</td><td class="age dob">U20</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Martyn Hawkes</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">50+</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Pete Healey</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age band">40s</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Daren Low</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="age dob">40s</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Joseph Pender</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="age band">U20</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Stephen Pender</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="age band">40s</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Neil Perry</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="age band">40s</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Daryll Petrie</td><td class="tk"><span class="tier" style="color:#FFD400;">WTP★</span></td><td class="miss">✗</td><td class="age band">40s</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Peter Schaefer</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age band">50+</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Richard Sharman</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">40s</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Rowan Taylor</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age band">40s</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Adam Thorpe</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="age band">40s</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Rory Wilson</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="ok">✓</td><td class="age band">U20</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Corin Davies</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">50+</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Scott Duncan</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">50+</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Edward Ezra</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">40s</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Michael Farley</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">50+</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Callum Finch</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">U20</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Paul Finch</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">50+</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Justin Franklin</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">50+</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Noah Higgins</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="age band">U20</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Chris Hughes</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="age dob">40s</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Ross Marks</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age band">50+</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">James Wilson</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">50+</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Paul Barham</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="age dob">40s</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="gk"><span class="gpill g0">0</span></td></tr></tbody></table>
+
+<h2>How we're closing the gap</h2>
+
+<div class="fix-callout">
+  <h3>🟢 Just shipped · ProfileCompletionCard</h3>
+  <div class="sub">Live on Next Game · 4 Jul 2026</div>
+  <p>Everyone who signs into Next Game with at least one profile gap sees a single green "Complete your card" banner at the top of the page. It shows a progress bar (N of 6 done) and one tappable row per missing field. Position, backup position, foot and age band can be picked inline; photo and favourite club deep-link to the Profile page. The banner auto-hides at 6 of 6 and is dismissable per session.</p>
+  <p>This replaces the two standalone position + foot nudges that were doing the same job less coherently. One banner instead of three.</p>
+
+  <div class="fix-two">
+    <div>
+      <div class="card-mock">
+        <div class="head">
+          <div class="t">👋 Complete your card</div>
+          <div class="s">3 / 6 done · 3 to go</div>
+          <div class="bar"><span></span></div>
+        </div>
+        <div class="rows">
+          <div><span class="ic">🎂</span><span class="lb"><strong>Age</strong><em>Exact DOB on Profile — or a decade below</em></span><span class="btn"><span>SET</span></span></div>
+          <div><span class="ic">🛡️</span><span class="lb"><strong>Backup position</strong><em>Where can you cover if needed?</em></span><span class="btn"><span>SET</span></span></div>
+          <div><span class="ic">📸</span><span class="lb"><strong>Profile photo</strong><em>Puts a face on your card.</em></span><span class="btn"><span>PROFILE →</span></span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:9pt; color:#E8F0E9; margin:0 0 4pt;"><strong>What each row does</strong></p>
+      <ul style="font-size:8.5pt; margin-top:2pt; padding-left:14pt; color:#E8F0E9;">
+        <li><strong>Position</strong> · inline 4-button picker (GK / DEF / MID / ATT)</li>
+        <li><strong>Backup position</strong> · same picker, second tap = secondary</li>
+        <li><strong>Foot</strong> · inline 3-button picker (LEFT / RIGHT / BOTH)</li>
+        <li><strong>Age</strong> · inline 5-band picker (U20 / 20s / 30s / 40s / 50+), with a link to Profile for anyone happy to share exact DOB</li>
+        <li><strong>Photo</strong> · deep-link to Profile page (photo upload flow)</li>
+        <li><strong>Favourite club</strong> · deep-link to Profile page (long club dropdown)</li>
+      </ul>
+      <p style="font-size:8.5pt; color:#9CA897; margin-top:6pt;">All saves are instant. Progress bar updates live. Dismiss ✕ hides it for this session only — it comes back next login until 6 of 6 done.</p>
+    </div>
+  </div>
+</div>
+
+<h2>Expected impact on the numbers above</h2>
+
+<ul>
+  <li><strong>Secondary position (5% → target 40%+):</strong> now the fifth of only six rows anyone with a gap sees on their tab. Same treatment as primary, but only prompts once primary is set.</li>
+  <li><strong>Foot (5% → target 60%+):</strong> single tap for the vast majority of the squad who know their foot. Progress bar completion motivation.</li>
+  <li><strong>Photo (34% → target 60%+):</strong> "PROFILE →" link is one tap, upload takes 20 seconds. Committee steer welcome on whether we surface a specific "photo of the week" nudge on the Cards tab.</li>
+  <li><strong>Favourite club (29% → target 50%+):</strong> should track photo closely — one is not much harder than the other once someone's on the Profile page.</li>
+  <li><strong>Age (88% → target 95%+):</strong> already high because of the band fallback. The 7 red ✗ players are almost all inactive-ish WTPs with minimal profile — chasing them by name (list on p1-2) is likely more effective than another nudge.</li>
+</ul>
+
+<p style="font-size:8.5pt; color:#9CA897; margin-top:4pt;">A follow-up pull in 2 weeks will show how much the banner has moved the needle. This audit was baseline; the next one will be delta.</p>
 
 <hr>
 
