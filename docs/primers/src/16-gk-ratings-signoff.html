@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — GK Ratings Review · Committee Sign-off</title>
+<style>
+  @page {
+    size: A4; margin: 14mm 12mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · GK RATINGS REVIEW · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF; font-size: 8pt; letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710; color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10pt; line-height: 1.4;
+  }
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF; padding: 12pt 14pt;
+    border-radius: 10pt; margin-bottom: 10pt;
+    display: table; width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 { font-family: 'Arial Black', sans-serif; font-size: 20pt; margin: 0; color: #FFD400; letter-spacing: 0.03em; line-height: 1; }
+  .masthead .sub { margin-top: 3pt; font-family: 'Courier New', monospace; font-size: 8.5pt; letter-spacing: 0.18em; color: #4ADC7A; text-transform: uppercase; }
+  .masthead .pageid { font-family: 'Courier New', monospace; font-size: 8.5pt; letter-spacing: 0.14em; color: #FFD400; background: rgba(0,0,0,0.25); padding: 3pt 6pt; border-radius: 4pt; }
+
+  h2 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 11.5pt;
+    margin: 10pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  .callout {
+    background: rgba(74,217,255,0.06);
+    border-left: 3pt solid #4AD9FF;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 6pt 0; font-size: 9.5pt;
+  }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+
+  table.props {
+    width: 100%; border-collapse: collapse;
+    font-size: 9.5pt; margin: 6pt 0;
+  }
+  table.props th {
+    background: #15211A; border: 1px solid #2D4A2F;
+    padding: 5pt 6pt; color: #FFD400;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: left; font-weight: 700;
+  }
+  table.props td {
+    border: 1px solid #2D4A2F;
+    background: #0F1710;
+    padding: 6pt 6pt;
+    vertical-align: top;
+  }
+  table.props tbody tr:nth-child(even) td { background: #131F17; }
+  table.props .nm { font-weight: 700; color: #E8F0E9; white-space: nowrap; }
+  table.props .pos {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: #9CA897;
+  }
+  table.props .attr {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; font-weight: 700; letter-spacing: 0.04em; color: #E8F0E9;
+  }
+  table.props .change {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt; color: #4ADC7A; white-space: nowrap;
+  }
+  table.props .why { color: #E8F0E9; font-size: 9pt; line-height: 1.35; }
+  table.props .box {
+    display: inline-block; width: 12pt; height: 12pt;
+    border: 1.5pt solid #FFD400; border-radius: 3pt;
+    vertical-align: middle;
+  }
+  table.props th.dec { text-align: center; width: 45pt; }
+  table.props td.dec { text-align: center; vertical-align: middle; }
+  table.props td.dec .row { display: inline-block; text-align: left; font-size: 7.5pt; color: #9CA897; letter-spacing: 0.04em; text-transform: uppercase; }
+  table.props td.dec .row div { margin: 2pt 0; }
+
+  /* Compact stat strip for GK performance summary */
+  .stats {
+    display: table; width: 100%;
+    border-spacing: 4pt 0; margin: 4pt 0 8pt;
+    table-layout: fixed;
+  }
+  .stat-tile {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 6pt 6pt; vertical-align: middle;
+    text-align: center;
+  }
+  .stat-tile .lbl { font-family: 'Courier New', monospace; font-size: 7pt; color: #9CA897; letter-spacing: 0.1em; text-transform: uppercase; }
+  .stat-tile .nm { font-family: 'Arial Black', sans-serif; font-size: 10pt; color: #FFD400; margin-top: 2pt; letter-spacing: 0.02em; }
+  .stat-tile .val { font-family: 'Courier New', monospace; font-size: 8.5pt; color: #E8F0E9; margin-top: 2pt; font-weight: 700; }
+  .stat-tile .val em { font-style: normal; color: #4AD9FF; }
+
+  .closer {
+    text-align: center; color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.1em;
+    margin-top: 10pt; padding: 6pt;
+    border: 1px dashed #2D4A2F; border-radius: 6pt;
+  }
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 8pt 0; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">GK Ratings Review · Committee Sign-off</div>
+  </div>
+  <div class="right"><span class="pageid">P516 · PROPOSAL</span></div>
+</div>
+
+<div class="callout">
+  <strong>The ask.</strong> Sign off five proposed goalkeeper-rating tweaks based on the last ~11 matches of data (May 22 → Jul 2). Companion to the outfielder pass — same ~11-week window, same guard-rails, different signals. <em>Nothing goes live without committee green light.</em>
+</div>
+
+<div class="callout green">
+  <strong>Tier movements if approved · 3 keepers upgraded.</strong>
+  &nbsp;<strong>Peter May</strong> <span style="font-family:'Courier New',monospace; color:#4ADC7A;">BRONZE → SILVER</span>
+  &nbsp;·&nbsp;
+  <strong>Paul Finch</strong> <span style="font-family:'Courier New',monospace; color:#4ADC7A;">STANDARD → BRONZE</span>
+  &nbsp;·&nbsp;
+  <strong>Callum Finch</strong> <span style="font-family:'Courier New',monospace; color:#4ADC7A;">STANDARD → BRONZE</span>.
+  The gloves have earned some recognition.
+</div>
+
+<h2>How we decided</h2>
+<p style="font-size:9.5pt;">Three GK-specific signals:</p>
+<ul style="font-size:9.5pt; margin-top:2pt;">
+  <li><strong>Goals conceded per fixture</strong> → the reflexes / positioning ratings</li>
+  <li><strong>Clean-sheet %</strong> → overall rating (a keeper's most honest scoreboard)</li>
+  <li><strong>MOTM votes</strong> → overall rating (keepers rarely win — when they do, it means something)</li>
+</ul>
+<p style="font-size:9.5pt;">Guard-rails: minimum <strong>4 appearances</strong>; changes capped at <strong>±2 per rating</strong> per pass. Sample caveat: goals-conceded is a proxy — we don't yet record which keeper played which fixture, so it assumes they went the whole match. Fine for now (keepers don't rotate); will sharpen when we track it.</p>
+
+<h2>The GK pool at a glance</h2>
+
+<div class="stats">
+  <div class="stat-tile">
+    <div class="lbl">Best conceded rate</div>
+    <div class="nm">Peter May</div>
+    <div class="val">0.83 <em>/fx</em></div>
+  </div>
+  <div class="stat-tile">
+    <div class="lbl">Best CS %</div>
+    <div class="nm">Peter May</div>
+    <div class="val">42 <em>%</em> · 5 CS</div>
+  </div>
+  <div class="stat-tile">
+    <div class="lbl">Most apps</div>
+    <div class="nm">Paul &amp; Callum</div>
+    <div class="val">8 <em>each</em></div>
+  </div>
+  <div class="stat-tile">
+    <div class="lbl">Only MOTM</div>
+    <div class="nm">Callum Finch</div>
+    <div class="val">1 win · 5 votes</div>
+  </div>
+</div>
+
+<h2>Proposed changes (5)</h2>
+
+<table class="props">
+  <thead>
+    <tr>
+      <th>Player</th>
+      <th>Pos</th>
+      <th>What changes</th>
+      <th class="dec">Decision</th>
+      <th>Why (data)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="nm">Peter May</td>
+      <td class="pos">GK</td>
+      <td>
+        <div class="attr">Overall</div>
+        <div class="change">7 → 8</div>
+        <div class="attr" style="margin-top:4pt;">Positioning</div>
+        <div class="change">8 → 9</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        <strong>Best conceded rate (0.83/fx) and best CS % (42%)</strong> in the pool. 4 apps is smallish but coherent — capped off by the "Safe hands" call-out in the 2 Jul report as Daren's lot went unbeaten. <strong>Bronze → Silver</strong>.
+      </td>
+    </tr>
+
+    <tr>
+      <td class="nm">Paul Finch</td>
+      <td class="pos">GK</td>
+      <td>
+        <div class="attr">Overall</div>
+        <div class="change">6 → 7</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        26 conceded in 24 fixtures (1.08/fx) with 9 clean sheets (38%). Quiet effectiveness — the results deserve tier recognition. <strong>Standard → Bronze</strong>.
+      </td>
+    </tr>
+
+    <tr>
+      <td class="nm">Callum Finch</td>
+      <td class="pos">GK</td>
+      <td>
+        <div class="attr">Overall</div>
+        <div class="change">6 → 7</div>
+        <div class="attr" style="margin-top:4pt;">Reflexes</div>
+        <div class="change">6 → 7</div>
+      </td>
+      <td class="dec">
+        <div class="row">
+          <div><span class="box"></span> Approve</div>
+          <div><span class="box"></span> Discuss</div>
+          <div><span class="box"></span> Defer</div>
+        </div>
+      </td>
+      <td class="why">
+        1 MOTM in 8 apps — keepers almost never win MOTM, so the 5 votes point at real shot-stopping quality above his current card. His CS rate is behind Paul's, so the reflexes bump reflects saves-made, not fewer-conceded. <strong>Standard → Bronze</strong>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout green">
+  <strong>What this validates.</strong> Paul Finch's shot-stopping stats (reflexes 8, handling 9) and his low conceded rate line up — no change needed on those. Peter May's already-high positioning 8 gets nudged one notch rather than an overhaul. The <strong>card SHO = 2 for Callum</strong> (which correctly signals "he's a keeper, don't ask him to shoot") isn't touched. The current admin baseline was reasonable — this is a modest recalibration.
+</div>
+
+<h2>Also worth knowing</h2>
+<ul style="font-size:9.5pt;">
+  <li><strong>Neil Perry has no GK card at all.</strong> Listed as a GK, played 1 game, but all six goalkeeper attributes are null. Admin data-entry job — no rating call to make until the numbers exist.</li>
+  <li><strong>Zac Hawkes &amp; Alan Samuels — no data this window.</strong> Both flagged as GKs on the books, neither has played in the last 120 days. Their existing admin-set cards stay as-is; we'll re-review if they turn up.</li>
+  <li><strong>Which keeper played which fixture is currently a proxy.</strong> If we start recording it (formation-per-fixture), the conceded numbers get more precise and Peter May's small sample stops mattering.</li>
+  <li><strong>Auto-computed overall from GK stats — parked.</strong> Committee discussed this and agreed the manual admin+committee-signoff loop is fine for now. Worth revisiting when peer ratings and the wider rating engine ship.</li>
+</ul>
+
+<hr>
+
+<div class="closer">
+  Tick the boxes · reply <strong>APPROVE</strong> in the WhatsApp group and the changes go live by end of week.<br>
+  Questions on any single row → admin will bring the underlying numbers to the meeting.
+</div>
+
+</body>
+</html>
