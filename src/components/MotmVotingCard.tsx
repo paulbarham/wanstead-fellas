@@ -20,7 +20,17 @@ interface BreakdownRow {
   nominee_name: string
 }
 
-export default function MotmVotingCard() {
+interface Props {
+  // When set, the card only renders if the latest voting window's match_id
+  // matches this value. Prevents the "this week's ballot wedged into last
+  // week's context" bug when the displayed match on MatchPage doesn't line
+  // up with whatever voting_window is currently live. Pass null / omit when
+  // there's no anchor match (e.g. pre-result awaiting-entry placeholder) so
+  // the card falls back to its historical latest-window behaviour.
+  expectedMatchId?: string | null
+}
+
+export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
   const { profile } = useAuth()
   const isAdmin = profile?.is_admin ?? false
 
@@ -86,6 +96,18 @@ export default function MotmVotingCard() {
       const isMatchDay = todayIso === nextThursdayIso
       const windowMatchDate = wRaw?.matches?.match_date ?? null
       if (isMatchDay && windowMatchDate && windowMatchDate < todayIso) {
+        setLoading(false)
+        return
+      }
+
+      // Context-mismatch guard: when the caller pins us to a specific
+      // match (via `expectedMatchId`), refuse to render if the latest
+      // window belongs to a different one. Without this, opening a
+      // week's-old completed match on the History flow could pull in
+      // this week's live ballot as a floating card. Passing null (or
+      // omitting) preserves the old latest-window fallback for the
+      // pre-result placeholder branch.
+      if (expectedMatchId && wRaw && wRaw.match_id !== expectedMatchId) {
         setLoading(false)
         return
       }
@@ -174,7 +196,7 @@ export default function MotmVotingCard() {
       setLoading(false)
     }
     load()
-  }, [loadParticipation, loadResults, profile?.is_admin])
+  }, [loadParticipation, loadResults, profile?.is_admin, expectedMatchId])
 
   async function castVote(award: AwardType, nomineeId: string) {
     if (!profile || !matchId) return

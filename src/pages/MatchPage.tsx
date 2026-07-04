@@ -230,7 +230,7 @@ export default function MatchPage() {
           canWriteReport={!!profile?.is_admin}
         />
         <div className="px-4 pb-4">
-          <MotmVotingCard />
+          <MotmVotingCard expectedMatchId={weekMatch?.id ?? null} />
         </div>
       </>
     )
@@ -332,13 +332,13 @@ export default function MatchPage() {
               </button>
             </div>
           )}
-          <MotmVotingCard />
+          <MotmVotingCard expectedMatchId={weekMatch?.id ?? null} />
         </>
       ) : (
         <div className="space-y-4">
           {/* Voting open → pin the ballot above the result so it's the first
               thing members see while there's something to vote on. */}
-          {votingOpen && <MotmVotingCard />}
+          {votingOpen && <MotmVotingCard expectedMatchId={match.id} />}
           <MatchResultView
             match={match}
             result={result}
@@ -348,7 +348,7 @@ export default function MatchPage() {
           />
           {/* Voting closed → the awards results sit between the result and the
               written report, matching the History tab's order. */}
-          {!votingOpen && <MotmVotingCard />}
+          {!votingOpen && <MotmVotingCard expectedMatchId={match.id} />}
           {hasReportContent(result) && result && (
             <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between gap-2 pb-3 mb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>

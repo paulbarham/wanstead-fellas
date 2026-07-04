@@ -12,10 +12,29 @@ interface TeamWithPlayers extends Team {
   captain: Profile | null
 }
 
+// Player is a debutant when they've never been picked for a match earlier
+// than the one we're displaying. Mirrors the logic in AdminTeamBuilder that
+// drives the WhatsApp export's 🆕 DEBUT tag — same source view, same rule —
+// so the in-app team list stays consistent with the exported one.
+async function fetchDebutantIds(playerIds: string[], matchDate: string): Promise<Set<string>> {
+  if (playerIds.length === 0) return new Set()
+  const { data, error } = await supabase
+    .from('v_player_match_history')
+    .select('player_id, first_match_date')
+    .in('player_id', playerIds)
+  if (error) return new Set()
+  const veterans = new Set<string>()
+  for (const row of (data ?? []) as Array<{ player_id: string; first_match_date: string | null }>) {
+    if (row.first_match_date && row.first_match_date < matchDate) veterans.add(row.player_id)
+  }
+  return new Set(playerIds.filter(id => !veterans.has(id)))
+}
+
 export default function TeamsPage() {
   const { profile } = useAuth()
   const [match, setMatch] = useState<Match | null>(null)
   const [teams, setTeams] = useState<TeamWithPlayers[]>([])
+  const [debutantIds, setDebutantIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const nextThursday = getNextThursdayDate()
 
@@ -64,6 +83,11 @@ export default function TeamsPage() {
     })
 
     setTeams(enriched)
+
+    // DEBUT tags — same view + rule as the WhatsApp export in AdminTeamBuilder.
+    const debutants = await fetchDebutantIds(playerIds, matchData.match_date as string)
+    setDebutantIds(debutants)
+
     setLoading(false)
   }, [nextThursday, profile?.is_admin])
 
@@ -144,6 +168,7 @@ export default function TeamsPage() {
                 <div>
                   {sortedPlayers.map((p, i) => {
                     const isCap = p.id === team.captain_id
+                    const isDebut = debutantIds.has(p.id)
                     return (
                       <div
                         key={p.id}
@@ -160,6 +185,23 @@ export default function TeamsPage() {
                         <span className="flex-1 truncate" style={{ color: isCap ? 'var(--tt-yellow)' : 'var(--color-text)' }}>
                           {p.name} {p.surname}
                         </span>
+                        {isDebut && (
+                          <span
+                            title="Debutant — first Wanstead Fellas appearance"
+                            style={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: 9,
+                              fontWeight: 700,
+                              letterSpacing: '0.1em',
+                              padding: '1px 5px',
+                              borderRadius: 3,
+                              background: 'var(--tt-cyan)',
+                              color: '#fff',
+                            }}
+                          >
+                            🆕 DEBUT
+                          </span>
+                        )}
                         {isCap && (
                           <span style={{ color: 'var(--tt-yellow)', fontSize: 12, fontWeight: 700 }}>©</span>
                         )}

@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
 import { isTournamentActive } from '../lib/cup'
+import { supabase } from '../lib/supabase'
 import PlayerAvatar from './PlayerAvatar'
 
 function InstagramIcon() {
@@ -35,6 +37,42 @@ export default function Layout() {
   const { theme, toggle } = useTheme()
   const cupActive = isTournamentActive()
   const navItems = [...BASE_NAV_ITEMS, cupActive ? CUP_NAV_ITEM : MORE_NAV_ITEM]
+
+  // Red-dot badge on the Match tab whenever there's an open voting window
+  // AND the signed-in player hasn't cast BOTH awards yet. Hides itself once
+  // they've voted for MOTM + DOTD, or when the window closes. Refreshes every
+  // 60s so it clears the moment the user votes (or on window close).
+  const [showMatchBadge, setShowMatchBadge] = useState(false)
+  useEffect(() => {
+    if (!profile?.id) { setShowMatchBadge(false); return }
+    let cancelled = false
+    async function refresh() {
+      const { data: vw } = await supabase
+        .from('voting_windows')
+        .select('match_id, opens_at, closes_at')
+        .order('closes_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (cancelled) return
+      const w = vw as { match_id: string; opens_at: string; closes_at: string } | null
+      if (!w) { setShowMatchBadge(false); return }
+      const now = Date.now()
+      const opens = new Date(w.opens_at).getTime()
+      const closes = new Date(w.closes_at).getTime()
+      if (now < opens || now > closes) { setShowMatchBadge(false); return }
+      const { data: votes } = await supabase
+        .from('votes')
+        .select('award_type')
+        .eq('match_id', w.match_id)
+        .eq('voter_id', profile!.id)
+      if (cancelled) return
+      const types = new Set(((votes as { award_type: string }[]) || []).map(v => v.award_type))
+      setShowMatchBadge(!(types.has('motm') && types.has('dotd')))
+    }
+    refresh()
+    const t = setInterval(refresh, 60000)
+    return () => { cancelled = true; clearInterval(t) }
+  }, [profile?.id])
 
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--color-bg)' }}>
@@ -130,21 +168,42 @@ export default function Layout() {
       <nav className="flex-shrink-0"
         style={{ background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex">
-          {navItems.map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors active:opacity-60"
-              style={({ isActive }) => ({
-                color: isActive ? 'var(--color-primary)' : '#9CA897',
-                borderTop: `2px solid ${isActive ? 'var(--color-primary)' : 'transparent'}`,
-              })}
-            >
-              <span className="text-base leading-none">{item.icon}</span>
-              <span className="text-[11px] font-medium">{item.label}</span>
-            </NavLink>
-          ))}
+          {navItems.map(item => {
+            const badged = item.to === '/match' && showMatchBadge
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors active:opacity-60"
+                style={({ isActive }) => ({
+                  color: isActive ? 'var(--color-primary)' : '#9CA897',
+                  borderTop: `2px solid ${isActive ? 'var(--color-primary)' : 'transparent'}`,
+                })}
+              >
+                <span className="text-base leading-none relative inline-block">
+                  {item.icon}
+                  {badged && (
+                    <span
+                      aria-label="Voting open — cast your MOTM & DOTD picks"
+                      style={{
+                        position: 'absolute',
+                        top: -2,
+                        right: -6,
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: 'var(--tt-red, #DC2626)',
+                        border: '1.5px solid var(--color-surface)',
+                        boxShadow: '0 0 0 1px var(--tt-red, #DC2626)33',
+                      }}
+                    />
+                  )}
+                </span>
+                <span className="text-[11px] font-medium">{item.label}</span>
+              </NavLink>
+            )
+          })}
         </div>
       </nav>
     </div>

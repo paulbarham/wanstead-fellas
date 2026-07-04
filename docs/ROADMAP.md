@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-04 (ProfileCompletionCard: single consolidated "complete your card" banner on Next Game — replaces standalone position + foot nudges, adds age-band picker)_
+_Last updated: 2026-07-04 (Match tab voting nav badge · MotmVotingCard context-mismatch fixed · DEBUT chip on TeamsPage roster)_
 
 ---
 
@@ -91,7 +91,7 @@ See [`docs/MOTM_DOTD_ENGAGEMENT_REVIEW.md`](MOTM_DOTD_ENGAGEMENT_REVIEW.md) for 
 |---|---|---|---|
 | Web push at full time ("Vote for tonight's MOTM") | 🟢 | [engagement review](MOTM_DOTD_ENGAGEMENT_REVIEW.md) | Highest-impact, highest-effort lever. PWA scaffolding exists; backend net-new |
 | Web push when results publish ("Edward Ezra won MOTM") | 🟢 | engagement review | Closes the loop that today voids |
-| Nav badge on Match tab when ballot is open | 🟢 | engagement review | Cheaper interim before push |
+| Nav badge on Match tab when ballot is open | ✅ | engagement review · commit pending | Red dot on the Match icon in the bottom nav whenever a voting_window is open AND the signed-in player hasn't cast both awards. Refreshes every 60s; clears the moment they vote or the window closes. |
 | Voting streak counter ("🔥 4 weeks in a row") | 🟢 | engagement review · [07](primers/pdf/07-balancer-peer-rating.pdf) | Loss aversion > novelty |
 | Live social proof ("14 voted · 22 haven't") | 🟢 | engagement review · [07](primers/pdf/07-balancer-peer-rating.pdf) | Already partially in (`voted/eligible`) — lift visually |
 | Results-reveal moment / Friday morning push | 🟢 | engagement review | Pairs with results-publish push |
@@ -159,7 +159,7 @@ Quality-of-life on the AdminTeamBuilder publish + share flow.
 |---|---|---|---|
 | Tag debutants automatically in WhatsApp export | ✅ | chat · commits `59b6311` / `18a0068` / `d24128a` | Reads from server-side view `v_player_match_history` (migration 031) with a `profiles.debut_at` per-player override (migration 032) for pre-app veterans like Charlie Nicholls-Petrie |
 | "Mark as veteran" toggle on admin profile editor | 🟢 | chat · follow-up to `d24128a` | Set `debut_at` from the UI instead of via SQL — saves chasing data fixes for known-but-unrecorded players |
-| Surface DEBUT badge in the in-app team list (not just export) | 🟢 | chat | Same view query is already in state; just needs a chip in the player row |
+| Surface DEBUT badge in the in-app team list (not just export) | ✅ | chat · commit pending | Cyan DEBUT chip on the TeamsPage roster whenever `v_player_match_history.first_match_date` is on-or-after the displayed match. Same rule as the WhatsApp export so the two views stay consistent. |
 | One-click "swap any two players" between teams | 🟢 | chat | Currently requires drag — keyboard-friendly modal would help mid-WhatsApp tweaks |
 
 ## 📊 Adoption — closing the feature-reach gaps
@@ -192,7 +192,7 @@ New signals that the rating engine and balancer can use. Most are tiny additions
 
 | Item | Notes |
 |---|---|
-| `MotmVotingCard` context-mismatch | Loads the latest voting window independently of the displayed match. During an open window before that night's result is entered, the page shows last week's result + report with this week's ballot wedged in. Worth tightening when this area is next touched. ([engagement review](MOTM_DOTD_ENGAGEMENT_REVIEW.md) §"Still open") |
+| ~~`MotmVotingCard` context-mismatch~~ | ✅ FIXED (commit pending). Card now takes an optional `expectedMatchId` prop and refuses to render if the latest voting window's `match_id` doesn't match. `MatchPage` passes the currently-displayed match on both slots so a stale ballot can no longer wedge itself into last week's context. Pre-result placeholder branch anchors to `weekMatch.id` — still surfaces the current-week ballot when the result hasn't been entered yet. |
 
 ---
 
