@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Committee Briefing</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · COMMITTEE BRIEFING · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+
+  /* Masthead */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 12pt 14pt;
+    border-radius: 10pt;
+    margin-bottom: 10pt;
+    display: table; width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 20pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 3pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.14em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 11pt;
+    margin: 10pt 0 4pt;
+    letter-spacing: 0.02em;
+    page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+
+  p { margin: 3pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  ul { margin: 3pt 0; padding-left: 14pt; }
+  li { margin: 1pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 6pt 10pt; border-radius: 4pt;
+    margin: 6pt 0; font-size: 9pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.mag   { background: rgba(255,102,204,0.07); border-left-color: #FF66CC; }
+  .callout.red   { background: rgba(255,85,85,0.07);   border-left-color: #FF5555; }
+
+  /* Rhythm strip on page 1 */
+  .rhythm {
+    display: table; width: 100%;
+    border-spacing: 4pt 0; margin: 4pt 0 8pt;
+    table-layout: fixed;
+  }
+  .beat {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 5pt 6pt; vertical-align: top;
+  }
+  .beat .h {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.1em;
+    color: #4AD9FF; text-transform: uppercase;
+  }
+  .beat .l {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt; color: #FFD400;
+    margin: 2pt 0 1pt;
+    letter-spacing: 0.02em;
+  }
+  .beat .d {
+    font-size: 8pt; color: #E8F0E9; line-height: 1.35;
+  }
+
+  /* Feature grid */
+  .grid {
+    display: table;
+    width: 100%;
+    border-spacing: 5pt 5pt;
+    table-layout: fixed;
+    margin: 5pt 0;
+  }
+  .grid.two > .cell { width: 50%; }
+  .cell {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 6pt 8pt;
+    vertical-align: top;
+  }
+  .cell h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: #4ADC7A;
+    font-size: 9.5pt;
+    margin: 0 0 3pt;
+    letter-spacing: 0.02em;
+  }
+  .cell h3 .ico { margin-right: 3pt; }
+  .cell p, .cell ul { margin: 0; font-size: 8.5pt; line-height: 1.35; }
+  .cell ul { padding-left: 12pt; }
+  .cell li { margin: 0; color: #E8F0E9; }
+
+  /* Roadmap theme rows */
+  .theme {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 6pt 10pt;
+    margin: 4pt 0;
+  }
+  .theme .title {
+    display: table; width: 100%;
+    margin-bottom: 2pt;
+  }
+  .theme .title .n {
+    display: table-cell;
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 9.5pt;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+  }
+  .theme .title .status {
+    display: table-cell; text-align: right;
+    vertical-align: middle;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.14em;
+    color: #9CA897;
+    text-transform: uppercase;
+  }
+  .theme .body { font-size: 8.5pt; color: #E8F0E9; line-height: 1.4; }
+  .theme .body strong { color: #4AD9FF; font-weight: 700; }
+
+  .pillar-row {
+    display: table; width: 100%;
+    border-spacing: 4pt 0; margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .pillar {
+    display: table-cell;
+    background: rgba(74,217,255,0.06);
+    border: 1px solid rgba(74,217,255,0.35);
+    border-radius: 6pt;
+    padding: 6pt; vertical-align: top;
+    text-align: center;
+  }
+  .pillar .ic { font-size: 15pt; }
+  .pillar .t {
+    font-family: 'Arial Black', sans-serif;
+    color: #4AD9FF; font-size: 8.5pt;
+    margin-top: 2pt; letter-spacing: 0.08em;
+  }
+  .pillar .d {
+    font-size: 7.5pt; color: #E8F0E9; margin-top: 1pt; line-height: 1.3;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 8pt 0;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.08em;
+    margin-top: 10pt;
+    padding: 6pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Committee Briefing · Jul 2026</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P513 · BRIEFING</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>What this is.</strong> A one-glance summary of what the app does today and what's queued for the coming months. Anything caught your eye — feature-level detail is in the primers (in the app, <em>Feedback</em> tab / on GitHub) and the live roadmap. Detail on any single item available on request.
+</div>
+
+<h2>What the app is for</h2>
+<p>Wanstead Fellas is a mobile web app that runs the whole Thursday-night football operation end-to-end — from Friday sign-up through match-day tactics to voting, fines and stats. It also carries the seasonal extras (World Cup predictor, sweepstake) that keep the group engaged between kick-offs.</p>
+
+<div class="pillar-row">
+  <div class="pillar"><div class="ic">🗓️</div><div class="t">OPERATIONS</div><div class="d">Runs the weekly cycle with as little admin nudging as possible</div></div>
+  <div class="pillar"><div class="ic">🎭</div><div class="t">STATS THEATRE</div><div class="d">Every match generates story, cards, awards</div></div>
+  <div class="pillar"><div class="ic">🪪</div><div class="t">IDENTITY</div><div class="d">Your card, position, foot, badges</div></div>
+  <div class="pillar"><div class="ic">⚖️</div><div class="t">FAIRNESS</div><div class="d">Balanced teams, transparent ratings, chased fees</div></div>
+  <div class="pillar"><div class="ic">🤝</div><div class="t">COMMUNITY</div><div class="d">Voting, banter, kids on My Squad</div></div>
+</div>
+
+<h2>The weekly rhythm — all handled by the app</h2>
+<div class="rhythm">
+  <div class="beat"><div class="h">FRI 10PM</div><div class="l">Sign-up opens</div><div class="d">In / Out toggle · reserves auto-promote when someone drops</div></div>
+  <div class="beat"><div class="h">WED 10PM</div><div class="l">Lineup locks</div><div class="d">Balancer builds teams · captains picked · publish to WhatsApp</div></div>
+  <div class="beat"><div class="h">THU 9PM</div><div class="l">Kick-off</div><div class="d">Formations · live scores · scorer entry</div></div>
+  <div class="beat"><div class="h">THU 10PM</div><div class="l">Voting opens</div><div class="d">MOTM / DOTD ballot · WTP fees post · match report follows</div></div>
+</div>
+
+<h2>What's live today</h2>
+
+<div class="grid two">
+  <div class="cell">
+    <h3><span class="ico">🗓️</span>Match operations</h3>
+    <ul>
+      <li>In / Out sign-up with waiting list &amp; auto-promotion</li>
+      <li>Player tiers (subscribed · WTP priority · WTP)</li>
+      <li>My Squad — parents manage linked kids</li>
+      <li>Weather forecast for Wanstead Flats 9pm</li>
+      <li>Drop-out confirmation to prevent misfires</li>
+    </ul>
+  </div>
+  <div class="cell">
+    <h3><span class="ico">⚖️</span>Team building</h3>
+    <ul>
+      <li>Auto-balanced snake draft (position-aware)</li>
+      <li>Auto-picked captains from top 3</li>
+      <li>Draft autosave · publish generates fixtures</li>
+      <li>WhatsApp export with DEBUT tags &amp; talking points</li>
+    </ul>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="cell">
+    <h3><span class="ico">⚽</span>Match tab (live)</h3>
+    <ul>
+      <li>Round-robin fixtures &amp; live league table</li>
+      <li>Per-fixture score + scorer entry</li>
+      <li><strong>Formation picker</strong> — every team gets a pitch, anyone in the roster can pick shape and drop mates into positions</li>
+    </ul>
+  </div>
+  <div class="cell">
+    <h3><span class="ico">🏆</span>Post-match awards</h3>
+    <ul>
+      <li>Single-pass MOTM &amp; DOTD ballot (one scroll)</li>
+      <li>Goalscorers sort to the top of the ballot</li>
+      <li>Structured match report — predicted vs actual · key highlights · team awards · banter · app watch</li>
+    </ul>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="cell">
+    <h3><span class="ico">🪪</span>Identity &amp; cards</h3>
+    <ul>
+      <li>Profile — photo, DOB, club, age, position, foot</li>
+      <li>FIFA-style Top Trumps card (Gold / Silver / Bronze tiers)</li>
+      <li>Badges (Legend, Captain, Super Sharp Shooter …)</li>
+      <li>Position &amp; foot pickers with post-login nudges</li>
+    </ul>
+  </div>
+  <div class="cell">
+    <h3><span class="ico">📊</span>Stats theatre</h3>
+    <ul>
+      <li>7 leaderboards — goals, MOTM, DOTD, fines, apps, distance/game, total distance</li>
+      <li>Month / all-time toggle</li>
+      <li>Position filter (Top 3 by role)</li>
+      <li>Match history archive with predictions retained</li>
+    </ul>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="cell">
+    <h3><span class="ico">💷</span>Money &amp; enforcement</h3>
+    <ul>
+      <li>WTP £5 fee auto-charges the morning after the match</li>
+      <li>Fines (Late £2, Lost Ball £3, Cuntiness £5, Drop-out £2)</li>
+      <li>Credits for overpayments and goodwill</li>
+      <li>2-week grace → blocked from sign-up until settled</li>
+    </ul>
+  </div>
+  <div class="cell">
+    <h3><span class="ico">🏃</span>Fitness</h3>
+    <ul>
+      <li>Manual per-match entry, or TCX/GPX from watch/app</li>
+      <li>Distance leaderboards</li>
+      <li>Suggested tweaks to Pace / Stamina / Work Rate</li>
+    </ul>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="cell">
+    <h3><span class="ico">🏆</span>Seasonal extras</h3>
+    <ul>
+      <li>World Cup Predictor — group 1X2 · knockout 6-way</li>
+      <li>Streak leaderboard (current + best)</li>
+      <li>Sweepstake — team status card, prize structure</li>
+      <li>Pods — car-share &amp; group info</li>
+    </ul>
+  </div>
+  <div class="cell">
+    <h3><span class="ico">🛠️</span>Admin</h3>
+    <ul>
+      <li>Player editor (stats, cards, badges, photos)</li>
+      <li>Finance panel (fines, WTPs, credits, blocks)</li>
+      <li>Families, feedback, cup admin, sweepstake admin</li>
+      <li>Delegate roles (e.g. score entry — Ross Marks)</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Roadmap — what's queued next</h2>
+
+<p style="margin-top:2pt; font-size:8.5pt; color:#9CA897;">Grouped by theme. Everything below is either agreed and in the queue (🟡), proposed but not yet scheduled (🟢), or has a dependency (⚠️) blocking release. Committee steer welcome on ordering.</p>
+
+<div class="theme">
+  <div class="title"><span class="n">⚽ Team tactics</span><span class="status">FormationPicker just shipped</span></div>
+  <div class="body">
+    <strong>Next:</strong> Formation snapshot in match report (small pitch thumbnail per team in History) · position-played-per-player capture (feeds smarter stat weighting) · captain-gated formation edits (if free-for-all gets messy). In-app team chat is parked — WhatsApp already covers it.
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">🤝 Voting engagement</span><span class="status">44% turnout — ceiling to lift</span></div>
+  <div class="body">
+    <strong>Next:</strong> web push at full-time ("Vote for tonight's MOTM") · nav badge on Match tab when ballot open · voting streak counter · live social proof ("14 voted · 22 haven't") · Friday-morning results-reveal push. Peer-rating features (below) inherit voting turnout as a ceiling, so this ships first.
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">🤝 Peer ratings</span><span class="status">⚠️ Blocked on voting engagement</span></div>
+  <div class="body">
+    <strong>Design:</strong> a third inline column on the MOTM/DOTD ballot — rate each teammate 🟢 great · 🟡 OK · 🔴 off. Default 🟡 so no added friction. Feeds a small adjustment to the player's card rating (capped, Bayesian shrinkage for low sample size).
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">🛠️ Balancer v2</span><span class="status">Position gate cleared (83%)</span></div>
+  <div class="body">
+    <strong>Design:</strong> categorical balance (attribute spreads within ±X) · star cap (max 2 &ge; 85 OVR per team) · defender floor (≥1 with DEF ≥ 8) · simulated annealing · rematch penalty. Target: drop average score margin from ~2.5 → ~1.5 goals. Admin escape hatch (drag-swap + regenerate) stays.
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">🎭 Rating engine (live cards)</span><span class="status">Currently admin-set — going live-derived</span></div>
+  <div class="body">
+    <strong>Design:</strong> shooting from goals/appearance, defence from clean sheets, pace from fitness top-speed, physical from distance × HR-zone workload, passing from peer ratings. Nightly cron recomputes; deltas logged; form arrows (↗︎ / ↘︎) on cards; "Why this rating?" tooltip for transparency. Bayesian shrinkage for low-appearance players and MOTM/DOTD-influence capped to stop gaming.
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">💷 Money &amp; enforcement</span><span class="status">Core done — automation left</span></div>
+  <div class="body">
+    <strong>Next:</strong> Stripe / online payment ("settle in one tap" from the app) · auto-apply credit when payment recorded (one entry, not two) · player-facing "you owe £X — pay by Sat" reminder · all-time finance view for the chase list.
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">📊 Adoption</span><span class="status">The fitness gap: 1/49 uploading</span></div>
+  <div class="body">
+    <strong>Design:</strong> "Most Distance Tonight" hero card on Stats · fitness line on player cards · Friday-morning nav badge on Cards for signed-up players · Strava connect-once auto-pull · "Complete your card" 30-second onboarding flow at first login · photo nudge on Cards tab (still 37 photo-less). The features are built — nobody's using them because there's no payoff loop or nudge.
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">📈 Data quality</span><span class="status">New signals for the rating engine</span></div>
+  <div class="body">
+    <strong>Next:</strong> position played per fixture (one-tap picker on match entry) · assists tracking (Veo recordings + shirt numbers being explored) · self-rated form Wednesday poll (🔥 💪 🆗 🤒 🛏️) · HR-zone fatigue index feeding the balancer.
+  </div>
+</div>
+
+<div class="theme">
+  <div class="title"><span class="n">🛂 Delegate roles</span><span class="status">First role live (Ross Marks · scoring)</span></div>
+  <div class="body">
+    <strong>Next:</strong> Admin UI toggle to grant / revoke delegate roles per player · indicator on Admin profile page showing who holds each role · additional roles as needed (can_manage_fines, can_publish_teams).
+  </div>
+</div>
+
+<h2>Where committee steer would land best</h2>
+
+<div class="callout green">
+  <strong>Three real choices ahead.</strong>
+  <ol style="padding-left:16pt; margin:4pt 0 0;">
+    <li><strong>Sequencing.</strong> Engagement (voting push) vs Balancer v2 vs Rating engine — all sizeable. Which lands first?</li>
+    <li><strong>Ambition on cards.</strong> Live-derived ratings are transparent but noisy. Do we ship with training wheels (admin baseline ± small drift) or go straight to fully derived?</li>
+    <li><strong>Payments.</strong> Stripe integration is a bigger lift — do we want the frictionless "settle in one tap" or is cash-to-admin still fine?</li>
+  </ol>
+</div>
+
+<div class="callout mag">
+  <strong>Also worth knowing.</strong> Two features have adoption blockers we're aware of: Balancer v2 needs ≥80% of regulars to have a position set (currently 83% — cleared), and Peer ratings need voting turnout above ~65% (currently 44%) or the signal is too thin to trust. Both are addressed on the roadmap above.
+</div>
+
+<hr>
+
+<div class="closer">
+  Full roadmap → the app's <strong>Feedback</strong> tab · deeper primer for any single item on request.<br>
+  Committee questions → admin in the WhatsApp group.
+</div>
+
+</body>
+</html>
