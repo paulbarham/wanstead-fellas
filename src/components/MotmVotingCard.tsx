@@ -52,6 +52,10 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
   // sorted to the top with a ⚽ tag so MOTM candidates surface without scrolling.
   const [filter, setFilter] = useState('')
   const [scorers, setScorers] = useState<Record<string, number>>({})
+  // Streak = consecutive rostered matches (with closed voting windows) where
+  // the signed-in player cast at least one vote. Loss-aversion push — shown
+  // once >=2 so it feels earned, not participation.
+  const [myStreak, setMyStreak] = useState(0)
 
   const now = Date.now()
   const matchId = window?.match_id ?? null
@@ -193,10 +197,53 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
         }
       }
 
+      // Voting streak — count consecutive closed windows where the signed-in
+      // player was on the roster AND cast a vote. Non-rostered matches skip
+      // (they neither continue nor break the streak) so someone missing a
+      // couple of games due to signup capacity isn't punished.
+      if (profile?.id) {
+        const { data: userWindows } = await supabase
+          .from('voting_windows')
+          .select('match_id, closes_at, matches!inner(match_date)')
+          .lt('closes_at', new Date().toISOString())
+          .order('closes_at', { ascending: false })
+          .limit(20)
+        type UW = { match_id: string; matches: { match_date: string } }
+        const uwList = (userWindows as unknown as UW[]) || []
+        if (uwList.length === 0) {
+          setMyStreak(0)
+        } else {
+          const mIds = uwList.map(u => u.match_id)
+          // Rostered matches for this player (via teams → team_players)
+          const [{ data: rostered }, { data: userVotes }] = await Promise.all([
+            supabase
+              .from('team_players')
+              .select('team_id, teams!inner(match_id)')
+              .eq('player_id', profile.id)
+              .in('teams.match_id', mIds),
+            supabase
+              .from('votes')
+              .select('match_id')
+              .eq('voter_id', profile.id)
+              .in('match_id', mIds),
+          ])
+          type Ros = { teams: { match_id: string } }
+          const rosteredSet = new Set(((rostered as unknown as Ros[]) || []).map(r => r.teams.match_id))
+          const votedSet = new Set(((userVotes as { match_id: string }[]) || []).map(v => v.match_id))
+          let streak = 0
+          for (const uw of uwList) {
+            if (!rosteredSet.has(uw.match_id)) continue // not on the roster — skip
+            if (votedSet.has(uw.match_id)) streak++
+            else break
+          }
+          setMyStreak(streak)
+        }
+      }
+
       setLoading(false)
     }
     load()
-  }, [loadParticipation, loadResults, profile?.is_admin, expectedMatchId])
+  }, [loadParticipation, loadResults, profile?.is_admin, profile?.id, expectedMatchId])
 
   async function castVote(award: AwardType, nomineeId: string) {
     if (!profile || !matchId) return
@@ -311,6 +358,18 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
           </span>
         </div>
 
+        {myStreak >= 2 && (
+          <div className="px-4 py-2 text-xs flex items-center gap-2"
+            style={{ background: 'rgba(255,212,0,0.09)', borderBottom: '1px solid var(--color-border)' }}>
+            <span className="font-semibold" style={{ color: 'var(--tt-yellow)' }}>
+              🔥 {myStreak}-week streak
+            </span>
+            <span style={{ color: 'var(--color-text-muted)' }}>
+              {votedAll ? '· kept alive — nice one' : '· vote to keep it alive'}
+            </span>
+          </div>
+        )}
+
         {eligible.length === 0 ? (
           <div className="px-4 py-6 text-center text-sm" style={{ color: '#9CA897' }}>
             No roster found for this match.
@@ -380,10 +439,16 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
     return (
       <div className="rounded-2xl overflow-hidden mb-4"
         style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
+        <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <span className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
             Match Awards
           </span>
+          {myStreak >= 2 && (
+            <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(255,212,0,0.12)', color: 'var(--tt-yellow)', letterSpacing: '0.6px' }}>
+              🔥 {myStreak}-week streak
+            </span>
+          )}
         </div>
 
         {results.length === 0 ? (
