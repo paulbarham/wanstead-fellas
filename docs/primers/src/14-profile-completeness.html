@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Profile Completeness</title>
+<style>
+  @page {
+    size: A4; margin: 12mm 10mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · PROFILE COMPLETENESS · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF; font-size: 8pt; letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710; color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9pt; line-height: 1.3;
+  }
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF; padding: 10pt 14pt;
+    border-radius: 8pt; margin-bottom: 8pt;
+    display: table; width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 { font-family: 'Arial Black', sans-serif; font-size: 18pt; margin: 0; color: #FFD400; letter-spacing: 0.03em; line-height: 1; }
+  .masthead .sub { margin-top: 3pt; font-family: 'Courier New', monospace; font-size: 8.5pt; letter-spacing: 0.16em; color: #4ADC7A; text-transform: uppercase; }
+  .masthead .pageid { font-family: 'Courier New', monospace; font-size: 8pt; letter-spacing: 0.14em; color: #FFD400; background: rgba(0,0,0,0.25); padding: 3pt 6pt; border-radius: 4pt; }
+  h2 { font-family: 'Arial Black', sans-serif; color: #FFD400; font-size: 10.5pt; margin: 8pt 0 3pt; letter-spacing: 0.02em; page-break-after: avoid; }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  p { margin: 3pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  .callout {
+    background: rgba(74,217,255,0.06);
+    border-left: 3pt solid #4AD9FF;
+    padding: 6pt 10pt; border-radius: 4pt;
+    margin: 4pt 0 6pt; font-size: 8.5pt;
+  }
+
+  /* Summary tiles */
+  .tiles { display: table; width: 100%; border-spacing: 4pt 0; margin-top: 4pt; margin-bottom: 8pt; table-layout: fixed; }
+  .tile {
+    display: table-cell; background: #15211A;
+    border: 1px solid #2D4A2F; border-radius: 6pt;
+    padding: 6pt 6pt; vertical-align: top; text-align: center;
+  }
+  .tile .lbl { font-family: 'Courier New', monospace; font-size: 7.5pt; color: #9CA897; letter-spacing: 0.12em; text-transform: uppercase; }
+  .tile .ic { font-size: 13pt; }
+  .tile .val { font-family: 'Arial Black', sans-serif; font-size: 15pt; color: #FFD400; letter-spacing: 0.02em; margin-top: 2pt; }
+  .tile .pct { font-size: 8pt; color: #E8F0E9; margin-top: 1pt; }
+  .tile.low  .val { color: #FF5555; }
+  .tile.mid  .val { color: #FFD400; }
+  .tile.high .val { color: #4ADC7A; }
+
+  /* Attribute table */
+  table.prof {
+    width: 100%; border-collapse: collapse;
+    font-size: 8.5pt; margin: 2pt 0;
+  }
+  table.prof th {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    padding: 3pt 3pt;
+    color: #FFD400;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 700;
+  }
+  table.prof th.nm { text-align: left; padding-left: 6pt; }
+  table.prof th.tk { text-align: center; }
+  table.prof th.gk { text-align: center; }
+  table.prof td {
+    border: 1px solid #2D4A2F;
+    background: #0F1710;
+    padding: 2pt 3pt;
+    text-align: center;
+    vertical-align: middle;
+  }
+  table.prof td.nm { text-align: left; padding-left: 6pt; color: #E8F0E9; font-weight: 600; }
+  table.prof td.tk { text-align: center; font-family: 'Courier New', monospace; font-size: 7pt; letter-spacing: 0.05em; }
+  table.prof td.tk .tier { font-weight: 700; }
+  table.prof td.gk { text-align: center; }
+  table.prof td.ok {
+    color: #4ADC7A;
+    background: rgba(74,220,122,0.12);
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt;
+  }
+  table.prof td.miss {
+    color: #FF5555;
+    background: rgba(255,85,85,0.12);
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt;
+  }
+  table.prof tbody tr:nth-child(even) td:not(.ok):not(.miss) { background: #131F17; }
+
+  .gpill {
+    display: inline-block;
+    min-width: 18pt;
+    padding: 2pt 5pt;
+    border-radius: 999pt;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 8.5pt;
+    letter-spacing: 0.02em;
+  }
+  .gpill.g0 { background: rgba(74,220,122,0.18); color: #4ADC7A; border: 1px solid #4ADC7A; }
+  .gpill.g2 { background: rgba(74,217,255,0.18); color: #4AD9FF; border: 1px solid #4AD9FF; }
+  .gpill.g4 { background: rgba(255,212,0,0.18); color: #FFD400; border: 1px solid #FFD400; }
+  .gpill.g6 { background: rgba(255,85,85,0.18);  color: #FF5555; border: 1px solid #FF5555; }
+
+  .legend {
+    display: table; width: 100%; margin-top: 4pt; margin-bottom: 2pt;
+    border-spacing: 6pt 0; table-layout: fixed;
+  }
+  .legend .col {
+    display: table-cell; padding: 4pt 8pt;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 6pt; font-size: 8pt; vertical-align: middle;
+  }
+  .legend .col strong { color: #4AD9FF; }
+
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 8pt 0; }
+
+  .closer {
+    text-align: center; color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.08em;
+    margin-top: 8pt; padding: 6pt;
+    border: 1px dashed #2D4A2F; border-radius: 6pt;
+  }
+
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Profile Completeness · 4 Jul 2026</div>
+  </div>
+  <div class="right"><span class="pageid">P514 · AUDIT</span></div>
+</div>
+
+<div class="callout">
+  <strong>Scope.</strong> Every player who has appeared in a match in the last 90 days (59 in total). Six player-owned profile attributes checked. Sorted by <em>gaps → most missing at the top</em> so the chase list surfaces first. Live pull as of today.
+</div>
+
+<h2>Squad-wide coverage</h2>
+
+<div class="tiles">
+  <div class="tile high">
+    <div class="ic">⚙️</div><div class="lbl">Position (primary)</div><div class="val">56/59</div><div class="pct">95%</div>
+  </div>
+  <div class="tile mid">
+    <div class="ic">📸</div><div class="lbl">Photo</div><div class="val">20/59</div><div class="pct">34%</div>
+  </div>
+  <div class="tile mid">
+    <div class="ic">🎂</div><div class="lbl">DOB</div><div class="val">20/59</div><div class="pct">34%</div>
+  </div>
+  <div class="tile low">
+    <div class="ic">🏆</div><div class="lbl">Fav Club</div><div class="val">17/59</div><div class="pct">29%</div>
+  </div>
+  <div class="tile low">
+    <div class="ic">🛡️</div><div class="lbl">Pos (secondary)</div><div class="val">3/59</div><div class="pct">5%</div>
+  </div>
+  <div class="tile low">
+    <div class="ic">🦶</div><div class="lbl">Foot</div><div class="val">3/59</div><div class="pct">5%</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="col"><strong>Read</strong> — ✓ set · ✗ missing · Gaps column = count of ✗</div>
+  <div class="col"><strong>Tier</strong> — SUB = subscribed · WTP★ = priority casual · WTP = casual</div>
+</div>
+
+<h2>Per-player audit</h2>
+
+<table class="prof"><thead><tr><th class="nm">Player</th><th class="tk">Tier</th><th>📸<br>Photo</th><th>🎂<br>DOB</th><th>🏆<br>Club</th><th>⚙️<br>Pos 1</th><th>🛡️<br>Pos 2</th><th>🦶<br>Foot</th><th class="gk">Gaps</th></tr></thead><tbody><tr><td class="nm">Stuart Jack</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">6</span></td></tr><tr><td class="nm">Daniel K</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">6</span></td></tr><tr><td class="nm">Emmanuel</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Geof Aiwerioba</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Guy Baker</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Ollie Cotton</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">David Edwards</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Gary Edwards</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Josh Edwards</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Kaya Elkiner</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Aaron Franklin</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Rob Hall</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">James Lightbody</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Martin Lightbody</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Peter May</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Phil Mowat</td><td class="tk"><span class="tier" style="color:#FFD400;">WTP★</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Charlie Nicholls-Petrie</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Jacob Okunega</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Mark Pearson</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">George Phimister</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Leo Reid</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Beau Samuels</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Chay Samuels</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Mikel Winter</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Sheridan Winter</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Sam Yeats</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g6">5</span></td></tr><tr><td class="nm">Ed Adamson</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Felix Baker</td><td class="tk"><span class="tier" style="color:#FFD400;">WTP★</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Tom Broughton</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Chris Butler</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Stan Finch</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Pete Healey</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Ross Marks</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Joseph Pender</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr></tbody></table>
+
+<div class="page-break"></div>
+
+<table class="prof"><thead><tr><th class="nm">Player</th><th class="tk">Tier</th><th>📸<br>Photo</th><th>🎂<br>DOB</th><th>🏆<br>Club</th><th>⚙️<br>Pos 1</th><th>🛡️<br>Pos 2</th><th>🦶<br>Foot</th><th class="gk">Gaps</th></tr></thead><tbody><tr><td class="nm">Stephen Pender</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Neil Perry</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Daryll Petrie</td><td class="tk"><span class="tier" style="color:#FFD400;">WTP★</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Lawrie Pointer</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Peter Schaefer</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Rowan Taylor</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Adam Thorpe</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Rory Wilson</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">4</span></td></tr><tr><td class="nm">Marley Barham</td><td class="tk"><span class="tier" style="color:#FFD400;">WTP★</span></td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Father Emmanuel</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Max Farley</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Martyn Hawkes</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Noah Higgins</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Daren Low</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Richard Sharman</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g4">3</span></td></tr><tr><td class="nm">Corin Davies</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Scott Duncan</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Edward Ezra</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Michael Farley</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Callum Finch</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Paul Finch</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Justin Franklin</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Chris Hughes</td><td class="tk"><span class="tier" style="color:#9CA897;">WTP</span></td><td class="miss">✗</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">James Wilson</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="miss">✗</td><td class="miss">✗</td><td class="gk"><span class="gpill g2">2</span></td></tr><tr><td class="nm">Paul Barham</td><td class="tk"><span class="tier" style="color:#4ADC7A;">SUB</span></td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td><td class="gk"><span class="gpill g0">0</span></td></tr></tbody></table>
+
+<hr>
+
+<div class="closer">
+  Committee steer → chase list obvious from the top of page 2 · foot nudge already shipping to catch it in-app.<br>
+  Any group of players to focus on → admin in the WhatsApp group.
+</div>
+
+</body>
+</html>
