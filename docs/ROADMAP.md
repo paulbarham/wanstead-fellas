@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-05 (Web push END-TO-END live · vote_open + results topics · verified with real notification landing on iOS 18.7 PWA)_
+_Last updated: 2026-07-05 (Additional push notifications logged: match-report / sign-up-deadline / teams-published / preferences UI · rate-limit design constraint captured)_
 
 ---
 
@@ -95,6 +95,18 @@ See [`docs/MOTM_DOTD_ENGAGEMENT_REVIEW.md`](MOTM_DOTD_ENGAGEMENT_REVIEW.md) for 
 | Voting streak counter ("🔥 4 weeks in a row") | ✅ | engagement review · commit `a809deb` | Chip on the MotmVotingCard header (open ballot + closed results). Counts consecutive rostered matches where the player cast at least one vote; non-rostered matches skip so signup misses don't punish it. Shown once ≥2 so it feels earned. |
 | Live social proof ("14 voted · 22 haven't") | 🟢 | engagement review · [07](primers/pdf/07-balancer-peer-rating.pdf) | Already partially in (`voted/eligible`) — lift visually |
 | Results-reveal moment / Friday morning push | 🟢 | engagement review | Pairs with results-publish push |
+
+### 🔔 Additional push notifications (extend the pipeline)
+
+The push infrastructure from 5 Jul now supports any new topic on any trigger. Every row here is small (~10-30 min each) — the constraint isn't effort, it's volume. Notification fatigue is the enemy. Design guard-rail: **max 4 pushes per weekly cycle, or add a preferences UI before layering more on.**
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| Match-report push ("This week's report is up") | 🟢 | chat | New trigger on `results` table when `summary` flips NULL → not-NULL. Same edge function, new topic `'report'`. Fires the Friday morning after admin writes the report. Cheap (~10 min). |
+| Sign-up deadline reminder — 2h before lock | 🟢 | chat | pg_cron job every Wed 20:00 London; fetches next Thursday's `matches` row + everyone NOT in `availability` for that date, filters to WTPs/subscribers with `preferred_position_primary` (i.e. active roster), fans out `"Are you in for Thursday?"`. Roster filter matters — we don't nag inactive players. Medium (~30 min). |
+| Teams-published push ("Teams are up — check who's in your side") | 🟢 | chat | Trigger on `matches.status` flipping to `'published'`. Same edge function, new topic. Nice-to-have but arguably low-signal since players will see it Thursday morning anyway. Skip if we're worried about volume. |
+| Player notification preferences UI | 🟢 | chat | Per-topic toggles on the `PushOptInCard`: Vote / Results / Report / Deadline / Teams. Requires a `push_preferences` JSONB column on `push_subscriptions` (or new junction table) + the edge function filters recipients per-topic. Only needed once we're at ≥4 notification types. |
+| Sequencing decision — opt-out-per-type vs opt-in-per-type | ⚠️ | chat | Do enabled-players get everything by default, or only vote+results with opt-in for the rest? Loose consensus so far: opt-out (get everything). Revisit before shipping the preferences UI. |
 
 ## 🤝 Community — peer ratings (revised)
 
