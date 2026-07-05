@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Web Push Runbook</title>
+<style>
+  @page {
+    size: A4; margin: 9mm 10mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · WEB PUSH RUNBOOK · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF; font-size: 8pt; letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710; color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 8.5pt; line-height: 1.32;
+  }
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF; padding: 7pt 12pt;
+    border-radius: 7pt; margin-bottom: 5pt;
+    display: table; width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 { font-family: 'Arial Black', sans-serif; font-size: 16pt; margin: 0; color: #FFD400; letter-spacing: 0.03em; line-height: 1; }
+  .masthead .sub { margin-top: 2pt; font-family: 'Courier New', monospace; font-size: 8pt; letter-spacing: 0.16em; color: #4ADC7A; text-transform: uppercase; }
+  .masthead .pageid { font-family: 'Courier New', monospace; font-size: 7.5pt; letter-spacing: 0.12em; color: #FFD400; background: rgba(0,0,0,0.25); padding: 2pt 5pt; border-radius: 3pt; }
+
+  h2 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 9.5pt;
+    margin: 4pt 0 2pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  p { margin: 2pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    color: #4ADC7A;
+    background: rgba(74,220,122,0.08);
+    padding: 0 2pt;
+    border-radius: 2pt;
+  }
+
+  .callout {
+    background: rgba(74,217,255,0.06);
+    border-left: 3pt solid #4AD9FF;
+    padding: 4pt 8pt; border-radius: 3pt;
+    margin: 3pt 0; font-size: 8pt;
+  }
+
+  .cols { display: table; width: 100%; border-spacing: 5pt 0; margin: 3pt 0 5pt; table-layout: fixed; }
+  .col {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 5pt;
+    padding: 5pt 7pt;
+    vertical-align: top;
+  }
+  .col h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 9pt;
+    margin: 0 0 3pt; letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .col .sub {
+    font-family: 'Courier New', monospace;
+    color: #9CA897; font-size: 7pt;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 4pt;
+  }
+  .col.player h3 { color: #4AD9FF; }
+
+  .step {
+    background: rgba(0,0,0,0.20);
+    border-radius: 3pt;
+    padding: 3pt 6pt 3pt 20pt;
+    margin: 2pt 0;
+    position: relative;
+    font-size: 7.6pt;
+    line-height: 1.28;
+  }
+  .step .n {
+    position: absolute;
+    left: 3pt; top: 2.5pt;
+    width: 11pt; height: 11pt;
+    background: #FFD400; color: #0F1710;
+    border-radius: 50%;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 7pt;
+    text-align: center; line-height: 11pt;
+    font-weight: 800;
+  }
+  .col.player .step .n { background: #4AD9FF; }
+
+  .trouble { display: table; width: 100%; border-spacing: 4pt 0; margin: 3pt 0; table-layout: fixed; }
+  .trouble .cell {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 4pt;
+    padding: 4pt 6pt;
+    vertical-align: top;
+    font-size: 7.5pt;
+    line-height: 1.28;
+  }
+  .trouble .cell .err {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    color: #FF5555;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: block;
+    margin-bottom: 2pt;
+  }
+  .trouble .cell .fix strong { color: #4ADC7A; }
+
+  .keys {
+    display: table; width: 100%; border-spacing: 4pt 0; margin: 3pt 0 5pt; table-layout: fixed;
+  }
+  .keys .tile {
+    display: table-cell; padding: 4pt 6pt;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 4pt; vertical-align: middle;
+  }
+  .keys .tile .lbl {
+    font-family: 'Courier New', monospace; font-size: 7pt;
+    color: #9CA897; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .keys .tile code { display: inline-block; margin-top: 2pt; font-size: 8pt; word-break: break-all; }
+
+  .closer {
+    text-align: center; color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.08em;
+    margin-top: 5pt; padding: 4pt;
+    border: 1px dashed #2D4A2F; border-radius: 5pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Web Push Notifications · Runbook</div>
+  </div>
+  <div class="right"><span class="pageid">P517 · RUNBOOK</span></div>
+</div>
+
+<div class="callout">
+  <strong>What this is.</strong> One-page reference for the match-night push notification system (shipped 5 Jul 2026). Two flows: <em>admin one-off setup</em> (repeat only if a secret rotates), and <em>player opt-in</em> (each device, once). Bottom: the four errors you're likely to hit while wiring it up, with the fix for each.
+</div>
+
+<p style="font-size:8pt; margin:3pt 0 4pt;"><strong>How it works.</strong> Admin submits a match result → <code>voting_windows</code> row inserts → Postgres trigger calls the edge function → the function fetches rostered players' push subscriptions, signs a VAPID JWT, encrypts the payload and hands it to Apple / FCM / Mozilla → the browser's service worker renders "🏆 Vote for tonight's awards" on the player's device. Same flow when results publish, different payload.</p>
+
+<div class="cols">
+  <div class="col admin">
+    <h3>🛠️ Admin — one-off setup</h3>
+    <div class="sub">Done once. Only redo if a secret rotates or the function goes missing.</div>
+
+    <div class="step"><span class="n">1</span>
+      <strong>Generate a VAPID keypair.</strong> Any machine with node: <code>npx web-push generate-vapid-keys --json</code>. Public key = safe to publish. Private key = secret.
+    </div>
+    <div class="step"><span class="n">2</span>
+      <strong>Hardcode the public key in the client.</strong> Lives at <code>src/lib/push.ts</code> as <code>VAPID_PUBLIC_KEY</code>. Browsers use this to sign the subscription request.
+    </div>
+    <div class="step"><span class="n">3</span>
+      <strong>Set project secrets.</strong> Dashboard → Settings → Edge Functions → Secrets. Add <code>VAPID_PRIVATE_KEY</code> and <code>VAPID_SUBJECT</code> = <code>mailto:pabarham@gmail.com</code>.
+    </div>
+    <div class="step"><span class="n">4</span>
+      <strong>Deploy the edge function.</strong> Dashboard → Edge Functions → Deploy → paste <code>supabase/functions/send-vote-notifications/index.ts</code>, name it <code>send-vote-notifications</code>, <strong>turn OFF Verify JWT</strong>.
+    </div>
+    <div class="step"><span class="n">5</span>
+      <strong>Store the function URL in Vault.</strong> One SQL call: <code>vault.create_secret(&lt;url&gt;, 'vote_notify_url', 'desc')</code>. The trigger reads it — never hardcoded.
+    </div>
+    <div class="step"><span class="n">6</span>
+      <strong>Wire the triggers.</strong> Migration <code>048</code> creates <code>voting_windows_notify_open_trg</code> (INSERT) and <code>voting_windows_notify_results_trg</code> (UPDATE OF results_published). Apply and you're done.
+    </div>
+  </div>
+
+  <div class="col player">
+    <h3>📱 Player — per-device opt-in</h3>
+    <div class="sub">Each player, each device, once. iOS needs Home Screen install first.</div>
+
+    <div class="step"><span class="n">1</span>
+      <strong>Open the app from the Home Screen icon</strong> — <em>not from Safari</em>. iOS only allows web push from an installed PWA. If you haven't added it: share sheet → Add to Home Screen.
+    </div>
+    <div class="step"><span class="n">2</span>
+      <strong>Go to Profile.</strong> Tap the avatar in the top-right of any tab.
+    </div>
+    <div class="step"><span class="n">3</span>
+      <strong>Tap "Enable notifications"</strong> on the 🔔 Match-night notifications card. Grant permission when the browser prompts. The card flips green ON.
+    </div>
+    <div class="step"><span class="n">4</span>
+      <strong>Done.</strong> After the next Thursday match, when the admin submits the result, your phone gets pinged. Tap it to jump straight into the ballot.
+    </div>
+
+    <p style="font-size:7pt; color:#9CA897; margin-top:5pt;">Change your mind? Same card → "Turn off on this device". Blocked by mistake in Safari? Site Settings → Notifications → Allow, then re-enable in the app.</p>
+  </div>
+</div>
+
+<h2>Where the config lives</h2>
+<div class="keys">
+  <div class="tile"><span class="lbl">Client (public)</span><br><code>src/lib/push.ts</code> · VAPID_PUBLIC_KEY</div>
+  <div class="tile"><span class="lbl">Supabase secrets</span><br><code>VAPID_PRIVATE_KEY</code>, <code>VAPID_SUBJECT</code></div>
+  <div class="tile"><span class="lbl">Vault</span><br><code>vote_notify_url</code></div>
+  <div class="tile"><span class="lbl">DB / SW</span><br><code>push_subscriptions</code>, <code>public/sw.js</code></div>
+</div>
+
+<h2>Troubleshooting — the four errors you'll hit</h2>
+
+<div class="trouble">
+  <div class="cell">
+    <span class="err">404 Requested function was not found</span>
+    <span class="fix"><strong>Fix:</strong> the edge function isn't deployed. Redeploy via Dashboard. Confirm the vault URL matches the deployed name exactly (hyphens, not underscores).</span>
+  </div>
+  <div class="cell">
+    <span class="err">401 UNAUTHORIZED_NO_AUTH_HEADER</span>
+    <span class="fix"><strong>Fix:</strong> <em>Verify JWT</em> is still on. Toggle off on the function's Details page. Our pg_net call intentionally sends no auth header.</span>
+  </div>
+  <div class="cell">
+    <span class="err">500 VAPID_PRIVATE_KEY not configured</span>
+    <span class="fix"><strong>Fix:</strong> add the private key as a project secret. Case-sensitive, no trailing whitespace. Redeploy so the env is picked up.</span>
+  </div>
+  <div class="cell">
+    <span class="err">403 BadAuthorizationHeader (Apple)</span>
+    <span class="fix"><strong>Fix:</strong> VAPID public key at send-time doesn't match the one the browser signed the subscription with. Either add <code>VAPID_PUBLIC_KEY</code> as a project secret, or match the hardcoded fallback to <code>src/lib/push.ts</code>.</span>
+  </div>
+</div>
+
+<h2>Diagnostic path</h2>
+<p style="font-size:8pt;">Fire a manual test from SQL — the response includes the exact status code + body for any failure:</p>
+<pre style="background:#0F1710; border:1px solid #2D4A2F; border-radius:3pt; padding:4pt 7pt; font-family:'Courier New',monospace; font-size:7pt; color:#E8F0E9; margin:3pt 0; line-height:1.3;">SELECT public.call_send_vote_notifications(
+  (SELECT id FROM matches WHERE status='completed' ORDER BY match_date DESC LIMIT 1), 'vote_open');
+SELECT pg_sleep(4);
+SELECT status_code, content FROM net._http_response
+WHERE created &gt; NOW() - INTERVAL '30 seconds' ORDER BY id DESC LIMIT 1;</pre>
+<p style="font-size:7.5pt; color:#9CA897;">Success: <code>{"sent":1,"total":1,"results":[{"ok":true}]}</code>. Anything else: <code>results[].statusCode</code> + <code>body</code> map to one of the four errors above.</p>
+
+<div class="closer">
+  Full source · migrations 047 + 048 · edge function · SW handler → all on <strong>main</strong>. This runbook + a fire drill = zero-drama recovery.
+</div>
+
+</body>
+</html>
