@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-04 (Voting streak counter shipped · Web push scaffolding landed pending secret setup + edge function deploy · MotmVotingCard context-mismatch fixed · DEBUT chip on TeamsPage roster · Match tab voting nav badge)_
+_Last updated: 2026-07-05 (Web push END-TO-END live · vote_open + results topics · verified with real notification landing on iOS 18.7 PWA)_
 
 ---
 
@@ -89,8 +89,8 @@ See [`docs/MOTM_DOTD_ENGAGEMENT_REVIEW.md`](MOTM_DOTD_ENGAGEMENT_REVIEW.md) for 
 
 | Item | Status | Source | Notes |
 |---|---|---|---|
-| Web push at full time ("Vote for tonight's MOTM") | 🔵 | [engagement review](MOTM_DOTD_ENGAGEMENT_REVIEW.md) · commit pending · migration `047` | Scaffolding shipped: VAPID keys generated, `push_subscriptions` table + RLS, service worker `push` / `notificationclick` handlers, `PushOptInCard` on Profile page, `send-vote-notifications` edge function ready to deploy. **Pending**: (a) deploy the edge function (needs Supabase MCP approval), (b) set `VAPID_PRIVATE_KEY` + `VAPID_SUBJECT` project secrets, (c) DB trigger on `voting_windows` INSERT via pg_net. |
-| Web push when results publish ("Edward Ezra won MOTM") | 🔵 | engagement review · commit pending | Same infrastructure as above — the edge function already handles both `vote_open` and `results` topics. Will fire from the `award_results` publish flow once the trigger is wired. |
+| Web push at full time ("Vote for tonight's MOTM") | ✅ | [engagement review](MOTM_DOTD_ENGAGEMENT_REVIEW.md) · migrations `047` + `048` · commit `f3c3285` | Full flow live: `voting_windows` AFTER INSERT fires `public.call_send_vote_notifications` → pg_net POST to `send-vote-notifications` edge function → `web-push` signs VAPID JWT → notification lands via web.push.apple.com / FCM / Mozilla. Verified end-to-end with a real push landing on iOS 18.7 (via installed PWA). Diagnostic path: `net._http_response.content` shows `{sent,total,results:[{ok/statusCode/body}]}`. |
+| Web push when results publish ("Edward Ezra won MOTM") | ✅ | engagement review · migrations `047` + `048` · commit `f3c3285` | Fires from a `voting_windows AFTER UPDATE OF results_published` trigger when the flag flips true (either compute_award_results or an admin override). Same edge function, `topic: 'results'` payload. |
 | Nav badge on Match tab when ballot is open | ✅ | engagement review · commit pending | Red dot on the Match icon in the bottom nav whenever a voting_window is open AND the signed-in player hasn't cast both awards. Refreshes every 60s; clears the moment they vote or the window closes. |
 | Voting streak counter ("🔥 4 weeks in a row") | ✅ | engagement review · commit `a809deb` | Chip on the MotmVotingCard header (open ballot + closed results). Counts consecutive rostered matches where the player cast at least one vote; non-rostered matches skip so signup misses don't punish it. Shown once ≥2 so it feels earned. |
 | Live social proof ("14 voted · 22 haven't") | 🟢 | engagement review · [07](primers/pdf/07-balancer-peer-rating.pdf) | Already partially in (`voted/eligible`) — lift visually |
