@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Match Night Notifications</title>
+<style>
+  @page {
+    size: A4; margin: 10mm 10mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · MATCH NIGHT NOTIFICATIONS · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF; font-size: 8pt; letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710; color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9pt; line-height: 1.36;
+  }
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF; padding: 10pt 14pt;
+    border-radius: 8pt; margin-bottom: 6pt;
+    display: table; width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 { font-family: 'Arial Black', sans-serif; font-size: 18pt; margin: 0; color: #FFD400; letter-spacing: 0.03em; line-height: 1; }
+  .masthead .sub { margin-top: 3pt; font-family: 'Courier New', monospace; font-size: 8.5pt; letter-spacing: 0.18em; color: #4ADC7A; text-transform: uppercase; }
+  .masthead .pageid { font-family: 'Courier New', monospace; font-size: 8.5pt; letter-spacing: 0.14em; color: #FFD400; background: rgba(0,0,0,0.25); padding: 3pt 6pt; border-radius: 4pt; }
+
+  h2 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 10.5pt;
+    margin: 6pt 0 3pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+
+  .lede {
+    background: rgba(74,220,122,0.08);
+    border-left: 4pt solid #4ADC7A;
+    padding: 7pt 12pt; border-radius: 4pt;
+    margin: 4pt 0 6pt;
+    font-size: 9.5pt;
+    line-height: 1.42;
+  }
+
+  .whatuget {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 6pt 0 10pt;
+    table-layout: fixed;
+  }
+  .whatuget .card {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 7pt 10pt;
+    vertical-align: top;
+  }
+  .whatuget .card .when {
+    font-family: 'Courier New', monospace;
+    color: #4AD9FF; font-size: 7.5pt;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 2pt;
+  }
+  .whatuget .card .title {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFFFFF; font-size: 10pt;
+    letter-spacing: 0.02em;
+    margin-bottom: 2pt;
+  }
+  .whatuget .card .body {
+    font-size: 8.5pt; color: #E8F0E9; line-height: 1.35;
+  }
+
+  /* Two device columns */
+  .devs {
+    display: table; width: 100%;
+    border-spacing: 8pt 0; margin: 4pt 0 8pt;
+    table-layout: fixed;
+  }
+  .dev {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 12pt;
+    vertical-align: top;
+  }
+  .dev .badge {
+    display: inline-block;
+    background: #FFD400; color: #0F1710;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 8.5pt; letter-spacing: 0.06em;
+    padding: 2pt 6pt; border-radius: 3pt;
+    margin-bottom: 4pt;
+  }
+  .dev.android .badge { background: #4ADC7A; }
+  .dev h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 11pt;
+    margin: 0 0 5pt;
+    letter-spacing: 0.02em;
+  }
+  .dev.android h3 { color: #4ADC7A; }
+
+  .step {
+    background: rgba(0,0,0,0.20);
+    border-radius: 5pt;
+    padding: 5pt 10pt 5pt 28pt;
+    margin: 3pt 0;
+    position: relative;
+    font-size: 8.5pt;
+    line-height: 1.35;
+  }
+  .step .n {
+    position: absolute;
+    left: 6pt; top: 4pt;
+    width: 16pt; height: 16pt;
+    background: #FFD400; color: #0F1710;
+    border-radius: 50%;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9pt;
+    text-align: center; line-height: 16pt;
+    font-weight: 800;
+  }
+  .dev.android .step .n { background: #4ADC7A; }
+  .step strong { color: #FFD400; }
+  .dev.android .step strong { color: #4ADC7A; }
+  .step .icon {
+    font-size: 12pt;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 2pt;
+  }
+
+  .fine {
+    color: #9CA897; font-size: 7.5pt;
+    margin-top: 4pt;
+    padding-left: 5pt;
+    border-left: 2pt solid #2D4A2F;
+    line-height: 1.32;
+  }
+
+  /* Troubleshooting */
+  .trouble {
+    background: rgba(255,212,0,0.06);
+    border-left: 4pt solid #FFD400;
+    padding: 6pt 10pt; border-radius: 4pt;
+    margin: 4pt 0;
+    font-size: 8.5pt;
+    line-height: 1.35;
+  }
+  .trouble p { margin: 2pt 0; }
+  .trouble .q {
+    color: #FFD400;
+    font-weight: 700;
+  }
+
+  .closer {
+    text-align: center; color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.1em;
+    margin-top: 10pt; padding: 8pt;
+    border: 1px dashed #2D4A2F; border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Match Night Notifications · Player Setup</div>
+  </div>
+  <div class="right"><span class="pageid">P518 · GUIDE</span></div>
+</div>
+
+<div class="lede">
+  <strong>Turn on match-night notifications</strong> and you'll get a quiet ping on your phone when it's time to vote for <em>MOTM &amp; DOTD</em>, and again when the results are in. <strong>Takes 30 seconds. One-time setup per device.</strong> No downloads, no accounts, no ads. Do it once and enjoy Thursdays a bit more.
+</div>
+
+<h2>What you'll get</h2>
+
+<div class="whatuget">
+  <div class="card">
+    <div class="when">🏆 After tonight's final whistle</div>
+    <div class="title">"Vote for tonight's awards"</div>
+    <div class="body">Fired as soon as the admin submits the result. Tap it and you land straight on the ballot — a couple of taps and you're voted for MOTM and DOTD before you've even reached the car park.</div>
+  </div>
+  <div class="card">
+    <div class="when">📊 Friday morning-ish</div>
+    <div class="title">"MOTM &amp; DOTD results"</div>
+    <div class="body">When the results are published, another ping tells you who won. Chase your streak — every week you vote adds one to your 🔥 counter on the ballot.</div>
+  </div>
+</div>
+
+<h2>Pick your phone</h2>
+
+<div class="devs">
+  <div class="dev">
+    <span class="badge">🍎 iPHONE / iPAD</span>
+    <h3>Setup — 30 seconds</h3>
+
+    <div class="step"><span class="n">1</span>
+      <strong>Add the app to your Home Screen</strong> — this is a one-time thing that iPhones require for notifications to work. In Safari, open <em>wanstead-fellas.vercel.app</em>. Tap the <span class="icon">📤</span> Share button at the bottom. Scroll and pick <strong>"Add to Home Screen"</strong>. Tap <strong>Add</strong> in the top-right.
+    </div>
+
+    <div class="step"><span class="n">2</span>
+      <strong>Open the app from the Home Screen icon</strong> — the black-and-yellow WF icon that just appeared on your phone. <em>Not from Safari.</em> This bit really matters — Safari-launched app can't do notifications on iPhone.
+    </div>
+
+    <div class="step"><span class="n">3</span>
+      <strong>Tap your avatar</strong> (top-right of any screen). Scroll down to the 🔔 Match-night notifications card.
+    </div>
+
+    <div class="step"><span class="n">4</span>
+      <strong>Tap "Enable notifications"</strong>. When your phone asks "Allow notifications?", tap <strong>Allow</strong>. The card flips to green ON. That's it — you're done.
+    </div>
+
+    <div class="fine">
+      <strong>iOS 16.4 or newer needed</strong> (any iPhone from the last few years). If your iPhone is really old, updating iOS is the way in.
+    </div>
+  </div>
+
+  <div class="dev android">
+    <span class="badge">🤖 ANDROID</span>
+    <h3>Setup — 15 seconds</h3>
+
+    <div class="step"><span class="n">1</span>
+      <strong>Open the app</strong> in Chrome — <em>wanstead-fellas.vercel.app</em>. No Home Screen faff needed on Android, notifications work straight from the browser.
+    </div>
+
+    <div class="step"><span class="n">2</span>
+      <strong>Tap your avatar</strong> (top-right of any screen). Scroll down to the 🔔 Match-night notifications card.
+    </div>
+
+    <div class="step"><span class="n">3</span>
+      <strong>Tap "Enable notifications"</strong>. When Chrome asks "Allow notifications?", tap <strong>Allow</strong>. The card flips to green ON. Done.
+    </div>
+
+    <div class="fine">
+      <strong>Bonus:</strong> if you want the app icon on your Home Screen too (nicer than opening Chrome each week), Chrome menu → <em>"Add to Home Screen"</em>. Optional — notifications work either way on Android.
+    </div>
+  </div>
+</div>
+
+<h2>Something not working?</h2>
+
+<div class="trouble">
+  <p><span class="q">Q: I tapped Enable but nothing happens.</span> Most common cause on iPhone: you're on Safari, not the Home Screen app. Go back to <strong>step 1</strong> — add to Home Screen first, then reopen the app from that icon.</p>
+
+  <p><span class="q">Q: I tapped Block by mistake and now I can't turn them on.</span> iPhone: Settings → Safari → <em>Advanced → Website Data → wanstead-fellas.vercel.app</em>, then re-enable. Android: Chrome menu → Settings → Site settings → Notifications → find the site, allow it. Easier: uninstall the Home Screen icon and start again from step 1.</p>
+
+  <p><span class="q">Q: Turn them off / nothing arrived on Thursday.</span> Same card → <strong>"Turn off on this device"</strong> to disable, same button to re-enable. Missed a Thursday? Check Do Not Disturb / Focus modes aren't muting the app.</p>
+</div>
+
+<div class="closer">
+  Cheers for setting this up — one less thing to remember on a Thursday. 🏆 · 🤡 · 🔥
+</div>
+
+</body>
+</html>
