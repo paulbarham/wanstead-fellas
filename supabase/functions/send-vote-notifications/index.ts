@@ -14,9 +14,14 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
 
-const VAPID_PUBLIC = Deno.env.get('VAPID_PUBLIC_KEY') || ''
+// Public key is safe as a hardcoded fallback — it's the same value baked
+// into the client bundle (browsers use it to sign the subscription request).
+// The private key must come from a project secret; without it we can't
+// sign the VAPID JWT and Apple returns 403 BadAuthorizationHeader.
+const VAPID_PUBLIC = Deno.env.get('VAPID_PUBLIC_KEY')
+  || 'BDO5g6HQhO0s3BAEXc86kqaHy3fPl6Mtd3uo3jF7p7W1UWcVpOVkPf6KGlEHnorJecl-Ao821QJDvzph8r0NuXo'
 const VAPID_PRIVATE = Deno.env.get('VAPID_PRIVATE_KEY') || ''
-const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') || 'mailto:admin@wanstead-fellas.local'
+const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') || 'mailto:pabarham@gmail.com'
 
 if (VAPID_PUBLIC && VAPID_PRIVATE) {
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE)
