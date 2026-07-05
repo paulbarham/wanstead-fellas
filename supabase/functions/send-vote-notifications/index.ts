@@ -96,7 +96,20 @@ Deno.serve(async (req) => {
           await supabase.from('push_subscriptions').delete().eq('id', s.id)
           return { id: s.id, ok: false, reason: 'stale-cleaned' }
         }
-        return { id: s.id, ok: false, reason: err?.message || 'send-failed' }
+        // Expose the actual push-service response so the SQL smoke-test can
+        // see what Apple / FCM / Mozilla actually returned — the plain
+        // web-push .message string is a generic "Received unexpected response
+        // code" that hides the real status.
+        return {
+          id: s.id,
+          ok: false,
+          reason: err?.message || 'send-failed',
+          statusCode: err?.statusCode ?? null,
+          body: typeof err?.body === 'string' ? err.body.slice(0, 300) : null,
+          endpoint_host: (() => {
+            try { return new URL(s.endpoint).host } catch { return null }
+          })(),
+        }
       }
     }))
 
