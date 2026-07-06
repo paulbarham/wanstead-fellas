@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase'
 const STATUS_OPTIONS = [
   { value: 'alive',              label: 'Alive · still in' },
   { value: 'group_stage_out',    label: 'Out — Group Stage' },
+  { value: 'r32_out',            label: 'Out — Round of 32' },
   { value: 'r16_out',            label: 'Out — Round of 16' },
   { value: 'qf_out',             label: 'Out — Quarter Final' },
   { value: 'sf_out',             label: 'Out — Semi Final' },

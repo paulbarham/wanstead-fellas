@@ -16,7 +16,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 type SweepStatus =
-  | 'alive' | 'group_stage_out' | 'r16_out' | 'qf_out' | 'sf_out'
+  | 'alive' | 'group_stage_out' | 'r32_out' | 'r16_out' | 'qf_out' | 'sf_out'
   | 'third_place_lost' | 'final_lost' | 'winner'
 
 interface SweepEntry {
@@ -45,6 +45,7 @@ interface CupMatchLite {
 const STATUS_LABEL: Record<SweepStatus, string> = {
   alive: 'IN',
   group_stage_out: 'OUT — GS',
+  r32_out: 'OUT — R32',
   r16_out: 'OUT — R16',
   qf_out: 'OUT — QF',
   sf_out: 'OUT — SF',
