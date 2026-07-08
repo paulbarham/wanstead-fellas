@@ -12,7 +12,6 @@ import { hasReportContent } from '../lib/report'
 import MotmVotingCard from '../components/MotmVotingCard'
 import CeefaxHeader from '../components/CeefaxHeader'
 import MatchResultView, { type FixtureScorer, type FixtureWithTeams } from '../components/MatchResultView'
-import FormationPicker from '../components/FormationPicker'
 
 async function loadMatchData(matchId: string): Promise<{
   teams: Team[]
@@ -80,9 +79,6 @@ export default function MatchPage() {
   const [weekTeams, setWeekTeams] = useState<Team[]>([])
   const [weekFixtures, setWeekFixtures] = useState<FixtureWithTeams[]>([])
   const [weekResult, setWeekResult] = useState<Result | null>(null)
-  // Team-ids the current user is rostered on for weekMatch. Formation
-  // picker for each team is editable if the user is on that team (or admin).
-  const [myWeekTeamIds, setMyWeekTeamIds] = useState<Set<string>>(new Set())
 
   const [loading, setLoading] = useState(true)
   const [editingResult, setEditingResult] = useState(false)
@@ -156,21 +152,6 @@ export default function MatchPage() {
       setWeekTeams(week.teams)
       setWeekFixtures(week.fixtures)
       setWeekResult(week.result)
-    }
-
-    // Which of this week's teams is the current user rostered on? Used by
-    // the FormationPicker cards below to decide edit vs read-only.
-    if (profile?.id && thisWeek) {
-      const { data: myRosters } = await supabase
-        .from('team_players')
-        .select('team_id, teams!inner(match_id)')
-        .eq('player_id', profile.id)
-        .eq('teams.match_id', thisWeek.id)
-      type MyRoster = { team_id: string }
-      const ids = new Set<string>(((myRosters as unknown as MyRoster[]) || []).map(r => r.team_id))
-      setMyWeekTeamIds(ids)
-    } else {
-      setMyWeekTeamIds(new Set())
     }
 
     // Decide where the awards card mounts: pinned at the top while the latest
@@ -287,34 +268,15 @@ export default function MatchPage() {
 
       {!match ? (
         <>
-          {weekTeams.length > 0 ? (
-            <div className="space-y-3 mb-5">
-              <div className="flex items-center justify-between">
-                <SectionHeader label="Tonight's Formations" />
-                <span className="text-[9px] font-semibold tracking-widest" style={{ color: 'var(--color-text-muted)' }}>
-                  {weekMatch ? format(new Date(weekMatch.match_date + 'T12:00:00'), 'do MMM').toUpperCase() : ''}
-                </span>
-              </div>
-              <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                Pick your shape and drag mates onto positions. Everyone on the team can edit — talk it out beforehand or fight about it here.
-              </p>
-              {weekTeams.map(t => (
-                <FormationPicker
-                  key={t.id}
-                  teamId={t.id}
-                  teamName={t.name}
-                  bibs={t.bibs}
-                  editable={!!profile?.is_admin || myWeekTeamIds.has(t.id)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
-              <p className="text-4xl mb-3">📊</p>
-              <p className="font-medium text-[var(--color-text)]">No result yet</p>
-              <p className="text-sm mt-1">Results posted after the match</p>
-            </div>
-          )}
+          <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
+            <p className="text-4xl mb-3">📊</p>
+            <p className="font-medium text-[var(--color-text)]">No result yet</p>
+            <p className="text-sm mt-1">
+              {weekTeams.length > 0
+                ? 'Teams are up — pick your formation on the Teams tab. Results posted after the match.'
+                : 'Results posted after the match'}
+            </p>
+          </div>
           {hasUnpublishedDraft && (
             <div className="mb-4 p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
               <p className="text-sm font-semibold mb-1" style={{ color: 'var(--color-primary)' }}>

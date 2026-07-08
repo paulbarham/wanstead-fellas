@@ -5,6 +5,7 @@ import type { Profile, Team, TeamPlayer, Match } from '../types'
 import { getNextThursdayDate } from '../lib/time'
 import AdminTeamBuilder from '../components/AdminTeamBuilder'
 import CeefaxHeader from '../components/CeefaxHeader'
+import FormationPicker from '../components/FormationPicker'
 import { stripFC } from '../lib/format'
 
 interface TeamWithPlayers extends Team {
@@ -123,7 +124,8 @@ export default function TeamsPage() {
               `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
             )
             return (
-              <div key={team.id}
+              <div key={team.id} className="space-y-3">
+              <div
                 className="rounded-xl overflow-hidden"
                 style={{ border: '1px solid var(--color-border)' }}>
 
@@ -209,6 +211,15 @@ export default function TeamsPage() {
                     )
                   })}
                 </div>
+              </div>
+              {isMyTeam && (
+                <FormationPicker
+                  teamId={team.id}
+                  teamName={team.name}
+                  bibs={team.bibs}
+                  editable
+                />
+              )}
               </div>
             )
           })}
