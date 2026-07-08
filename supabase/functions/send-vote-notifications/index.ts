@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       ? {
         title: '🟢 Teams are ready',
         body: `Line-ups for ${readable} are up — tap to see your team.`,
-        url: '/match',
+        url: '/teams',
         tag: `teams-${matchId}`,
       }
       : topic === 'vote_open'
