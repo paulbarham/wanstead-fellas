@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-08 (Autonomous cup-audit agent — 3x/day GH Actions cron using Claude + web_search to verify results & red cards, auto-apply high-conf deltas, post ambiguous to GH issue)_
+_Last updated: 2026-07-08 (Cup-audit agent torn down — admin prefers running the audit manually over topping up Anthropic credit; code lives in git history if we ever revive)_
 
 ---
 
@@ -206,10 +206,10 @@ Scheduled background work driven by Claude via the Anthropic API. Runs from GitH
 
 | Item | Status | Source | Notes |
 |---|---|---|---|
-| WC26 cup-audit cron (3x/day: 6am / 2pm / 12am BST) | ✅ | chat · commit pending | `.github/workflows/cup-audit.yml` + `scripts/cup-audit.mjs`. Verifies every recently-played cup match against live web sources (ESPN / BBC / FIFA / Al Jazeera / Fox / Sky / Guardian / Sofascore) via Anthropic's `web_search` server-side tool. **Applies high-confidence deltas straight to `cup_matches`** (score / method / red cards). Anything ambiguous → GH issue labelled `cup-audit` for admin review. Self-guards to no-op after 2026-07-19. |
+| WC26 cup-audit cron (3x/day: 6am / 2pm / 12am BST) | ❌ | chat | Built end-to-end and shipped (workflow + script + secrets + Node 22 fix) — everything ran on the retry run right up until the Anthropic API rejected the call with `credit balance too low`. Admin chose to keep running the audit manually rather than top up. Torn down 8 Jul (`.github/workflows/cup-audit.yml` + `scripts/cup-audit.mjs` deleted); code lives in git history if we ever revive. Any future autonomous agent hits the same billing prerequisite first. |
 | Match-report drafter agent (weekly) | 🟢 | chat | Every Fri morning: pulls last night's fixtures + goals + MOTM/DOTD, cross-checks scorers, drafts a structured report per `CLAUDE.md`, posts to a GH issue for admin to review + tick-to-publish. Highest-value repeat task on the calendar. |
 | Sign-up deadline reminder push (via cron) | 🟢 | chat | Wed 20:00 London job → who hasn't signed up + push notification. Same tech stack as cup-audit but pointed at a different query. |
-| Cost + rate-limit budget guard | 🟢 | chat | Baked into cup-audit already ($0.10-0.30 per non-empty run); document once we add a second agent so we can trend the monthly spend. |
+| Cost + rate-limit budget guard | 🟢 | chat | Prerequisite for **any** future autonomous agent (see cup-audit teardown above): pre-paid Anthropic credit balance. Document per-run cost & monthly spend trend the first time a live agent ships. Rough figure from cup-audit: $0.10-0.30 per non-empty run. |
 
 ## 📚 Help centre — in-app how-to guides
 
