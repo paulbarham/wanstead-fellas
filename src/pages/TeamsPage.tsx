@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import type { Profile, Team, TeamPlayer, Match } from '../types'
@@ -33,6 +34,11 @@ async function fetchDebutantIds(playerIds: string[], matchDate: string): Promise
 
 export default function TeamsPage() {
   const { profile } = useAuth()
+  const [searchParams] = useSearchParams()
+  // Admin normally redirects to AdminTeamBuilder on this route. ?view=formations
+  // bypasses that so admin can preview every team's roster + FormationPicker
+  // exactly as a player sees it, from a single scrollable page.
+  const adminPreviewMode = profile?.is_admin && searchParams.get('view') === 'formations'
   const [match, setMatch] = useState<Match | null>(null)
   const [teams, setTeams] = useState<TeamWithPlayers[]>([])
   const [debutantIds, setDebutantIds] = useState<Set<string>>(new Set())
@@ -98,12 +104,21 @@ export default function TeamsPage() {
     return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading teams…</div>
   }
 
-  if (profile?.is_admin) {
+  if (profile?.is_admin && !adminPreviewMode) {
     return <AdminTeamBuilder nextThursday={nextThursday} match={match} publishedTeams={teams} onPublished={fetchTeams} />
   }
 
   return (
     <div className="px-4 pt-4 pb-4">
+      {adminPreviewMode && (
+        <Link
+          to="/teams"
+          className="inline-block mb-2 text-xs"
+          style={{ color: 'var(--tt-cyan)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}
+        >
+          ← BACK TO TEAM BUILDER
+        </Link>
+      )}
       <CeefaxHeader
         pageId="P201 · TEAM SHEET"
         title="TEAMS"
@@ -212,7 +227,7 @@ export default function TeamsPage() {
                   })}
                 </div>
               </div>
-              {isMyTeam && (
+              {(isMyTeam || adminPreviewMode) && (
                 <FormationPicker
                   teamId={team.id}
                   teamName={team.name}

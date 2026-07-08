@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { getVotingWindow, canGenerateTeams } from '../lib/time'
@@ -574,9 +575,16 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
       </div>
 
       {published && draftTeams.length === 0 && (
-        <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
+        <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between gap-2"
           style={{ background: 'var(--color-success-bg)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
-          ✓ Teams published and visible to players
+          <span>✓ Teams published and visible to players</span>
+          <Link
+            to="/teams?view=formations"
+            className="text-xs underline whitespace-nowrap"
+            style={{ color: 'var(--color-primary)' }}
+          >
+            🎯 Preview team sheets →
+          </Link>
         </div>
       )}
 
