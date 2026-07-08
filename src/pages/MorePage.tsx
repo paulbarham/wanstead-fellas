@@ -16,6 +16,7 @@ const ITEMS: MoreItem[] = [
   { pageId: 'P601', to: '/cards',    label: 'Cards',    icon: '🃏', blurb: 'Player cards · stats · ratings.' },
   { pageId: 'P701', to: '/pods',     label: 'Pods',     icon: '🎧', blurb: 'Football podcasts &amp; news feed.' },
   { pageId: 'P901', to: '/cup',      label: 'World Cup', icon: '🏆', blurb: 'Predictor &amp; leaderboard.' },
+  { pageId: 'P820', to: '/help',     label: 'Help',     icon: '❔', blurb: 'How-to guides · voting, sign-up, cup, money.' },
   { pageId: 'P802', to: '/feedback', label: 'Feedback', icon: '✉️', blurb: 'Suggestions, bugs, requests.' },
   { pageId: 'P888', to: '/admin',    label: 'Admin',    icon: '⚙️', blurb: 'Player management, finance, fines.', adminOnly: true },
 ]

@@ -17,9 +17,12 @@ import ProfilePage from './pages/ProfilePage'
 
 // Cup (tournament-only) and Pods are heavy and rarely visited — load them on
 // demand so they don't bloat the main bundle for the weekly sign-up flow.
+// Help articles ship as markdown strings so lazy them too to keep the main
+// bundle lean; almost nobody hits Help every session.
 const PodsPage = lazy(() => import('./pages/PodsPage'))
 const CupPage = lazy(() => import('./pages/CupPage'))
 const CupAdminPage = lazy(() => import('./pages/CupAdminPage'))
+const HelpPage = lazy(() => import('./pages/HelpPage'))
 
 function LoadingScreen() {
   return (
@@ -57,6 +60,8 @@ function ProtectedRoutes() {
           <Route path="cup" element={<CupPage />} />
           <Route path="cup/admin" element={<CupAdminPage />} />
           <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="help" element={<HelpPage />} />
+          <Route path="help/:slug" element={<HelpPage />} />
           <Route path="admin" element={<AdminPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

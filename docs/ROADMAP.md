@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-05 (Additional push notifications logged: match-report / sign-up-deadline / teams-published / preferences UI · rate-limit design constraint captured)_
+_Last updated: 2026-07-06 (Help centre shipped · 7 seed articles across 4 categories · Sweepstake status auto-sync trigger · WC26 red card audit updated)_
 
 ---
 
@@ -199,6 +199,22 @@ New signals that the rating engine and balancer can use. Most are tiny additions
 | Assists tracking | 🟢 | chat | User exploring Veo recordings + shirt numbers to make this feasible |
 | Self-rated form — "how are the legs?" Wednesday poll | 🟢 | chat | 5 options: 🔥 💪 🆗 🤒 🛏️ → balancer input |
 | HR-zone fatigue index | 🟢 | chat | If 50%+ of last match was zone 5, flag "burnt", balancer pairs with extra runners |
+
+## 📚 Help centre — in-app how-to guides
+
+The 18 primer PDFs are great for WhatsApp shares but bad for "I'm mid-tap and stuck". A `/help` route now hosts the same content as mobile-friendly markdown so players can self-serve without digging through WhatsApp history.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| `/help` route + `HelpPage` component | ✅ | chat · commit pending | Lazy-loaded so react-markdown doesn't bloat the main bundle. Main bundle actually shrank 602kb → 322kb after the split |
+| Categorised index (Basics · Match night · Cup · Money) | ✅ | chat · commit pending | 4 categories · 7 seed articles |
+| Client-side search | ✅ | chat · commit pending | Filters title + blurb + full content · single input |
+| Help tile on MorePage overflow | ✅ | chat · commit pending | `P820 · HELP` · ❔ icon |
+| 7 seed articles | ✅ | chat · commit pending | Getting started · Signing up · Voting · Notifications · Formations · Cup Predictor · Finances. Content lives in `src/help/*.md` — PR to add / edit. |
+| Article thumbs feedback ("was this helpful?") | 🟢 | chat | Store as feedback rows tagged with article slug; low-effort once we want the signal |
+| Contextual "help" links from feature UI to specific articles | 🟢 | chat | e.g. a `?` icon next to the WTP charge on Finances that deep-links to the finances article |
+| First-login onboarding tour | 🟢 | chat | Bigger piece — a swipeable intro carousel that walks new players through the 5 tabs on first launch. Could reuse the help article content |
+| ⚠️ Docs kept in sync with features | ⚠️ | chat | Same "will get stale" problem the roadmap fights. Should treat "did this ship with a help pass?" as part of DoD for feature work |
 
 ## 🟥 Known issues
 
