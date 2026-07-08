@@ -1,10 +1,15 @@
-// Fans out web push notifications for a given match. Two topics:
-//   * 'vote_open' — voting window has just opened, players still need to
-//     cast their MOTM/DOTD picks
-//   * 'results'   — award results have been published for the round
+// Fans out web push notifications for a given match. Three topics:
+//   * 'teams_ready' — teams for the next match have just been published
+//     (voting_windows INSERT where opens_at is > 15 min in the future)
+//   * 'vote_open'   — voting window has just opened, players still need to
+//     cast their MOTM/DOTD picks (voting_windows INSERT where opens_at is
+//     imminent OR the Stage 2 cron firing when opens_at is reached)
+//   * 'results'     — award results have been published for the round
 //
-// Called by a Postgres trigger on voting_windows INSERT (for vote_open) and
-// by the compute_award_results flow when results_published flips true.
+// Called by a Postgres trigger on voting_windows INSERT (for teams_ready
+// or vote_open, depending on timing), by the pg_cron scheduled job (for
+// vote_open at the right time), and by the compute_award_results flow
+// (for results).
 //
 // Env: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT — set as project
 // secrets. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are auto-injected.
@@ -68,21 +73,28 @@ Deno.serve(async (req) => {
       ? new Date(matchDate + 'T12:00:00').toLocaleString('en-GB', { day: 'numeric', month: 'short' })
       : 'tonight'
 
-    const payload = topic === 'vote_open'
+    const payload = topic === 'teams_ready'
       ? {
-        title: '🏆 Vote for tonight\'s awards',
-        body: `${readable} result is in — cast your MOTM & DOTD picks.`,
+        title: '🟢 Teams are ready',
+        body: `Line-ups for ${readable} are up — tap to see your team.`,
         url: '/match',
-        tag: `vote-${matchId}`,
+        tag: `teams-${matchId}`,
       }
-      : topic === 'results'
+      : topic === 'vote_open'
         ? {
-          title: '📊 MOTM & DOTD results published',
-          body: `${readable} awards are up — see who won.`,
+          title: '🏆 Vote for tonight\'s awards',
+          body: `${readable} result is in — cast your MOTM & DOTD picks.`,
           url: '/match',
-          tag: `results-${matchId}`,
+          tag: `vote-${matchId}`,
         }
-        : null
+        : topic === 'results'
+          ? {
+            title: '📊 MOTM & DOTD results published',
+            body: `${readable} awards are up — see who won.`,
+            url: '/match',
+            tag: `results-${matchId}`,
+          }
+          : null
     if (!payload) return json({ error: 'unknown topic' }, 400)
 
     const payloadStr = JSON.stringify(payload)
