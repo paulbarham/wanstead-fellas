@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-08 (Cup-audit agent torn down — admin prefers running the audit manually over topping up Anthropic credit; code lives in git history if we ever revive)_
+_Last updated: 2026-07-08 (9 Jul 4-team-night: applied 3 manual swaps to team_drafts to tighten OVR spread 5→3 and put a U30 on every squad — logged as gating "review auto-balance rules" row under Operations — balancer v2)_
 
 ---
 
@@ -49,10 +49,11 @@ The picker and DB are live. The visible payoff (position-aware cards, stats, bal
 
 ## 🛠️ Operations — balancer v2
 
-Same 11 players, mathematically fairer teams. The 18 Jun match is the case study: SHO spread was ±12, with 3 swaps it would have been ±3.
+Same 11 players, mathematically fairer teams. The 18 Jun match is the case study: SHO spread was ±12, with 3 swaps it would have been ±3. The 9 Jul 4-team-night is the fresh evidence: OVR-only auto-balance produced a 51/53/48/50 spread, zero U30s on one team, zero U20s on another, both non-keeper teams paired together, all lefties clustered on one team — manually corrected with 3 swaps to 51/52/49/50 with youth on every team. Full analysis in chat 8 Jul session.
 
 | Item | Status | Source | Notes |
 |---|---|---|---|
+| ⚠️ Review + prioritise auto-balance rules | ⚠️ | chat 8 Jul · [07](primers/pdf/07-balancer-peer-rating.pdf) | Gating item for this whole section. Observed weaknesses on 9 Jul: (1) age band not consumed even though ≥90% of squad have it set, (2) preferred foot not consumed even though 79% have it set, (3) GK distribution weak on 4-team nights when squad has <4 GKs — should either warn admin or auto-nominate rotators, (4) OVR-only optimisation hits local minima at ±5 spread that ±1 is achievable with tiny swaps. Deliverable: 1-page proposal picking the top 2-3 constraints to add first + acceptance metric (target OVR spread + age-band coverage per team). |
 | Categorical balance — each attribute total within ±X across teams | 🟢 | [07](primers/pdf/07-balancer-peer-rating.pdf) | Currently balancer only minimises overall sum |
 | Star cap (max 2 OVR ≥ 85 per team) | 🟢 | [07](primers/pdf/07-balancer-peer-rating.pdf) | Stops talent stacking |
 | Defender floor (≥1 with DEF ≥ 8 per team) | 🟢 | [07](primers/pdf/07-balancer-peer-rating.pdf) | Most stompings = no defender |
