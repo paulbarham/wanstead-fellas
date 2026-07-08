@@ -574,17 +574,27 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         </span>
       </div>
 
-      {published && draftTeams.length === 0 && (
-        <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between gap-2"
-          style={{ background: 'var(--color-success-bg)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
-          <span>✓ Teams published and visible to players</span>
+      {/* Preview link — visible any time there are published teams to look at,
+          regardless of whether a draft is being edited. Was previously nested
+          inside the "Teams published" success banner but that only shows when
+          draftTeams is empty, so admin never saw the link after loading the
+          draft to swap players around. */}
+      {publishedTeams.length > 0 && (
+        <div className="mb-3">
           <Link
             to="/teams?view=formations"
-            className="text-xs underline whitespace-nowrap"
-            style={{ color: 'var(--color-primary)' }}
+            className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full"
+            style={{ background: 'var(--color-surface)', color: 'var(--tt-cyan)', border: '1px solid var(--color-border)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}
           >
-            🎯 Preview team sheets →
+            🎯 PREVIEW TEAM SHEETS →
           </Link>
+        </div>
+      )}
+
+      {published && draftTeams.length === 0 && (
+        <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
+          style={{ background: 'var(--color-success-bg)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
+          ✓ Teams published and visible to players
         </div>
       )}
 
