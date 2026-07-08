@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Help Centre</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · HELP CENTRE · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.mag   { background: rgba(255,102,204,0.07); border-left-color: #FF66CC; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  .kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    border: 1px solid rgba(74,217,255,0.25);
+  }
+
+  /* Index screen mock */
+  .phone {
+    background: #FFFFFF;
+    color: #18201A;
+    border-radius: 10pt;
+    padding: 0;
+    margin: 6pt 0;
+    overflow: hidden;
+    border: 1px solid #E2E4DC;
+  }
+  .phone-head {
+    background: #F7F8F5;
+    padding: 8pt 12pt;
+    border-bottom: 1px solid #E2E4DC;
+    display: table; width: 100%;
+  }
+  .phone-head .tag {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.12em;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 5pt;
+    border-radius: 3pt;
+    margin-right: 6pt;
+  }
+  .phone-head .name {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 11pt;
+    color: #18201A;
+  }
+  .phone-head .meta {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    color: #647060;
+    letter-spacing: 0.1em;
+    margin-top: 2pt;
+    text-transform: uppercase;
+  }
+  .search {
+    padding: 8pt 12pt;
+    border-bottom: 1px solid #E2E4DC;
+    background: #FFFFFF;
+  }
+  .search .box {
+    background: #F7F8F5;
+    border: 1px solid #E2E4DC;
+    border-radius: 6pt;
+    padding: 5pt 9pt;
+    font-size: 9pt;
+    color: #647060;
+    font-family: 'Helvetica', sans-serif;
+  }
+  .cat-section {
+    padding: 8pt 12pt 4pt;
+    background: #FFFFFF;
+  }
+  .cat-section:not(:last-child) {
+    border-bottom: 1px solid #F0F1EC;
+  }
+  .cat-label {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    color: #0D6B52;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    margin-bottom: 2pt;
+  }
+  .cat-blurb {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 7.5pt;
+    color: #9CA897;
+    display: inline-block;
+    margin-left: 4pt;
+    letter-spacing: 0;
+  }
+  .article-tile {
+    display: table;
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E2E4DC;
+    border-radius: 6pt;
+    padding: 5pt 8pt;
+    margin: 3pt 0;
+  }
+  .article-tile .icon {
+    display: table-cell;
+    width: 22pt;
+    height: 22pt;
+    background: #F7F8F5;
+    border: 1px solid #E2E4DC;
+    border-radius: 4pt;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 12pt;
+  }
+  .article-tile .body {
+    display: table-cell;
+    padding-left: 8pt;
+    vertical-align: middle;
+  }
+  .article-tile .title {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #18201A;
+  }
+  .article-tile .blurb {
+    font-size: 8pt;
+    color: #647060;
+    margin-top: 1pt;
+  }
+  .article-tile .chev {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+    color: #9CA897;
+    font-size: 10pt;
+    width: 12pt;
+  }
+
+  /* Article-view mock */
+  .article-view {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 12pt;
+    margin: 6pt 0;
+  }
+  .article-view .back {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    color: #4AD9FF;
+    letter-spacing: 0.08em;
+    margin-bottom: 6pt;
+  }
+  .article-view h4 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 13pt;
+    color: #E8F0E9;
+    margin: 0 0 6pt;
+  }
+  .article-view .sh2 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10.5pt;
+    color: #FFD400;
+    margin: 8pt 0 3pt;
+    letter-spacing: 0.02em;
+  }
+  .article-view .sh2::before { content: "▶ "; color: #4AD9FF; }
+  .article-view p, .article-view li {
+    font-size: 9pt;
+    color: #E8F0E9;
+    line-height: 1.45;
+  }
+  .article-view ul {
+    margin: 3pt 0;
+    padding-left: 16pt;
+  }
+  .article-view code {
+    font-family: ui-monospace, 'Courier New', monospace;
+    font-size: 8.5pt;
+    color: #4ADC7A;
+    background: rgba(74,220,122,0.08);
+    padding: 0 3pt;
+    border-radius: 2pt;
+  }
+
+  /* 4-tile grid */
+  .grid4 {
+    display: table;
+    width: 100%;
+    border-spacing: 5pt 0;
+    margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .grid4 .tile {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 6pt 8pt;
+    vertical-align: top;
+    font-size: 8.5pt;
+  }
+  .grid4 .tile h5 {
+    margin: 0 0 3pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.12em;
+    color: #FFD400;
+    text-transform: uppercase;
+  }
+  .grid4 .tile p { margin: 2pt 0; font-size: 8.5pt; }
+  .grid4 .tile .n {
+    display: block;
+    font-family: 'Arial Black', sans-serif;
+    color: #4AD9FF;
+    font-size: 15pt;
+    margin: 2pt 0 0;
+    line-height: 1.1;
+  }
+
+  /* who-can col */
+  .who {
+    display: table;
+    width: 100%;
+    border-spacing: 6pt 0;
+    margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .who .col {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+    font-size: 9pt;
+  }
+  .who .col.on  { border-color: #4ADC7A; }
+  .who .col.mag { border-color: #FF66CC; }
+  .who h4 {
+    margin: 0 0 3pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .who .col.on  h4 { color: #4ADC7A; }
+  .who .col.mag h4 { color: #FF66CC; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Help Centre · Update</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P519 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>TL;DR</strong> — Stuck mid-tap? The app now has a proper <em>Help Centre</em>. <strong>More → Help</strong> opens 7 how-to articles, grouped, searchable, offline-ready. Same content that used to be locked in WhatsApp PDFs, now findable in the app itself. Missing an article? Feedback tab · we'll add it.
+</div>
+
+<h2>Where it lives</h2>
+<p><strong>More tab → Help</strong> (icon: ❔). It sits alongside History, Cards, Pods, World Cup, Feedback and Admin — one tap from the bottom nav.</p>
+
+<h2>What you see when you open it</h2>
+
+<div class="phone">
+  <div class="phone-head">
+    <div>
+      <span class="tag">P820 · HELP</span>
+      <span class="name">HELP CENTRE</span>
+    </div>
+    <span class="meta">HOW-TO GUIDES</span>
+  </div>
+  <div class="search">
+    <div class="box">🔍 &nbsp;Search help articles…</div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-label">BASICS <span class="cat-blurb">Getting started, signing up, the essentials</span></div>
+    <div class="article-tile">
+      <div class="icon">👋</div>
+      <div class="body">
+        <div class="title">Getting started</div>
+        <div class="blurb">What the app does and the five main tabs</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+    <div class="article-tile">
+      <div class="icon">⚽</div>
+      <div class="body">
+        <div class="title">Signing up for a match</div>
+        <div class="blurb">I'm In / Drop Out, deadlines, player tiers, kids</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-label">MATCH NIGHT <span class="cat-blurb">Voting, formations, notifications</span></div>
+    <div class="article-tile">
+      <div class="icon">🏆</div>
+      <div class="body">
+        <div class="title">Voting for MOTM &amp; DOTD</div>
+        <div class="blurb">How the ballot works, streaks, results</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+    <div class="article-tile">
+      <div class="icon">🔔</div>
+      <div class="body">
+        <div class="title">Setting up notifications</div>
+        <div class="blurb">iPhone &amp; Android setup, troubleshooting</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+    <div class="article-tile">
+      <div class="icon">📋</div>
+      <div class="body">
+        <div class="title">Team formations &amp; tactics</div>
+        <div class="blurb">The pitch card on the Match tab</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-label">WORLD CUP <span class="cat-blurb">Predictor scoring and sweepstake rules</span></div>
+    <div class="article-tile">
+      <div class="icon">🎯</div>
+      <div class="body">
+        <div class="title">Cup Predictor scoring</div>
+        <div class="blurb">1 point for right team, +1 for right method</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-label">MONEY <span class="cat-blurb">Fees, fines, credits, blocks</span></div>
+    <div class="article-tile">
+      <div class="icon">💷</div>
+      <div class="body">
+        <div class="title">Fees, fines &amp; credits</div>
+        <div class="blurb">WTP charges, fines, credits, grace period</div>
+      </div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+</div>
+
+<p style="font-size:9pt; color:#9CA897;">Four categories, seven articles at launch. Category ordering is fixed (Basics → Match night → World Cup → Money); articles inside each keep the roughly "you'll need this first" order.</p>
+
+<h2>Search</h2>
+<p>Type anything into the box at the top: it fuzzy-matches against <strong>title</strong>, <strong>blurb</strong>, <em>and</em> <strong>the full article body</strong>. So "grace period" finds Fees &amp; credits, "APN" finds the Notifications article's troubleshooting section, "clean sheet" finds nothing (yet — that's the GK card article on the backlog).</p>
+
+<div class="callout green">
+  <strong>Offline-ready.</strong> Articles ship <em>inside the app bundle</em> — not fetched at runtime. Once the service worker has cached the app, the Help Centre works on the tube with no signal. No spinners, no "failed to load".
+</div>
+
+<h2>What an article looks like</h2>
+
+<div class="article-view">
+  <div class="back">← HELP CENTRE</div>
+  <h4>Setting up notifications</h4>
+  <p>Get a push on your phone when the MOTM/DOTD vote opens on Thursday night. Once you've enabled it, no more scrolling WhatsApp to find the ballot link — the app taps you on the shoulder.</p>
+  <div class="sh2">On iPhone</div>
+  <p>iOS only allows web push from apps you've added to the Home Screen. Two-step setup:</p>
+  <ul>
+    <li>In Safari, tap the <strong>Share</strong> icon → <strong>Add to Home Screen</strong>.</li>
+    <li>Open the app <em>from the Home Screen</em> (the new icon, not Safari). Go to <strong>Profile → Enable notifications</strong>. Allow when prompted.</li>
+  </ul>
+  <div class="sh2">On Android</div>
+  <p>Works from Chrome directly — no Home Screen step needed. <strong>Profile → Enable notifications → Allow</strong>.</p>
+</div>
+
+<p style="font-size:9pt; color:#9CA897;">Same teletext styling as the rest of the app — <strong>yellow</strong> for emphasis, <em>cyan</em> for links/pointers, <code>green mono</code> for anything the app displays or you'd type. Tables, lists, code blocks are all styled inline; every article ends with the same "Anything wrong? Ping admin via Feedback" footer.</p>
+
+<h2>Missing an article? The feedback loop</h2>
+
+<div class="who">
+  <div class="col on">
+    <h4>▶ IF YOU SEE A GAP</h4>
+    <p>Search comes up empty → tap <span class="kbd">Feedback</span> at the bottom of the Help index (or in the More menu). Type what you were looking for.</p>
+  </div>
+  <div class="col mag">
+    <h4>■ WHAT HAPPENS NEXT</h4>
+    <p>Admin gets the ping. New articles land in the next app deploy as .md files — same cycle as adding a new feature. No spreadsheet, no CMS.</p>
+  </div>
+</div>
+
+<h2>What hasn't changed</h2>
+<ul>
+  <li>The <strong>18 primer PDFs</strong> in the WhatsApp group aren't going away — they're the shareable-outside-the-app version. The Help Centre is the "I'm in the app right now and stuck" companion.</li>
+  <li>The Feedback tab still works the same way — just now with a natural entry point from the help pages.</li>
+  <li>Every existing feature still lives where it always did; the Help articles point at them, they don't hide them.</li>
+</ul>
+
+<h2>Under the hood (one paragraph)</h2>
+<p>Articles live as markdown files in <code style="font-family:'Courier New',monospace; font-size:9pt; color:#4ADC7A;">src/help/*.md</code>. They're imported at build time via Vite's <code style="font-family:'Courier New',monospace; font-size:9pt; color:#4ADC7A;">?raw</code> suffix so the strings ship in the JS bundle — no runtime fetch, no failure modes, works offline. To add or edit an article, drop/edit a .md file and register it in <code style="font-family:'Courier New',monospace; font-size:9pt; color:#4ADC7A;">src/help/index.ts</code>. Ship on the next merge.</p>
+
+<h2>Coming next</h2>
+<ul>
+  <li><strong>Contextual help</strong> — a small <span class="kbd">?</span> next to feature tiles (voting card, formation picker, Cup pick) linking straight into the relevant article, so you never have to leave what you're doing.</li>
+  <li><strong>Article feedback (👍 / 👎)</strong> — one-tap "was this useful?" at the foot of each article. Admin sees the ratio; articles with a bad ratio get rewritten first.</li>
+  <li><strong>First-login tour</strong> — new fellas get a two-minute walkthrough of the five tabs, ending on the Help Centre, so they know where to come back to.</li>
+  <li><strong>More articles</strong> — GK cards, admin functions (fine entry, WTP overrides), fitness sync (once anyone actually uses it). Send suggestions via Feedback.</li>
+</ul>
+
+<hr>
+
+<div class="closer">
+  Force-refresh the app · <strong>More → Help</strong> · have a browse.<br>
+  Gap in the coverage? Feedback tab → done.
+</div>
+
+</body>
+</html>
