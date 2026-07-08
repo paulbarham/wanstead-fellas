@@ -1,0 +1,44 @@
+name: WC26 cup audit
+
+# Autonomous audit — verifies recently-played World Cup matches against
+# live web sources, applies high-confidence deltas, posts anything
+# ambiguous to a GitHub issue for admin review.
+#
+# 3x/day slots (BST = UTC+1 during WC26):
+#   * 06:03 BST → 05:03 UTC  — catches yesterday's late-night US kickoffs
+#   * 14:03 BST → 13:03 UTC  — catches early-afternoon EU kickoffs
+#   * 00:03 BST → 23:03 UTC  — catches early-evening US kickoffs from earlier that day
+# (3-minute off-hour offset so we don't stack on the API's :00 mark.)
+#
+# Manual runs: Actions tab → WC26 cup audit → Run workflow.
+
+on:
+  schedule:
+    - cron: '3 5,13,23 * * *'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install audit deps
+        run: npm install --no-save @anthropic-ai/sdk@^0.30.0 @supabase/supabase-js@^2.45.0
+
+      - name: Run cup audit
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: https://qvvlxjftrteyrsscqidc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/cup-audit.mjs

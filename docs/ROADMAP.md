@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-06 (Help centre shipped · 7 seed articles across 4 categories · Sweepstake status auto-sync trigger · WC26 red card audit updated)_
+_Last updated: 2026-07-08 (Autonomous cup-audit agent — 3x/day GH Actions cron using Claude + web_search to verify results & red cards, auto-apply high-conf deltas, post ambiguous to GH issue)_
 
 ---
 
@@ -199,6 +199,17 @@ New signals that the rating engine and balancer can use. Most are tiny additions
 | Assists tracking | 🟢 | chat | User exploring Veo recordings + shirt numbers to make this feasible |
 | Self-rated form — "how are the legs?" Wednesday poll | 🟢 | chat | 5 options: 🔥 💪 🆗 🤒 🛏️ → balancer input |
 | HR-zone fatigue index | 🟢 | chat | If 50%+ of last match was zone 5, flag "burnt", balancer pairs with extra runners |
+
+## 🤖 Autonomous agents
+
+Scheduled background work driven by Claude via the Anthropic API. Runs from GitHub Actions on cron, independent of any admin being at their laptop.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| WC26 cup-audit cron (3x/day: 6am / 2pm / 12am BST) | ✅ | chat · commit pending | `.github/workflows/cup-audit.yml` + `scripts/cup-audit.mjs`. Verifies every recently-played cup match against live web sources (ESPN / BBC / FIFA / Al Jazeera / Fox / Sky / Guardian / Sofascore) via Anthropic's `web_search` server-side tool. **Applies high-confidence deltas straight to `cup_matches`** (score / method / red cards). Anything ambiguous → GH issue labelled `cup-audit` for admin review. Self-guards to no-op after 2026-07-19. |
+| Match-report drafter agent (weekly) | 🟢 | chat | Every Fri morning: pulls last night's fixtures + goals + MOTM/DOTD, cross-checks scorers, drafts a structured report per `CLAUDE.md`, posts to a GH issue for admin to review + tick-to-publish. Highest-value repeat task on the calendar. |
+| Sign-up deadline reminder push (via cron) | 🟢 | chat | Wed 20:00 London job → who hasn't signed up + push notification. Same tech stack as cup-audit but pointed at a different query. |
+| Cost + rate-limit budget guard | 🟢 | chat | Baked into cup-audit already ($0.10-0.30 per non-empty run); document once we add a second agent so we can trend the monthly spend. |
 
 ## 📚 Help centre — in-app how-to guides
 
