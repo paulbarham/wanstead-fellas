@@ -1,7 +1,7 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v5 alongside the initial push-notification handlers landing so
-// any older SW gets replaced with one that knows how to render pushes.
-const CACHE = 'wf-v5'
+// Bumped to v6 to flush stale bundles after the FormationPicker move to
+// the Teams tab and the admin "Preview team sheets" pill landing.
+const CACHE = 'wf-v6'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
