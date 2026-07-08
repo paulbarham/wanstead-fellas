@@ -518,8 +518,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
         }
       }
 
-      // Open the MOTM/DOTD voting window for this match (10pm match night →
-      // 9am next day). Preserves results_published if the row already exists.
+      // Open the MOTM/DOTD voting window for this match (10:30pm match
+      // night → 10am next day). Preserves results_published if the row
+      // already exists.
       const { opens_at, closes_at } = getVotingWindow(nextThursday)
       const { error: vwErr } = await supabase.from('voting_windows').upsert(
         { match_id: matchId, opens_at, closes_at },

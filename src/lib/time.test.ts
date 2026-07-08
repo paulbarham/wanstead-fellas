@@ -74,10 +74,10 @@ describe('canGenerateTeams', () => {
 })
 
 describe('getVotingWindow', () => {
-  it('opens 10pm match night and closes 10am next day (London)', () => {
+  it('opens 10:30pm match night and closes 10am next day (London)', () => {
     const { opens_at, closes_at } = getVotingWindow(THU)
-    // Thu 22:00 BST = 21:00 UTC
-    expect(opens_at).toBe('2026-06-18T21:00:00.000Z')
+    // Thu 22:30 BST = 21:30 UTC
+    expect(opens_at).toBe('2026-06-18T21:30:00.000Z')
     // Fri 10:00 BST = 09:00 UTC
     expect(closes_at).toBe('2026-06-19T09:00:00.000Z')
   })

@@ -78,11 +78,11 @@ export function canGenerateTeams(thursdayDateStr: string): boolean {
   return !isBefore(now, opensAt) && isBefore(now, closesAt)
 }
 
-// Voting opens 10pm on match night (full time), closes 10am the next day
-// (Europe/London).
+// Voting opens 10:30pm on match night (post-final-whistle buffer), closes
+// 10am the next day (Europe/London).
 export function getVotingWindow(matchDateStr: string): { opens_at: string; closes_at: string } {
   const [y, m, d] = matchDateStr.split('-').map(Number)
-  const opens = fromZonedTime(new Date(y, m - 1, d, 22, 0, 0, 0), TZ)
+  const opens = fromZonedTime(new Date(y, m - 1, d, 22, 30, 0, 0), TZ)
   const closes = fromZonedTime(new Date(y, m - 1, d + 1, 10, 0, 0, 0), TZ)
   return { opens_at: opens.toISOString(), closes_at: closes.toISOString() }
 }
