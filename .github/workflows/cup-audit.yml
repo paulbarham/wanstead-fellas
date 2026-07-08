@@ -29,7 +29,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Node 22+ required — @supabase/supabase-js 2.45+ pulls in
+          # realtime-js which relies on the native WebSocket that only
+          # landed in Node 22. Node 20 crashes at createClient().
+          node-version: '22'
 
       - name: Install audit deps
         run: npm install --no-save @anthropic-ai/sdk@^0.30.0 @supabase/supabase-js@^2.45.0
