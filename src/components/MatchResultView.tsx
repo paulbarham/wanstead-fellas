@@ -72,7 +72,12 @@ function buildTable(teams: Team[], fixtures: FixtureWithTeams[]): GroupRow[] {
     t2.gf += s2; t2.ga += s1
     if (s1 > s2) { t1.won++; t1.pts += 3; t2.lost++ }
     else if (s1 < s2) { t2.won++; t2.pts += 3; t1.lost++ }
-    else { t1.drawn++; t1.pts += 1; t2.drawn++; t2.pts += 1 }
+    else {
+      t1.drawn++; t1.pts += 1; t2.drawn++; t2.pts += 1
+      // Drawn fixture → penalty shootout: winner takes a bonus point (migration 035).
+      if (f.shootout_winner === 1) t1.pts += 1
+      else if (f.shootout_winner === 2) t2.pts += 1
+    }
   }
   return Object.values(rows).sort((a, b) => {
     if (b.pts !== a.pts) return b.pts - a.pts
@@ -149,7 +154,13 @@ function TwoTeamResult({ fixtures, scorersByFixture, legacyScorers }: {
           </p>
         )}
         {!winner && main.score1 != null && (
-          <p className="text-center" style={{ color: 'var(--color-text-muted)', fontSize: 11, letterSpacing: '0.1em' }}>▶ DRAW</p>
+          (main.shootout_winner === 1 || main.shootout_winner === 2) ? (
+            <p className="text-center" style={{ color: 'var(--tt-yellow)', fontSize: 11, letterSpacing: '0.1em' }}>
+              ▶ DRAW · {stripFC((main.shootout_winner === 1 ? main.team1 : main.team2)?.name)?.toUpperCase()} WIN ON PENS
+            </p>
+          ) : (
+            <p className="text-center" style={{ color: 'var(--color-text-muted)', fontSize: 11, letterSpacing: '0.1em' }}>▶ DRAW</p>
+          )
         )}
       </div>
 
@@ -259,6 +270,11 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, pred
                   </div>
                   <span className="flex-1" style={{ fontSize: 13, color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                 </div>
+                {(f.shootout_winner === 1 || f.shootout_winner === 2) && (
+                  <p className="text-center mt-1" style={{ fontFamily: 'var(--font-mono)', color: 'var(--tt-yellow)', fontSize: 10, letterSpacing: '0.08em' }}>
+                    {stripFC((f.shootout_winner === 1 ? f.team1 : f.team2)?.name)?.toUpperCase()} WON ON PENS (+1)
+                  </p>
+                )}
                 {fixtureScorers.length > 0 && (
                   <div className="flex items-start gap-2 mt-1.5" style={{ fontFamily: 'var(--font-mono)' }}>
                     <span className="flex-1 text-right leading-snug" style={{ color: 'var(--color-text-muted)', fontSize: 11 }}>

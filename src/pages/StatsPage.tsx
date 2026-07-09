@@ -326,6 +326,7 @@ interface FixtureRow {
   team2_id: string
   score1: number | null
   score2: number | null
+  shootout_winner: number | null
 }
 
 export default function StatsPage() {
@@ -361,7 +362,7 @@ export default function StatsPage() {
         supabase.from('teams').select('id, match_id'),
         supabase.from('team_players').select('team_id, player_id'),
         supabase.from('fitness_sessions').select('profile_id, distance_m, match_date, recorded_start'),
-        supabase.from('fixtures').select('match_id, team1_id, team2_id, score1, score2'),
+        supabase.from('fixtures').select('match_id, team1_id, team2_id, score1, score2, shootout_winner'),
       ])
       const matchDate: Record<string, string | null> = {}
       for (const m of (ms.data as { id: string; match_date: string | null }[]) || []) matchDate[m.id] = m.match_date
@@ -547,7 +548,12 @@ export default function StatsPage() {
       const s1 = f.score1 ?? 0, s2 = f.score2 ?? 0
       if (s1 > s2) { bump(f.team1_id, s1, s2, 3); bump(f.team2_id, s2, s1, 0) }
       else if (s1 < s2) { bump(f.team1_id, s1, s2, 0); bump(f.team2_id, s2, s1, 3) }
-      else { bump(f.team1_id, s1, s2, 1); bump(f.team2_id, s2, s1, 1) }
+      else {
+        // Draw: 1 pt each, plus the penalty-shootout bonus point (migration 035),
+        // so the shootout winner can edge the mini-table and be crowned champion.
+        bump(f.team1_id, s1, s2, f.shootout_winner === 1 ? 2 : 1)
+        bump(f.team2_id, s2, s1, f.shootout_winner === 2 ? 2 : 1)
+      }
     }
     const sorted = [...stats.entries()].sort(([, a], [, b]) =>
       b.pts - a.pts || b.gd - a.gd || b.gf - a.gf)

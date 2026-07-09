@@ -164,6 +164,16 @@ Tools that turn a published team from "here's who's playing" into "here's how we
 | Formation snapshot in match report | 🟢 | chat | Small pitch thumbnail per team in the History view — "3-2-1 vs 2-3-1, they overloaded midfield" |
 | Position played per player (from formation on match day) | 🟢 | chat | Formation gives us free "position played" data for the stats engine — feeds Data quality below |
 
+## 🥅 Match day — scoring & results
+
+Rules and capture around what actually happens on the pitch: scores, draws, tie-breaks.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| Penalty shootouts for drawn fixtures | ✅ | chat · commit pending · migration `035` | World Cup spirit (July 2026). Every drawn fixture — incl. 0-0 — goes to pens; winner takes a **+1 bonus** (draw winner finishes on 2, loser 1; regulation win still 3). `fixtures.shootout_winner` (1/2/null). Winner picker + explicit "mark 0-0 draw" in AdminMatchEntry; submit gated until every draw has a recorded winner. Bonus feeds all three standings calcs (live table, result view, Stats champion crown). Pens are **not** goals — top-scorer untouched; may inform MOTM/DOTD (free-form, no code). |
+| Started as tonight-only; promote to permanent if it lands | 🟢 | chat | Feature is fully built (not a hack), so "keeping it" needs no further work — just the decision. |
+| Shared `buildTable`/standings helper (kill the 3-way duplication) | 🟢 | chat | 3-1-0 + shootout-bonus logic is currently copied across `AdminMatchEntry`, `MatchResultView`, `StatsPage`. Extract to a tested `lib/standings.ts` to stop drift. Deferred from the shootout ship to avoid refactoring the hot path pre-match. |
+
 ## 🧢 Team builder polish
 
 Quality-of-life on the AdminTeamBuilder publish + share flow.

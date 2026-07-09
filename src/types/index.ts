@@ -174,6 +174,9 @@ export interface Fixture {
   team2_id: string
   score1: number | null
   score2: number | null
+  // Penalty-shootout winner for a drawn fixture: 1 = team1, 2 = team2,
+  // null = no shootout (not a draw, or not yet recorded). See migration 035.
+  shootout_winner: number | null
 }
 
 export interface PredictionRow {

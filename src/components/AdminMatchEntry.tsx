@@ -106,7 +106,12 @@ function buildTable(teams: Team[], fixtures: FixtureWithTeams[]): GroupRow[] {
     t2.gf += s2; t2.ga += s1
     if (s1 > s2) { t1.won++; t1.pts += 3; t2.lost++ }
     else if (s1 < s2) { t2.won++; t2.pts += 3; t1.lost++ }
-    else { t1.drawn++; t1.pts++; t2.drawn++; t2.pts++ }
+    else {
+      t1.drawn++; t1.pts++; t2.drawn++; t2.pts++
+      // Drawn fixture → penalty shootout: winner takes a bonus point (migration 035).
+      if (f.shootout_winner === 1) t1.pts++
+      else if (f.shootout_winner === 2) t2.pts++
+    }
   }
   return Object.values(rows).sort((a, b) => b.pts !== a.pts ? b.pts - a.pts : (b.gf - b.ga) - (a.gf - a.ga))
 }
@@ -407,9 +412,16 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     // so the live table treats it as played (single-tap 1-0 / 0-1 wins).
     const shouldDefaultOther = num != null && num > 0 && otherCurrent == null
 
-    const update: Partial<{ score1: number | null; score2: number | null }> = bothEffectivelyZero
-      ? { score1: null, score2: null }
+    const update: Partial<{ score1: number | null; score2: number | null; shootout_winner: number | null }> = bothEffectivelyZero
+      ? { score1: null, score2: null, shootout_winner: null }
       : { [field]: num, ...(shouldDefaultOther ? { [otherField]: 0 } : {}) }
+
+    // A recorded shootout winner only makes sense for a level fixture. If this
+    // edit leaves it non-level (a win, or one side blank), drop the winner.
+    const nextS1 = 'score1' in update ? update.score1 : (prevFixture?.score1 ?? null)
+    const nextS2 = 'score2' in update ? update.score2 : (prevFixture?.score2 ?? null)
+    const stillDraw = nextS1 != null && nextS2 != null && nextS1 === nextS2
+    if (!stillDraw && prevFixture?.shootout_winner != null) update.shootout_winner = null
 
     setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, ...update } : f))
     setScoreError(null)
@@ -440,6 +452,90 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
           : f))
       }
     }
+  }
+
+  // Record the penalty-shootout winner for a drawn fixture (1 = team1, 2 = team2).
+  // Tapping the already-selected team clears it. Persists immediately.
+  async function setShootoutWinner(fixtureId: string, winner: 1 | 2) {
+    const prevFixture = fixtures.find(f => f.id === fixtureId)
+    const next = prevFixture?.shootout_winner === winner ? null : winner
+    setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, shootout_winner: next } : f))
+    setScoreError(null)
+    const { error } = await supabase.from('fixtures').update({ shootout_winner: next }).eq('id', fixtureId)
+    if (error) {
+      console.error('Shootout winner update failed:', error)
+      setScoreError(`Shootout result not saved: ${error.message}`)
+      if (prevFixture) setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, shootout_winner: prevFixture.shootout_winner } : f))
+    }
+  }
+
+  // Record a genuine 0-0 draw. The score steppers deliberately can't express
+  // 0-0 (walking both sides to zero resets the fixture to "not played"), so this
+  // is the explicit way in — needed now that a 0-0 also goes to penalties.
+  async function markZeroDraw(fixtureId: string) {
+    const prevFixture = fixtures.find(f => f.id === fixtureId)
+    setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, score1: 0, score2: 0 } : f))
+    setFixtureScorers(prev => ({ ...prev, [fixtureId]: { team1: [], team2: [] } }))
+    setScoreError(null)
+    const { error } = await supabase.from('fixtures').update({ score1: 0, score2: 0 }).eq('id', fixtureId)
+    if (error) {
+      console.error('0-0 mark failed:', error)
+      setScoreError(`Score not saved: ${error.message}`)
+      if (prevFixture) setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, score1: prevFixture.score1, score2: prevFixture.score2 } : f))
+    }
+  }
+
+  // Penalties affordance shown under each fixture's score row. For a not-yet-played
+  // fixture it's the "mark 0-0" entry; for a level result it's the winner picker.
+  function renderPenalties(f: FixtureWithTeams) {
+    const played = f.score1 != null && f.score2 != null
+    if (!played) {
+      if (f.score1 == null && f.score2 == null) {
+        return (
+          <button
+            type="button"
+            onClick={() => markZeroDraw(f.id)}
+            className="mt-2 w-full py-1.5 rounded-lg text-[11px] font-medium"
+            style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-muted)', border: '1px dashed var(--color-border)', fontFamily: 'var(--font-mono)' }}
+          >
+            · mark 0-0 draw (→ penalties) ·
+          </button>
+        )
+      }
+      return null
+    }
+    if (f.score1 !== f.score2) return null
+    const needsWinner = f.shootout_winner == null
+    return (
+      <div className="mt-2 rounded-xl px-3 py-2 flex items-center gap-2"
+        style={{ background: 'var(--color-surface-2)', border: `1px solid ${needsWinner ? '#C9A227' : 'var(--color-border)'}` }}>
+        <span className="text-[10px] font-semibold uppercase tracking-wider"
+          style={{ color: needsWinner ? 'var(--color-warning-text)' : 'var(--color-text-muted)' }}>
+          {needsWinner ? 'Penalties — pick winner' : 'Penalties'}
+        </span>
+        <div className="flex gap-1.5 flex-1 justify-end">
+          {([1, 2] as const).map(w => {
+            const team = w === 1 ? f.team1 : f.team2
+            const sel = f.shootout_winner === w
+            return (
+              <button
+                key={w}
+                type="button"
+                onClick={() => setShootoutWinner(f.id, w)}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-semibold"
+                style={{
+                  background: sel ? 'var(--tt-yellow)' : 'var(--color-surface)',
+                  color: sel ? '#0F1710' : 'var(--color-text-muted)',
+                  border: `1px solid ${sel ? 'var(--tt-yellow)' : 'var(--color-border)'}`,
+                }}
+              >
+                {stripFC(team?.name)}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
   }
 
   // Debounced auto-save: any change to fixtureScorers (slot edits, OG toggles,
@@ -513,15 +609,18 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
 
   // A fixture is "complete" when both scores are set AND every allocated slot
   // has a player chosen. Submit is gated on all played fixtures being complete.
-  function fixtureCompletion(f: FixtureWithTeams): { played: boolean; total: number; filled: number } {
+  function fixtureCompletion(f: FixtureWithTeams): { played: boolean; total: number; filled: number; shootoutPending: boolean } {
     const played = f.score1 != null && f.score2 != null
     const slots = fixtureScorers[f.id]
     const total = (slots?.team1.length ?? 0) + (slots?.team2.length ?? 0)
     const filled = [...(slots?.team1 ?? []), ...(slots?.team2 ?? [])].filter(s => !!s.player_id).length
-    return { played, total, filled }
+    // A drawn fixture must have its penalty-shootout winner recorded before submit.
+    const shootoutPending = played && f.score1 === f.score2 && f.shootout_winner == null
+    return { played, total, filled, shootoutPending }
   }
   const completion = fixtures.map(f => ({ f, ...fixtureCompletion(f) }))
-  const allReady = completion.length > 0 && completion.every(({ played, total, filled }) => played && filled === total)
+  const allReady = completion.length > 0 && completion.every(({ played, total, filled, shootoutPending }) => played && filled === total && !shootoutPending)
+  const shootoutPendingCount = completion.filter(c => c.shootoutPending).length
 
   function roundRobinRows(matchId: string): { match_id: string; team1_id: string; team2_id: string }[] {
     const rows: { match_id: string; team1_id: string; team2_id: string }[] = []
@@ -601,9 +700,16 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // "(Team won on pens)" suffix for a drawn fixture with a recorded shootout winner.
+  function shootoutNote(f: FixtureWithTeams): string {
+    if (f.shootout_winner !== 1 && f.shootout_winner !== 2) return ''
+    const w = f.shootout_winner === 1 ? f.team1 : f.team2
+    return ` (${stripFC(w?.name)} won on pens)`
+  }
+
   function formatElevenReport(): string {
     const main = fixtures[0]
-    const score = main ? `${main.score1 ?? '?'} - ${main.score2 ?? '?'}` : ''
+    const score = main ? `${main.score1 ?? '?'} - ${main.score2 ?? '?'}${shootoutNote(main)}` : ''
     const allScorers = scorerSummary(allSlotsForSummary(), roster)
     const lines = [
       `⚽ WF Match Report`,
@@ -623,7 +729,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     lines.push('\n🏟️ Results')
     fixtures.forEach(f => {
       if (f.score1 != null && f.score2 != null) {
-        lines.push(`${f.team1?.name} ${f.score1} - ${f.score2} ${f.team2?.name}`)
+        lines.push(`${f.team1?.name} ${f.score1} - ${f.score2} ${f.team2?.name}${shootoutNote(f)}`)
       }
     })
     return lines.join('\n')
@@ -663,6 +769,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                     <span className="flex-1 text-sm" style={{ color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                   </div>
                   {renderFixtureScorers(f.id, f.team1, f.team2)}
+                  {renderPenalties(f)}
                 </div>
               ))}
             </div>
@@ -752,6 +859,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                       <span className="flex-1 text-xs" style={{ color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                     </div>
                     {renderFixtureScorers(f.id, f.team1, f.team2)}
+                    {renderPenalties(f)}
                   </div>
                 ))}
               </div>
@@ -857,7 +965,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
             {autosaveTick === 'idle' && 'auto-saves as you go'}
           </span>
           <span style={{ fontFamily: 'var(--font-mono)' }}>
-            {completion.filter(c => c.played && c.filled === c.total && c.total > 0).length}/{fixtures.length} fixtures ready
+            {completion.filter(c => c.played && c.filled === c.total && !c.shootoutPending).length}/{fixtures.length} fixtures ready
           </span>
         </div>
 
@@ -875,7 +983,7 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
             letterSpacing: '0.12em',
           }}
         >
-          {submitting ? 'SUBMITTING…' : allReady ? '▶ SUBMIT RESULTS' : '· enter all scores + scorers ·'}
+          {submitting ? 'SUBMITTING…' : allReady ? '▶ SUBMIT RESULTS' : shootoutPendingCount > 0 ? '· pick penalty shootout winner ·' : '· enter all scores + scorers ·'}
         </button>
 
         {confirmSubmit && (
@@ -893,6 +1001,11 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
                     <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-text)' }}>
                       {stripFC(f.team1?.name)} <strong style={{ color: 'var(--tt-yellow)' }}>{f.score1 ?? '?'} - {f.score2 ?? '?'}</strong> {stripFC(f.team2?.name)}
                     </div>
+                    {(f.shootout_winner === 1 || f.shootout_winner === 2) && (
+                      <div style={{ color: 'var(--color-text-muted)', marginLeft: 8 }}>
+                        ↳ pens: {stripFC((f.shootout_winner === 1 ? f.team1 : f.team2)?.name)} won (+1)
+                      </div>
+                    )}
                     {scorers && <div style={{ color: 'var(--color-text-muted)', marginLeft: 8 }}>↳ {scorers}</div>}
                   </div>
                 )

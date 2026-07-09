@@ -49,8 +49,9 @@ Team generation is allowed from Wed 10pm up to 30 minutes before kick-off (Thu 8
 
 ### Match (live scoring)
 - Round-robin fixtures between the published teams.
-- Score steppers and a live league table.
+- Score steppers and a live league table (3 pts win / 1 pt draw / 0 loss, sorted by pts then goal difference).
 - Per-fixture scorer entry feeding the goals table.
+- **Penalty shootouts (drawn fixtures):** any fixture that finishes level — including a genuine 0-0 — goes to a shootout. The admin picks the winning team (`fixtures.shootout_winner`), who takes a **+1 bonus point** in the standings (draw winner finishes on 2, loser 1; a regulation win is still 3). Because the score steppers can't express a 0-0 (walking both to zero = "not played"), there's an explicit **"mark 0-0 draw"** affordance. Submit is blocked until every drawn fixture has a recorded shootout winner. The bonus flows through all three standings calcs — the live table, the read-only `MatchResultView` group table, and the Stats "champion team" crown. Shootout penalties are **not** goals: no per-player shootout data is captured, so top-scorer stats are untouched; they may inform MOTM/DOTD voting, which stays free-form. Result cards show e.g. "▶ DRAW · TEAM A WIN ON PENS" / "TEAM A WON ON PENS (+1)".
 - Results report view (shared `MatchResultView`).
 - **Finished-match ordering (identical on the Match and History tabs):** Group Table → Predicted vs. Actual → Results → Match Awards (MOTM/DOTD) → Match Report. `MatchResultView` renders the table, the `PredictedVsActual` card, and the results; the awards block and `MatchReport` are placed by the page. Predicted vs. Actual sits between the table and the results — it is no longer the first section of the written report.
 
