@@ -706,13 +706,13 @@ export default function AdminFinancePanel() {
                           {s.wtpGames.map(g => (
                             <div key={g.id} className="flex items-center gap-2">
                               <button onClick={() => toggleGamePaid(g)}
-                                className="text-xs px-2 py-0.5 rounded font-medium flex-shrink-0"
+                                className="text-xs px-2.5 py-1 rounded font-semibold flex-shrink-0"
                                 style={{
-                                  background: g.paid ? 'var(--color-success-bg)' : 'var(--color-surface)',
-                                  color: g.paid ? '#0D6B52' : '#888',
-                                  border: `1px solid ${g.paid ? '#0D6B52' : 'var(--color-border)'}`,
+                                  background: g.paid ? 'var(--color-success-bg)' : 'var(--color-primary)',
+                                  color: g.paid ? '#0D6B52' : 'var(--color-surface)',
+                                  border: `1px solid ${g.paid ? '#0D6B52' : 'var(--color-primary)'}`,
                                 }}>
-                                {g.paid ? '✓' : 'Unpaid'}
+                                {g.paid ? '✓ Paid' : 'Mark Paid'}
                               </button>
                               <span className="flex-1 text-xs" style={{ color: g.paid ? '#555' : '#ccc' }}>
                                 {format(new Date(g.match_date + 'T12:00:00'), 'EEE do MMM')}
@@ -739,13 +739,13 @@ export default function AdminFinancePanel() {
                           {s.fines.map(f => (
                             <div key={f.id} className="flex items-center gap-2">
                               <button onClick={() => toggleFinePaid(f)}
-                                className="text-xs px-2 py-0.5 rounded font-medium flex-shrink-0"
+                                className="text-xs px-2.5 py-1 rounded font-semibold flex-shrink-0"
                                 style={{
-                                  background: f.paid ? 'var(--color-success-bg)' : 'var(--color-surface)',
-                                  color: f.paid ? '#0D6B52' : '#888',
-                                  border: `1px solid ${f.paid ? '#0D6B52' : 'var(--color-border)'}`,
+                                  background: f.paid ? 'var(--color-success-bg)' : 'var(--color-primary)',
+                                  color: f.paid ? '#0D6B52' : 'var(--color-surface)',
+                                  border: `1px solid ${f.paid ? '#0D6B52' : 'var(--color-primary)'}`,
                                 }}>
-                                {f.paid ? '✓' : 'Unpaid'}
+                                {f.paid ? '✓ Paid' : 'Mark Paid'}
                               </button>
                               <div className="flex-1 min-w-0">
                                 <span className="text-xs" style={{ color: f.paid ? '#555' : '#ccc' }}>
