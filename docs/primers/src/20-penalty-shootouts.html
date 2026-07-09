@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Penalty Shootouts</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · PENALTY SHOOTOUTS · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.mag   { background: rgba(255,102,204,0.07); border-left-color: #FF66CC; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  .kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    border: 1px solid rgba(74,217,255,0.25);
+  }
+
+  /* ─── Scoring model tiles ──────────────────────── */
+  .model {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .model .tile {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 8pt;
+    vertical-align: top;
+    text-align: center;
+  }
+  .model .tile.win   { border-color: #4ADC7A; }
+  .model .tile.draw  { border-color: #4AD9FF; }
+  .model .tile.pens  { border-color: #FFD400; }
+  .model .tile .cap {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #9CA897;
+  }
+  .model .tile .pts {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 26pt; line-height: 1.1;
+    margin: 2pt 0;
+  }
+  .model .tile.win  .pts { color: #4ADC7A; }
+  .model .tile.draw .pts { color: #4AD9FF; }
+  .model .tile.pens .pts { color: #FFD400; }
+  .model .tile .note { font-size: 8pt; color: #9CA897; }
+
+  /* ─── Score-entry mock (admin UI) ──────────────── */
+  .entry {
+    background: #FFFFFF;
+    color: #18201A;
+    border-radius: 10pt;
+    padding: 10pt 12pt;
+    margin: 8pt 0;
+    border: 1px solid #E2E4DC;
+  }
+  .scoreline {
+    display: table; width: 100%; table-layout: fixed;
+    font-family: 'Courier New', monospace;
+  }
+  .scoreline .tm { display: table-cell; vertical-align: middle; font-size: 9.5pt; color: #18201A; width: 30%; }
+  .scoreline .tm.r { text-align: right; }
+  .scoreline .tm.l { text-align: left; }
+  .scoreline .mid { display: table-cell; text-align: center; vertical-align: middle; width: 40%; }
+  .stp {
+    display: inline-block;
+    background: #F2F3EE; border: 1px solid #E2E4DC;
+    border-radius: 6pt; padding: 2pt 6pt;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 13pt; color: #B8860B;
+  }
+  .stp .pm { color: #C9A227; font-weight: 700; padding: 0 3pt; }
+  .scoreline .v { color: #647060; font-size: 8pt; padding: 0 4pt; }
+
+  .pens {
+    margin-top: 8pt;
+    background: #FBF7E6;
+    border: 1px solid #C9A227;
+    border-radius: 8pt;
+    padding: 7pt 10pt;
+    display: table; width: 100%;
+  }
+  .pens .lbl {
+    display: table-cell; vertical-align: middle;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #92400e; font-weight: 700;
+  }
+  .pens .btns { display: table-cell; text-align: right; vertical-align: middle; }
+  .pbtn {
+    display: inline-block;
+    padding: 3pt 9pt; border-radius: 6pt;
+    font-family: 'Helvetica', sans-serif;
+    font-size: 9pt; font-weight: 700;
+    border: 1px solid #E2E4DC; background: #FFFFFF; color: #647060;
+    margin-left: 4pt;
+  }
+  .pbtn.sel { background: #FFD400; color: #0F1710; border-color: #FFD400; }
+
+  .zero {
+    margin-top: 8pt;
+    border: 1px dashed #C6C9BF;
+    border-radius: 6pt;
+    padding: 5pt;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; color: #647060;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── Step callouts ────────────────────────────── */
+  .steps {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .step {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+    font-size: 9pt;
+  }
+  .step .n {
+    display: inline-block;
+    width: 14pt; height: 14pt; border-radius: 50%;
+    background: #FFD400; color: #0F1710;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 9pt; font-weight: 800;
+    text-align: center; line-height: 14pt;
+    margin-right: 4pt; vertical-align: middle;
+  }
+  .step h4 {
+    display: inline;
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400; font-size: 9.5pt;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin: 0;
+  }
+  .step p { margin: 4pt 0 0; color: #E8F0E9; font-size: 9pt; line-height: 1.4; }
+
+  /* ─── Standings table mock ─────────────────────── */
+  .tbl { width: 100%; border-collapse: collapse; margin: 6pt 0; font-family: 'Courier New', monospace; }
+  .tbl th {
+    font-size: 7.5pt; letter-spacing: 0.08em; color: #4AD9FF;
+    text-align: center; padding: 3pt 4pt; border-bottom: 1px solid #2D4A2F;
+  }
+  .tbl th.tl { text-align: left; }
+  .tbl td { font-size: 9pt; text-align: center; padding: 4pt; border-bottom: 1px solid #1c2a1f; color: #E8F0E9; }
+  .tbl td.tl { text-align: left; color: #E8F0E9; }
+  .tbl tr.lead td { color: #FFD400; font-weight: 700; }
+  .tbl td.pts { color: #4ADC7A; font-weight: 700; }
+  .tbl tr.lead td.pts { color: #FFD400; }
+  .tbl .tag {
+    font-family: 'Courier New', monospace; font-size: 6.5pt;
+    color: #FFD400; letter-spacing: 0.06em;
+  }
+
+  .who {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .who .col {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+    font-size: 9pt;
+  }
+  .who .col.on  { border-color: #4ADC7A; }
+  .who .col.off { border-color: #FF5555; }
+  .who h4 {
+    margin: 0 0 3pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .who .col.on  h4 { color: #4ADC7A; }
+  .who .col.off h4 { color: #FF5555; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Penalty Shootouts · Update</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P520 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>TL;DR</strong> — In the spirit of the World Cup, <strong>drawn games now go to a penalty shootout</strong>. The shootout winner takes a <strong>+1 bonus point</strong> in the table. Nothing else about a normal win or loss changes. <em>Shootout pens are not goals</em> — they don't touch the top-scorer race, though they might sway the MOTM / DOTD chat.
+</div>
+
+<h2>The new scoring, at a glance</h2>
+
+<div class="model">
+  <div class="tile win">
+    <div class="cap">Win in normal time</div>
+    <div class="pts">3</div>
+    <div class="note">unchanged</div>
+  </div>
+  <div class="tile draw">
+    <div class="cap">Draw</div>
+    <div class="pts">1</div>
+    <div class="note">each team, as before</div>
+  </div>
+  <div class="tile pens">
+    <div class="cap">Win the shootout</div>
+    <div class="pts">+1</div>
+    <div class="note">bonus, on top of the draw point</div>
+  </div>
+</div>
+
+<p style="font-size:9.5pt; color:#9CA897;">So a shootout winner finishes on <strong>2</strong> and the loser on <strong>1</strong> — a shootout win is worth <em>more than a draw, less than a proper win</em>. A regulation win is still the full 3.</p>
+
+<div class="callout green">
+  <strong>Worked example.</strong> Reds 2–2 Blues, Blues win the shootout → <strong>Blues +2 pts</strong> (1 draw + 1 bonus), <strong>Reds +1 pt</strong>. If Reds had won 3–2 in normal time it'd be the usual 3–0 pts split — no shootout.
+</div>
+
+<h2>Where it happens</h2>
+<p>Entirely inside <strong>Admin → Match Entry</strong>, the same screen you already use to key in scores and scorers. There's nothing new to learn for a decisive game — the shootout controls only appear <em>when a fixture finishes level</em>. Round-robin nights: every drawn fixture gets its own shootout.</p>
+
+<h2>Entering a drawn fixture</h2>
+
+<div class="entry">
+  <div class="scoreline">
+    <div class="tm r">Reds FC</div>
+    <div class="mid">
+      <span class="stp"><span class="pm">−</span> 2 <span class="pm">+</span></span>
+      <span class="v">v</span>
+      <span class="stp"><span class="pm">−</span> 2 <span class="pm">+</span></span>
+    </div>
+    <div class="tm l">Blues FC</div>
+  </div>
+  <div class="pens">
+    <div class="lbl">⚽ Penalties — pick winner</div>
+    <div class="btns">
+      <span class="pbtn">Reds FC</span>
+      <span class="pbtn sel">Blues FC ✓</span>
+    </div>
+  </div>
+</div>
+
+<div class="steps">
+  <div class="step">
+    <span class="n">1</span><h4>Key the level score</h4>
+    <p>Tap the score steppers as normal until both sides read the same — e.g. <span class="kbd">2 – 2</span>.</p>
+  </div>
+  <div class="step">
+    <span class="n">2</span><h4>Pick the shootout winner</h4>
+    <p>A yellow <strong>Penalties</strong> bar appears under the score. Tap the team that won on pens — it locks in yellow. Tapped the wrong one? Tap the other, or tap again to clear.</p>
+  </div>
+  <div class="step">
+    <span class="n">3</span><h4>Submit as usual</h4>
+    <p>That's it — the bonus point lands in the table automatically. <strong>Submit stays locked</strong> until every drawn fixture has a winner picked, so you can't forget one.</p>
+  </div>
+</div>
+
+<h2>The 0–0 special case</h2>
+<p>A goalless game still goes to pens — but the score steppers can't show a real <span class="kbd">0 – 0</span> (walking both to zero just means "not played yet"). So for a goalless draw you'll see an explicit button first:</p>
+
+<div class="entry" style="padding:8pt 12pt;">
+  <div class="scoreline">
+    <div class="tm r">Reds FC</div>
+    <div class="mid"><span class="stp"><span class="pm">−</span> 0 <span class="pm">+</span></span> <span class="v">v</span> <span class="stp"><span class="pm">−</span> 0 <span class="pm">+</span></span></div>
+    <div class="tm l">Blues FC</div>
+  </div>
+  <div class="zero">· mark 0-0 draw (→ penalties) ·</div>
+</div>
+
+<p style="font-size:9.5pt; color:#9CA897;">Tap <strong>mark 0-0 draw</strong> and the fixture records as a genuine goalless draw, then the same <strong>Penalties — pick winner</strong> bar appears. Pick the winner and submit.</p>
+
+<h2>What it does to the table</h2>
+<p>The bonus flows straight into the <strong>live table</strong>, the published <strong>result card</strong>, and the <strong>Stats "champion team"</strong> — all three in step. In our example, the shootout nudges Blues one point clear of the side they drew with:</p>
+
+<table class="tbl">
+  <thead>
+    <tr><th class="tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
+  </thead>
+  <tbody>
+    <tr class="lead"><td class="tl">Blues FC <span class="tag">◄ won pens +1</span></td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td class="pts">2</td></tr>
+    <tr><td class="tl">Reds FC</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td class="pts">1</td></tr>
+  </tbody>
+</table>
+<p style="font-size:9pt; color:#9CA897;">Result cards spell it out too: <span class="kbd">▶ DRAW · BLUES FC WIN ON PENS</span>, and the copy-to-WhatsApp report adds <em>"(Blues FC won on pens)"</em> next to the score.</p>
+
+<h2>What counts — and what doesn't</h2>
+
+<div class="who">
+  <div class="col off">
+    <h4>■ Pens are NOT goals</h4>
+    <ul style="padding-left:14pt; margin:3pt 0;">
+      <li>No shootout scorers are recorded.</li>
+      <li>The <strong>top-scorer</strong> race is completely untouched.</li>
+      <li>Don't enter shootout pens in the scorers list.</li>
+    </ul>
+  </div>
+  <div class="col on">
+    <h4>▶ Pens CAN colour the night</h4>
+    <ul style="padding-left:14pt; margin:3pt 0;">
+      <li>Voters can weigh a shootout hero (or villain) in <strong>MOTM / DOTD</strong> — that stays free-form, your call.</li>
+      <li>The result card shows who won, so voters see it.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>What hasn't changed</h2>
+<ul>
+  <li>Decisive games — enter exactly as before. No shootout controls appear.</li>
+  <li>A regulation win is still <strong>3 points</strong>; a loss is still <strong>0</strong>.</li>
+  <li>Scorers, own goals, match report, highlights, MOTM/DOTD voting — all identical.</li>
+</ul>
+
+<div class="callout mag">
+  <strong>Trial run.</strong> This is in for tonight in the World Cup spirit. If the squad enjoys it, it stays for the coming weeks — the feature is fully built either way, so keeping it is just a thumbs-up, no rebuild.
+</div>
+
+<hr>
+
+<div class="closer">
+  Drawn game? → <strong>enter the level score · pick the pens winner · submit</strong>.<br>
+  0–0? → <strong>mark 0-0 draw</strong> first. · Bugs / questions → admin in the WhatsApp group.
+</div>
+
+</body>
+</html>
