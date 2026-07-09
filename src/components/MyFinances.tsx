@@ -3,32 +3,13 @@ import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import type { Profile, Fine, WtpGame, Credit } from '../types'
 import { FINE_TYPES } from '../types'
+import { getBlockDueDate, monthLabelOf } from '../lib/finance'
 
 interface Props {
   profile: Profile
 }
 
-// Mirrors v_blocked_players' block window: grace ends 16 days after the last
-// Thursday of the debt's month. Returns null for pre-Jun 2026 debts (excluded
-// from the block logic by the same view).
-function getBlockDueDate(matchDateStr: string): Date | null {
-  if (matchDateStr < '2026-06-01') return null
-  const [y, m] = matchDateStr.split('-').map(Number)
-  // Last day of month (m is 1-indexed here — new Date(y, m, 0) → last day of month m)
-  const lastDay = new Date(y, m, 0)
-  // Walk back to Thursday (Sun=0…Thu=4…Sat=6)
-  const daysBack = (lastDay.getDay() + 7 - 4) % 7
-  const dueAt = new Date(y, m - 1, lastDay.getDate() - daysBack)
-  dueAt.setDate(dueAt.getDate() + 16)
-  return dueAt
-}
-
-// Human-friendly month key & label
 function monthKeyOf(matchDateStr: string): string { return matchDateStr.slice(0, 7) }
-function monthLabelOf(monthKey: string): string {
-  const [y, m] = monthKey.split('-').map(Number)
-  return format(new Date(y, m - 1, 1), 'MMMM yyyy').toUpperCase()
-}
 
 type DebtItem =
   | { kind: 'wtp'; id: string; match_date: string; amount: number }

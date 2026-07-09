@@ -5,6 +5,7 @@ import PlayerAvatar from './PlayerAvatar'
 import type { Profile, Fine, WtpGame, FineType, Credit } from '../types'
 import { FINE_TYPES } from '../types'
 import { getNextThursdayDate } from '../lib/time'
+import { computeBlockStatus, monthLabelOf, type BlockStatus } from '../lib/finance'
 
 interface PlayerSummary {
   player: Profile
@@ -559,6 +560,15 @@ export default function AdminFinancePanel() {
             const allSquare = s.netBalance === 0
             const owes = s.netBalance > 0
             const isBlocked = blockedIds.has(s.player.id)
+            // Block status across ALL of this player's unpaid debts (current
+            // viewed month + prior carryover) — mirrors what MyFinances shows
+            // to the player themselves so admin sees the same "£X by Fri X"
+            // signal at a glance.
+            const allUnpaidDated = [
+              ...s.wtpGames.filter(g => !g.paid).map(g => ({ match_date: g.match_date, amount: Number(g.amount) })),
+              ...s.fines.filter(f => !f.paid && !!f.match_date).map(f => ({ match_date: f.match_date!, amount: Number(f.amount) })),
+            ]
+            const blockStatus: BlockStatus = computeBlockStatus(allUnpaidDated, s.creditBalance)
             // Border accent state: red = blocked, amber = carryover, green =
             // in credit, default otherwise. Combines visual cues at a glance.
             const borderColor = allSquare ? 'var(--color-border)'
@@ -600,7 +610,24 @@ export default function AdminFinancePanel() {
                     <span className="text-sm font-medium flex items-center gap-1.5"
                       style={{ color: allSquare ? '#666' : 'white' }}>
                       <span className="truncate">{s.player.name} {s.player.surname}</span>
-                      {isBlocked && (
+                      {blockStatus.kind === 'past-due' && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider flex-shrink-0"
+                          style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>
+                          ⛔ £{blockStatus.amount.toFixed(0)}
+                        </span>
+                      )}
+                      {blockStatus.kind === 'due-soon' && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider flex-shrink-0"
+                          style={{ background: 'rgba(201,162,39,0.15)', color: 'var(--color-warning-text)', border: '1px solid var(--color-warning-text)' }}
+                          title={`Pay £${blockStatus.amount.toFixed(2)} by ${format(blockStatus.dueAt, 'EEE do MMM')} to avoid block`}>
+                          ⚠ £{blockStatus.amount.toFixed(0)} by {format(blockStatus.dueAt, 'd MMM')}
+                        </span>
+                      )}
+                      {!blockStatus || blockStatus.kind === 'safe' ? null : null}
+                      {isBlocked && blockStatus.kind !== 'past-due' && (
+                        // Fallback: the v_blocked_players view flagged them but
+                        // our client-side computation didn't (shouldn't happen,
+                        // but if it does, at least surface it).
                         <span className="text-[9px] px-1.5 py-0.5 rounded font-bold tracking-wider flex-shrink-0"
                           style={{ background: 'rgba(255,85,85,0.15)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>
                           ⛔
@@ -647,6 +674,32 @@ export default function AdminFinancePanel() {
                 {/* Expanded detail */}
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid var(--color-border)' }}>
+
+                    {/* Block-status callout — mirrors the player's own
+                        MyFinances view so admin sees exactly what the player
+                        needs to pay to unblock (or what's already blocking). */}
+                    {(blockStatus.kind === 'past-due' || blockStatus.kind === 'due-soon') && (
+                      <div className="px-3 py-2.5" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <div className="p-3 rounded-xl"
+                          style={{
+                            background: blockStatus.kind === 'past-due' ? '#1a0a0a' : 'rgba(201,162,39,0.10)',
+                            border: `1px solid ${blockStatus.kind === 'past-due' ? 'var(--color-error-border)' : 'var(--color-warning-text)'}`,
+                          }}>
+                          <p className="text-[10px] uppercase tracking-widest font-bold mb-1"
+                            style={{ color: blockStatus.kind === 'past-due' ? 'var(--color-error-text)' : 'var(--color-warning-text)' }}>
+                            {blockStatus.kind === 'past-due' ? '⛔ Sign-ups locked' : '⚠ Pay this to keep sign-ups open'}
+                          </p>
+                          <p className="font-semibold text-lg" style={{ color: blockStatus.kind === 'past-due' ? 'var(--color-error-text)' : 'var(--color-warning-text)' }}>
+                            £{blockStatus.amount.toFixed(2)}
+                          </p>
+                          <p className="text-[11px] mt-1" style={{ color: '#9CA897' }}>
+                            {blockStatus.kind === 'past-due'
+                              ? `${monthLabelOf(blockStatus.monthKey).split(' ')[0]} balance past due (${format(blockStatus.dueAt, 'do MMM')}). Later months not affected.`
+                              : `Settle the ${monthLabelOf(blockStatus.monthKey).split(' ')[0]} balance before ${format(blockStatus.dueAt, 'EEE do MMM')}. Later months still in grace.`}
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Mark as paid button — clears everything unpaid for the
                         player including any prior-month carryover. */}
