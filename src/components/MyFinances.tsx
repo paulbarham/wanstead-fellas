@@ -8,6 +8,32 @@ interface Props {
   profile: Profile
 }
 
+// Mirrors v_blocked_players' block window: grace ends 16 days after the last
+// Thursday of the debt's month. Returns null for pre-Jun 2026 debts (excluded
+// from the block logic by the same view).
+function getBlockDueDate(matchDateStr: string): Date | null {
+  if (matchDateStr < '2026-06-01') return null
+  const [y, m] = matchDateStr.split('-').map(Number)
+  // Last day of month (m is 1-indexed here — new Date(y, m, 0) → last day of month m)
+  const lastDay = new Date(y, m, 0)
+  // Walk back to Thursday (Sun=0…Thu=4…Sat=6)
+  const daysBack = (lastDay.getDay() + 7 - 4) % 7
+  const dueAt = new Date(y, m - 1, lastDay.getDate() - daysBack)
+  dueAt.setDate(dueAt.getDate() + 16)
+  return dueAt
+}
+
+// Human-friendly month key & label
+function monthKeyOf(matchDateStr: string): string { return matchDateStr.slice(0, 7) }
+function monthLabelOf(monthKey: string): string {
+  const [y, m] = monthKey.split('-').map(Number)
+  return format(new Date(y, m - 1, 1), 'MMMM yyyy').toUpperCase()
+}
+
+type DebtItem =
+  | { kind: 'wtp'; id: string; match_date: string; amount: number }
+  | { kind: 'fine'; id: string; match_date: string; amount: number; type: Fine['type']; notes: string | null }
+
 export default function MyFinances({ profile }: Props) {
   const [fines, setFines] = useState<Fine[]>([])
   const [wtpGames, setWtpGames] = useState<WtpGame[]>([])
@@ -31,10 +57,6 @@ export default function MyFinances({ profile }: Props) {
   }, [profile.id])
 
   const now = new Date()
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
-  const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10)
-
-  const thisMonthGames = wtpGames.filter(g => g.match_date >= thisMonthStart && g.match_date <= thisMonthEnd)
   const unpaidFines = fines.filter(f => !f.paid)
   const unpaidGames = wtpGames.filter(g => !g.paid)
   const paidFines = fines.filter(f => f.paid)
@@ -48,6 +70,48 @@ export default function MyFinances({ profile }: Props) {
   const inCredit = netBalance < 0
   const allSquare = netBalance === 0
   const owes = netBalance > 0
+
+  // Merge unpaid WTPs + unpaid fines-with-match-date, group by their match's
+  // month. Fines without match_date fall into a separate "no-date" bucket at
+  // the bottom (rare — usually admin fines added ad-hoc).
+  const datedDebts: DebtItem[] = [
+    ...unpaidGames.map(g => ({ kind: 'wtp' as const, id: g.id, match_date: g.match_date, amount: Number(g.amount) })),
+    ...unpaidFines.filter(f => !!f.match_date).map(f => ({
+      kind: 'fine' as const, id: f.id, match_date: f.match_date!, amount: Number(f.amount), type: f.type, notes: f.notes,
+    })),
+  ]
+  const undatedFines = unpaidFines.filter(f => !f.match_date)
+
+  const byMonth = new Map<string, DebtItem[]>()
+  for (const d of datedDebts) {
+    const k = monthKeyOf(d.match_date)
+    if (!byMonth.has(k)) byMonth.set(k, [])
+    byMonth.get(k)!.push(d)
+  }
+  const sortedMonths = Array.from(byMonth.keys()).sort()
+
+  // Build per-month rollup with block-due date + status.
+  const monthRollups = sortedMonths.map(k => {
+    const items = byMonth.get(k)!.sort((a, b) => a.match_date.localeCompare(b.match_date))
+    const total = items.reduce((s, d) => s + d.amount, 0)
+    // All debts in a month share the same block-due date (last Thu + 16 days).
+    const dueAt = getBlockDueDate(items[0].match_date)
+    const daysUntilDue = dueAt ? Math.ceil((dueAt.getTime() - now.getTime()) / 86400000) : null
+    const status: 'immune' | 'past-due' | 'due-soon' | 'safe' =
+      dueAt === null ? 'immune'
+      : daysUntilDue! < 0 ? 'past-due'
+      : daysUntilDue! <= 7 ? 'due-soon'
+      : 'safe'
+    return { monthKey: k, items, total, dueAt, daysUntilDue, status }
+  })
+
+  // "Pay this to stay unblocked" = sum of past-due + due-soon months, capped
+  // by credit. Immune months excluded (they never trigger a block).
+  const mustPayGross = monthRollups
+    .filter(r => r.status === 'past-due' || r.status === 'due-soon')
+    .reduce((s, r) => s + r.total, 0)
+  const mustPayNet = Math.max(0, mustPayGross - creditBalance)
+  const earliestDueMonth = monthRollups.find(r => r.status === 'past-due' || r.status === 'due-soon')
 
   const fineLabel = (type: Fine['type']) =>
     FINE_TYPES.find(t => t.value === type)?.label ?? type
@@ -102,41 +166,99 @@ export default function MyFinances({ profile }: Props) {
         )
       })()}
 
-      {/* This month's WTP games */}
-      {(profile.player_type === 'wtp' || profile.player_type === 'wtp_priority') && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-          <div className="px-4 py-3" style={{ borderBottom: thisMonthGames.length > 0 ? '1px solid #FFFFFF' : 'none' }}>
-            <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
-                WTP Games This Month
-              </p>
-              <div className="flex items-center gap-2">
-                <span className="font-display text-xl" style={{ color: 'var(--color-warning-text)' }}>{thisMonthGames.length}</span>
-                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  £{thisMonthGames.reduce((s, g) => s + Number(g.amount), 0).toFixed(2)}
+      {/* Pay-this-to-stay-unblocked callout — surfaces the exact £ + date
+          for the earliest at-risk month, so the player knows what to pay
+          now and can safely ignore later months. */}
+      {mustPayNet > 0 && earliestDueMonth && (
+        <div className="p-4 rounded-2xl"
+          style={{
+            background: earliestDueMonth.status === 'past-due' ? '#1a0a0a' : 'rgba(201,162,39,0.10)',
+            border: `1px solid ${earliestDueMonth.status === 'past-due' ? 'var(--color-error-border)' : 'var(--color-warning-text)'}`,
+          }}>
+          <p className="text-xs uppercase tracking-widest font-semibold mb-1"
+            style={{ color: earliestDueMonth.status === 'past-due' ? 'var(--color-error-text)' : 'var(--color-warning-text)' }}>
+            {earliestDueMonth.status === 'past-due' ? '⛔ Sign-ups locked' : '⚠ Pay this now to stay unblocked'}
+          </p>
+          <p className="font-display text-3xl leading-none"
+            style={{ color: earliestDueMonth.status === 'past-due' ? 'var(--color-error-text)' : 'var(--color-warning-text)' }}>
+            £{mustPayNet.toFixed(2)}
+          </p>
+          <p className="text-xs mt-2" style={{ color: '#9CA897' }}>
+            {earliestDueMonth.status === 'past-due'
+              ? `${monthLabelOf(earliestDueMonth.monthKey)} balance is past its due date${earliestDueMonth.dueAt ? ` (${format(earliestDueMonth.dueAt, 'do MMM')})` : ''}. Settle up with admin to unlock sign-ups.`
+              : `Settle the ${monthLabelOf(earliestDueMonth.monthKey).split(' ')[0]} balance before ${earliestDueMonth.dueAt ? format(earliestDueMonth.dueAt, 'EEE do MMM') : 'the due date'} — later months aren't due yet.`}
+          </p>
+        </div>
+      )}
+
+      {/* Outstanding by month — one card per month, with the block-due date on
+          each header so it's obvious which one is next to trip. */}
+      {monthRollups.map(r => {
+        const tint = r.status === 'past-due' ? 'var(--color-error-text)'
+          : r.status === 'due-soon' ? 'var(--color-warning-text)'
+          : '#9CA897'
+        const border = r.status === 'past-due' ? 'var(--color-error-border)'
+          : r.status === 'due-soon' ? 'var(--color-warning-text)'
+          : 'var(--color-border)'
+        return (
+          <div key={r.monthKey} className="rounded-2xl overflow-hidden"
+            style={{ background: 'var(--color-surface)', border: `1px solid ${border}` }}>
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: tint }}>
+                    {monthLabelOf(r.monthKey)}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA897' }}>
+                    {r.status === 'immune'
+                      ? 'Legacy — not counted toward blocks'
+                      : r.status === 'past-due'
+                        ? `Past due${r.dueAt ? ` since ${format(r.dueAt, 'do MMM')}` : ''}`
+                        : r.dueAt ? `Due by ${format(r.dueAt, 'EEE do MMM')}` : ''}
+                  </p>
+                </div>
+                <span className="text-lg font-semibold" style={{ color: tint }}>
+                  £{r.total.toFixed(2)}
                 </span>
               </div>
             </div>
-          </div>
-          {thisMonthGames.map((g, i) => (
-            <div key={g.id} className="px-4 py-2.5 flex items-center justify-between"
-              style={{ borderTop: i > 0 ? '1px solid #FFFFFF' : 'none' }}>
-              <span className="text-sm" style={{ color: g.paid ? '#555' : '#ccc' }}>
-                {format(new Date(g.match_date + 'T12:00:00'), 'EEE do MMM')}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold" style={{ color: g.paid ? '#555' : '#C9A227' }}>
-                  £{Number(g.amount).toFixed(2)}
+            {r.items.map((d, i) => (
+              <div key={d.id} className="px-4 py-2.5 flex items-center justify-between"
+                style={{ borderTop: i > 0 ? '1px solid #FFFFFF' : 'none' }}>
+                <div className="min-w-0">
+                  <span className="text-sm" style={{ color: '#ccc' }}>
+                    {d.kind === 'wtp' ? 'WTP · ' : `${fineLabel(d.type)} · `}
+                    {format(new Date(d.match_date + 'T12:00:00'), 'EEE do MMM')}
+                  </span>
+                  {d.kind === 'fine' && d.notes && (
+                    <p className="text-xs mt-0.5" style={{ color: '#9CA897' }}>{d.notes}</p>
+                  )}
+                </div>
+                <span className="text-sm font-semibold" style={{ color: '#C9A227' }}>
+                  £{d.amount.toFixed(2)}
                 </span>
-                {g.paid && <span className="text-xs" style={{ color: '#9CA897' }}>paid</span>}
               </div>
+            ))}
+          </div>
+        )
+      })}
+
+      {/* Un-dated fines (rare) — flat list, no month grouping possible */}
+      {undatedFines.length > 0 && (
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
+            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Other fines</p>
+          </div>
+          {undatedFines.map((f, i) => (
+            <div key={f.id} className="px-4 py-2.5 flex items-center justify-between"
+              style={{ borderTop: i > 0 ? '1px solid #FFFFFF' : 'none' }}>
+              <div>
+                <span className="text-sm" style={{ color: '#ccc' }}>{fineLabel(f.type)}</span>
+                {f.notes && <p className="text-xs mt-0.5" style={{ color: '#9CA897' }}>{f.notes}</p>}
+              </div>
+              <span className="text-sm font-semibold" style={{ color: '#C9A227' }}>£{Number(f.amount).toFixed(2)}</span>
             </div>
           ))}
-          {thisMonthGames.length === 0 && (
-            <div className="px-4 py-2.5">
-              <p className="text-sm" style={{ color: '#444' }}>No games recorded this month</p>
-            </div>
-          )}
         </div>
       )}
 
