@@ -1,4 +1,4 @@
-import type { Result, ReportNoteItem, TeamAward } from '../types'
+import type { Result, ReportNoteItem } from '../types'
 import { hasStructuredReport } from '../lib/report'
 import SectionHeader from './SectionHeader'
 
@@ -42,20 +42,6 @@ function NoteList({ items }: { items: ReportNoteItem[] }) {
   )
 }
 
-function Award({ label, award }: { label: string; award: TeamAward }) {
-  return (
-    <div>
-      <p className="text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>
-        {label}{award.title ? ` · ${award.title}` : ''}
-      </p>
-      {award.players && (
-        <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--color-text)' }}>{award.players}</p>
-      )}
-      {award.note && <p style={{ ...BODY_STYLE, marginTop: 2 }}>{award.note}</p>}
-    </div>
-  )
-}
-
 export default function MatchReport({ result }: { result: Result }) {
   if (!hasStructuredReport(result)) {
     if (!result.report_text) return null
@@ -64,13 +50,7 @@ export default function MatchReport({ result }: { result: Result }) {
     )
   }
 
-  const { key_highlights, team_awards, fines_admin, banter, app_watch, player_of_tournament } = result
-  const awards: [string, TeamAward | null | undefined][] = [
-    ['Defensive', team_awards?.defensive],
-    ['Safe Hands', team_awards?.safe_hands],
-    ['Forward', team_awards?.forward],
-  ]
-  const hasAwards = awards.some(([, a]) => a)
+  const { key_highlights, fines_admin, banter, app_watch } = result
 
   return (
     <div>
@@ -86,23 +66,6 @@ export default function MatchReport({ result }: { result: Result }) {
       {key_highlights && key_highlights.length > 0 && (
         <Section label="Key Highlights">
           <NoteList items={key_highlights} />
-        </Section>
-      )}
-
-      {hasAwards && (
-        <Section label="Team Awards">
-          <div className="space-y-3">
-            {awards.map(([label, a]) => (a ? <Award key={label} label={label} award={a} /> : null))}
-          </div>
-        </Section>
-      )}
-
-      {player_of_tournament?.name && (
-        <Section label="Player of the Tournament">
-          <p className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>
-            {player_of_tournament.name}
-          </p>
-          {player_of_tournament.note && <p style={{ ...BODY_STYLE, marginTop: 2 }}>{player_of_tournament.note}</p>}
         </Section>
       )}
 

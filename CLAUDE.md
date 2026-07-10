@@ -63,15 +63,14 @@ When writing or editing a match report on the `results` row, **populate the stru
 |---|---|---|
 | `summary` | `text` | Tweet-length lede paragraph — the headline narrative of the night |
 | `predictions` | `jsonb` | `{ note, rows: [{position, predicted, actual}] }` — pre-match predicted finish vs actual final standings + 1-line commentary on accuracy |
-| `key_highlights` | `jsonb` | Array of `{player?, label?, note}` — standout players, collective shoutouts, MOTM/DOTD, team-by-team commentary |
-| `team_awards` | `jsonb` | Object with optional `forward`, `defensive`, `safe_hands` keys, each `{title, players, note}` — the formal team-award trio |
-| `player_of_tournament` | `jsonb` | `{name, note}` or `null` — single standout player of the night |
+| `key_highlights` | `jsonb` | Array of `{player?, label?, note}` — standout players, collective shoutouts, team-by-team commentary. This is where individual heroics live. Do NOT re-package the MOTM / DOTD winners here — the ballot renders separately and doubling up feels self-congratulatory. |
 | `banter` | `jsonb` | Array of `{player?, label?, note}` — funny moments, side-stories, in-jokes |
 | `app_watch` | `jsonb` | Array of `{player?, label?, note}` — fines, admin reminders, app/feature updates |
 | `conclusion` | `text` | 2–4 short lines (separated with `\n`) — the closing punch |
 | `closer` | `text` or `null` | One-line sign-off (e.g. "Roll on next Thursday. 📟 Ratings update to follow.") |
 | `scorers` | `text` | Auto-generated from `goals` table by AdminMatchEntry — don't hand-edit |
 | `report_text` | `text` | **Legacy — leave NULL.** Will double-render if both this and the structured fields are set. |
+| `team_awards`, `player_of_tournament` | `jsonb` | **Retired (10 Jul 2026)** — the sections duplicated `key_highlights` and the MOTM/DOTD ballot. Columns still exist for old rows but nothing renders them. Don't populate. |
 
 **Always include `predictions`.** Pull the actual final table from `fixtures` for the match, compare to the pre-match `LIKELY FINAL TABLE` (computed by `AdminTeamBuilder.predictTable`), and write a 4-row table with a short note on accuracy. The algorithm's track record is a recurring narrative thread — every week's report leans on it.
 

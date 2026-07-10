@@ -196,28 +196,11 @@ export interface ReportNoteItem {
   note?: string | null
 }
 
-export interface TeamAward {
-  title?: string | null
-  players?: string | null
-  note?: string | null
-}
-
-export interface ReportTeamAwards {
-  defensive?: TeamAward | null
-  safe_hands?: TeamAward | null
-  forward?: TeamAward | null
-}
-
 export interface ReportFinesAdmin {
   headline?: string | null
   items?: string[] | null
   redemption?: string | null
   footer?: string | null
-}
-
-export interface ReportPlayerOfTournament {
-  name?: string | null
-  note?: string | null
 }
 
 export interface Result {
@@ -229,11 +212,9 @@ export interface Result {
   summary: string | null
   predictions: ReportPredictions | null
   key_highlights: ReportNoteItem[] | null
-  team_awards: ReportTeamAwards | null
   fines_admin: ReportFinesAdmin | null
   banter: ReportNoteItem[] | null
   app_watch: ReportNoteItem[] | null
-  player_of_tournament: ReportPlayerOfTournament | null
   conclusion: string | null
   closer: string | null
   created_at: string
