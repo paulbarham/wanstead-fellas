@@ -4,7 +4,10 @@
 //   * 'vote_open'   — voting window has just opened, players still need to
 //     cast their MOTM/DOTD picks (voting_windows INSERT where opens_at is
 //     imminent OR the Stage 2 cron firing when opens_at is reached)
-//   * 'results'     — award results have been published for the round
+//   * 'results'     — awards + match report have been published for the
+//     round. If a match report has been written (results.summary NOT NULL)
+//     the push is framed as "Match report is live". Otherwise falls back
+//     to the awards-only copy for backwards compat.
 //
 // Called by a Postgres trigger on voting_windows INSERT (for teams_ready
 // or vote_open, depending on timing), by the pg_cron scheduled job (for
@@ -73,6 +76,19 @@ Deno.serve(async (req) => {
       ? new Date(matchDate + 'T12:00:00').toLocaleString('en-GB', { day: 'numeric', month: 'short' })
       : 'tonight'
 
+    // For the 'results' topic, prefer the "match report is live" framing IF
+    // a structured report has actually been written for this match — the
+    // report + awards land at the same moment (voting closes 10am → awards
+    // publish → trigger fires), so the report is the bigger news. Fall back
+    // to the awards-only copy if no report exists (edge case: admin
+    // published awards without writing anything).
+    let hasReport = false
+    if (topic === 'results') {
+      const { data: resultsRow } = await supabase
+        .from('results').select('summary').eq('match_id', matchId).maybeSingle()
+      hasReport = !!(resultsRow?.summary && resultsRow.summary.length > 0)
+    }
+
     const payload = topic === 'teams_ready'
       ? {
         title: '🟢 Teams are ready',
@@ -88,12 +104,19 @@ Deno.serve(async (req) => {
           tag: `vote-${matchId}`,
         }
         : topic === 'results'
-          ? {
-            title: '📊 MOTM & DOTD results published',
-            body: `${readable} awards are up — see who won.`,
-            url: '/match',
-            tag: `results-${matchId}`,
-          }
+          ? hasReport
+            ? {
+              title: '📝 Match report is live',
+              body: `Full ${readable} write-up + MOTM & DOTD awards are up. Tap to read.`,
+              url: '/match',
+              tag: `report-${matchId}`,
+            }
+            : {
+              title: '📊 MOTM & DOTD results published',
+              body: `${readable} awards are up — see who won.`,
+              url: '/match',
+              tag: `results-${matchId}`,
+            }
           : null
     if (!payload) return json({ error: 'unknown topic' }, 400)
 
