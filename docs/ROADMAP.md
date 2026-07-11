@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-10 (Retired team_awards + player_of_tournament from match reports · added Monthly stats round-up theme covering both a PDF generator on GH cron and a follow-up in-app tab)_
+_Last updated: 2026-07-10 (Monthly stats round-up PDF generator shipped — GH Actions cron fires on the 1st of every month at 07:00 BST · matches the June 2026 reference template · in-app tab still on the backlog)_
 
 ---
 
@@ -228,7 +228,7 @@ Auto-generated one-page summary of the month's football — top scorers, MOTM/DO
 
 | Item | Status | Source | Notes |
 |---|---|---|---|
-| Monthly stats PDF generator (GH Actions cron) | 🟢 | chat 10 Jul | Runs on last-Thursday-of-month + 1 (00:03 BST). Pulls month's fixtures + goals + votes + attendance from Supabase, renders a one-page Wanstead-Fellas-branded PDF via WeasyPrint, commits to `docs/primers/monthly/YYYY-MM.pdf`, opens a PR (or ff-pushes to main). No Anthropic API needed — pure SQL → HTML → PDF, so no credit prerequisite. Shape to be modelled on a reference the admin will share. |
+| Monthly stats PDF generator (GH Actions cron) | ✅ | chat 10 Jul · commit pending | Runs on the 1st of every month at 07:00 BST via `.github/workflows/monthly-report.yml`. `scripts/monthly-report.mjs` pulls that month's data from Supabase (month-scoped SQL filters), renders a one-page Wanstead-Fellas-branded HTML that matches the June 2026 reference template, hands off to WeasyPrint, commits to `docs/primers/monthly/YYYY-MM.pdf`. No Anthropic API — pure SQL → HTML → PDF. June 2026 verified: 4/24/59/49 headline · Beau 7 · Mark 2.00 avg GA · Paul 28.97 km · £12 fines pot. |
 | In-app "Monthly" tab | 🟢 | chat 10 Jul | Follow-up to the PDF generator. New route `/monthly` (or nested under History) that surfaces the monthly summaries in-app with an archive back through prior months. Same data as the PDF, mobile-friendly render. Ship after the PDF generator is battle-tested and the shape has settled. |
 
 ## 📚 Help centre — in-app how-to guides
