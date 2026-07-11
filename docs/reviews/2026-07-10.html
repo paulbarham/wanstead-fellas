@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — App Review 10 Jul 2026</title>
+<style>
+  @page {
+    size: A4;
+    margin: 15mm 12mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · APP REVIEW · 10 JUL 2026 · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 7.5pt;
+      letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    padding: 12pt 14pt;
+    border-radius: 10pt;
+    margin-bottom: 10pt;
+    display: table;
+    width: 100%;
+    border-bottom: 3pt solid #FFD400;
+  }
+  .masthead .left, .masthead .right {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 22pt;
+    margin: 0;
+    letter-spacing: 0.02em;
+    color: #FFD400;
+    line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt;
+    border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400;
+    font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em;
+    page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', sans-serif;
+    color: #4ADC7A;
+    font-size: 10pt;
+    margin: 10pt 0 4pt;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    page-break-after: avoid;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    color: #4ADC7A;
+    background: rgba(74,220,122,0.08);
+    padding: 0 3pt;
+    border-radius: 2pt;
+  }
+
+  .callout {
+    background: rgba(74,217,255,0.06);
+    border-left: 3pt solid #4AD9FF;
+    padding: 8pt 12pt;
+    border-radius: 4pt;
+    margin: 8pt 0;
+    font-size: 9.5pt;
+  }
+  .callout.yellow { background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
+  .callout.green  { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+
+  /* Headline stat strip */
+  .headline {
+    display: table;
+    width: 100%;
+    margin: 10pt 0 4pt;
+    background: transparent;
+    border-top: 1px solid rgba(255,212,0,0.3);
+    border-bottom: 1px solid rgba(255,212,0,0.3);
+    padding: 6pt 0;
+  }
+  .headline .cell {
+    display: table-cell;
+    text-align: center;
+    padding: 3pt 0;
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+  .headline .cell:last-child { border-right: none; }
+  .headline .n {
+    display: block;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 22pt;
+    color: #FFD400;
+    line-height: 1;
+  }
+  .headline .u {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.18em;
+    color: rgba(255,212,0,0.7);
+    margin-top: 3pt;
+    text-transform: uppercase;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6pt 0;
+    font-size: 8.5pt;
+  }
+  thead th {
+    background: rgba(74,220,122,0.10);
+    color: #4ADC7A;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 4pt 6pt;
+    border-bottom: 1px solid #2D4A2F;
+  }
+  tbody td {
+    padding: 4pt 6pt;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; width: 24pt; color: #FFD400; font-weight: 700; }
+  td.file, th.file { font-family: 'Courier New', monospace; font-size: 8pt; color: #4ADC7A; white-space: nowrap; }
+  td.cat, th.cat {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.06em;
+    color: #FF66CC;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  ul, ol { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 10pt 0;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+
+  .keep { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">App Review · 10 Jul 2026</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P900 · REVIEW</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>TL;DR</strong> — Three subagents ran in parallel across the whole app (15 pages + key components). <strong>46 findings.</strong> The <strong>28 small</strong> ones are already fixed in commit <code>5e5ac9f</code>. The <strong>18 material</strong> ones need a product decision and are listed below with concrete proposed fixes. Also shipped: a weekly GitHub Actions cron that produces a static churn/hot-file checklist every Monday at 07:00 BST so the loop is continuous.
+</div>
+
+<div class="headline">
+  <div class="cell"><span class="n">46</span><span class="u">Findings</span></div>
+  <div class="cell"><span class="n">28</span><span class="u">Fixed inline</span></div>
+  <div class="cell"><span class="n">18</span><span class="u">For your call</span></div>
+  <div class="cell"><span class="n">15</span><span class="u">Pages reviewed</span></div>
+</div>
+
+<h2>Zone 1 · Core player pages (5 material)</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="num">#</th>
+      <th class="file">File</th>
+      <th class="cat">Category</th>
+      <th>Summary + proposed fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="keep">
+      <td class="num">1</td>
+      <td class="file">TonightPage.tsx:164</td>
+      <td class="cat">Feature gap</td>
+      <td>Last Result card only reads legacy <code>report_text</code> for its blurb. Since we retired that field in favour of structured <code>summary</code>, every new match now hides the blurb behind the generic <em>"Match played — tap to view result"</em> placeholder. <strong>Fix:</strong> fetch <code>summary</code> too and prefer it over <code>report_text</code>, keeping <code>report_text</code> as legacy fallback.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">2</td>
+      <td class="file">TonightPage.tsx:1021</td>
+      <td class="cat">UI inconsistency</td>
+      <td><code>&lt;TierLegend /&gt;</code> sits at the very bottom of the page, but its own comment says it exists <em>"so first-time users know what the colours mean without poking at every row"</em> — needs to be visible <strong>before</strong> the Who's In list. <strong>Fix:</strong> move it just above the Who's In section header.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">3</td>
+      <td class="file">ProfilePage.tsx:435</td>
+      <td class="cat">UI inconsistency</td>
+      <td>ProfilePage is the only page in the app that skips CeefaxHeader — hand-rolls a back arrow + coloured "My Profile" tagline instead. Breaks the teletext pattern used on 12+ other pages. <strong>Fix:</strong> replace with <code>&lt;CeefaxHeader pageId="P501 · PROFILE" title="PROFILE" /&gt;</code> and drop the standalone Back button.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">4</td>
+      <td class="file">ProfileCompletionCard.tsx:181</td>
+      <td class="cat">UX friction</td>
+      <td>The "Backup position" (pos2) row mounts the <strong>same</strong> PositionPicker as "Preferred position" (pos1), with the same onChange — so tapping either row shows a picker for both slots and the user has to figure out which chip controls which. <strong>Fix:</strong> either (a) collapse to one "Positions" row that marks complete when primary is set, or (b) pass a <code>secondaryOnly</code> prop to the pos2 picker.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">5</td>
+      <td class="file">MotmVotingCard.tsx:324</td>
+      <td class="cat">Accessibility</td>
+      <td>The 🏆 / 🤡 vote pick buttons are <strong>36×36 px</strong> — below Apple's HIG 44×44 pt minimum and WCAG 2.5.5's 44×44 CSS-px target. Two sit right next to each other, so on smaller phones mis-votes (DOTD instead of MOTM) are likely. <strong>Fix:</strong> bump to at least <code>w-11 h-11</code> and increase gap.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Zone 2 · Content pages (5 material)</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="num">#</th>
+      <th class="file">File</th>
+      <th class="cat">Category</th>
+      <th>Summary + proposed fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="keep">
+      <td class="num">6</td>
+      <td class="file">FeedbackPage.tsx:79</td>
+      <td class="cat">UI inconsistency</td>
+      <td>FeedbackPage is the only content page that skips CeefaxHeader — bespoke masthead makes it look like a stranger in the app. <strong>Fix:</strong> <code>&lt;CeefaxHeader pageId="P810 · FEEDBACK" title="FEEDBACK" /&gt;</code> for both player + admin variants.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">7</td>
+      <td class="file">CupPage.tsx:162</td>
+      <td class="cat">UX friction</td>
+      <td>Sweep tab renders <strong>nothing</strong> when SweepstakeCard has no entries or is still loading — SweepstakeCard returns <code>null</code> in both cases. Tapping "Sweep" shows a blank page. <strong>Fix:</strong> either show an <em>"Sweepstake opens when admin seeds the draw"</em> empty state at CupPage level, or have SweepstakeCard render its header + a placeholder body.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">8</td>
+      <td class="file">PodsPage.tsx:15</td>
+      <td class="cat">Feature gap</td>
+      <td>Players without a favourite_club see no Your Club section and no prompt telling them setting one would unlock curated fan pods — the whole section silently vanishes. <strong>Fix:</strong> when <code>!profile?.favourite_club</code>, render a soft callout above "The Curated List" pointing them to <code>/profile</code>.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">9</td>
+      <td class="file">CardsPage.tsx:170</td>
+      <td class="cat">Accessibility</td>
+      <td>Card-detail modal has no <code>role="dialog"</code>, no <code>aria-modal</code>, no <code>aria-labelledby</code>, no ESC-to-close, no focus trap. Screen-reader and keyboard-only users have no way to know it's open or dismiss it. <strong>Fix:</strong> add ARIA + ESC handler + move initial focus to Close button.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">10</td>
+      <td class="file">CupPage.tsx:913</td>
+      <td class="cat">Accessibility</td>
+      <td>LeaderTable + BestStreakBoard render as nested divs with grid layouts — a proper <code>&lt;table&gt;</code> would give screen-reader users column semantics for RANK / NAME / % / STREAK / PTS. <strong>Fix:</strong> refactor to semantic table, keep grid CSS on <code>&lt;tr&gt;</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Zone 3 · Admin surfaces (8 material)</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="num">#</th>
+      <th class="file">File</th>
+      <th class="cat">Category</th>
+      <th>Summary + proposed fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="keep">
+      <td class="num">11</td>
+      <td class="file">AdminMatchEntry.tsx:200</td>
+      <td class="cat">Content</td>
+      <td>Match Report textarea still writes to legacy <code>report_text</code> — but per <code>CLAUDE.md</code> we now populate structured JSON (<code>summary</code>, <code>predictions</code>, <code>key_highlights</code>) and leave <code>report_text</code> NULL. Filling this field would <strong>double-render</strong> on the History/Match tabs. <strong>Fix:</strong> either retire the textarea entirely, or convert to write <code>summary</code> instead.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">12</td>
+      <td class="file">AdminMatchEntry.tsx:923</td>
+      <td class="cat">Feature gap</td>
+      <td>The "Highlights" input writes to a <code>highlights</code> column that no surface renders — orphaned/stalled feature. <strong>Fix:</strong> either remove the input, or surface <code>highlights</code> on Match/History as a linked video chip.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">13</td>
+      <td class="file">AdminFinancePanel.tsx:257</td>
+      <td class="cat">Data safety</td>
+      <td><code>markAllPaid</code> clears <strong>every</strong> unpaid fine + WTP across all months (not just the viewed one) with no confirmation. A misclick wipes months of chase state. <strong>Fix:</strong> inline confirm banner listing exactly what will be cleared, especially prior-month carryover.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">14</td>
+      <td class="file">AdminFinancePanel.tsx:815</td>
+      <td class="cat">Data safety</td>
+      <td>Fine / WTP / credit deletions fire from 16-18 px ✕ buttons with no confirm, no aria-label, sitting directly next to the Mark Paid toggle. A fat-finger tap destroys the record instead of toggling paid state. <strong>Fix:</strong> inline confirm-per-row (or long-press pattern), plus aria-label + bigger tap target.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">15</td>
+      <td class="file">AdminFinancePanel.tsx:351</td>
+      <td class="cat">Feature gap</td>
+      <td>No search/filter over the ~60-row finance list — admin scrolls to find the one they want. Sort is by net balance, not by name. <strong>Fix:</strong> top-of-list name search + quick-filter chips (Owed / In credit / Blocked).</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">16</td>
+      <td class="file">AdminPage.tsx:219</td>
+      <td class="cat">Feature gap</td>
+      <td>Same problem in the Players panel: no search over 60 rows. <strong>Fix:</strong> top-of-list search filtering by name/surname + quick-filter chips (SUB / WTP★ / WTP / missing card_* stats).</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">17</td>
+      <td class="file">AdminTeamBuilder.tsx:594</td>
+      <td class="cat">UX friction</td>
+      <td>Success banner "✓ Teams published and visible to players" is gated on <code>draftTeams.length === 0</code>, but <code>publish()</code> never clears draftTeams. So after a successful publish (first-time or re-publish) admin gets <strong>no explicit success confirmation</strong> — only the button label swap. <strong>Fix:</strong> clear draftTeams after publish OR drop the length===0 gate; consider a transient toast too.</td>
+    </tr>
+    <tr class="keep">
+      <td class="num">18</td>
+      <td class="file">AdminMatchEntry.tsx:197</td>
+      <td class="cat">Code quality</td>
+      <td>Unused <code>nextThursday</code> prop had been quietly disabled with an eslint-suppress. <strong>Already fixed inline</strong> in the same commit — prop removed from the interface, destructure, and both callsites in MatchPage.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>What I fixed inline (28)</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="num">#</th>
+      <th class="file">File</th>
+      <th>Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="num">1–3</td><td class="file">MorePage.tsx</td><td>HTML entity bug (<code>&amp;amp;amp;</code> rendered literally as <code>&amp;amp;</code>), misleading <code>A–Z</code> meta → <code>NAVIGATION INDEX</code></td></tr>
+    <tr><td class="num">4–5</td><td class="file">ProfileCompletionCard.tsx</td><td>Garbled age blurb ("Exact DOB on Profile — or a decade below") + broken "All saves instantly" grammar</td></tr>
+    <tr><td class="num">6–7</td><td class="file">MatchPage.tsx</td><td>Garbled/duplicated comment block cleaned up, <code>Loading...</code> → <code>Loading…</code></td></tr>
+    <tr><td class="num">8–9</td><td class="file">TeamsPage.tsx</td><td><code>.single()</code> → <code>.maybeSingle()</code> (was throwing PGRST116 on any week without a match row — very common), hex <code>#444</code> → CSS var</td></tr>
+    <tr><td class="num">10–13</td><td class="file">ProfilePage.tsx</td><td>Every <code>#444</code> / <code>#9CA897</code> → <code>var(--color-text-muted)</code> (7 replacements) so DOB labels + child rows are actually readable on dark theme</td></tr>
+    <tr><td class="num">14</td><td class="file">PodsPage.tsx</td><td>Meta oversold a non-existent news feed → <code>PODCAST PICKS</code></td></tr>
+    <tr><td class="num">15–19</td><td class="file">FeedbackPage.tsx</td><td>Hex → CSS vars, added loading placeholder before admin/player branch (fixes flash-of-wrong-form during profile load)</td></tr>
+    <tr><td class="num">20–22</td><td class="file">CardsPage.tsx</td><td><code>undefined · Edit</code> guard for missing age_group, confirm on Remove photo, saveEdit error handling</td></tr>
+    <tr><td class="num">23–24</td><td class="file">StatsPage.tsx</td><td>Missing <code>aria-expanded</code> on Panel toggle, plumbed the declared-but-unused <code>unit</code> prop through to render</td></tr>
+    <tr><td class="num">25</td><td class="file">HistoryPage.tsx</td><td>Missing <code>aria-expanded</code> on match disclosure</td></tr>
+    <tr><td class="num">26</td><td class="file">AdminFinancePanel.tsx</td><td>Deleted a dead <code>? null : null</code> ternary</td></tr>
+    <tr><td class="num">27</td><td class="file">AdminMatchEntry.tsx</td><td>Removed unused <code>nextThursday</code> prop + cleaned callsites; also fixed a latent TS narrowing bug in the results payload</td></tr>
+    <tr><td class="num">28</td><td class="file">AdminPage.tsx</td><td>Confirmations on <code>deletePhoto</code> + <code>removeLink</code> (both were 1-tap destructive with no undo)</td></tr>
+  </tbody>
+</table>
+
+<h2>Recurring loop</h2>
+<p><code>scripts/weekly-review.mjs</code> + <code>.github/workflows/weekly-review.yml</code> land in the same commit as this review. Every <strong>Monday 07:00 BST</strong>, a static checklist gets committed to <code>docs/weekly-reviews/YYYY-Www.md</code> with:</p>
+
+<ul>
+  <li>Bundle-size trend</li>
+  <li>Top-3 hottest files this week (churn-ranked)</li>
+  <li>TODO / FIXME markers, ranked by count</li>
+  <li>Pages untouched > 30 days</li>
+  <li>A copy-pasteable prompt to invoke a deep AI review on the week's hot files</li>
+</ul>
+
+<div class="callout green">
+  <strong>Zero Anthropic API cost</strong> for the recurring loop — pure static heuristics. Deep reviews stay on-demand only, using this doc's shape (subagent-parallel + material-vs-small triage) as the template.
+</div>
+
+<hr>
+
+<div class="closer">
+  Read at your pace · Ping me with the item numbers you want tackled next · Weekly checklist auto-fires every Monday
+</div>
+
+</body>
+</html>
