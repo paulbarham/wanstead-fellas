@@ -94,6 +94,7 @@ function Panel({
     <div className="rounded-2xl overflow-hidden mb-2" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
       <button
         onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
         className="w-full flex items-center justify-between px-4 py-2.5"
       >
         <span className="flex items-center gap-2.5">
@@ -230,6 +231,7 @@ function EmptyState({ text }: { text: string }) {
 
 function RankedList({
   rows,
+  unit,
 }: {
   rows: { profile: ProfileLite | undefined; value: number; note?: string; display?: string }[]
   unit?: string
@@ -277,6 +279,7 @@ function RankedList({
               }}
             >
               {r.display ?? r.value}
+              {unit && <span className="ml-1 font-medium" style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{unit}</span>}
             </span>
           </div>
         )

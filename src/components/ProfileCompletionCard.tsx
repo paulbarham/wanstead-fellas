@@ -51,7 +51,7 @@ export default function ProfileCompletionCard() {
     return [
       { key: 'pos1',  icon: '⚙️', title: 'Preferred position',    blurb: 'Where do you play?',              set: !!profile.preferred_position_primary,   action: 'inline'  },
       { key: 'foot',  icon: '🦶', title: 'Preferred foot',         blurb: 'Left, right or both?',            set: !!profile.preferred_foot,               action: 'inline'  },
-      { key: 'age',   icon: '🎂', title: 'Age',                    blurb: 'Exact DOB on Profile — or a decade below',     set: !!(profile.dob || profile.age_group),   action: 'inline'  },
+      { key: 'age',   icon: '🎂', title: 'Age',                    blurb: 'Pick a decade band, or add exact DOB on Profile.', set: !!(profile.dob || profile.age_group),   action: 'inline'  },
       { key: 'pos2',  icon: '🛡️', title: 'Backup position',        blurb: 'Where can you cover if needed?',  set: !!profile.preferred_position_secondary, action: 'inline'  },
       { key: 'photo', icon: '📸', title: 'Profile photo',          blurb: 'Puts a face on your card.',       set: !!profile.photo_url,                    action: 'profile' },
       { key: 'club',  icon: '🏆', title: 'Favourite club',         blurb: 'The badge on your card.',         set: !!profile.favourite_club,               action: 'profile' },
@@ -105,7 +105,7 @@ export default function ProfileCompletionCard() {
               👋 Complete your card
             </p>
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-              {setCount}/{TOTAL_FIELDS} done · {missing.length} to go. All saves instantly.
+              {setCount}/{TOTAL_FIELDS} done · {missing.length} to go. Every change saves instantly.
             </p>
           </div>
           <button

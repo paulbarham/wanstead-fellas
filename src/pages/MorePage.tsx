@@ -12,10 +12,10 @@ interface MoreItem {
 }
 
 const ITEMS: MoreItem[] = [
-  { pageId: 'P401', to: '/history',  label: 'History',  icon: '📅', blurb: 'Past results, reports &amp; awards.' },
+  { pageId: 'P401', to: '/history',  label: 'History',  icon: '📅', blurb: 'Past results, reports & awards.' },
   { pageId: 'P601', to: '/cards',    label: 'Cards',    icon: '🃏', blurb: 'Player cards · stats · ratings.' },
-  { pageId: 'P701', to: '/pods',     label: 'Pods',     icon: '🎧', blurb: 'Football podcasts &amp; news feed.' },
-  { pageId: 'P901', to: '/cup',      label: 'World Cup', icon: '🏆', blurb: 'Predictor &amp; leaderboard.' },
+  { pageId: 'P701', to: '/pods',     label: 'Pods',     icon: '🎧', blurb: 'Football podcasts & news feed.' },
+  { pageId: 'P901', to: '/cup',      label: 'World Cup', icon: '🏆', blurb: 'Predictor & leaderboard.' },
   { pageId: 'P820', to: '/help',     label: 'Help',     icon: '❔', blurb: 'How-to guides · voting, sign-up, cup, money.' },
   { pageId: 'P802', to: '/feedback', label: 'Feedback', icon: '✉️', blurb: 'Suggestions, bugs, requests.' },
   { pageId: 'P888', to: '/admin',    label: 'Admin',    icon: '⚙️', blurb: 'Player management, finance, fines.', adminOnly: true },
@@ -28,7 +28,7 @@ export default function MorePage() {
 
   return (
     <div className="px-5 py-5">
-      <CeefaxHeader pageId="P800 · INDEX" title="MORE" meta="ALL PAGES · A–Z" />
+      <CeefaxHeader pageId="P800 · INDEX" title="MORE" meta="NAVIGATION INDEX" />
 
       <div className="space-y-2 mt-3">
         {items.map(item => (

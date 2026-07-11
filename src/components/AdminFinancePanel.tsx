@@ -623,7 +623,6 @@ export default function AdminFinancePanel() {
                           ⚠ £{blockStatus.amount.toFixed(0)} by {format(blockStatus.dueAt, 'd MMM')}
                         </span>
                       )}
-                      {!blockStatus || blockStatus.kind === 'safe' ? null : null}
                       {isBlocked && blockStatus.kind !== 'past-due' && (
                         // Fallback: the v_blocked_players view flagged them but
                         // our client-side computation didn't (shouldn't happen,

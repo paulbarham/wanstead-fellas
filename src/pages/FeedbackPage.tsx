@@ -15,9 +15,13 @@ const CATEGORY_HINTS: Record<string, string> = {
 
 export default function FeedbackPage() {
   const { profile } = useAuth()
-  const isAdmin = profile?.is_admin ?? false
-
-  return isAdmin ? <AdminFeedbackView /> : <PlayerFeedbackForm />
+  // Wait for profile to load before branching — otherwise admin briefly
+  // sees the player submission form flash before it swaps, which can
+  // trigger an inadvertent duplicate submission.
+  if (!profile) {
+    return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading…</div>
+  }
+  return profile.is_admin ? <AdminFeedbackView /> : <PlayerFeedbackForm />
 }
 
 function PlayerFeedbackForm() {
@@ -95,7 +99,7 @@ function PlayerFeedbackForm() {
           >
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <p className="mt-1.5 text-xs" style={{ color: '#9CA897' }}>{CATEGORY_HINTS[category]}</p>
+          <p className="mt-1.5 text-xs" style={{ color: 'var(--color-text-muted)' }}>{CATEGORY_HINTS[category]}</p>
         </div>
 
         <div>
@@ -251,7 +255,7 @@ function AdminFeedbackView() {
             >
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            <p className="mt-1.5 text-xs" style={{ color: '#9CA897' }}>{CATEGORY_HINTS[fbCategory]}</p>
+            <p className="mt-1.5 text-xs" style={{ color: 'var(--color-text-muted)' }}>{CATEGORY_HINTS[fbCategory]}</p>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Subject</label>
@@ -352,7 +356,7 @@ function AdminFeedbackView() {
       {loading ? (
         <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</p>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-10" style={{ color: '#9CA897' }}>
+        <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>
           <p>No feedback found</p>
         </div>
       ) : (
@@ -373,7 +377,7 @@ function AdminFeedbackView() {
                     </span>
                     <span className="font-semibold text-[var(--color-text)] text-sm">{item.subject}</span>
                   </div>
-                  <p className="text-xs mt-0.5" style={{ color: '#9CA897' }}>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
                     {item.profile ? `${item.profile.name} ${item.profile.surname}` : 'Unknown'} ·{' '}
                     {format(new Date(item.created_at), 'dd MMM yyyy HH:mm')}
                   </p>
@@ -390,7 +394,7 @@ function AdminFeedbackView() {
                   {item.reviewed ? 'Reviewed' : 'Mark done'}
                 </button>
               </div>
-              <p className="text-sm mt-2 leading-relaxed" style={{ color: '#ccc' }}>{item.message}</p>
+              <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--color-text)' }}>{item.message}</p>
             </div>
           ))}
         </div>

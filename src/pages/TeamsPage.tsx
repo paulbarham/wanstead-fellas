@@ -47,7 +47,7 @@ export default function TeamsPage() {
 
   const fetchTeams = useCallback(async () => {
     const { data: matchData } = await supabase
-      .from('matches').select('*').eq('match_date', nextThursday).single()
+      .from('matches').select('*').eq('match_date', nextThursday).maybeSingle()
 
     if (!matchData) { setLoading(false); return }
     setMatch(matchData as Match)
@@ -126,7 +126,7 @@ export default function TeamsPage() {
       />
 
       {teams.length === 0 ? (
-        <div className="text-center py-16" style={{ color: '#444' }}>
+        <div className="text-center py-16" style={{ color: 'var(--color-text-muted)' }}>
           <p className="text-4xl mb-3">👥</p>
           <p className="font-semibold text-[var(--color-text)] mb-1">Teams not published yet</p>
           <p className="text-sm">Check back closer to Thursday</p>

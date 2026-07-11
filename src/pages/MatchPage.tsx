@@ -98,14 +98,12 @@ export default function MatchPage() {
     const thisWeek = thisWeekRaw as Match | null
     setWeekMatch(thisWeek)
 
-    // Display the latest completed match that actually has a written report.
-    // Skipping empties means a stub result (created when the admin closes a
-    // Display match = latest completed. The "skip until report_text is
-    // written" filter we used to have meant a freshly-saved match with no
-    // written report got hidden behind the previous week's, which is
-    // confusing right after Save Result. The score, scorers and fixtures
-    // table are the result; the written report is optional and can be added
-    // later via Edit Result.
+    // Display match = the latest match with status='completed', regardless
+    // of whether the written report has been filled in yet. The score,
+    // scorers and fixtures table are the result; the prose report is
+    // optional and can be added later via Edit Result. (Previously we
+    // filtered on report_text but that hid freshly-saved matches behind
+    // the prior week's report, which was confusing right after Save.)
     const { data: latestRaw } = await supabase
       .from('matches')
       .select('*')
@@ -195,7 +193,7 @@ export default function MatchPage() {
   const canEnterResult = canManageResults && !!weekMatch
 
   if (loading) {
-    return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading...</div>
+    return <div className="px-4 py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading…</div>
   }
 
   if (canEnterResult) {
@@ -203,7 +201,6 @@ export default function MatchPage() {
       <>
         <AdminMatchEntry
           match={weekMatch}
-          nextThursday={nextThursday}
           teams={weekTeams}
           fixtures={weekFixtures}
           result={weekResult}
@@ -234,7 +231,6 @@ export default function MatchPage() {
         </div>
         <AdminMatchEntry
           match={match}
-          nextThursday={nextThursday}
           teams={teams}
           fixtures={fixtures}
           result={result}

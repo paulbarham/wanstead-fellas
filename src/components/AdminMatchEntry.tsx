@@ -64,7 +64,6 @@ interface FixtureWithTeams extends Fixture {
 
 interface Props {
   match: Match | null
-  nextThursday: string
   teams: Team[]
   fixtures: FixtureWithTeams[]
   result: Result | null
@@ -193,8 +192,7 @@ function SlotSection({
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function AdminMatchEntry({ match, nextThursday: _nextThursday, teams, fixtures: initialFixtures, result: initialResult, onSaved, canWriteReport = true }: Props) {
+export default function AdminMatchEntry({ match, teams, fixtures: initialFixtures, result: initialResult, onSaved, canWriteReport = true }: Props) {
   const isElevenVEleven = match?.format === '11v11' || teams.length <= 2
   const [fixtures, setFixtures] = useState<FixtureWithTeams[]>(initialFixtures)
   const [reportText, setReportText] = useState(initialResult?.report_text ?? '')
@@ -584,7 +582,10 @@ export default function AdminMatchEntry({ match, nextThursday: _nextThursday, te
     setSubmitError(null)
     try {
       const scorersText = scorerSummary(allSlotsForSummary(), roster)
-      const payload = canWriteReport
+      // Delegate path (canWriteReport === false) skips narrative fields;
+      // typed as a shared partial so the .update/.insert calls don't get
+      // a union type that TS narrows too aggressively.
+      const payload: { match_id: string; scorers: string; report_text?: string; highlights?: string } = canWriteReport
         ? { match_id: match.id, report_text: reportText, scorers: scorersText, highlights }
         : { match_id: match.id, scorers: scorersText }
       if (initialResult?.id) {

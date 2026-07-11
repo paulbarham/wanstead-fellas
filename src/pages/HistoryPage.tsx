@@ -188,6 +188,7 @@ export default function HistoryPage() {
                   <button
                     className="w-full px-5 py-4 text-left"
                     onClick={() => setExpanded(isExpanded ? null : match.id)}
+                    aria-expanded={isExpanded}
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0 flex-1">

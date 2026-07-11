@@ -300,7 +300,9 @@ function PlayersPanel() {
                     </button>
                     {p.photo_url && (
                       <button
-                        onClick={() => deletePhoto(p.id)}
+                        onClick={() => {
+                          if (confirm(`Remove ${p.name} ${p.surname}'s photo? They'll need to re-upload.`)) deletePhoto(p.id)
+                        }}
                         className="px-3 py-2 rounded-xl text-xs font-semibold"
                         style={{ background: '#1a0808', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                       >
@@ -582,7 +584,9 @@ function FamiliesPanel() {
                 <span className="text-xs" style={{ color: '#9CA897' }}>→</span>
                 <span className="text-sm text-[var(--color-text)] flex-1">{link.childName}</span>
                 <button
-                  onClick={() => removeLink(link.id)}
+                  onClick={() => {
+                    if (confirm(`Remove family link between ${link.parentName} and ${link.childName}?`)) removeLink(link.id)
+                  }}
                   className="text-xs px-2.5 py-1 rounded-lg flex-shrink-0"
                   style={{ color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                 >

@@ -52,7 +52,7 @@ function DobInputs({ day, month, year, setDay, setMonth, setYear }: DobProps) {
           className="w-full py-3 rounded-xl text-[var(--color-text)] text-sm outline-none text-center font-medium"
           style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
         />
-        <span className="text-center text-[10px]" style={{ color: '#444' }}>Day</span>
+        <span className="text-center text-[10px]" style={{ color: 'var(--color-text-muted)' }}>Day</span>
       </div>
       <div className="flex flex-col gap-1 flex-1">
         <select
@@ -63,7 +63,7 @@ function DobInputs({ day, month, year, setDay, setMonth, setYear }: DobProps) {
           <option value="">Month</option>
           {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
         </select>
-        <span className="text-center text-[10px]" style={{ color: '#444' }}>Month</span>
+        <span className="text-center text-[10px]" style={{ color: 'var(--color-text-muted)' }}>Month</span>
       </div>
       <div className="flex flex-col gap-1" style={{ width: 76 }}>
         <input
@@ -73,7 +73,7 @@ function DobInputs({ day, month, year, setDay, setMonth, setYear }: DobProps) {
           className="w-full py-3 rounded-xl text-[var(--color-text)] text-sm outline-none text-center font-medium"
           style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
         />
-        <span className="text-center text-[10px]" style={{ color: '#444' }}>Year</span>
+        <span className="text-center text-[10px]" style={{ color: 'var(--color-text-muted)' }}>Year</span>
       </div>
     </div>
   )
@@ -548,7 +548,7 @@ export default function ProfilePage() {
         {/* Date of birth */}
         <div>
           <label className="block text-xs font-medium mb-2" style={{ color: 'var(--color-text-muted)' }}>
-            Date of Birth <span style={{ color: '#9CA897' }}>(optional)</span>
+            Date of Birth <span style={{ color: 'var(--color-text-muted)' }}>(optional)</span>
           </label>
           <DobInputs
             day={dobDay} month={dobMonth} year={dobYear}
@@ -608,14 +608,14 @@ export default function ProfilePage() {
                 <PlayerAvatar profile={child} size={40} />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-[var(--color-text)]">{child.name} {child.surname}</p>
-                  <p className="text-xs" style={{ color: '#9CA897' }}>{child.age_group}</p>
+                  <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{child.age_group}</p>
                 </div>
-                <span style={{ color: '#444' }}>›</span>
+                <span style={{ color: 'var(--color-text-muted)' }}>›</span>
               </button>
             ))}
           </div>
         ) : (
-          <p className="text-sm" style={{ color: '#444' }}>
+          <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
             No family members added yet.
           </p>
         )}
@@ -624,7 +624,7 @@ export default function ProfilePage() {
       {/* Feedback */}
       <div className="p-4 rounded-2xl mb-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <p className="text-sm font-semibold text-[var(--color-text)] mb-1">Feedback</p>
-        <p className="text-xs mb-3" style={{ color: '#9CA897' }}>
+        <p className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>
           Bug, idea, or general thoughts on the app? Let us know.
         </p>
         <button
@@ -639,7 +639,7 @@ export default function ProfilePage() {
       {/* Password reset */}
       <div className="p-4 rounded-2xl mb-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <p className="text-sm font-semibold text-[var(--color-text)] mb-1">Password</p>
-        <p className="text-xs mb-3" style={{ color: '#9CA897' }}>
+        <p className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>
           Send a reset link to {user?.email}
         </p>
         {resetSent ? (
@@ -772,7 +772,7 @@ export default function ProfilePage() {
             {/* DOB */}
             <div className="mt-3">
               <label className="block text-xs font-medium mb-2" style={{ color: 'var(--color-text-muted)' }}>
-                Date of Birth <span style={{ color: '#9CA897' }}>(optional)</span>
+                Date of Birth <span style={{ color: 'var(--color-text-muted)' }}>(optional)</span>
               </label>
               <DobInputs
                 day={childDobDay} month={childDobMonth} year={childDobYear}
@@ -889,7 +889,7 @@ export default function ProfilePage() {
             {/* DOB (optional) */}
             <div>
               <label className="block text-xs font-medium mb-2" style={{ color: 'var(--color-text-muted)' }}>
-                Date of Birth <span style={{ color: '#9CA897' }}>(optional)</span>
+                Date of Birth <span style={{ color: 'var(--color-text-muted)' }}>(optional)</span>
               </label>
               <DobInputs
                 day={newDobDay} month={newDobMonth} year={newDobYear}

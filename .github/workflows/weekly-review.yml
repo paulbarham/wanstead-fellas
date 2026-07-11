@@ -1,0 +1,52 @@
+name: Weekly review checklist
+
+# Runs every Monday morning at 07:00 BST (06:00 UTC) and produces a
+# markdown checklist under docs/weekly-reviews/YYYY-Www.md with:
+#   * bundle size + churn metrics
+#   * hottest files this week (candidates for deep review)
+#   * TODO/FIXME count
+#   * stale pages (>30 days without a commit)
+#
+# NO Claude API dependency — pure static heuristics. Admin uses the
+# checklist to decide whether to invoke a deep AI review this week.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # every Monday, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  checklist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build (for bundle-size metric)
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build || echo "::warning::Build failed — checklist will note bundle size as N/A."
+
+      - name: Generate checklist
+        run: node scripts/weekly-review.mjs
+
+      - name: Commit + push
+        run: |
+          set -e
+          if [ -z "$(git status --porcelain docs/weekly-reviews/)" ]; then
+            echo "::notice::Checklist already up to date this week."
+            exit 0
+          fi
+          git config user.name  'wf-weekly-review-bot'
+          git config user.email 'wf-weekly-review-bot@users.noreply.github.com'
+          git add docs/weekly-reviews/
+          git commit -m "Weekly review checklist $(date -u +'%Y-W%V')"
+          git push origin HEAD

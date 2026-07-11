@@ -79,7 +79,14 @@ export default function CardsPage() {
   }
 
   async function saveEdit(id: string) {
-    await supabase.from('profiles').update(editValues).eq('id', id)
+    const { error } = await supabase.from('profiles').update(editValues).eq('id', id)
+    if (error) {
+      // Surface the failure via the same channel the photo upload uses so
+      // admin sees a concrete reason (RLS, network, etc.) instead of an
+      // apparently-successful save that quietly lost their edits.
+      setPhotoError(error.message)
+      return
+    }
     if (id === myProfile?.id) await refreshProfile()
     await loadPlayers()
     setEditingId(null)
@@ -214,7 +221,7 @@ export default function CardsPage() {
                     <button onClick={() => { setEditAgeGroup(selected.age_group ?? AGE_GROUP_DEFAULT); setEditingId('agegroup') }}
                       className="text-xs px-2.5 py-1.5 rounded-lg"
                       style={{ color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
-                      {selected.age_group} · Edit
+                      {selected.age_group ?? 'Set age group'} · Edit
                     </button>
                   )}
                 </div>
@@ -233,7 +240,9 @@ export default function CardsPage() {
                   </button>
                   {selected.photo_url && (
                     <button
-                      onClick={() => deletePhoto(selected.id)}
+                      onClick={() => {
+                        if (confirm(`Remove ${selected.name}'s photo? They'll need to re-upload.`)) deletePhoto(selected.id)
+                      }}
                       className="px-4 py-2.5 rounded-xl text-sm font-semibold"
                       style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}
                     >
@@ -377,7 +386,7 @@ export default function CardsPage() {
                       <button onClick={() => { setEditAgeGroup(selected.age_group ?? AGE_GROUP_DEFAULT); setEditingId('agegroup_admin') }}
                         className="text-xs px-2.5 py-1.5 rounded-lg"
                         style={{ color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
-                        {selected.age_group} · Edit
+                        {selected.age_group ?? 'Set age group'} · Edit
                       </button>
                     )}
                   </div>

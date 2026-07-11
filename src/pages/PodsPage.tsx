@@ -10,7 +10,7 @@ export default function PodsPage() {
 
   return (
     <div className="px-5 py-5">
-      <CeefaxHeader pageId="P701 · FEED" title="PODS" meta="FOOTBALL · POD & NEWS FEED" />
+      <CeefaxHeader pageId="P701 · FEED" title="PODS" meta="FOOTBALL PODCAST PICKS" />
 
       {profile?.favourite_club && (
         <ClubSection clubName={club?.display_name ?? null} clubPods={clubPods} />
