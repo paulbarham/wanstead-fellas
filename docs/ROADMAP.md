@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-07-08 (9 Jul 4-team-night: applied 3 manual swaps to team_drafts to tighten OVR spread 5→3 and put a U30 on every squad — logged as gating "review auto-balance rules" row under Operations — balancer v2)_
+_Last updated: 2026-07-10 (Retired team_awards + player_of_tournament from match reports · added Monthly stats round-up theme covering both a PDF generator on GH cron and a follow-up in-app tab)_
 
 ---
 
@@ -221,6 +221,15 @@ Scheduled background work driven by Claude via the Anthropic API. Runs from GitH
 | Match-report drafter agent (weekly) | 🟢 | chat | Every Fri morning: pulls last night's fixtures + goals + MOTM/DOTD, cross-checks scorers, drafts a structured report per `CLAUDE.md`, posts to a GH issue for admin to review + tick-to-publish. Highest-value repeat task on the calendar. |
 | Sign-up deadline reminder push (via cron) | 🟢 | chat | Wed 20:00 London job → who hasn't signed up + push notification. Same tech stack as cup-audit but pointed at a different query. |
 | Cost + rate-limit budget guard | 🟢 | chat | Prerequisite for **any** future autonomous agent (see cup-audit teardown above): pre-paid Anthropic credit balance. Document per-run cost & monthly spend trend the first time a live agent ships. Rough figure from cup-audit: $0.10-0.30 per non-empty run. |
+
+## 📆 Monthly stats round-up
+
+Auto-generated one-page summary of the month's football — top scorers, MOTM/DOTD leaders, clean sheets, attendance, best predictions, etc. Runs after the last match of the calendar month so admins don't have to author it manually.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| Monthly stats PDF generator (GH Actions cron) | 🟢 | chat 10 Jul | Runs on last-Thursday-of-month + 1 (00:03 BST). Pulls month's fixtures + goals + votes + attendance from Supabase, renders a one-page Wanstead-Fellas-branded PDF via WeasyPrint, commits to `docs/primers/monthly/YYYY-MM.pdf`, opens a PR (or ff-pushes to main). No Anthropic API needed — pure SQL → HTML → PDF, so no credit prerequisite. Shape to be modelled on a reference the admin will share. |
+| In-app "Monthly" tab | 🟢 | chat 10 Jul | Follow-up to the PDF generator. New route `/monthly` (or nested under History) that surfaces the monthly summaries in-app with an archive back through prior months. Same data as the PDF, mobile-friendly render. Ship after the PDF generator is battle-tested and the shape has settled. |
 
 ## 📚 Help centre — in-app how-to guides
 
