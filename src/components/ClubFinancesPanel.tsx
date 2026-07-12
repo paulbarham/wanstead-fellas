@@ -31,6 +31,17 @@ interface Expense {
   paid_at: string | null
 }
 
+interface IncomeItem {
+  id: string
+  date: string
+  source: 'carry_over' | 'spreadsheet_fine' | 'donation' | 'deposit' | 'prize' | 'other'
+  amount: number
+  notes: string | null
+}
+
+interface WtpRow    { player_id: string; match_date: string; amount: number; paid: boolean }
+interface FineRow   { player_id: string; match_date: string | null; type: string; amount: number; paid: boolean }
+
 // April → March. seasonKeyOf(new Date('2026-07-11')) → '2026-27'.
 export function currentSeasonKey(now: Date = new Date()): string {
   const y = now.getFullYear()
@@ -57,6 +68,9 @@ export default function ClubFinancesPanel() {
   const [subs, setSubs] = useState<Subscription[]>([])
   const [profilesById, setProfilesById] = useState<Record<string, Profile>>({})
   const [expenses, setExpenses] = useState<Expense[]>([])
+  const [income, setIncome] = useState<IncomeItem[]>([])
+  const [wtpRows, setWtpRows] = useState<WtpRow[]>([])
+  const [fineRows, setFineRows] = useState<FineRow[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'unpaid' | 'paid'>('all')
   const [addingExpense, setAddingExpense] = useState(false)
@@ -64,9 +78,12 @@ export default function ClubFinancesPanel() {
   const load = useCallback(async () => {
     setLoading(true)
     const { first, last } = seasonBounds(season)
-    const [{ data: subsData }, { data: expData }] = await Promise.all([
+    const [{ data: subsData }, { data: expData }, { data: incData }, { data: wtpData }, { data: fineData }] = await Promise.all([
       supabase.from('club_subscriptions').select('*').eq('season', season).order('paid').order('created_at'),
       supabase.from('club_expenses').select('*').gte('date', first).lte('date', last).order('date', { ascending: false }),
+      supabase.from('club_income').select('*').gte('date', first).lte('date', last).order('date', { ascending: false }),
+      supabase.from('wtp_games').select('player_id, match_date, amount, paid').gte('match_date', first).lte('match_date', last),
+      supabase.from('fines').select('player_id, match_date, type, amount, paid').gte('match_date', first).lte('match_date', last),
     ])
     const subsList = (subsData as Subscription[]) ?? []
     const playerIds = Array.from(new Set(subsList.map(s => s.player_id)))
@@ -78,22 +95,42 @@ export default function ClubFinancesPanel() {
     setSubs(subsList)
     setProfilesById(map)
     setExpenses((expData as Expense[]) ?? [])
+    setIncome((incData as IncomeItem[]) ?? [])
+    setWtpRows((wtpData as WtpRow[]) ?? [])
+    setFineRows((fineData as FineRow[]) ?? [])
     setLoading(false)
   }, [season])
 
   useEffect(() => { load() }, [load])
 
   const summary = useMemo(() => {
-    const potentialIncome = subs.reduce((s, r) => s + Number(r.amount), 0)
-    const collectedIncome = subs.filter(r => r.paid).reduce((s, r) => s + Number(r.amount), 0)
-    const outstandingSubs = potentialIncome - collectedIncome
+    // ── Subs ──
+    const potentialSubs = subs.reduce((s, r) => s + Number(r.amount), 0)
+    const collectedSubs = subs.filter(r => r.paid).reduce((s, r) => s + Number(r.amount), 0)
+    const outstandingSubs = potentialSubs - collectedSubs
+    // ── WTP + fines ──
+    const wtpPaid       = wtpRows.filter(r => r.paid).reduce((s, r) => s + Number(r.amount), 0)
+    const wtpOutstanding= wtpRows.filter(r => !r.paid).reduce((s, r) => s + Number(r.amount), 0)
+    const finesPaid     = fineRows.filter(r => r.paid).reduce((s, r) => s + Number(r.amount), 0)
+    const finesOutstanding = fineRows.filter(r => !r.paid).reduce((s, r) => s + Number(r.amount), 0)
+    // ── Other income (club_income) ──
+    const otherIncome   = income.reduce((s, r) => s + Number(r.amount), 0)
+    // ── Expenses ──
     const totalExpense    = expenses.reduce((s, r) => s + Number(r.amount), 0)
     const paidExpense     = expenses.filter(r => r.paid).reduce((s, r) => s + Number(r.amount), 0)
-    const netBalance      = collectedIncome - paidExpense
+    // ── Roll-ups ──
+    const collectedIncome = collectedSubs + wtpPaid + finesPaid + otherIncome
+    const potentialIncome = potentialSubs + wtpPaid + wtpOutstanding + finesPaid + finesOutstanding + otherIncome
+    const netBalance       = collectedIncome - paidExpense
     const projectedBalance = potentialIncome - totalExpense
-    const subsPaidCount   = subs.filter(r => r.paid).length
-    return { potentialIncome, collectedIncome, outstandingSubs, totalExpense, paidExpense, netBalance, projectedBalance, subsPaidCount }
-  }, [subs, expenses])
+    const subsPaidCount    = subs.filter(r => r.paid).length
+    return {
+      potentialSubs, collectedSubs, outstandingSubs, subsPaidCount,
+      wtpPaid, wtpOutstanding, finesPaid, finesOutstanding, otherIncome,
+      totalExpense, paidExpense,
+      collectedIncome, potentialIncome, netBalance, projectedBalance,
+    }
+  }, [subs, expenses, income, wtpRows, fineRows])
 
   const expensesByMonth = useMemo(() => {
     const map = new Map<string, { total: number; paid: number; rows: Expense[] }>()
@@ -159,22 +196,26 @@ export default function ClubFinancesPanel() {
       <div className="rounded-2xl p-4"
         style={{ background: 'var(--color-surface)', border: `1px solid ${netColor}` }}>
         <p className="text-[10px] uppercase tracking-widest font-semibold mb-1"
-          style={{ color: 'var(--color-text-muted)' }}>Cash position (paid − paid)</p>
+          style={{ color: 'var(--color-text-muted)' }}>Cash in pot (income − expenses paid)</p>
         <p className="font-display text-4xl leading-none" style={{ color: netColor }}>
           {gbp(summary.netBalance)}
         </p>
-        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>
-          <span style={{ color: 'var(--tt-green)' }}>{gbp(summary.collectedIncome)}</span> subs collected
-          {' · '}
-          <span style={{ color: 'var(--color-error-text)' }}>{gbp(summary.paidExpense)}</span> expenses paid
-        </p>
+        <div className="text-[11px] mt-3 space-y-0.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
+          <div className="flex justify-between"><span>Subs collected</span><span style={{ color: 'var(--tt-green)' }}>+{gbp(summary.collectedSubs)}</span></div>
+          <div className="flex justify-between"><span>WTP collected</span><span style={{ color: 'var(--tt-green)' }}>+{gbp(summary.wtpPaid)}</span></div>
+          <div className="flex justify-between"><span>Fines collected</span><span style={{ color: 'var(--tt-green)' }}>+{gbp(summary.finesPaid)}</span></div>
+          {summary.otherIncome > 0 && (
+            <div className="flex justify-between"><span>Other income</span><span style={{ color: 'var(--tt-green)' }}>+{gbp(summary.otherIncome)}</span></div>
+          )}
+          <div className="flex justify-between"><span>Expenses paid</span><span style={{ color: 'var(--color-error-text)' }}>−{gbp(summary.paidExpense)}</span></div>
+        </div>
         <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
           <p className="text-[10px] uppercase tracking-widest font-semibold mb-1"
             style={{ color: 'var(--color-text-muted)' }}>Projected end-of-season</p>
           <p className="text-sm font-semibold" style={{ color: projColor }}>
             {gbp(summary.projectedBalance)}
             <span className="ml-2 font-normal text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              (all subs collected − all expenses)
+              (all income − all expenses)
             </span>
           </p>
         </div>
