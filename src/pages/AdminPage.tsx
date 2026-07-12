@@ -10,6 +10,7 @@ import PlayerTypeBadge from '../components/PlayerTypeBadge'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import AdminFinancePanel from '../components/AdminFinancePanel'
 import AdminProfileAudit from '../components/AdminProfileAudit'
+import ClubFinancesPanel from '../components/ClubFinancesPanel'
 import PositionAdoptionTracker from '../components/PositionAdoptionTracker'
 import AdminCsvImport from '../components/AdminCsvImport'
 
@@ -64,7 +65,7 @@ interface FeedbackWithPlayer extends Feedback {
 export default function AdminPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'players' | 'finance' | 'feedback' | 'families' | 'audit'>('players')
+  const [tab, setTab] = useState<'players' | 'finance' | 'club' | 'feedback' | 'families' | 'audit'>('players')
 
   useEffect(() => {
     if (profile && !profile.is_admin) navigate('/', { replace: true })
@@ -81,7 +82,7 @@ export default function AdminPage() {
 
       {/* Tab toggle */}
       <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        {(['players', 'finance', 'families', 'feedback', 'audit'] as const).map(t => (
+        {(['players', 'finance', 'club', 'families', 'feedback', 'audit'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -91,13 +92,14 @@ export default function AdminPage() {
               color: tab === t ? 'white' : '#666',
             }}
           >
-            {t === 'players' ? 'Players' : t === 'finance' ? 'Finance' : t === 'families' ? 'Families' : t === 'feedback' ? 'Feedback' : 'Audit'}
+            {t === 'players' ? 'Players' : t === 'finance' ? 'Finance' : t === 'club' ? 'Club' : t === 'families' ? 'Families' : t === 'feedback' ? 'Feedback' : 'Audit'}
           </button>
         ))}
       </div>
 
       {tab === 'players' ? <PlayersPanel />
         : tab === 'finance' ? <AdminFinancePanel />
+        : tab === 'club' ? <ClubFinancesPanel />
         : tab === 'families' ? <FamiliesPanel />
         : tab === 'feedback' ? <FeedbackPanel />
         : <AdminProfileAudit />}
