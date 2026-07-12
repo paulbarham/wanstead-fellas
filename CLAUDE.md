@@ -55,6 +55,23 @@ Both live in `docs/primers/`. The index in `docs/primers/README.md` flags each r
 - Edge functions in `supabase/functions/`.
 - The Wanstead Fellas project ID is `qvvlxjftrteyrsscqidc`.
 
+## Known data quirks
+
+Small set of one-off arrangements that don't follow the schema's normal rules — worth knowing before touching subs / finance / player_type logic.
+
+### Felix Baker shares Guy Baker's subscription
+
+Felix's `profiles.player_type` flips between `subscribed` and `wtp` week-on-week depending on whether Guy is also playing:
+
+- Only Felix (or only Guy) plays → Felix is on Guy's sub, no charge
+- Both play → Felix is toggled to `wtp` for that week → the existing WTP trigger charges him £5
+
+Implications for `club_subscriptions`:
+
+- Felix should **never** have a £95 sub row for the season — Guy's covers both.
+- If a future migration or admin flow re-seeds subs (e.g. April 2027 season rollover), **remove Felix's row again** after seeding. The other 4 parent-child pairs (Paul→Stan, Paul→Callum, Stephen→Joseph, Sheridan→Mikel) all pay their own £95 as normal — Felix is the only exception.
+- Longer-term fix (roadmap): `shared_with_id` column on `club_subscriptions` so the arrangement is explicit and survives re-seeds. Deferred until it becomes more than one player.
+
 ## Match reports — always use the structured JSON shape
 
 When writing or editing a match report on the `results` row, **populate the structured fields, not `report_text`**. The Match tab + History tab render the JSON fields via dedicated components (`PredictedVsActual`, `MatchResultView`, etc); `report_text` is a legacy free-prose field and should be left `NULL` going forward. The reference shape (see 18 Jun and 11 Jun for canonical examples):
