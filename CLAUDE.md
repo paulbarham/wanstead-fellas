@@ -82,19 +82,22 @@ Implications for `club_subscriptions`:
 - If a re-seed sets them back to 95 (the default), correct to 47.50 again — no other special treatment needed.
 - The half-sub arrangement is currently just data (`amount` column), not schema — no rules engine, no player flag. If a fourth half-sub joins, just set the amount at 47.50 with the same note.
 
-### Pitch hire is billed monthly at £67.80 per Thursday
+### Pitch hire has two rates depending on the date
 
-Actual invoicing (per bank statements, confirmed 12 Jul):
+Confirmed against bank statements + the Pitchbooker subscription screen on 12 Jul:
 
-- One invoice per month, covering all Thursdays that month
-- Rate is **£67.80 per Thursday** (not £70.17 — the v1 migration guessed and got it wrong)
-- Paid by admin's personal account, reimbursed by subs collected
-- Recent invoices: Apr £339 (5 Thursdays), May £271.20 (4), Jun £271.20 (4), Jul £339 (5)
+- **Pre-subscription (Apr 2026 → 27 Aug 2026)**: **£67.80 per Thursday**, invoiced monthly, paid by admin's personal account. Historic invoices: Apr £339 (5 Thu), May £271.20 (4), Jun £271.20 (4), Jul £339 (5), Aug £271.20 (4 — upcoming).
+- **Pitchbooker subscription (from 3 Sept 2026 onwards)**: **£70.17 per week** for Eton Manor Half 1 + Half 2, 9:00pm-10:00pm every Thursday. Booked 3 Jun 2026, valid indefinite.
+- **Only 24 Dec 2026 is excluded** from the subscription per Pitchbooker (New Year's Eve 31 Dec 2026 is NOT excluded — matches still played that week).
+
+Season pre-seed (Aug 2026 → Mar 2027 upcoming rows in `club_expenses`, paid=false):
+
+- Aug £271.20 · Sep £280.68 · Oct £350.85 · Nov £280.68 · Dec £280.68 · Jan £280.68 · Feb £280.68 · Mar £280.68 = **£2,306.13 remaining pitch cost**.
 
 Implications:
 
-- Migration 053 dropped the v1 per-match auto-generation trigger — the model was wrong (per-match rather than per-month, and £2.37 off per Thursday). Going forward, add each monthly pitch invoice via the admin **+ Add** button on Club Finances (or a future cron on the 1st of each month).
-- Historic Apr-Jul 2026 rows in `club_expenses` are the real invoiced amounts with actual paid dates.
+- Migration 053 dropped the v1 per-match auto-generation trigger — the model was wrong (per-match rather than per-month, and off on the rate). Going forward, tick each monthly pitch invoice **paid** via the admin panel when the withdrawal hits the bank.
+- Rate change to £70.17 might tick up further under future Pitchbooker renewals — check the subscription screen if the amount looks off vs the seeded expectation.
 
 ### club_income has a £331 season-transition catch-all row
 
