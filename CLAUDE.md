@@ -96,6 +96,17 @@ Implications:
 - Migration 053 dropped the v1 per-match auto-generation trigger — the model was wrong (per-match rather than per-month, and £2.37 off per Thursday). Going forward, add each monthly pitch invoice via the admin **+ Add** button on Club Finances (or a future cron on the 1st of each month).
 - Historic Apr-Jul 2026 rows in `club_expenses` are the real invoiced amounts with actual paid dates.
 
+### club_income has a £331 season-transition catch-all row
+
+One row in `club_income` for the 2026-27 season, dated 1 Apr, source `carry_over`, amount **£331**. It's the sum of every bank credit that couldn't be attributed to a specific app row during the 12 Jul reconciliation. Includes:
+
+- Overpayments bundled with subs (Davies `sub & owed` £65 extra, Sherman `+ father settlement` £40 extra, Perrie's May invoice £25, etc.)
+- Past-season settlements paid after 1 Apr — person-labelled May/Jun payments not matched to specific `wtp_games` rows
+- **Josh Edwards £10 sub discount** for his 2 pre-app April WTPs (why the bank shows £85 sub not £95)
+- Off-app spreadsheet fines cleared before the auto-fine flow shipped
+
+If admin ever wants per-player granularity restored, walk each bank line back to a specific app row (mark `wtp_games` paid / add missing fines / add explicit `club_income` entries) and the catch-all will shrink accordingly. For 2026-27 leave it as-is — the pot is right, the audit trail is captured, and going forward every bank credit goes through the app first so the number should stay flat or drop.
+
 ### Chay Samuels has a duplicate profile (needs merging)
 
 Two `profiles` rows exist for Chay Samuels — same name, no way to tell them apart in the UI:
