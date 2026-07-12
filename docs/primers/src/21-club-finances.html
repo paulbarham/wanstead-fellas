@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Club Finances</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · CLUB FINANCES · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.mag   { background: rgba(255,102,204,0.07); border-left-color: #FF66CC; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  .kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    border: 1px solid rgba(74,217,255,0.25);
+  }
+
+  /* ─── Pot-at-a-glance tiles ───────────────────── */
+  .pot {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .pot .tile {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 8pt;
+    vertical-align: top;
+    text-align: center;
+  }
+  .pot .tile.now   { border-color: #4ADC7A; }
+  .pot .tile.in    { border-color: #4AD9FF; }
+  .pot .tile.out   { border-color: #FF66CC; }
+  .pot .tile.proj  { border-color: #FFD400; }
+  .pot .tile .cap {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #9CA897;
+  }
+  .pot .tile .num {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 18pt; line-height: 1.1;
+    margin: 3pt 0;
+  }
+  .pot .tile.now  .num { color: #4ADC7A; }
+  .pot .tile.in   .num { color: #4AD9FF; }
+  .pot .tile.out  .num { color: #FF66CC; }
+  .pot .tile.proj .num { color: #FFD400; }
+  .pot .tile .note { font-size: 8pt; color: #9CA897; }
+
+  /* ─── Flow table (what folds in / out) ─────────── */
+  .flow { width: 100%; border-collapse: collapse; margin: 6pt 0; }
+  .flow th {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.08em; color: #4AD9FF;
+    text-align: left; padding: 4pt 6pt; border-bottom: 1px solid #2D4A2F;
+  }
+  .flow th.r { text-align: right; }
+  .flow td { font-size: 9.5pt; padding: 4pt 6pt; border-bottom: 1px solid #1c2a1f; color: #E8F0E9; vertical-align: top; }
+  .flow td.r { text-align: right; font-family: 'Courier New', monospace; }
+  .flow td.plus  { color: #4ADC7A; font-weight: 700; }
+  .flow td.minus { color: #FF66CC; font-weight: 700; }
+  .flow tr.total td {
+    border-top: 2pt solid #2D4A2F;
+    border-bottom: none;
+    padding-top: 6pt;
+    font-weight: 700;
+    color: #FFD400;
+  }
+  .flow .src { font-size: 8pt; color: #9CA897; display: block; }
+
+  /* ─── Quirks 2-col ─────────────────────────────── */
+  .quirks {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .quirks .qk {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+    font-size: 9pt;
+  }
+  .quirks .qk h4 {
+    margin: 0 0 3pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #FFD400;
+  }
+
+  /* ─── Pitch-rate strip ─────────────────────────── */
+  .rate {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .rate .cell {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+  }
+  .rate .cell.pre  { border-color: #4AD9FF; }
+  .rate .cell.post { border-color: #FFD400; }
+  .rate .cell h4 {
+    margin: 0 0 3pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .rate .cell.pre  h4 { color: #4AD9FF; }
+  .rate .cell.post h4 { color: #FFD400; }
+  .rate .cell .big {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 16pt; margin: 2pt 0;
+  }
+  .rate .cell.pre  .big { color: #4AD9FF; }
+  .rate .cell.post .big { color: #FFD400; }
+  .rate .cell .sm { font-size: 8.5pt; color: #9CA897; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Club Finances · Update</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P521 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>TL;DR</strong> — Every sub, WTP fee, fine, pitch invoice and off-app credit now lives in the app, folded into a single running balance on the new <span class="kbd">Admin → Club</span> tab. As of <strong>12 Jul 2026</strong> the app agrees with the <em>Wanstead Fellas Treasury</em> bank pot <strong>to the penny</strong> — and we can now project the end-of-season position for the first time.
+</div>
+
+<h2>The pot at a glance</h2>
+
+<div class="pot">
+  <div class="tile now">
+    <div class="cap">Today (12 Jul)</div>
+    <div class="num">£3,089</div>
+    <div class="note">matches bank pot</div>
+  </div>
+  <div class="tile in">
+    <div class="cap">Still to collect</div>
+    <div class="num">£85</div>
+    <div class="note">unpaid WTP + fines</div>
+  </div>
+  <div class="tile out">
+    <div class="cap">Remaining pitch</div>
+    <div class="num">£2,306</div>
+    <div class="note">Aug 2026 → Mar 2027</div>
+  </div>
+  <div class="tile proj">
+    <div class="cap">Projected end-of-season</div>
+    <div class="num">£868</div>
+    <div class="note">before any new spend</div>
+  </div>
+</div>
+
+<h2>Where it lives</h2>
+<p>Everything is on the new <strong>Club</strong> tab inside Admin (between Finance and Families). Three sections stacked:</p>
+<ul>
+  <li><strong>Balance callout</strong> — the live pot, computed on the fly from every source below.</li>
+  <li><strong>Subscriptions</strong> — one row per subscribed player for the 2026-27 season, with a <em>Mark paid</em> toggle. All subs are already ticked off — nothing outstanding.</li>
+  <li><strong>Expenses by month</strong> — every pitch invoice (Apr–Jul paid, Aug–Mar pre-seeded unpaid), the pre-season footballs, and an <em>Add expense</em> button for ad-hoc items (equipment, food, tournament, other).</li>
+</ul>
+
+<h2>What folds in, what folds out</h2>
+
+<table class="flow">
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>What it is</th>
+      <th class="r">Season to date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Subs</td>
+      <td>£95/season × subscribed players (a few on £47.50 half-subs)<span class="src">table: club_subscriptions</span></td>
+      <td class="r plus">+ £4,132.50</td>
+    </tr>
+    <tr>
+      <td>WTP fees</td>
+      <td>£5 per pay-per-play appearance, auto-charged from the roster<span class="src">table: wtp_games (auto-generated)</span></td>
+      <td class="r plus">+ £110</td>
+    </tr>
+    <tr>
+      <td>Fines</td>
+      <td>Late sign-up / late cancellation, auto-charged<span class="src">table: fines (auto-generated)</span></td>
+      <td class="r plus">+ £53</td>
+    </tr>
+    <tr>
+      <td>Other income</td>
+      <td>Season-transition carry-over + off-app spreadsheet fines (see below)<span class="src">table: club_income</span></td>
+      <td class="r plus">+ £331</td>
+    </tr>
+    <tr>
+      <td>Pitch hire</td>
+      <td>Apr–Jul monthly invoices, paid from admin's account and reimbursed<span class="src">table: club_expenses (category = pitch_hire)</span></td>
+      <td class="r minus">− £1,220.40</td>
+    </tr>
+    <tr>
+      <td>Equipment</td>
+      <td>10× match balls, purchased 26 Mar for start of season<span class="src">table: club_expenses (category = equipment)</span></td>
+      <td class="r minus">− £81</td>
+    </tr>
+    <tr class="total">
+      <td colspan="2">= Today's balance (folds to bank pot)</td>
+      <td class="r">£3,089.10</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout cyan">
+  <strong>Why "folds to bank pot" matters.</strong> Before this feature, cash was tracked in a mix of spreadsheets and my head. Now the app <em>is</em> the source of truth — every credit and debit on the <em>Wanstead Fellas Treasury</em> statement maps to a row inside the app, and any drift shows up on this tab straight away.
+</div>
+
+<h2>The reconciliation story</h2>
+<p>Rolling every bank line back to a specific app row uncovered <strong>£331</strong> of income that had no home — a one-off catch-all that now sits as a single <span class="kbd">club_income</span> row dated 1 Apr 2026. Composed of:</p>
+<ul>
+  <li>Overpayments bundled with subs (Davies +£65, Sherman +£40, Perrie +£25, etc.)</li>
+  <li>Past-season settlements paid after 1 Apr — labelled May/Jun payments not tied to specific WTP rows</li>
+  <li>Josh Edwards' <strong>£10 sub discount</strong> for his 2 pre-app April WTPs (why the bank shows £85 not £95)</li>
+  <li>Off-app spreadsheet fines cleared before the auto-fine flow shipped</li>
+</ul>
+<p style="font-size:9.5pt; color:#9CA897;">Going forward this number should stay flat or shrink — every new bank credit lands via the app first. If we ever want per-player granularity restored, we walk each May/Jun bank line back to a specific WTP row and the catch-all decreases accordingly.</p>
+
+<h2>Pitch hire — the split rate</h2>
+
+<div class="rate">
+  <div class="cell pre">
+    <h4>Apr → 27 Aug 2026</h4>
+    <div class="big">£67.80</div>
+    <div class="sm">per Thursday, invoiced <strong>monthly</strong> — Pitchbooker ad-hoc bookings, paid by admin's card and reimbursed from the treasury</div>
+  </div>
+  <div class="cell post">
+    <h4>3 Sept 2026 onwards</h4>
+    <div class="big">£70.17</div>
+    <div class="sm">per week, <strong>Pitchbooker subscription</strong> — Eton Manor Half 1 + 2, 9–10pm every Thursday, valid indefinite. Only <strong>24 Dec 2026</strong> excluded</div>
+  </div>
+</div>
+
+<p style="font-size:9.5pt; color:#9CA897;">All 8 upcoming monthly rows (Aug £271.20 · Sep £280.68 · Oct £350.85 · Nov–Mar £280.68 each) are already seeded and unpaid — tick each one as its withdrawal hits the bank. Total remaining: <strong>£2,306.13</strong>.</p>
+
+<h2>Known quirks (already handled)</h2>
+
+<div class="quirks">
+  <div class="qk">
+    <h4>Felix Baker</h4>
+    Shares his dad Guy's £95 sub. When both play the same week he flips to WTP and gets charged £5 instead. <strong>No sub row for Felix.</strong>
+  </div>
+  <div class="qk">
+    <h4>Half subs (×3)</h4>
+    Aaron, Beau and Chay each pay <strong>£47.50</strong> for the season. Long-standing arrangement — data-only, no schema flag. Fourth one? Just set <em>amount = 47.50</em>.
+  </div>
+  <div class="qk">
+    <h4>The £331 carry-over</h4>
+    Single 1-Apr row in <em>club_income</em> capturing everything that pre-dates the auto-flows. Sits in <em>Add expense → source dropdown</em> as <strong>carry_over</strong> if we ever need to add more.
+  </div>
+  <div class="qk">
+    <h4>Chay's duplicate profile</h4>
+    Two rows for the same person, from before he auth'd. The older stub gets merged into the auth-owning one in the next data-cleanup pass — same pattern as the Chris Hughes fix.
+  </div>
+</div>
+
+<h2>What's coming next</h2>
+<ul>
+  <li><strong>Player-facing sub card</strong> on Profile — "You paid £95 on 04 Apr 2026 · you're good until Mar 2027" — so the sub status is visible to the fella not just the admin.</li>
+  <li><strong>Admin UI for club_income</strong> — currently SQL-only; a simple form so donations / prizes / one-off credits can be logged without a migration.</li>
+  <li><strong>Monthly pitch-invoice auto-cron</strong> — a job on the 1st of each month drops in the next unpaid pitch row so it never has to be manual.</li>
+  <li><strong>Match line-by-line settlement</strong> — optional data hygiene pass to walk each May/Jun WTP bank line back to a specific row and shrink the £331 catch-all towards zero.</li>
+</ul>
+
+<hr>
+
+<div class="closer">
+  App balance <strong>= £3,089.10</strong> · Bank pot <strong>= £3,089.10</strong> · Projected March close <strong>≈ £868</strong>.<br>
+  Questions on any number → admin in the WhatsApp group · Suggestions → <span class="kbd">More → Feedback</span>.
+</div>
+
+</body>
+</html>
