@@ -72,6 +72,25 @@ Implications for `club_subscriptions`:
 - If a future migration or admin flow re-seeds subs (e.g. April 2027 season rollover), **remove Felix's row again** after seeding. The other 4 parent-child pairs (Paul→Stan, Paul→Callum, Stephen→Joseph, Sheridan→Mikel) all pay their own £95 as normal — Felix is the only exception.
 - Longer-term fix (roadmap): `shared_with_id` column on `club_subscriptions` so the arrangement is explicit and survives re-seeds. Deferred until it becomes more than one player.
 
+### Aaron Franklin, Beau Samuels and Chay Samuels are on half subs
+
+Long-standing arrangement — these three pay **£47.50 instead of £95** for the season.
+
+Implications for `club_subscriptions`:
+
+- Their rows carry `amount = 47.50` and `notes` explaining the arrangement.
+- If a re-seed sets them back to 95 (the default), correct to 47.50 again — no other special treatment needed.
+- The half-sub arrangement is currently just data (`amount` column), not schema — no rules engine, no player flag. If a fourth half-sub joins, just set the amount at 47.50 with the same note.
+
+### Chay Samuels has a duplicate profile (needs merging)
+
+Two `profiles` rows exist for Chay Samuels — same name, no way to tell them apart in the UI:
+
+- `0736e129-caa6-4c03-bc4a-2db3abbb2437` — older (17 May), no auth, rostered once by admin manually
+- `e91738a7-1de7-41ec-877f-feebcc08c62c` — newer (23 Jun), owns the auth account, has age_group set
+
+The newer profile is the "real" one. The one team_players row on the older stub should be moved over (`UPDATE team_players SET player_id = <new> WHERE player_id = <old>`), then the stub deleted (same pattern as the Chris Hughes merge, task #36). Not urgent — surfaced during the sub half-price setup on 12 Jul. Add to the finance/data cleanup batch next time we're in there.
+
 ## Match reports — always use the structured JSON shape
 
 When writing or editing a match report on the `results` row, **populate the structured fields, not `report_text`**. The Match tab + History tab render the JSON fields via dedicated components (`PredictedVsActual`, `MatchResultView`, etc); `report_text` is a legacy free-prose field and should be left `NULL` going forward. The reference shape (see 18 Jun and 11 Jun for canonical examples):
