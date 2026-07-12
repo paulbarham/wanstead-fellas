@@ -59,6 +59,7 @@ export default function ClubFinancesPanel() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'unpaid' | 'paid'>('all')
+  const [addingExpense, setAddingExpense] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -246,14 +247,29 @@ export default function ClubFinancesPanel() {
 
       {/* ── Expenses by month ─────────────────────────────────────── */}
       <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
-          <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--tt-yellow)' }}>
-            🏟️ Expenses by month
-          </p>
-          <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-            Pitch hire auto-generates £{Number(70.17).toFixed(2)} per match ({expenses.length} row{expenses.length === 1 ? '' : 's'} this season)
-          </p>
+        <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+          <div>
+            <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--tt-yellow)' }}>
+              🏟️ Expenses by month
+            </p>
+            <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+              {expenses.length} row{expenses.length === 1 ? '' : 's'} this season · monthly pitch invoice + ad-hoc
+            </p>
+          </div>
+          <button onClick={() => setAddingExpense(v => !v)}
+            className="text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider"
+            style={{ background: addingExpense ? 'var(--color-surface-2)' : 'var(--color-primary)',
+                     color: addingExpense ? 'var(--color-text-muted)' : 'var(--color-surface)',
+                     border: `1px solid ${addingExpense ? 'var(--color-border)' : 'var(--color-primary)'}` }}>
+            {addingExpense ? 'Cancel' : '+ Add'}
+          </button>
         </div>
+        {addingExpense && (
+          <AddExpenseForm
+            onCancel={() => setAddingExpense(false)}
+            onSaved={async () => { setAddingExpense(false); await load() }}
+          />
+        )}
         {expensesByMonth.length === 0 ? (
           <div className="px-4 py-6 text-center text-xs" style={{ color: 'var(--color-text-muted)' }}>
             No expenses recorded this season.
@@ -274,6 +290,86 @@ export default function ClubFinancesPanel() {
           <p className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>Total expenses this season</p>
           <p className="text-base font-semibold" style={{ color: 'var(--color-error-text)' }}>{gbp(summary.totalExpense)}</p>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function AddExpenseForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: () => void }) {
+  const today = new Date().toISOString().slice(0, 10)
+  const [date, setDate] = useState(today)
+  const [category, setCategory] = useState<Expense['category']>('pitch_hire')
+  const [amount, setAmount] = useState('')
+  const [notes, setNotes] = useState('')
+  const [paid, setPaid] = useState(true)  // most expenses are entered after payment
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function submit() {
+    const n = Number(amount)
+    if (!Number.isFinite(n) || n <= 0) { setError('Amount must be > 0'); return }
+    setSaving(true); setError(null)
+    const { error: e } = await supabase.from('club_expenses').insert({
+      date, category, amount: n, notes: notes.trim() || null,
+      paid, paid_at: paid ? date : null,
+    })
+    setSaving(false)
+    if (e) { setError(e.message); return }
+    onSaved()
+  }
+
+  return (
+    <div className="px-4 py-3 space-y-2.5" style={{ background: 'var(--color-surface-2)', borderBottom: '1px solid var(--color-border)' }}>
+      <div className="flex gap-2">
+        <label className="flex flex-col gap-1 flex-1 min-w-0">
+          <span className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>Date</span>
+          <input type="date" value={date} onChange={e => setDate(e.target.value)}
+            className="rounded-lg px-2 py-1.5 text-xs"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }} />
+        </label>
+        <label className="flex flex-col gap-1 flex-1 min-w-0">
+          <span className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>Category</span>
+          <select value={category} onChange={e => setCategory(e.target.value as Expense['category'])}
+            className="rounded-lg px-2 py-1.5 text-xs"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>
+            <option value="pitch_hire">Pitch hire</option>
+            <option value="equipment">Equipment</option>
+            <option value="food">Food / drinks</option>
+            <option value="tournament">Tournament</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1" style={{ width: 90 }}>
+          <span className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>Amount £</span>
+          <input type="number" step="0.01" min="0" inputMode="decimal" value={amount}
+            onChange={e => setAmount(e.target.value)} placeholder="0.00"
+            className="rounded-lg px-2 py-1.5 text-xs text-right tabular-nums"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }} />
+        </label>
+      </div>
+      <label className="flex flex-col gap-1">
+        <span className="text-[9px] uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>Notes (optional)</span>
+        <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
+          placeholder="e.g. Aug pitch hire · 4 Thursdays × £67.80"
+          className="rounded-lg px-2 py-1.5 text-xs"
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }} />
+      </label>
+      <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text)' }}>
+        <input type="checkbox" checked={paid} onChange={e => setPaid(e.target.checked)} />
+        <span>Mark paid today (uncheck to log an upcoming expense)</span>
+      </label>
+      {error && <p className="text-xs" style={{ color: 'var(--color-error-text)' }}>{error}</p>}
+      <div className="flex gap-2">
+        <button onClick={submit} disabled={saving || !amount}
+          className="flex-1 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+          style={{ background: 'var(--color-primary)', color: 'var(--color-surface)' }}>
+          {saving ? 'Saving…' : 'Add expense'}
+        </button>
+        <button onClick={onCancel}
+          className="px-3 py-2 rounded-lg text-xs font-semibold"
+          style={{ background: 'transparent', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
+          Cancel
+        </button>
       </div>
     </div>
   )

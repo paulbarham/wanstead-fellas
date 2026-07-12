@@ -82,6 +82,20 @@ Implications for `club_subscriptions`:
 - If a re-seed sets them back to 95 (the default), correct to 47.50 again — no other special treatment needed.
 - The half-sub arrangement is currently just data (`amount` column), not schema — no rules engine, no player flag. If a fourth half-sub joins, just set the amount at 47.50 with the same note.
 
+### Pitch hire is billed monthly at £67.80 per Thursday
+
+Actual invoicing (per bank statements, confirmed 12 Jul):
+
+- One invoice per month, covering all Thursdays that month
+- Rate is **£67.80 per Thursday** (not £70.17 — the v1 migration guessed and got it wrong)
+- Paid by admin's personal account, reimbursed by subs collected
+- Recent invoices: Apr £339 (5 Thursdays), May £271.20 (4), Jun £271.20 (4), Jul £339 (5)
+
+Implications:
+
+- Migration 053 dropped the v1 per-match auto-generation trigger — the model was wrong (per-match rather than per-month, and £2.37 off per Thursday). Going forward, add each monthly pitch invoice via the admin **+ Add** button on Club Finances (or a future cron on the 1st of each month).
+- Historic Apr-Jul 2026 rows in `club_expenses` are the real invoiced amounts with actual paid dates.
+
 ### Chay Samuels has a duplicate profile (needs merging)
 
 Two `profiles` rows exist for Chay Samuels — same name, no way to tell them apart in the UI:
