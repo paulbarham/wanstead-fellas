@@ -32,4 +32,4 @@ CREATE POLICY club_income_admin_all ON public.club_income
 -- debts settled after 1 Apr + fines tracked on a manual spreadsheet
 -- before the auto-fine flow shipped.
 INSERT INTO public.club_income (date, source, amount, notes) VALUES
-  ('2026-04-01', 'carry_over', 321.00, 'Season-transition reconciliation · off-app carry-over debts + pre-app spreadsheet fines. Aligns app balance to bank pot on 12 Jul 2026 (£3,079.10).');
+  ('2026-04-01', 'carry_over', 331.00, 'Season-transition reconciliation · off-app carry-over debts + pre-app spreadsheet fines. Aligns app to Wanstead Fellas Treasury bank pot on 12 Jul 2026 (£3,089.10). Cross-checked against every bank transaction from 18 Mar onwards.');
