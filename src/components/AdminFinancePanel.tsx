@@ -191,6 +191,9 @@ export default function AdminFinancePanel() {
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [markingPaid, setMarkingPaid] = useState<string | null>(null)
+  // Set of "playerId::monthKey" strings currently being marked to disable
+  // the button + prevent double-clicks while the update round-trips.
+  const [markingMonth, setMarkingMonth] = useState<Set<string>>(new Set())
 
   // Fine entry form
   const [showFineForm, setShowFineForm] = useState(false)
@@ -258,6 +261,22 @@ export default function AdminFinancePanel() {
   const grandLostBall = summaries.reduce((s, r) => s + r.lostBallOwed, 0)
   const grandCun = summaries.reduce((s, r) => s + r.cunOwed, 0)
   const grandDropout = summaries.reduce((s, r) => s + r.dropoutOwed, 0)
+
+  // Clear a single prior month's outstanding WTP + fines in one shot —
+  // the common admin flow when someone drops a Revolut transfer for their
+  // June balance and admin just needs to tick it off.
+  async function markMonthPaid(summary: PlayerSummary, monthKey: string) {
+    const key = `${summary.player.id}::${monthKey}`
+    setMarkingMonth(prev => new Set(prev).add(key))
+    const fineIds = summary.priorFines.filter(f => (f.match_date ?? '').startsWith(monthKey)).map(f => f.id)
+    const gameIds = summary.priorWtpGames.filter(g => g.match_date.startsWith(monthKey)).map(g => g.id)
+    await Promise.all([
+      fineIds.length > 0 ? supabase.from('fines').update({ paid: true }).in('id', fineIds) : Promise.resolve(),
+      gameIds.length > 0 ? supabase.from('wtp_games').update({ paid: true }).in('id', gameIds) : Promise.resolve(),
+    ])
+    await loadData()
+    setMarkingMonth(prev => { const n = new Set(prev); n.delete(key); return n })
+  }
 
   async function markAllPaid(summary: PlayerSummary) {
     setMarkingPaid(summary.player.id)
@@ -722,10 +741,11 @@ export default function AdminFinancePanel() {
                       </div>
                     )}
 
-                    {/* Prior-month unpaid rows — grouped by month so admin
-                        can tick individual carryover items. Without this
-                        the June rows contributing to "+£X prior" are only
-                        visible by navigating back a month. */}
+                    {/* Prior-month rollup — one line per month with a single
+                        Mark Paid button that clears every unpaid row for that
+                        month in one click. The itemised breakdown lives on
+                        the player's own MyFinances view (audit trail); the
+                        admin doesn't need to re-tick each £5 individually. */}
                     {(s.priorWtpGames.length > 0 || s.priorFines.length > 0) && (() => {
                       const byMonth = new Map<string, { label: string; wtp: WtpGame[]; fines: Fine[] }>()
                       for (const g of s.priorWtpGames) {
@@ -741,64 +761,35 @@ export default function AdminFinancePanel() {
                       }
                       const monthKeys = Array.from(byMonth.keys()).sort()
                       return (
-                        <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <div className="px-3 py-2.5" style={{ borderBottom: '1px solid var(--color-border)' }}>
                           <p className="text-xs mb-2 uppercase tracking-wider" style={{ color: '#C9A227' }}>
                             Prior · {gbp(s.priorOwed)} carryover
                           </p>
-                          <div className="space-y-2.5">
+                          <div className="space-y-2">
                             {monthKeys.map(k => {
                               const bucket = byMonth.get(k)!
+                              const total = bucket.wtp.reduce((a, g) => a + Number(g.amount), 0)
+                                + bucket.fines.reduce((a, f) => a + Number(f.amount), 0)
+                              const parts: string[] = []
+                              if (bucket.wtp.length > 0) parts.push(`${bucket.wtp.length}× WTP`)
+                              if (bucket.fines.length > 0) parts.push(`${bucket.fines.length}× fine${bucket.fines.length > 1 ? 's' : ''}`)
+                              const busy = markingMonth.has(`${s.player.id}::${k}`)
                               return (
-                                <div key={k} className="space-y-1.5">
-                                  <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#9CA897' }}>
-                                    {bucket.label}
-                                  </p>
-                                  {bucket.wtp.map(g => (
-                                    <div key={g.id} className="flex items-center gap-2">
-                                      <button onClick={() => toggleGamePaid(g)}
-                                        className="text-xs px-2.5 py-1 rounded font-semibold flex-shrink-0"
-                                        style={{ background: 'var(--color-primary)', color: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
-                                        Mark Paid
-                                      </button>
-                                      <span className="flex-1 text-xs" style={{ color: '#ccc' }}>
-                                        WTP · {format(new Date(g.match_date + 'T12:00:00'), 'EEE do MMM')}
-                                      </span>
-                                      <span className="text-xs" style={{ color: '#C9A227' }}>
-                                        £{Number(g.amount).toFixed(2)}
-                                      </span>
-                                      <button onClick={() => deleteWtpGame(g.id)}
-                                        className="text-xs px-1.5 py-0.5 rounded"
-                                        style={{ color: 'var(--color-error-border)', border: '1px solid #3a1010' }}>
-                                        ✕
-                                      </button>
-                                    </div>
-                                  ))}
-                                  {bucket.fines.map(f => (
-                                    <div key={f.id} className="flex items-center gap-2">
-                                      <button onClick={() => toggleFinePaid(f)}
-                                        className="text-xs px-2.5 py-1 rounded font-semibold flex-shrink-0"
-                                        style={{ background: 'var(--color-primary)', color: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
-                                        Mark Paid
-                                      </button>
-                                      <div className="flex-1 min-w-0">
-                                        <span className="text-xs" style={{ color: '#ccc' }}>
-                                          {fineLabel(f.type)}
-                                          {f.match_date && ` · ${format(new Date(f.match_date + 'T12:00:00'), 'do MMM')}`}
-                                        </span>
-                                        {f.notes && (
-                                          <p className="text-xs truncate" style={{ color: '#9CA897' }}>{f.notes}</p>
-                                        )}
-                                      </div>
-                                      <span className="text-xs" style={{ color: '#DC2626' }}>
-                                        £{Number(f.amount).toFixed(2)}
-                                      </span>
-                                      <button onClick={() => deleteFine(f.id)}
-                                        className="text-xs px-1.5 py-0.5 rounded"
-                                        style={{ color: 'var(--color-error-border)', border: '1px solid #3a1010' }}>
-                                        ✕
-                                      </button>
-                                    </div>
-                                  ))}
+                                <div key={k} className="flex items-center gap-2 p-2 rounded-lg"
+                                  style={{ background: 'rgba(201,162,39,0.06)', border: '1px solid rgba(201,162,39,0.3)' }}>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-semibold" style={{ color: '#ccc' }}>{bucket.label}</p>
+                                    <p className="text-[10px]" style={{ color: '#9CA897' }}>{parts.join(' · ')}</p>
+                                  </div>
+                                  <span className="text-sm font-bold tabular-nums" style={{ color: '#C9A227' }}>
+                                    £{total.toFixed(2)}
+                                  </span>
+                                  <button onClick={() => markMonthPaid(s, k)}
+                                    disabled={busy}
+                                    className="text-xs px-2.5 py-1 rounded font-semibold flex-shrink-0 disabled:opacity-50"
+                                    style={{ background: 'var(--color-primary)', color: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
+                                    {busy ? '…' : 'Mark Paid'}
+                                  </button>
                                 </div>
                               )
                             })}

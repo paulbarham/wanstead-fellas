@@ -313,58 +313,94 @@ export default function MyFinances({ profile }: Props) {
         </div>
       )}
 
-      {/* Paid items toggle */}
-      {(paidFines.length > 0 || paidGames.length > 0) && (
-        <div>
-          <button
-            onClick={() => setShowPaid(s => !s)}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: '#9CA897' }}
-          >
-            <span>Paid items ({paidFines.length + paidGames.length})</span>
-            <span style={{ fontSize: '0.6rem' }}>{showPaid ? '▲' : '▼'}</span>
-          </button>
+      {/* Payment history — audit trail grouped by month so the player can
+          verify each charge before dropping a Revolut transfer. Shows every
+          row (paid + unpaid) alongside the running month total. Collapsed
+          by default so the "what do I owe now" view up top stays the star. */}
+      {(paidFines.length > 0 || paidGames.length > 0 || unpaidFines.length > 0 || unpaidGames.length > 0) && (() => {
+        // Group ALL rows (paid + unpaid, dated) by their match month.
+        type HistoryRow =
+          | { kind: 'wtp'; id: string; match_date: string; amount: number; paid: boolean }
+          | { kind: 'fine'; id: string; match_date: string; amount: number; paid: boolean; type: Fine['type']; notes: string | null }
+        const historyRows: HistoryRow[] = [
+          ...wtpGames.map(g => ({ kind: 'wtp' as const, id: g.id, match_date: g.match_date, amount: Number(g.amount), paid: g.paid })),
+          ...fines.filter(f => !!f.match_date).map(f => ({
+            kind: 'fine' as const, id: f.id, match_date: f.match_date!, amount: Number(f.amount), paid: f.paid, type: f.type, notes: f.notes,
+          })),
+        ]
+        const historyByMonth = new Map<string, HistoryRow[]>()
+        for (const r of historyRows) {
+          const k = r.match_date.slice(0, 7)
+          if (!historyByMonth.has(k)) historyByMonth.set(k, [])
+          historyByMonth.get(k)!.push(r)
+        }
+        const monthKeys = Array.from(historyByMonth.keys()).sort().reverse() // newest first
+        const totalRows = historyRows.length
 
-          {showPaid && (
-            <div className="mt-2 rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', opacity: 0.6 }}>
-              {paidGames.map((g, i) => (
-                <div key={g.id} className="px-4 py-2.5 flex items-center justify-between"
-                  style={{ borderTop: i > 0 ? '1px solid #FFFFFF' : 'none' }}>
-                  <div>
-                    <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>WTP Game</span>
-                    <p className="text-xs" style={{ color: '#9CA897' }}>
-                      {format(new Date(g.match_date + 'T12:00:00'), 'EEE do MMM yyyy')}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm" style={{ color: '#9CA897' }}>£{Number(g.amount).toFixed(2)}</span>
-                    <span className="text-xs" style={{ color: 'var(--color-primary)' }}>✓ paid</span>
-                  </div>
-                </div>
-              ))}
-              {paidFines.map((f, i) => (
-                <div key={f.id} className="px-4 py-2.5"
-                  style={{ borderTop: (i > 0 || paidGames.length > 0) ? '1px solid #FFFFFF' : 'none' }}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{fineLabel(f.type)}</span>
-                      {f.match_date && (
-                        <p className="text-xs" style={{ color: '#9CA897' }}>
-                          {format(new Date(f.match_date + 'T12:00:00'), 'EEE do MMM yyyy')}
-                        </p>
-                      )}
+        return (
+          <div>
+            <button
+              onClick={() => setShowPaid(s => !s)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: '#9CA897' }}
+            >
+              <span>Payment history ({totalRows} · {monthKeys.length} month{monthKeys.length > 1 ? 's' : ''})</span>
+              <span style={{ fontSize: '0.6rem' }}>{showPaid ? '▲' : '▼'}</span>
+            </button>
+
+            {showPaid && (
+              <div className="mt-2 space-y-2">
+                {monthKeys.map(k => {
+                  const items = historyByMonth.get(k)!.sort((a, b) => b.match_date.localeCompare(a.match_date))
+                  const monthTotal = items.reduce((s, r) => s + r.amount, 0)
+                  const paidTotal = items.filter(r => r.paid).reduce((s, r) => s + r.amount, 0)
+                  const unpaidTotal = monthTotal - paidTotal
+                  return (
+                    <div key={k} className="rounded-2xl overflow-hidden"
+                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                      <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #FFFFFF' }}>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
+                            {monthLabelOf(k)}
+                          </p>
+                          <span className="text-xs tabular-nums" style={{ color: '#9CA897' }}>
+                            {unpaidTotal > 0 && (
+                              <span style={{ color: '#C9A227' }}>£{unpaidTotal.toFixed(2)} owed · </span>
+                            )}
+                            <span style={{ color: 'var(--color-primary)' }}>£{paidTotal.toFixed(2)} paid</span>
+                          </span>
+                        </div>
+                      </div>
+                      {items.map((r, i) => (
+                        <div key={r.id} className="px-4 py-2 flex items-center justify-between"
+                          style={{ borderTop: i > 0 ? '1px solid var(--color-border)' : 'none', opacity: r.paid ? 0.55 : 1 }}>
+                          <div className="min-w-0 flex-1">
+                            <span className="text-xs" style={{ color: r.paid ? '#9CA897' : '#ccc' }}>
+                              {r.kind === 'wtp' ? 'WTP · ' : `${fineLabel(r.type)} · `}
+                              {format(new Date(r.match_date + 'T12:00:00'), 'EEE do MMM')}
+                            </span>
+                            {r.kind === 'fine' && r.notes && (
+                              <p className="text-[10px] mt-0.5 truncate" style={{ color: '#9CA897' }}>{r.notes}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="text-xs tabular-nums" style={{ color: r.paid ? '#9CA897' : '#C9A227' }}>
+                              £{r.amount.toFixed(2)}
+                            </span>
+                            {r.paid && (
+                              <span className="text-[10px]" style={{ color: 'var(--color-primary)' }}>✓</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm" style={{ color: '#9CA897' }}>£{Number(f.amount).toFixed(2)}</span>
-                      <span className="text-xs" style={{ color: 'var(--color-primary)' }}>✓ paid</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })()}
     </div>
   )
 }
