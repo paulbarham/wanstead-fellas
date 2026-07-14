@@ -11,6 +11,11 @@ interface PlayerSummary {
   player: Profile
   fines: Fine[]
   wtpGames: WtpGame[]
+  // Unpaid rows from earlier months — shown under a "Prior" header in the
+  // expanded view so admin can tick individual carryover items rather than
+  // having to navigate back a month or blast everything with Mark All Paid.
+  priorFines: Fine[]
+  priorWtpGames: WtpGame[]
   credits: Credit[]
   wtpOwed: number
   lateOwed: number
@@ -34,8 +39,9 @@ function buildSummaries(
   players: Profile[],
   fines: Fine[],
   wtpGames: WtpGame[],
+  priorFines: Fine[],
+  priorWtpGames: WtpGame[],
   credits: Credit[],
-  priorOwedByPlayer: Record<string, number>,
 ): PlayerSummary[] {
   const summaries: PlayerSummary[] = []
   const seen = new Set<string>()
@@ -43,9 +49,10 @@ function buildSummaries(
   for (const player of players) {
     const pf = fines.filter(f => f.player_id === player.id)
     const pg = wtpGames.filter(g => g.player_id === player.id)
+    const priorPf = priorFines.filter(f => f.player_id === player.id)
+    const priorPg = priorWtpGames.filter(g => g.player_id === player.id)
     const pc = credits.filter(c => c.player_id === player.id)
-    const prior = priorOwedByPlayer[player.id] ?? 0
-    if (pf.length === 0 && pg.length === 0 && prior === 0 && pc.length === 0) continue
+    if (pf.length === 0 && pg.length === 0 && priorPf.length === 0 && priorPg.length === 0 && pc.length === 0) continue
     seen.add(player.id)
 
     const unpaidFines = pf.filter(f => !f.paid)
@@ -55,6 +62,8 @@ function buildSummaries(
 
     const monthOwed = unpaidFines.reduce((s, f) => s + Number(f.amount), 0)
       + unpaidGames.reduce((s, g) => s + Number(g.amount), 0)
+    const prior = priorPf.reduce((s, f) => s + Number(f.amount), 0)
+      + priorPg.reduce((s, g) => s + Number(g.amount), 0)
     const grossOwed = monthOwed + prior
     const creditBalance = pc.reduce((s, c) => s + Number(c.amount), 0)
 
@@ -62,6 +71,8 @@ function buildSummaries(
       player,
       fines: pf,
       wtpGames: pg,
+      priorFines: priorPf,
+      priorWtpGames: priorPg,
       credits: pc,
       wtpOwed: unpaidGames.reduce((s, g) => s + Number(g.amount), 0),
       lateOwed: unpaidFines.filter(f => f.type === 'late').reduce((s, f) => s + Number(f.amount), 0),
@@ -77,20 +88,19 @@ function buildSummaries(
     })
   }
 
-  // Also include players who have *only* prior carryover OR credits but no
-  // current-month records — they still need to appear in the chase / clear list.
+  // Credit-only rows: players with no debts and no current-month records
+  // but a lingering credit balance — surface so admin can clear/consume it.
   for (const player of players) {
     if (seen.has(player.id)) continue
-    const prior = priorOwedByPlayer[player.id] ?? 0
     const pc = credits.filter(c => c.player_id === player.id)
-    if (prior === 0 && pc.length === 0) continue
+    if (pc.length === 0) continue
     const creditBalance = pc.reduce((s, c) => s + Number(c.amount), 0)
     summaries.push({
       player,
-      fines: [], wtpGames: [], credits: pc,
+      fines: [], wtpGames: [], priorFines: [], priorWtpGames: [], credits: pc,
       wtpOwed: 0, lateOwed: 0, lostBallOwed: 0, cunOwed: 0, dropoutOwed: 0,
-      monthOwed: 0, priorOwed: prior, grossOwed: prior,
-      creditBalance, netBalance: prior - creditBalance, totalPaid: 0,
+      monthOwed: 0, priorOwed: 0, grossOwed: 0,
+      creditBalance, netBalance: -creditBalance, totalPaid: 0,
     })
   }
 
@@ -170,9 +180,11 @@ export default function AdminFinancePanel() {
   // Credits are queried across ALL TIME (not month-scoped) — once a player
   // has a credit it persists until consumed/refunded.
   const [credits, setCredits] = useState<Credit[]>([])
-  // priorOwedByPlayer[playerId] = unpaid £ from months STRICTLY BEFORE the
-  // currently viewed month. Surfaces carryover next to each row.
-  const [priorOwedByPlayer, setPriorOwedByPlayer] = useState<Record<string, number>>({})
+  // Unpaid rows from months STRICTLY BEFORE the currently viewed month.
+  // Both the totals and the per-row list are needed so admin can tick a
+  // single carryover item rather than having to navigate back a month.
+  const [priorFines, setPriorFines] = useState<Fine[]>([])
+  const [priorWtpGames, setPriorWtpGames] = useState<WtpGame[]>([])
   // Players currently blocked from signing up because their unpaid charges
   // are past the 2-week grace period. Sourced from v_blocked_players.
   const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set())
@@ -217,32 +229,25 @@ export default function AdminFinancePanel() {
       supabase.from('wtp_games').select('*').gte('match_date', startStr).lte('match_date', endStr),
       // Credits are pulled all-time — they persist until used / refunded.
       supabase.from('credits').select('*'),
-      // Carryover: unpaid amounts from any earlier month. Filtered server-side
-      // so we don't pull every row in the table.
-      supabase.from('fines').select('player_id, amount').eq('paid', false).lt('match_date', startStr),
-      supabase.from('wtp_games').select('player_id, amount').eq('paid', false).lt('match_date', startStr),
+      // Carryover: full unpaid rows from earlier months so admin can toggle
+      // individual items in the expanded view (not just see the aggregate).
+      supabase.from('fines').select('*').eq('paid', false).lt('match_date', startStr),
+      supabase.from('wtp_games').select('*').eq('paid', false).lt('match_date', startStr),
       supabase.from('v_blocked_players').select('player_id'),
     ])
     setPlayers((ps as Profile[]) || [])
     setFines((fs as Fine[]) || [])
     setWtpGames((gs as WtpGame[]) || [])
     setCredits((cs as Credit[]) || [])
-
-    const prior: Record<string, number> = {}
-    for (const r of ((priorF as { player_id: string; amount: number | string }[]) || [])) {
-      prior[r.player_id] = (prior[r.player_id] ?? 0) + Number(r.amount)
-    }
-    for (const r of ((priorG as { player_id: string; amount: number | string }[]) || [])) {
-      prior[r.player_id] = (prior[r.player_id] ?? 0) + Number(r.amount)
-    }
-    setPriorOwedByPlayer(prior)
+    setPriorFines((priorF as Fine[]) || [])
+    setPriorWtpGames((priorG as WtpGame[]) || [])
     setBlockedIds(new Set(((blocked as { player_id: string }[]) || []).map(b => b.player_id)))
     setLoading(false)
   }, [viewDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { loadData() }, [loadData])
 
-  const summaries = buildSummaries(players, fines, wtpGames, credits, priorOwedByPlayer)
+  const summaries = buildSummaries(players, fines, wtpGames, priorFines, priorWtpGames, credits)
 
   const grandPriorOwed = summaries.reduce((s, r) => s + r.priorOwed, 0)
   const grandGrossOwed = summaries.reduce((s, r) => s + r.grossOwed, 0)
@@ -567,6 +572,8 @@ export default function AdminFinancePanel() {
             const allUnpaidDated = [
               ...s.wtpGames.filter(g => !g.paid).map(g => ({ match_date: g.match_date, amount: Number(g.amount) })),
               ...s.fines.filter(f => !f.paid && !!f.match_date).map(f => ({ match_date: f.match_date!, amount: Number(f.amount) })),
+              ...s.priorWtpGames.map(g => ({ match_date: g.match_date, amount: Number(g.amount) })),
+              ...s.priorFines.filter(f => !!f.match_date).map(f => ({ match_date: f.match_date!, amount: Number(f.amount) })),
             ]
             const blockStatus: BlockStatus = computeBlockStatus(allUnpaidDated, s.creditBalance)
             // Border accent state: red = blocked, amber = carryover, green =
@@ -714,6 +721,91 @@ export default function AdminFinancePanel() {
                         </button>
                       </div>
                     )}
+
+                    {/* Prior-month unpaid rows — grouped by month so admin
+                        can tick individual carryover items. Without this
+                        the June rows contributing to "+£X prior" are only
+                        visible by navigating back a month. */}
+                    {(s.priorWtpGames.length > 0 || s.priorFines.length > 0) && (() => {
+                      const byMonth = new Map<string, { label: string; wtp: WtpGame[]; fines: Fine[] }>()
+                      for (const g of s.priorWtpGames) {
+                        const key = g.match_date.slice(0, 7)
+                        const bucket = byMonth.get(key) ?? { label: format(new Date(g.match_date + 'T12:00:00'), 'MMM yyyy'), wtp: [], fines: [] }
+                        bucket.wtp.push(g); byMonth.set(key, bucket)
+                      }
+                      for (const f of s.priorFines) {
+                        const key = (f.match_date ?? '0000-00').slice(0, 7)
+                        const label = f.match_date ? format(new Date(f.match_date + 'T12:00:00'), 'MMM yyyy') : 'Undated'
+                        const bucket = byMonth.get(key) ?? { label, wtp: [], fines: [] }
+                        bucket.fines.push(f); byMonth.set(key, bucket)
+                      }
+                      const monthKeys = Array.from(byMonth.keys()).sort()
+                      return (
+                        <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                          <p className="text-xs mb-2 uppercase tracking-wider" style={{ color: '#C9A227' }}>
+                            Prior · {gbp(s.priorOwed)} carryover
+                          </p>
+                          <div className="space-y-2.5">
+                            {monthKeys.map(k => {
+                              const bucket = byMonth.get(k)!
+                              return (
+                                <div key={k} className="space-y-1.5">
+                                  <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#9CA897' }}>
+                                    {bucket.label}
+                                  </p>
+                                  {bucket.wtp.map(g => (
+                                    <div key={g.id} className="flex items-center gap-2">
+                                      <button onClick={() => toggleGamePaid(g)}
+                                        className="text-xs px-2.5 py-1 rounded font-semibold flex-shrink-0"
+                                        style={{ background: 'var(--color-primary)', color: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
+                                        Mark Paid
+                                      </button>
+                                      <span className="flex-1 text-xs" style={{ color: '#ccc' }}>
+                                        WTP · {format(new Date(g.match_date + 'T12:00:00'), 'EEE do MMM')}
+                                      </span>
+                                      <span className="text-xs" style={{ color: '#C9A227' }}>
+                                        £{Number(g.amount).toFixed(2)}
+                                      </span>
+                                      <button onClick={() => deleteWtpGame(g.id)}
+                                        className="text-xs px-1.5 py-0.5 rounded"
+                                        style={{ color: 'var(--color-error-border)', border: '1px solid #3a1010' }}>
+                                        ✕
+                                      </button>
+                                    </div>
+                                  ))}
+                                  {bucket.fines.map(f => (
+                                    <div key={f.id} className="flex items-center gap-2">
+                                      <button onClick={() => toggleFinePaid(f)}
+                                        className="text-xs px-2.5 py-1 rounded font-semibold flex-shrink-0"
+                                        style={{ background: 'var(--color-primary)', color: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
+                                        Mark Paid
+                                      </button>
+                                      <div className="flex-1 min-w-0">
+                                        <span className="text-xs" style={{ color: '#ccc' }}>
+                                          {fineLabel(f.type)}
+                                          {f.match_date && ` · ${format(new Date(f.match_date + 'T12:00:00'), 'do MMM')}`}
+                                        </span>
+                                        {f.notes && (
+                                          <p className="text-xs truncate" style={{ color: '#9CA897' }}>{f.notes}</p>
+                                        )}
+                                      </div>
+                                      <span className="text-xs" style={{ color: '#DC2626' }}>
+                                        £{Number(f.amount).toFixed(2)}
+                                      </span>
+                                      <button onClick={() => deleteFine(f.id)}
+                                        className="text-xs px-1.5 py-0.5 rounded"
+                                        style={{ color: 'var(--color-error-border)', border: '1px solid #3a1010' }}>
+                                        ✕
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })()}
 
                     {/* Credits — list each credit row with delete control */}
                     {s.credits.length > 0 && (
