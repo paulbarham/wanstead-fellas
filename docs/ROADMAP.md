@@ -175,7 +175,7 @@ Rules and capture around what actually happens on the pitch: scores, draws, tie-
 | Item | Status | Source | Notes |
 |---|---|---|---|
 | Penalty shootouts for drawn fixtures | ✅ | chat · commit `f73ebb6` · migration `035` | World Cup spirit (July 2026). Every drawn fixture — incl. 0-0 — goes to pens; winner takes a **+1 bonus** (draw winner finishes on 2, loser 1; regulation win still 3). `fixtures.shootout_winner` (1/2/null). Winner picker + explicit "mark 0-0 draw" in AdminMatchEntry; submit gated until every draw has a recorded winner. Bonus feeds all three standings calcs (live table, result view, Stats champion crown). Pens are **not** goals — top-scorer untouched; may inform MOTM/DOTD (free-form, no code). |
-| Started as tonight-only; promote to permanent if it lands | 🟢 | chat | Feature is fully built (not a hack), so "keeping it" needs no further work — just the decision. |
+| Started as tonight-only; promote to permanent if it lands | ✅ | chat · migration `055` | Verdict: keep as **one-off/opt-in** rather than default-on every week. Migration 055 adds `matches.shootout_enabled` (default `false`), backfilled `true` for the 9 Jul night so historical results still render pens + bonus. AdminMatchEntry gains a small ON/OFF toggle at the top for admin to flip when a special night justifies it (WC final, cup night). |
 | Shared `buildTable`/standings helper (kill the 3-way duplication) | 🟢 | chat | 3-1-0 + shootout-bonus logic is currently copied across `AdminMatchEntry`, `MatchResultView`, `StatsPage`. Extract to a tested `lib/standings.ts` to stop drift. Deferred from the shootout ship to avoid refactoring the hot path pre-match. |
 
 ## 🧢 Team builder polish

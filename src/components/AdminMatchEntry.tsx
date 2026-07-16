@@ -452,6 +452,33 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
     }
   }
 
+  // Flip the per-match shootout opt-in on/off (mig 055). Default is off; admin
+  // turns on for special nights (WC final, cup night). Turning off also clears
+  // any previously-recorded shootout winners on this match's fixtures so a
+  // half-entered pens result doesn't quietly keep swinging the standings.
+  const [togglingShootout, setTogglingShootout] = useState(false)
+  async function toggleShootoutEnabled() {
+    if (!match?.id || togglingShootout) return
+    const next = !match.shootout_enabled
+    setTogglingShootout(true)
+    setScoreError(null)
+    const { error } = await supabase.from('matches').update({ shootout_enabled: next }).eq('id', match.id)
+    if (error) {
+      console.error('Shootout toggle failed:', error)
+      setScoreError(`Couldn't toggle shootouts: ${error.message}`)
+      setTogglingShootout(false)
+      return
+    }
+    if (!next) {
+      const drawnIds = fixtures.filter(f => f.shootout_winner != null).map(f => f.id)
+      if (drawnIds.length > 0) {
+        await supabase.from('fixtures').update({ shootout_winner: null }).in('id', drawnIds)
+      }
+    }
+    setTogglingShootout(false)
+    onSaved()
+  }
+
   // Record the penalty-shootout winner for a drawn fixture (1 = team1, 2 = team2).
   // Tapping the already-selected team clears it. Persists immediately.
   async function setShootoutWinner(fixtureId: string, winner: 1 | 2) {
@@ -485,7 +512,10 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
 
   // Penalties affordance shown under each fixture's score row. For a not-yet-played
   // fixture it's the "mark 0-0" entry; for a level result it's the winner picker.
+  // Only rendered when the match has opted into shootouts (mig 055) — default off,
+  // admin flips on for special nights via the toggle above the fixtures list.
   function renderPenalties(f: FixtureWithTeams) {
+    if (!match?.shootout_enabled) return null
     const played = f.score1 != null && f.score2 != null
     if (!played) {
       if (f.score1 == null && f.score2 == null) {
@@ -615,8 +645,10 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
     const slots = fixtureScorers[f.id]
     const total = (slots?.team1.length ?? 0) + (slots?.team2.length ?? 0)
     const filled = [...(slots?.team1 ?? []), ...(slots?.team2 ?? [])].filter(s => !!s.player_id).length
-    // A drawn fixture must have its penalty-shootout winner recorded before submit.
-    const shootoutPending = played && f.score1 === f.score2 && f.shootout_winner == null
+    // A drawn fixture must have its penalty-shootout winner recorded before submit
+    // — but only when this match has opted into pens (mig 055). Off by default.
+    const shootoutPending = !!match?.shootout_enabled
+      && played && f.score1 === f.score2 && f.shootout_winner == null
     return { played, total, filled, shootoutPending }
   }
   const completion = fixtures.map(f => ({ f, ...fixtureCompletion(f) }))
@@ -753,6 +785,37 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
     <div className="px-4 py-5">
       <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: 'var(--color-primary)' }}>Admin</p>
       <h1 className="font-display text-3xl text-[var(--color-text)] tracking-wide mb-5">MATCH ENTRY</h1>
+
+      {/* Penalties opt-in — off by default. Flip on for special nights (WC final,
+          cup night). Turning off clears any half-entered shootout winners. */}
+      {canWriteReport && (
+        <div className="mb-4 flex items-center justify-between gap-3 px-3 py-2 rounded-xl"
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+              Penalties for drawn fixtures
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+              {match?.shootout_enabled
+                ? 'Drawn games go to pens · winner takes +1 bonus point.'
+                : 'Off · draws stay 1-1 in the table.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={toggleShootoutEnabled}
+            disabled={togglingShootout}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex-shrink-0 disabled:opacity-50"
+            style={{
+              background: match?.shootout_enabled ? 'var(--tt-yellow)' : 'transparent',
+              color: match?.shootout_enabled ? '#0F1710' : 'var(--color-text-muted)',
+              border: `1px solid ${match?.shootout_enabled ? 'var(--tt-yellow)' : 'var(--color-border)'}`,
+            }}
+          >
+            {togglingShootout ? '…' : match?.shootout_enabled ? 'ON' : 'OFF'}
+          </button>
+        </div>
+      )}
 
       {isElevenVEleven ? (
         // 11v11

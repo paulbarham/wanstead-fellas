@@ -151,6 +151,10 @@ export interface Match {
   format: string
   status: string
   created_at: string
+  // Per-match opt-in for the drawn-fixture penalty shootout flow (mig 055).
+  // Off by default; admin flips on for special nights (WC final, cup night)
+  // from the top of AdminMatchEntry.
+  shootout_enabled: boolean
 }
 
 export interface Team {
