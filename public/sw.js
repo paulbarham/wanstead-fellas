@@ -1,7 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v6 to flush stale bundles after the FormationPicker move to
-// the Teams tab and the admin "Preview team sheets" pill landing.
-const CACHE = 'wf-v6'
+// Bumped to v7 to flush stale bundles after the pens-shootouts opt-in flip
+// (mig 055) — admin phones were still serving the v6 bundle and prompting
+// for pens on drawn fixtures despite the DB flag being off.
+const CACHE = 'wf-v7'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
