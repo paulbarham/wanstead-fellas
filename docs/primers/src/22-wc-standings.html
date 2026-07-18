@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — WC 2026 Standings</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · WC 2026 STANDINGS · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.mag   { background: rgba(255,102,204,0.07); border-left-color: #FF66CC; }
+  .callout.red   { background: rgba(255,85,85,0.07);  border-left-color: #FF5555; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  /* ─── Prize tiles ────────────────────────────── */
+  .prize {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .prize .p {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 10pt;
+    vertical-align: top;
+  }
+  .prize .p.winner  { border-color: #FFD400; }
+  .prize .p.runner  { border-color: #4AD9FF; }
+  .prize .p.conced  { border-color: #FF66CC; }
+  .prize .p.reds    { border-color: #FF5555; }
+  .prize .cap {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.15em;
+    text-transform: uppercase; color: #9CA897;
+  }
+  .prize .amt {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 15pt; margin: 2pt 0 4pt;
+  }
+  .prize .p.winner  .amt { color: #FFD400; }
+  .prize .p.runner  .amt { color: #4AD9FF; }
+  .prize .p.conced  .amt { color: #FF66CC; }
+  .prize .p.reds    .amt { color: #FF5555; }
+  .prize .row {
+    font-size: 9.5pt; margin: 2pt 0;
+    font-family: 'Courier New', monospace;
+  }
+  .prize .row .team { color: #E8F0E9; }
+  .prize .row .own  { color: #4ADC7A; }
+  .prize .note { font-size: 8pt; color: #9CA897; margin-top: 4pt; }
+
+  .tie {
+    display: inline-block;
+    background: rgba(255,212,0,0.1);
+    color: #FFD400;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    padding: 1pt 5pt;
+    border-radius: 3pt;
+    letter-spacing: 0.1em;
+    margin-left: 4pt;
+    vertical-align: middle;
+  }
+
+  /* ─── Predictor table ────────────────────────── */
+  .tbl { width: 100%; border-collapse: collapse; margin: 6pt 0; font-family: 'Courier New', monospace; }
+  .tbl th {
+    font-size: 7.5pt; letter-spacing: 0.08em; color: #4AD9FF;
+    text-align: center; padding: 3pt 4pt; border-bottom: 1px solid #2D4A2F;
+    text-transform: uppercase;
+  }
+  .tbl th.tl { text-align: left; }
+  .tbl td { font-size: 9pt; text-align: center; padding: 4pt; border-bottom: 1px solid #1c2a1f; color: #E8F0E9; }
+  .tbl td.tl { text-align: left; }
+  .tbl td.pts { color: #FFD400; font-weight: 700; }
+  .tbl td.streak { color: #FF66CC; font-weight: 700; }
+  .tbl tr.top1 td { background: rgba(255,212,0,0.06); }
+  .tbl .rank {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; color: #9CA897;
+  }
+  .tbl .rank.g { color: #FFD400; }
+  .tbl .rank.s { color: #CCCCCC; }
+  .tbl .rank.b { color: #CD7F32; }
+
+  /* ─── Streaks strip ──────────────────────────── */
+  .streaks {
+    background: #15211A;
+    border: 1px solid #FF66CC;
+    border-radius: 8pt;
+    padding: 10pt 12pt;
+    margin: 8pt 0;
+  }
+  .streaks h3 {
+    margin: 0 0 4pt;
+    color: #FF66CC;
+  }
+  .streaks .row {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    display: flex;
+    justify-content: space-between;
+    padding: 2pt 0;
+    border-bottom: 1px dashed rgba(255,102,204,0.15);
+  }
+  .streaks .row:last-child { border-bottom: 0; }
+  .streaks .n {
+    color: #FF66CC; font-weight: 700; min-width: 34pt; display: inline-block;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">WC 2026 Standings · Update</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P522 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>As of Sat 18 Jul 2026</strong> — Third-place playoff <em>France v England</em> tonight (22:00 BST); final <em>Spain v Argentina</em> tomorrow (Sun 19 Jul, 20:00 BST). Two sweep prizes still open, two already locked.
+</div>
+
+<h2>Sweepstake · £120 in play</h2>
+
+<div class="prize">
+  <div class="p winner">
+    <div class="cap">Winner</div>
+    <div class="amt">£60</div>
+    <div class="row"><span class="team">Spain 🇪🇸</span> → <span class="own">Tomos</span></div>
+    <div class="row"><span class="team">Argentina 🇦🇷</span> → <span class="own">Lawrie</span></div>
+    <div class="note">Decided in the final · Sun 19 Jul</div>
+  </div>
+  <div class="p runner">
+    <div class="cap">Runner-up</div>
+    <div class="amt">£30</div>
+    <div class="row"><span class="team">Spain 🇪🇸</span> → <span class="own">Tomos</span></div>
+    <div class="row"><span class="team">Argentina 🇦🇷</span> → <span class="own">Lawrie</span></div>
+    <div class="note">The loser of the final walks with £30</div>
+  </div>
+</div>
+
+<div class="prize">
+  <div class="p conced">
+    <div class="cap">Most conceded</div>
+    <div class="amt">£20</div>
+    <div class="row"><span class="team">Iraq (12)</span> → <span class="own">Edd</span><span class="tie">TIED</span></div>
+    <div class="row"><span class="team">Tunisia (12)</span> → <span class="own">Stephen P</span><span class="tie">TIED</span></div>
+    <div class="note">Both eliminated at groups · standings final</div>
+  </div>
+  <div class="p reds">
+    <div class="cap">Most red cards</div>
+    <div class="amt">£10</div>
+    <div class="row"><span class="team">Qatar (2)</span> → <span class="own">Tom Bro</span><span class="tie">TIED</span></div>
+    <div class="row"><span class="team">South Africa (2)</span> → <span class="own">Richard</span><span class="tie">TIED</span></div>
+    <div class="note">Both eliminated · standings final</div>
+  </div>
+</div>
+
+<h3>Also in the third-place playoff (pride only)</h3>
+<p style="font-size:9.5pt; color:#9CA897; font-family:'Courier New',monospace;">
+  <strong>France 🇫🇷</strong> <span style="color:#4ADC7A;">Paul F</span> &nbsp; v &nbsp;
+  <strong>England 🏴󠁧󠁢󠁥󠁮󠁧󠁿</strong> <span style="color:#4ADC7A;">Peter M</span>
+  &nbsp;·&nbsp; no prize attached
+</p>
+
+<h3>Most-conceded / most-reds chasing pack</h3>
+<p style="font-size:9pt; color:#9CA897;">
+  <strong>Conceded (next 4):</strong>
+  Norway 11 (Bill) · Uzbekistan 11 (Scott) · Qatar 10 (Tom Bro) · New Zealand 10 (Phil).
+</p>
+<p style="font-size:9pt; color:#9CA897;">
+  <strong>Reds (on 1):</strong>
+  Iraq (Edd) · Paraguay (Edd) · Switzerland (Stephen P) · England (Peter M) · USA (Bill) · Belgium (Phil) · Ecuador (Sam Y) · Uruguay (Alan) · Ghana (Neil) · Mexico (Tom Bro).
+</p>
+
+<h2>Cup Predictor · in-app leaderboard</h2>
+
+<table class="tbl">
+  <thead>
+    <tr><th>#</th><th class="tl">Player</th><th>Pts</th><th>Correct</th><th>Best 🔥</th></tr>
+  </thead>
+  <tbody>
+    <tr class="top1"><td><span class="rank g">1</span></td><td class="tl">Ross Marks</td><td class="pts">90</td><td>72 / 102</td><td class="streak">15</td></tr>
+    <tr><td><span class="rank s">2</span></td><td class="tl">Phil Mowat</td><td class="pts">86</td><td>72 / 102</td><td class="streak">10</td></tr>
+    <tr><td><span class="rank b">3</span></td><td class="tl">Paul Barham</td><td class="pts">81</td><td>67 / 102</td><td class="streak">11</td></tr>
+    <tr><td><span class="rank">4</span></td><td class="tl">Tom Broughton</td><td class="pts">80</td><td>67 / 96</td><td class="streak">14</td></tr>
+    <tr><td><span class="rank">5</span></td><td class="tl">Corin Davies</td><td class="pts">79</td><td>64 / 102</td><td class="streak">13</td></tr>
+    <tr><td><span class="rank">5</span></td><td class="tl">Justin Franklin</td><td class="pts">79</td><td>66 / 98</td><td class="streak">9</td></tr>
+    <tr><td><span class="rank">5</span></td><td class="tl">Sheridan Winter</td><td class="pts">79</td><td>69 / 100</td><td class="streak">8</td></tr>
+    <tr><td><span class="rank">8</span></td><td class="tl">Alan Samuels</td><td class="pts">78</td><td>65 / 102</td><td class="streak">14</td></tr>
+    <tr><td><span class="rank">9</span></td><td class="tl">Rory Wilson</td><td class="pts">76</td><td>63 / 97</td><td class="streak">7</td></tr>
+    <tr><td><span class="rank">9</span></td><td class="tl">Martyn Hawkes</td><td class="pts">76</td><td>63 / 101</td><td class="streak">6</td></tr>
+    <tr><td><span class="rank">11</span></td><td class="tl">Paul Finch</td><td class="pts">72</td><td>60 / 91</td><td class="streak">13</td></tr>
+    <tr><td><span class="rank">12</span></td><td class="tl">Scott Duncan</td><td class="pts">67</td><td>55 / 88</td><td class="streak">11</td></tr>
+    <tr><td><span class="rank">13</span></td><td class="tl">Aaron Franklin</td><td class="pts">65</td><td>53 / 85</td><td class="streak">6</td></tr>
+    <tr><td><span class="rank">14</span></td><td class="tl">Edward Ezra</td><td class="pts">59</td><td>51 / 86</td><td class="streak">5</td></tr>
+    <tr><td><span class="rank">15</span></td><td class="tl">Ollie Cotton</td><td class="pts">58</td><td>51 / 92</td><td class="streak">5</td></tr>
+    <tr><td><span class="rank">16</span></td><td class="tl">Noah Higgins</td><td class="pts">52</td><td>46 / 71</td><td class="streak">7</td></tr>
+    <tr><td><span class="rank">17</span></td><td class="tl">Paul Satchell</td><td class="pts">48</td><td>36 / 66</td><td class="streak">5</td></tr>
+    <tr><td><span class="rank">18</span></td><td class="tl">Callum Finch</td><td class="pts">40</td><td>39 / 66</td><td class="streak">5</td></tr>
+    <tr><td><span class="rank">19</span></td><td class="tl">Stephen Pender</td><td class="pts">35</td><td>29 / 49</td><td class="streak">4</td></tr>
+    <tr><td><span class="rank">20</span></td><td class="tl">Louie Satchell</td><td class="pts">33</td><td>33 / 64</td><td class="streak">5</td></tr>
+    <tr><td><span class="rank">21</span></td><td class="tl">Lawrie Pointer</td><td class="pts">27</td><td>26 / 41</td><td class="streak">7</td></tr>
+  </tbody>
+</table>
+
+<div class="streaks">
+  <h3>🔥 Best Streaks · Hall of Fame</h3>
+  <div class="row"><span><span class="n">15 🥇</span> Ross Marks</span><span style="color:#9CA897;">unbeaten across the entire group stage</span></div>
+  <div class="row"><span><span class="n">14 🥈</span> Tom Broughton</span><span style="color:#9CA897;">joint 2nd</span></div>
+  <div class="row"><span><span class="n">14 🥈</span> Alan Samuels</span><span style="color:#9CA897;">joint 2nd</span></div>
+  <div class="row"><span><span class="n">13</span> Corin Davies</span><span style="color:#9CA897;">joint 4th</span></div>
+  <div class="row"><span><span class="n">13</span> Paul Finch</span><span style="color:#9CA897;">joint 4th</span></div>
+  <div class="row"><span><span class="n">11</span> Paul Barham</span><span style="color:#9CA897;">joint 6th</span></div>
+  <div class="row"><span><span class="n">11</span> Scott Duncan</span><span style="color:#9CA897;">joint 6th</span></div>
+  <div class="row"><span><span class="n">10</span> Phil Mowat</span><span style="color:#9CA897;">8th</span></div>
+</div>
+
+<hr>
+
+<div class="closer">
+  One tap of picks left — the final, Sun 19 Jul.<br>
+  📊 <strong>Cup tab</strong> in the app · lock your last pick before kick-off (20:00 BST).
+</div>
+
+</body>
+</html>
