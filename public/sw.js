@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v7 to flush stale bundles after the pens-shootouts opt-in flip
-// (mig 055) — admin phones were still serving the v6 bundle and prompting
-// for pens on drawn fixtures despite the DB flag being off.
-const CACHE = 'wf-v7'
+// Bumped to v8 for the report-hide rule change — previous week's report no
+// longer lingers on Wed when teams have been drafted for the coming
+// Thursday; the Publish CTA now surfaces earlier for admin.
+const CACHE = 'wf-v8'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

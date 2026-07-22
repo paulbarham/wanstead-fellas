@@ -113,17 +113,22 @@ export default function MatchPage() {
       .maybeSingle()
     let displayMatch = (latestRaw as Match | null) ?? null
 
-    // On the day of the next scheduled match, hide the previous week's
-    // completed match until this week's result is submitted. Otherwise a
-    // player opening the Match tab on Thursday afternoon sees "MATCH
-    // REPORT · 25 JUN" as the headline, which is stale — tonight's game
-    // is a few hours away, not last week's. The awaiting-result placeholder
-    // is a better read. Once the admin submits tonight's result the newer
-    // completed match returns naturally.
+    // Hide the previous week's completed match once the coming match is on
+    // the horizon — either it's match day itself, teams have been published,
+    // or teams have been drafted (unpublished). Otherwise a player opening
+    // the Match tab on Wed/Thu sees "MATCH REPORT · <last week>" as the
+    // headline, which is stale — tonight's game is imminent. The awaiting-
+    // result placeholder is a better read (and on the admin view surfaces
+    // the "Publish teams" CTA when a draft exists). Once tonight's result
+    // is submitted the newer completed match returns naturally.
     const now = nowLondon()
     const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
     const nextThursdayIso = getNextThursdayDate()
-    if (todayIso === nextThursdayIso && displayMatch && displayMatch.match_date < nextThursdayIso) {
+    const { data: comingDraft } = await supabase
+      .from('team_drafts').select('match_date').eq('match_date', nextThursdayIso).maybeSingle()
+    const hasComingWeekTeams = !!thisWeek || !!comingDraft
+    if (displayMatch && displayMatch.match_date < nextThursdayIso &&
+        (todayIso === nextThursdayIso || hasComingWeekTeams)) {
       displayMatch = null
     }
     setMatch(displayMatch)
@@ -161,18 +166,10 @@ export default function MatchPage() {
       .order('closes_at', { ascending: false })
       .limit(1)
       .maybeSingle()
-    // Admin-only: check for an unpublished draft for the next Thursday so
-    // we can surface a Publish CTA on the placeholder view.
-    if (profile?.is_admin) {
-      const { data: draft } = await supabase
-        .from('team_drafts')
-        .select('match_date')
-        .eq('match_date', nextThursday)
-        .maybeSingle()
-      setHasUnpublishedDraft(!!draft && !thisWeek)
-    } else {
-      setHasUnpublishedDraft(false)
-    }
+    // Admin-only: surface the Publish CTA on the placeholder view when a
+    // draft exists but no matches row has been published yet. Reuses the
+    // draft lookup done above for the hide-rule.
+    setHasUnpublishedDraft(!!profile?.is_admin && !!comingDraft && !thisWeek)
 
     if (vw) {
       const v = vw as { opens_at: string; closes_at: string }
