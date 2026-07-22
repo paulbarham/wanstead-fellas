@@ -1,13 +1,18 @@
 // Fans out web push notifications for a given match. Three topics:
 //   * 'teams_ready' — teams for the next match have just been published
-//     (voting_windows INSERT where opens_at is > 15 min in the future)
+//     (voting_windows INSERT where opens_at is > 15 min in the future).
+//     Recipients: rostered players only (they're the ones who need to
+//     see their line-up).
 //   * 'vote_open'   — voting window has just opened, players still need to
 //     cast their MOTM/DOTD picks (voting_windows INSERT where opens_at is
-//     imminent OR the Stage 2 cron firing when opens_at is reached)
+//     imminent OR the Stage 2 cron firing when opens_at is reached).
+//     Recipients: rostered players only (only they can vote).
 //   * 'results'     — awards + match report have been published for the
 //     round. If a match report has been written (results.summary NOT NULL)
 //     the push is framed as "Match report is live". Otherwise falls back
 //     to the awards-only copy for backwards compat.
+//     Recipients: EVERY active push subscription — the report is club-wide
+//     news, not just relevant to the players rostered that week.
 //
 // Called by a Postgres trigger on voting_windows INSERT (for teams_ready
 // or vote_open, depending on timing), by the pg_cron scheduled job (for
@@ -53,20 +58,34 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
-    // Eligible players = anyone rostered on any team for the match.
-    const { data: teams } = await supabase.from('teams').select('id').eq('match_id', matchId)
-    const teamIds = (teams || []).map((t: any) => t.id)
-    if (teamIds.length === 0) return json({ sent: 0, total: 0, reason: 'no teams' })
+    // Recipients:
+    //  * 'results' → EVERY active push subscription. The match report is
+    //    club-wide news; historically we filtered to rostered players and
+    //    left ~half the group without the ping despite them being active
+    //    members who care about the write-up.
+    //  * 'teams_ready' / 'vote_open' → still roster-only. Only rostered
+    //    players need their team line-up or can vote MOTM/DOTD.
+    let subList: Array<{ id: string; endpoint: string; p256dh: string; auth: string }> = []
+    if (topic === 'results') {
+      const { data: subs } = await supabase
+        .from('push_subscriptions')
+        .select('id, endpoint, p256dh, auth')
+      subList = (subs || []) as typeof subList
+    } else {
+      const { data: teams } = await supabase.from('teams').select('id').eq('match_id', matchId)
+      const teamIds = (teams || []).map((t: any) => t.id)
+      if (teamIds.length === 0) return json({ sent: 0, total: 0, reason: 'no teams' })
 
-    const { data: tp } = await supabase.from('team_players').select('player_id').in('team_id', teamIds)
-    const playerIds = [...new Set((tp || []).map((r: any) => r.player_id as string))]
-    if (playerIds.length === 0) return json({ sent: 0, total: 0, reason: 'no players' })
+      const { data: tp } = await supabase.from('team_players').select('player_id').in('team_id', teamIds)
+      const playerIds = [...new Set((tp || []).map((r: any) => r.player_id as string))]
+      if (playerIds.length === 0) return json({ sent: 0, total: 0, reason: 'no players' })
 
-    const { data: subs } = await supabase
-      .from('push_subscriptions')
-      .select('id, endpoint, p256dh, auth')
-      .in('player_id', playerIds)
-    const subList = (subs || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string }>
+      const { data: subs } = await supabase
+        .from('push_subscriptions')
+        .select('id, endpoint, p256dh, auth')
+        .in('player_id', playerIds)
+      subList = (subs || []) as typeof subList
+    }
 
     // Build payload
     const { data: matchRow } = await supabase
