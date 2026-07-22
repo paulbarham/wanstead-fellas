@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './hooks/useAuth'
+import { syncPushSubscription } from './lib/push'
 import Layout from './components/Layout'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -38,6 +39,23 @@ function LoadingScreen() {
   )
 }
 
+// Fires on every authenticated app boot: reconciles the browser's push
+// subscription with the DB so a reinstall / cleared site data / rotated
+// endpoint doesn't leave a player silently un-pinged. Never prompts —
+// only acts when Notification permission is already granted.
+function PushSubscriptionSync() {
+  const { profile } = useAuth()
+  useEffect(() => {
+    if (!profile?.id) return
+    syncPushSubscription(profile.id).then(r => {
+      if (r.action !== 'noop' && r.action !== 'no-permission' && r.action !== 'unsupported') {
+        console.info('[push-sync]', r)
+      }
+    })
+  }, [profile?.id])
+  return null
+}
+
 function ProtectedRoutes() {
   const { session, loading } = useAuth()
 
@@ -47,6 +65,7 @@ function ProtectedRoutes() {
 
   return (
     <Suspense fallback={<LoadingScreen />}>
+      <PushSubscriptionSync />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<TonightPage />} />

@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v8 for the report-hide rule change — previous week's report no
-// longer lingers on Wed when teams have been drafted for the coming
-// Thursday; the Publish CTA now surfaces earlier for admin.
-const CACHE = 'wf-v8'
+// Bumped to v9 for push-subscription self-heal — app boot now silently
+// reconciles the browser's push sub with the DB (fixes the "reinstalled
+// PWA and lost push" trap that hit Paul's device on 18 Jul).
+const CACHE = 'wf-v9'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

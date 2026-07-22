@@ -110,3 +110,67 @@ export async function hasActiveSubscription(): Promise<boolean> {
   const sub = await registration.pushManager.getSubscription()
   return !!sub
 }
+
+// Called on app boot for authenticated users. Silently reconciles the
+// browser's push subscription with what we have in the DB — never prompts.
+//
+// Common drift cases this repairs without support-ticket support:
+//   * PWA reinstall → old endpoint went dead but Apple still 200s sends;
+//     the browser sub is fresh but the DB has the stale one.
+//   * Browser silently rotates the endpoint (Chrome, some FCM changes).
+//   * User cleared site data → browser has no sub even though permission
+//     is granted → re-subscribes to close the loop.
+//   * Old device rows for a player who moved to a new phone → reaped.
+//
+// If Notification.permission !== 'granted' we do nothing (never prompt on
+// boot — that's exclusively the opt-in card's job).
+export async function syncPushSubscription(playerId: string): Promise<{
+  action: 'noop' | 'created' | 'refreshed' | 'reaped-only' | 'no-permission' | 'unsupported' | 'error'
+  staleReaped?: number
+  reason?: string
+}> {
+  if (!isPushSupported()) return { action: 'unsupported' }
+  if (Notification.permission !== 'granted') return { action: 'no-permission' }
+  try {
+    const registration = await ensureServiceWorker()
+    const browserSub = await registration.pushManager.getSubscription()
+
+    // Permission granted but no browser subscription (site-data clear,
+    // reinstalled PWA that hasn't re-subscribed) → re-subscribe. This won't
+    // prompt because permission is already granted.
+    if (!browserSub) {
+      const result = await subscribeToPush(playerId)
+      return { action: result.ok ? 'created' : 'error', reason: result.reason }
+    }
+
+    const { data: rows } = await supabase
+      .from('push_subscriptions')
+      .select('id, endpoint')
+      .eq('player_id', playerId)
+    const dbRows = (rows || []) as Array<{ id: string; endpoint: string }>
+    const matched = dbRows.find(r => r.endpoint === browserSub.endpoint)
+    const stale = dbRows.filter(r => r.endpoint !== browserSub.endpoint).map(r => r.id)
+
+    if (stale.length > 0) {
+      await supabase.from('push_subscriptions').delete().in('id', stale)
+    }
+
+    if (!matched) {
+      // Browser has a live sub but the DB doesn't have this endpoint for
+      // this player. Upsert it via the regular subscribe flow (which is
+      // idempotent — reuses the existing browser sub, updates the DB row).
+      const result = await subscribeToPush(playerId)
+      return {
+        action: result.ok ? 'refreshed' : 'error',
+        staleReaped: stale.length,
+        reason: result.reason,
+      }
+    }
+
+    return stale.length > 0
+      ? { action: 'reaped-only', staleReaped: stale.length }
+      : { action: 'noop' }
+  } catch (err) {
+    return { action: 'error', reason: (err as Error).message }
+  }
+}
