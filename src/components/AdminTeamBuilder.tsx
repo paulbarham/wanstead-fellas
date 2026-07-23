@@ -90,8 +90,23 @@ function snakeDraft(players: Profile[], numTeams: number, weights: Record<string
   const maxSize = Math.ceil(players.length / numTeams)
   const posOf = (p: Profile): string | null =>
     p.preferred_position_primary ?? p.position ?? null
-  const sortByScore = (arr: Profile[]) =>
-    [...arr].sort((a, b) => calcWeightedScore(b, weights) - calcWeightedScore(a, weights))
+
+  // ±5% score jitter before sorting. Without this the snake draft is
+  // fully deterministic — same players + same weights = same teams every
+  // week — which was making games feel same-y and the admin "regenerate"
+  // button do nothing. Jitter shuffles adjacent/tied ranks but big gaps
+  // hold (a rating-9 player can't fall to the bottom pool). The jitter
+  // is per-call so hitting "regenerate" produces a fresh draw. Once
+  // teams are published the layout is frozen in team_drafts JSON, so
+  // players never see a jitter-induced flicker.
+  const sortByScore = (arr: Profile[]) => {
+    const scored = arr.map(p => ({
+      p,
+      score: calcWeightedScore(p, weights) * (0.95 + Math.random() * 0.10),
+    }))
+    scored.sort((a, b) => b.score - a.score)
+    return scored.map(x => x.p)
+  }
 
   const gks  = sortByScore(players.filter(p => posOf(p) === 'GK'))
   const atts = sortByScore(players.filter(p => posOf(p) === 'ATT'))

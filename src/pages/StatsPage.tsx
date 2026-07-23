@@ -113,7 +113,7 @@ function Panel({
 // at a glance. If all top rows tie at the same value (e.g. 4 players on 1
 // MOTM each), collapses to a compact "N-way tie" treatment instead of three
 // identical bars.
-type PodiumRow = { profile: ProfileLite | undefined; value: number; display?: string }
+type PodiumRow = { profile: ProfileLite | undefined; value: number; display?: string; note?: string }
 function PodiumPreview({ rows, unit, emptyText }: { rows: PodiumRow[]; unit?: string; emptyText?: string }) {
   if (rows.length === 0) {
     return <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{emptyText ?? 'No data yet.'}</div>
@@ -137,6 +137,12 @@ function PodiumPreview({ rows, unit, emptyText }: { rows: PodiumRow[]; unit?: st
     )
   }
   const top3 = rows.slice(0, 3)
+  // Only surface the #1 row's note (streak flame etc) — showing all three
+  // notes on the compact preview would eat too much vertical space, and
+  // the expanded RankedList shows them all anyway. Streak was invisible
+  // in the collapsed view before this — hence "the streak stat disappeared"
+  // complaint even though it's been in the data all along.
+  const topNote = top3[0]?.note
   return (
     <div className="flex flex-col gap-1">
       {top3.map((r, i) => {
@@ -156,6 +162,11 @@ function PodiumPreview({ rows, unit, emptyText }: { rows: PodiumRow[]; unit?: st
           </div>
         )
       })}
+      {topNote && (
+        <div className="pl-6 -mt-0.5" style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+          {topNote}
+        </div>
+      )}
     </div>
   )
 }

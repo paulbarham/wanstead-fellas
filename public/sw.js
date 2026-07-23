@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v15 for Theme of the Night Award — new 3rd ballot slot on
-// MotmVotingCard, theme strip on Tonight, admin fields on TeamBuilder
-// + MatchEntry (mig 060).
-const CACHE = 'wf-v15'
+// Bumped to v16 for balance-jitter (snake draft now ±5%s scores so weekly
+// draws feel fresh + admin regenerate button actually shuffles) and
+// PodiumPreview streak surfacing (fixes "the streak stat disappeared").
+const CACHE = 'wf-v16'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
