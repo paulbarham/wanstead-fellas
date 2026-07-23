@@ -571,7 +571,17 @@ export default function StatsPage() {
     }
     const sorted = [...stats.entries()].sort(([, a], [, b]) =>
       b.pts - a.pts || b.gd - a.gd || b.gf - a.gf)
-    if (sorted.length === 0) { winnerByMatch[matchId] = null; continue }
+    // Empty sorted = no scored fixtures — the match has fixtures generated
+    // (usually because teams were just published for an upcoming Thursday)
+    // but nobody's kicked a ball yet. Leaving winnerByMatch[matchId]
+    // UNDEFINED (rather than null) is deliberate — streakFor treats
+    // undefined as "match not played yet, skip" and null as "played but
+    // tied at the top, break the streak". Bug this fixes: a player
+    // rostered for the coming Thursday would see their current-week
+    // streak snap to 0 the moment teams got published, because the
+    // unscored 23-Jul match sorted DESC to the top of their apps and
+    // was being read as a draw.
+    if (sorted.length === 0) continue
     const [topId, top] = sorted[0]
     if (sorted.length >= 2) {
       const [, second] = sorted[1]

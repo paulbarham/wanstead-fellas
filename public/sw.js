@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v16 for balance-jitter (snake draft now ±5%s scores so weekly
-// draws feel fresh + admin regenerate button actually shuffles) and
-// PodiumPreview streak surfacing (fixes "the streak stat disappeared").
-const CACHE = 'wf-v16'
+// Bumped to v17 for the winner-streak bug fix — the newly-published-but-
+// -not-yet-played match was silently snapping every player's current
+// streak to 0 (unscored fixtures were being read as a draw).
+const CACHE = 'wf-v17'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
