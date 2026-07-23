@@ -8,8 +8,9 @@ import type { Profile, AwardType, AwardResult, VotingWindow } from '../types'
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'surname' | 'photo_url'>
 
 const AWARDS: { type: AwardType; label: string; icon: string }[] = [
-  { type: 'motm', label: 'Man of the Match', icon: '🏆' },
-  { type: 'dotd', label: 'Dick of the Day', icon: '🤡' },
+  { type: 'motm',  label: 'Man of the Match',      icon: '🏆' },
+  { type: 'dotd',  label: 'Dick of the Day',       icon: '🤡' },
+  { type: 'theme', label: 'Theme of the Night',    icon: '🎭' },
 ]
 
 const LOW_TURNOUT = 5
@@ -56,6 +57,10 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
   // the signed-in player cast at least one vote. Loss-aversion push — shown
   // once >=2 so it feels earned, not participation.
   const [myStreak, setMyStreak] = useState(0)
+  // Theme of the Night prompt (mig 060) — null means no theme award for
+  // this match; the ballot row + result section stay hidden. Set from
+  // AdminTeamBuilder (publish) or AdminMatchEntry (edit).
+  const [themePrompt, setThemePrompt] = useState<string | null>(null)
 
   const now = Date.now()
   const matchId = window?.match_id ?? null
@@ -83,11 +88,14 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
     async function load() {
       const { data: vw } = await supabase
         .from('voting_windows')
-        .select('*, matches!inner(match_date)')
+        .select('*, matches!inner(match_date, theme_prompt)')
         .order('closes_at', { ascending: false })
         .limit(1)
         .maybeSingle()
-      const wRaw = vw as (VotingWindow & { matches: { match_date: string } }) | null
+      const wRaw = vw as (VotingWindow & { matches: { match_date: string; theme_prompt: string | null } }) | null
+      // Track the theme prompt for the theme-award row. Null / empty →
+      // theme award is not offered this match.
+      setThemePrompt(wRaw?.matches?.theme_prompt?.trim() || null)
 
       // On the day of a new scheduled match, don't linger on last week's
       // voting results. Same rationale as the MatchPage stale-report hide —
@@ -304,7 +312,11 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
   if (isOpen) {
     const motmPick = myVotes.motm
     const dotdPick = myVotes.dotd
-    const votedAll = !!motmPick && !!dotdPick
+    const themePick = myVotes.theme
+    // Theme is opt-in per match (only when matches.theme_prompt is set) —
+    // votedAll only requires it when it's actually offered.
+    const themeActive = !!themePrompt
+    const votedAll = !!motmPick && !!dotdPick && (!themeActive || !!themePick)
     const closesLabel = new Date(window.closes_at).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })
     const q = filter.trim().toLowerCase()
     const ranked = [...eligible].sort((a, b) => {
@@ -313,13 +325,18 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
       return `${a.surname}${a.name}`.localeCompare(`${b.surname}${b.name}`)
     })
     const shown = q ? ranked.filter(p => `${p.name} ${p.surname}`.toLowerCase().includes(q)) : ranked
-    const errors = [voteError.motm, voteError.dotd].filter(Boolean)
+    const errors = [voteError.motm, voteError.dotd, themeActive ? voteError.theme : null].filter(Boolean)
 
+    const awardLabel: Record<AwardType, string> = {
+      motm:  'Man of the Match',
+      dotd:  'Dick of the Day',
+      theme: 'Theme of the Night',
+    }
     const renderPick = (award: AwardType, player: ProfileLite, selected: boolean, emoji: string) => (
       <button
         key={award}
         onClick={() => castVote(award, player.id)}
-        aria-label={`${award === 'motm' ? 'Man of the Match' : 'Dick of the Day'}: ${player.name} ${player.surname}`}
+        aria-label={`${awardLabel[award]}: ${player.name} ${player.surname}`}
         aria-pressed={selected}
         className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base transition-transform"
         style={{
@@ -341,7 +358,11 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
             {votedAll ? 'YOUR VOTES' : 'CAST YOUR VOTES'}
           </span>
           <span className="flex items-center gap-1.5">
-            {([['motm', '🏆', !!motmPick], ['dotd', '🤡', !!dotdPick]] as const).map(([key, icon, done]) => (
+            {([
+              ['motm',  '🏆', !!motmPick,  true] as const,
+              ['dotd',  '🤡', !!dotdPick,  true] as const,
+              ['theme', '🎭', !!themePick, themeActive] as const,
+            ]).filter(([, , , shown]) => shown).map(([key, icon, done]) => (
               <span key={key} className="text-[11px] font-bold px-2 py-1 rounded-full"
                 style={{ background: done ? '#FFFFFF' : 'rgba(255,255,255,0.22)', color: done ? 'var(--color-primary)' : '#FFFFFF', letterSpacing: '0.5px' }}>
                 {icon} {done ? '✓' : '–'}
@@ -354,9 +375,21 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
           style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border)' }}>
           <span>{participation.voted}/{participation.eligible} voted · closes {closesLabel}</span>
           <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--color-primary)', letterSpacing: '0.5px' }}>
-            🏆 MOTM · 🤡 DOTD
+            🏆 MOTM · 🤡 DOTD{themeActive ? ' · 🎭 THEME' : ''}
           </span>
         </div>
+
+        {themeActive && (
+          <div className="px-4 py-2.5"
+            style={{ background: 'rgba(255,102,204,0.06)', borderBottom: '1px solid var(--color-border)' }}>
+            <p className="text-[10px] uppercase font-semibold tracking-widest mb-0.5" style={{ color: 'var(--tt-magenta, #FF66CC)' }}>
+              🎭 Theme of the Night
+            </p>
+            <p className="text-sm" style={{ color: 'var(--color-text)' }}>
+              {themePrompt}
+            </p>
+          </div>
+        )}
 
         {myStreak >= 2 && (
           <div className="px-4 py-2 text-xs flex items-center gap-2"
@@ -415,6 +448,7 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
                     </div>
                     {renderPick('motm', p, motmPick === p.id, '🏆')}
                     {renderPick('dotd', p, dotdPick === p.id, '🤡')}
+                    {themeActive && renderPick('theme', p, themePick === p.id, '🎭')}
                   </div>
                 )
               })}
@@ -463,12 +497,19 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
           const total = rows.reduce((s, r) => Math.max(s, r.total_votes), 0)
           return (
             <div key={type} className="px-4 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-primary)' }}>
-                  {icon} {label}{shared && <span style={{ color: '#9CA897' }}> · shared</span>}
-                </p>
+              <div className="flex items-start justify-between mb-3 gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-primary)' }}>
+                    {icon} {label}{shared && <span style={{ color: '#9CA897' }}> · shared</span>}
+                  </p>
+                  {type === 'theme' && themePrompt && (
+                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                      {themePrompt}
+                    </p>
+                  )}
+                </div>
                 {isOverride && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
                     style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning-text)' }}>
                     ADMIN CALL
                   </span>
@@ -541,16 +582,18 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
                   <p className="text-[11px]" style={{ color: '#9CA897' }}>No votes cast.</p>
                 ) : (
                   (() => {
-                    const byVoter = new Map<string, { voter: string; motm: string; dotd: string }>()
+                    const byVoter = new Map<string, { voter: string; motm: string; dotd: string; theme: string }>()
                     for (const b of breakdown) {
-                      const row = byVoter.get(b.voter_name) ?? { voter: b.voter_name, motm: '—', dotd: '—' }
-                      if (b.award_type === 'motm') row.motm = b.nominee_name
-                      else if (b.award_type === 'dotd') row.dotd = b.nominee_name
+                      const row = byVoter.get(b.voter_name) ?? { voter: b.voter_name, motm: '—', dotd: '—', theme: '—' }
+                      if (b.award_type === 'motm')  row.motm  = b.nominee_name
+                      else if (b.award_type === 'dotd')  row.dotd  = b.nominee_name
+                      else if (b.award_type === 'theme') row.theme = b.nominee_name
                       byVoter.set(b.voter_name, row)
                     }
                     const rows = Array.from(byVoter.values()).sort((a, b) =>
                       a.voter.localeCompare(b.voter, undefined, { sensitivity: 'base' })
                     )
+                    const showTheme = !!themePrompt || rows.some(r => r.theme !== '—')
                     return (
                       <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
                         <table className="w-full text-[11px]">
@@ -559,6 +602,9 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
                               <th className="px-2 py-1.5 text-left font-semibold uppercase" style={{ letterSpacing: '0.6px' }}>Voter</th>
                               <th className="px-2 py-1.5 text-left font-semibold uppercase" style={{ letterSpacing: '0.6px' }}>MOTM</th>
                               <th className="px-2 py-1.5 text-left font-semibold uppercase" style={{ letterSpacing: '0.6px' }}>DOTD</th>
+                              {showTheme && (
+                                <th className="px-2 py-1.5 text-left font-semibold uppercase" style={{ letterSpacing: '0.6px' }}>Theme</th>
+                              )}
                             </tr>
                           </thead>
                           <tbody>
@@ -567,6 +613,9 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
                                 <td className="px-2 py-1.5 font-medium" style={{ color: 'var(--color-text)' }}>{r.voter}</td>
                                 <td className="px-2 py-1.5" style={{ color: r.motm === '—' ? '#9CA897' : 'var(--color-text)' }}>{r.motm}</td>
                                 <td className="px-2 py-1.5" style={{ color: r.dotd === '—' ? '#9CA897' : 'var(--color-text)' }}>{r.dotd}</td>
+                                {showTheme && (
+                                  <td className="px-2 py-1.5" style={{ color: r.theme === '—' ? '#9CA897' : 'var(--color-text)' }}>{r.theme}</td>
+                                )}
                               </tr>
                             ))}
                           </tbody>

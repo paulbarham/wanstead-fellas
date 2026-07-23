@@ -338,6 +338,28 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
   const [published, setPublished] = useState(publishedTeams.length > 0)
   const [publishError, setPublishError] = useState<string | null>(null)
   const [republishConfirm, setRepublishConfirm] = useState(false)
+  // Theme of the Night Award prompt (mig 060) — set here at publish time
+  // so it flows into the "teams are ready" push copy, editable from
+  // AdminMatchEntry later if a better prompt lands mid-week.
+  const [themePromptDraft, setThemePromptDraft] = useState(match?.theme_prompt ?? '')
+  const [savingTheme, setSavingTheme] = useState(false)
+  useEffect(() => { setThemePromptDraft(match?.theme_prompt ?? '') }, [match?.id, match?.theme_prompt])
+  useEffect(() => {
+    // Debounced save. Only fires when the match row already exists —
+    // pre-publish, the theme is carried into publish() below as part of
+    // the initial matches insert. Post-publish, changes save on the fly.
+    if (!match?.id) return
+    if ((match.theme_prompt ?? '') === themePromptDraft) return
+    const t = setTimeout(async () => {
+      setSavingTheme(true)
+      const value = themePromptDraft.trim() || null
+      await supabase.from('matches').update({ theme_prompt: value }).eq('id', match.id)
+      setSavingTheme(false)
+      onPublished()
+    }, 500)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [themePromptDraft])
   const [showWeights, setShowWeights] = useState(false)
   const [copied, setCopied] = useState<'whatsapp' | 'flat' | null>(null)
   const [debutantIds, setDebutantIds] = useState<Set<string>>(new Set())
@@ -455,16 +477,24 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
     setPublishing(true)
     setPublishError(null)
     try {
+      const themeValue = themePromptDraft.trim() || null
       let matchId = match?.id
       if (!matchId) {
         const { data: newMatch, error: matchErr } = await supabase
           .from('matches')
-          .insert({ match_date: nextThursday, format: formatLabelFor(pickConfig(draftTeams.reduce((s, t) => s + t.players.length, 0))), status: 'published' })
+          .insert({
+            match_date: nextThursday,
+            format: formatLabelFor(pickConfig(draftTeams.reduce((s, t) => s + t.players.length, 0))),
+            status: 'published',
+            theme_prompt: themeValue,
+          })
           .select().single()
         if (matchErr) throw new Error(`Couldn't create match: ${matchErr.message}`)
         matchId = newMatch?.id
       } else {
-        const { error: updErr } = await supabase.from('matches').update({ status: 'published' }).eq('id', matchId)
+        const { error: updErr } = await supabase.from('matches')
+          .update({ status: 'published', theme_prompt: themeValue })
+          .eq('id', matchId)
         if (updErr) throw new Error(`Couldn't mark match published: ${updErr.message}`)
       }
       if (!matchId) throw new Error("Couldn't determine match id after upsert")
@@ -755,6 +785,40 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
             <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
               style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid #FECACA' }}>
               ⚠ Publish failed — nothing saved. {publishError}
+            </div>
+          )}
+
+          {/* Theme of the Night Award (mig 060) — text sets the 3rd ballot
+              slot; flows into the "teams ready" push copy so it's live in
+              the group chat pre-match for banter. */}
+          {draftTeams.length > 0 && (
+            <div className="mb-3 px-3 py-2.5 rounded-xl"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+              <div className="flex items-center justify-between gap-3 mb-1.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                  🎭 Theme of the Night · optional
+                </p>
+                <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                  {savingTheme ? 'saving…' : themePromptDraft.trim() ? 'ballot slot on' : 'off'}
+                </span>
+              </div>
+              <input
+                type="text"
+                value={themePromptDraft}
+                onChange={e => setThemePromptDraft(e.target.value)}
+                placeholder="e.g. Kevin Keegan tribute · Peak dad-strength"
+                maxLength={80}
+                className="w-full px-3 py-2 rounded-lg text-sm"
+                style={{
+                  background: 'var(--color-surface-2)',
+                  color: 'var(--color-text)',
+                  border: '1px solid var(--color-border)',
+                  fontFamily: 'var(--font-mono)',
+                }}
+              />
+              <p className="text-[10px] mt-1.5" style={{ color: 'var(--color-text-muted)' }}>
+                Blank = no theme award this week. Included in the "teams are ready" push.
+              </p>
             </div>
           )}
 

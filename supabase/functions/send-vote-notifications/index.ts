@@ -101,8 +101,9 @@ Deno.serve(async (req) => {
 
     // Build payload
     const { data: matchRow } = await supabase
-      .from('matches').select('match_date').eq('id', matchId).maybeSingle()
+      .from('matches').select('match_date, theme_prompt').eq('id', matchId).maybeSingle()
     const matchDate = matchRow?.match_date || ''
+    const themePrompt = (matchRow?.theme_prompt as string | null | undefined)?.trim() || null
     const readable = matchDate
       ? new Date(matchDate + 'T12:00:00').toLocaleString('en-GB', { day: 'numeric', month: 'short' })
       : 'tonight'
@@ -123,14 +124,18 @@ Deno.serve(async (req) => {
     const payload = topic === 'teams_ready'
       ? {
         title: '🟢 Teams are ready',
-        body: `Line-ups for ${readable} are up — tap to see your team.`,
+        body: themePrompt
+          ? `Line-ups for ${readable} are up. Tonight's theme: ${themePrompt} 🎭`
+          : `Line-ups for ${readable} are up — tap to see your team.`,
         url: '/teams',
         tag: `teams-${matchId}`,
       }
       : topic === 'vote_open'
         ? {
           title: '🏆 Vote for tonight\'s awards',
-          body: `${readable} result is in — cast your MOTM & DOTD picks.`,
+          body: themePrompt
+            ? `${readable} result is in — MOTM, DOTD & Theme (${themePrompt}) picks now open.`
+            : `${readable} result is in — cast your MOTM & DOTD picks.`,
           url: '/match',
           tag: `vote-${matchId}`,
         }

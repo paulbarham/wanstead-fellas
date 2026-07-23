@@ -21,12 +21,13 @@ interface MatchRecord {
 }
 
 const AWARD_META: Record<AwardType, { label: string; icon: string }> = {
-  motm: { label: 'Man of the Match', icon: '🏆' },
-  dotd: { label: 'Dick of the Day', icon: '🤡' },
+  motm:  { label: 'Man of the Match',   icon: '🏆' },
+  dotd:  { label: 'Dick of the Day',    icon: '🤡' },
+  theme: { label: 'Theme of the Night', icon: '🎭' },
 }
 
 function MatchAwards({ awards, names }: { awards: AwardResult[]; names: Record<string, string> }) {
-  const types: AwardType[] = ['motm', 'dotd']
+  const types: AwardType[] = ['motm', 'dotd', 'theme']
   return (
     <div className="space-y-3">
       {types.map(type => {

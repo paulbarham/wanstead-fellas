@@ -155,6 +155,11 @@ export interface Match {
   // Off by default; admin flips on for special nights (WC final, cup night)
   // from the top of AdminMatchEntry.
   shootout_enabled: boolean
+  // Free-text prompt for the Theme of the Night Award (mig 060). NULL /
+  // empty = no theme award this week; the voting UI hides the row and
+  // compute_award_results skips it. Admin sets from AdminTeamBuilder
+  // (at publish time) or AdminMatchEntry (edit later).
+  theme_prompt?: string | null
 }
 
 export interface Team {
@@ -280,7 +285,7 @@ export interface LinkedProfile {
   created_at: string
 }
 
-export type AwardType = 'motm' | 'dotd'
+export type AwardType = 'motm' | 'dotd' | 'theme'
 
 export interface Vote {
   id: string

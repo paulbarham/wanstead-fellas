@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v14 for OS text-size respect — dropped the hardcoded 16px
-// root font-size so browser/OS text-size settings flow through. Toggle
-// now uses % (not px) so it stacks on top of the OS pref.
-const CACHE = 'wf-v14'
+// Bumped to v15 for Theme of the Night Award — new 3rd ballot slot on
+// MotmVotingCard, theme strip on Tonight, admin fields on TeamBuilder
+// + MatchEntry (mig 060).
+const CACHE = 'wf-v15'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

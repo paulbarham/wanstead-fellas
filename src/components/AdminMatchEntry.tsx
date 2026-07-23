@@ -452,6 +452,27 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
     }
   }
 
+  // Theme of the Night Award prompt (mig 060) — nullable per-match text
+  // that unlocks the third ballot slot. Editable inline here + also settable
+  // from AdminTeamBuilder at publish time. Debounced 500ms so admin can
+  // type without every keystroke hitting the DB.
+  const [themeDraft, setThemeDraft] = useState(match?.theme_prompt ?? '')
+  const [savingTheme, setSavingTheme] = useState(false)
+  useEffect(() => { setThemeDraft(match?.theme_prompt ?? '') }, [match?.id, match?.theme_prompt])
+  useEffect(() => {
+    if (!match?.id) return
+    if ((match.theme_prompt ?? '') === themeDraft) return
+    const t = setTimeout(async () => {
+      setSavingTheme(true)
+      const value = themeDraft.trim() || null
+      await supabase.from('matches').update({ theme_prompt: value }).eq('id', match.id)
+      setSavingTheme(false)
+      onSaved()
+    }, 500)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [themeDraft])
+
   // Flip the per-match shootout opt-in on/off (mig 055). Default is off; admin
   // turns on for special nights (WC final, cup night). Turning off also clears
   // any previously-recorded shootout winners on this match's fixtures so a
@@ -814,6 +835,39 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
           >
             {togglingShootout ? '…' : match?.shootout_enabled ? 'ON' : 'OFF'}
           </button>
+        </div>
+      )}
+
+      {/* Theme of the Night Award prompt (mig 060) — free text; a non-blank
+          value unlocks the 3rd ballot slot on MotmVotingCard. Debounced save. */}
+      {canWriteReport && (
+        <div className="mb-4 px-3 py-2.5 rounded-xl"
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <div className="flex items-center justify-between gap-3 mb-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+              🎭 Theme of the Night
+            </p>
+            <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+              {savingTheme ? 'saving…' : themeDraft.trim() ? 'ballot slot on' : 'off'}
+            </span>
+          </div>
+          <input
+            type="text"
+            value={themeDraft}
+            onChange={e => setThemeDraft(e.target.value)}
+            placeholder="e.g. Kevin Keegan tribute · Peak dad-strength"
+            maxLength={80}
+            className="w-full px-3 py-2 rounded-lg text-sm"
+            style={{
+              background: 'var(--color-surface-2)',
+              color: 'var(--color-text)',
+              border: '1px solid var(--color-border)',
+              fontFamily: 'var(--font-mono)',
+            }}
+          />
+          <p className="text-[10px] mt-1.5" style={{ color: 'var(--color-text-muted)' }}>
+            Blank = no theme award this week. Type a prompt to unlock the 3rd voting slot.
+          </p>
         </div>
       )}
 

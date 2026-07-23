@@ -98,6 +98,9 @@ export default function TonightPage() {
   // Set when the toggle attempt is rejected by the DB trigger so we can show
   // the message inline instead of an opaque error.
   const [signupError, setSignupError] = useState<string | null>(null)
+  // Theme of the Night Award prompt (mig 060) — surfaced early on Tonight
+  // so the group gets banter before match day. Null = no theme this week.
+  const [themePrompt, setThemePrompt] = useState<string | null>(null)
 
   const confirmedAvail = availability.filter(a => a.status !== 'waiting')
   const waitingAvail = availability.filter(a => a.status === 'waiting')
@@ -108,15 +111,17 @@ export default function TonightPage() {
   const signedUpCount = confirmedAvail.length
 
   const fetchData = useCallback(async () => {
-    const [{ data: avail }, { data: profs }] = await Promise.all([
+    const [{ data: avail }, { data: profs }, { data: matchRow }] = await Promise.all([
       supabase.from('availability').select('*').eq('match_date', nextThursday),
       supabase.from('profiles').select('id, name, surname, photo_url, overall_rating, badges, player_type'),
+      supabase.from('matches').select('theme_prompt').eq('match_date', nextThursday).maybeSingle(),
     ])
     setAvailability((avail as Availability[]) || [])
     const sorted = ((profs as Profile[]) || []).sort((a, b) =>
       `${a.surname}${a.name}`.localeCompare(`${b.surname}${b.name}`)
     )
     setPlayers(sorted)
+    setThemePrompt((matchRow as { theme_prompt: string | null } | null)?.theme_prompt?.trim() || null)
     setLoading(false)
   }, [nextThursday])
 
@@ -462,6 +467,25 @@ export default function TonightPage() {
         <div className="mb-3 px-3 py-2 rounded-xl text-xs font-medium text-center"
           style={{ background: 'var(--color-warning-bg)', color: '#92400e', border: '1px solid #C9A227' }}>
           🔒 Sign-ups locked — see you Thursday!
+        </div>
+      )}
+
+      {/* Theme of the Night Award strip (mig 060). Surfaced early so the
+          group has banter fodder before match day. Only shown when admin
+          has set a prompt; disappears after the match completes. */}
+      {themePrompt && (
+        <div className="mb-3 px-3 py-2.5 rounded-xl"
+          style={{ background: 'rgba(255,102,204,0.06)', border: '1px solid var(--tt-magenta, #FF66CC)' }}>
+          <p className="text-[10px] uppercase font-semibold tracking-widest mb-0.5"
+            style={{ color: 'var(--tt-magenta, #FF66CC)' }}>
+            🎭 Tonight's theme
+          </p>
+          <p className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>
+            {themePrompt}
+          </p>
+          <p className="text-[10px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
+            Vote after full time for the fella who best captured it.
+          </p>
         </div>
       )}
 
