@@ -1,8 +1,7 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v9 for push-subscription self-heal — app boot now silently
-// reconciles the browser's push sub with the DB (fixes the "reinstalled
-// PWA and lost push" trap that hit Paul's device on 18 Jul).
-const CACHE = 'wf-v9'
+// Bumped to v10 for player self-service dropout — "Can't play tonight"
+// button below FormationPicker on the user's own team card (mig 057).
+const CACHE = 'wf-v10'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

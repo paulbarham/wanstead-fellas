@@ -7,6 +7,7 @@ import { getNextThursdayDate } from '../lib/time'
 import AdminTeamBuilder from '../components/AdminTeamBuilder'
 import CeefaxHeader from '../components/CeefaxHeader'
 import FormationPicker from '../components/FormationPicker'
+import DropoutButton from '../components/DropoutButton'
 import { stripFC } from '../lib/format'
 
 interface TeamWithPlayers extends Team {
@@ -233,6 +234,13 @@ export default function TeamsPage() {
                   teamName={team.name}
                   bibs={team.bibs}
                   editable
+                />
+              )}
+              {isMyTeam && match && (
+                <DropoutButton
+                  matchId={match.id}
+                  matchDate={match.match_date}
+                  onDropout={fetchTeams}
                 />
               )}
               </div>
