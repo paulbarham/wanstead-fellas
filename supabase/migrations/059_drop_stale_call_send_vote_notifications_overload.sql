@@ -1,0 +1,29 @@
+-- Hotfix for mig 058 fallout.
+--
+-- Migration 058 extended call_send_vote_notifications with an optional
+-- third argument (p_extra jsonb DEFAULT NULL). Because CREATE OR REPLACE
+-- FUNCTION only replaces functions of the *same* signature, this created
+-- a second overload rather than replacing the old 2-arg one. Postgres
+-- was then left with two definitions:
+--
+--   call_send_vote_notifications(uuid, text)
+--   call_send_vote_notifications(uuid, text, jsonb DEFAULT NULL)
+--
+-- Any 2-arg call — e.g. the voting_windows_notify_open trigger which
+-- invokes call_send_vote_notifications(NEW.match_id, 'teams_ready') —
+-- matched BOTH overloads and Postgres refused to pick one:
+--
+--   ERROR 42725: function public.call_send_vote_notifications(uuid, unknown)
+--   is not unique
+--
+-- That in turn broke the publish flow (INSERT into voting_windows failed
+-- inside AdminTeamBuilder.publish, silently — 4 tables already committed).
+-- The 23 Jul match published as far as fixtures + teams + team_players but
+-- had no voting_windows row, leaving admin stuck on the "Publish teams"
+-- CTA.
+--
+-- Fix: drop the 2-arg overload. The 3-arg version handles both call shapes
+-- via the default, so all callers (triggers + explicit invocations from
+-- other functions) resolve unambiguously.
+
+DROP FUNCTION IF EXISTS public.call_send_vote_notifications(uuid, text);
