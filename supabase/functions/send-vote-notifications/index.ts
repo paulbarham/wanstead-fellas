@@ -1,4 +1,4 @@
-// Fans out web push notifications for a given match. Three topics:
+// Fans out web push notifications for a given match. Four topics:
 //   * 'teams_ready' — teams for the next match have just been published
 //     (voting_windows INSERT where opens_at is > 15 min in the future).
 //     Recipients: rostered players only (they're the ones who need to
@@ -13,6 +13,12 @@
 //     to the awards-only copy for backwards compat.
 //     Recipients: EVERY active push subscription — the report is club-wide
 //     news, not just relevant to the players rostered that week.
+//   * 'dropout'     — a rostered player has used the self-service dropout
+//     flow (mig 057). Extra body: { leaver_id, replacement_id? }.
+//     Fires TWO payloads:
+//       - admin(s) get a "🔄 Roster change" ping (leaver + replacement or
+//         "admin needs to fill" if no WTP was available)
+//       - replacement (if any) gets a personal "⚽ You're in tonight" ping
 //
 // Called by a Postgres trigger on voting_windows INSERT (for teams_ready
 // or vote_open, depending on timing), by the pg_cron scheduled job (for
@@ -57,6 +63,12 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
+
+    // 'dropout' is a special case — two payloads, two audiences — handled
+    // separately below. The rest share the roster-vs-club recipient split.
+    if (topic === 'dropout') {
+      return await handleDropout(supabase, matchId, body)
+    }
 
     // Recipients:
     //  * 'results' → EVERY active push subscription. The match report is
@@ -188,5 +200,89 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
+  })
+}
+
+// 'dropout' handler — fires two payloads:
+//   1. admin(s): "🔄 Roster change · Leaver out, Replacement in" (or "…admin
+//      needs to fill" when no WTP was available)
+//   2. replacement (if any): "⚽ You're in tonight · <matchDate>"
+async function handleDropout(supabase: any, matchId: string, body: any): Promise<Response> {
+  const leaverId = body.leaver_id as string | undefined
+  const replacementId = (body.replacement_id as string | null | undefined) ?? null
+  if (!leaverId) return json({ error: 'dropout: leaver_id required' }, 400)
+
+  const { data: matchRow } = await supabase
+    .from('matches').select('match_date').eq('id', matchId).maybeSingle()
+  const matchDate = matchRow?.match_date || ''
+  const readable = matchDate
+    ? new Date(matchDate + 'T12:00:00').toLocaleString('en-GB', { day: 'numeric', month: 'short' })
+    : 'the upcoming match'
+
+  // Names
+  const ids = [leaverId, ...(replacementId ? [replacementId] : [])]
+  const { data: profs } = await supabase.from('profiles').select('id, name, surname').in('id', ids)
+  const nameOf = (id: string) => {
+    const p = (profs || []).find((r: any) => r.id === id)
+    return p ? `${p.name} ${p.surname}` : 'A player'
+  }
+  const leaverName = nameOf(leaverId)
+  const replacementName = replacementId ? nameOf(replacementId) : null
+
+  // Admin recipient list
+  const { data: adminProfiles } = await supabase.from('profiles').select('id').eq('is_admin', true)
+  const adminIds = (adminProfiles || []).map((p: any) => p.id as string)
+
+  // Fetch all target subscriptions in one hit
+  const allIds = [...new Set([...adminIds, ...(replacementId ? [replacementId] : [])])]
+  if (allIds.length === 0) return json({ sent: 0, total: 0, reason: 'no admin or replacement subs' })
+
+  const { data: allSubs } = await supabase
+    .from('push_subscriptions')
+    .select('id, endpoint, p256dh, auth, player_id')
+    .in('player_id', allIds)
+  const subs = (allSubs || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string; player_id: string }>
+
+  const adminPayload = JSON.stringify({
+    title: '🔄 Roster change',
+    body: replacementName
+      ? `${leaverName} dropped out. ${replacementName} swapped in for ${readable}.`
+      : `${leaverName} dropped out for ${readable}. No WTP available — needs a manual fill.`,
+    url: '/teams',
+    tag: `dropout-${matchId}-${leaverId}`,
+  })
+  const replacementPayload = replacementName ? JSON.stringify({
+    title: '⚽ You\'re in tonight',
+    body: `${leaverName} dropped out — you're swapped in for ${readable}. Tap to see your team.`,
+    url: '/teams',
+    tag: `roster-in-${matchId}-${replacementId}`,
+  }) : null
+
+  const outcomes = await Promise.all(subs.map(async (s) => {
+    const isReplacementSub = replacementId && s.player_id === replacementId
+    const payloadStr = isReplacementSub && replacementPayload ? replacementPayload : adminPayload
+    try {
+      await webpush.sendNotification(
+        { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+        payloadStr,
+      )
+      return { id: s.id, ok: true, audience: isReplacementSub ? 'replacement' : 'admin' }
+    } catch (err: any) {
+      if (err?.statusCode === 410 || err?.statusCode === 404) {
+        await supabase.from('push_subscriptions').delete().eq('id', s.id)
+        return { id: s.id, ok: false, reason: 'stale-cleaned' }
+      }
+      return { id: s.id, ok: false, reason: err?.message || 'send-failed', statusCode: err?.statusCode ?? null }
+    }
+  }))
+
+  return json({
+    match_id: matchId,
+    topic: 'dropout',
+    leaver: leaverName,
+    replacement: replacementName,
+    sent: outcomes.filter(o => o.ok).length,
+    total: outcomes.length,
+    results: outcomes,
   })
 }
