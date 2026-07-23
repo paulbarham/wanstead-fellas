@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Theme of the Night Award</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · THEME AWARD · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #FF66CC;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #FF66CC; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #FF66CC; font-style: normal; }
+  ul { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,102,204,0.08);
+    border-left: 3pt solid #FF66CC;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.yellow{ background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(255,102,204,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  .kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    border: 1px solid rgba(74,217,255,0.25);
+  }
+
+  /* ─── Three-award tiles ────────────────────────── */
+  .awards {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .awards .aw {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 10pt;
+    vertical-align: top;
+  }
+  .awards .aw.motm  { border-color: #FFD400; }
+  .awards .aw.dotd  { border-color: #FF5555; }
+  .awards .aw.theme { border-color: #FF66CC; background: rgba(255,102,204,0.05); }
+  .awards .emoji {
+    font-size: 22pt; display: block; margin-bottom: 2pt;
+  }
+  .awards .name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11.5pt; margin: 2pt 0 4pt;
+    text-transform: uppercase;
+  }
+  .awards .aw.motm  .name { color: #FFD400; }
+  .awards .aw.dotd  .name { color: #FF5555; }
+  .awards .aw.theme .name { color: #FF66CC; }
+  .awards p { font-size: 9pt; color: #E8F0E9; line-height: 1.45; }
+  .awards .cap {
+    font-family: 'Courier New', monospace;
+    font-size: 7pt; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #9CA897;
+    margin-top: 6pt; display: block;
+  }
+  .awards .aw.theme .cap { color: #FF66CC; }
+
+  /* ─── UI mocks — white on dark app frame ───────── */
+  .mock {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 10pt;
+    padding: 10pt 12pt;
+    margin: 6pt 0;
+  }
+  .mock.theme-strip {
+    background: rgba(255,102,204,0.08);
+    border-color: #FF66CC;
+  }
+  .mock .cap {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #FF66CC;
+  }
+  .mock .body {
+    font-size: 10.5pt; color: #E8F0E9;
+    margin: 3pt 0;
+  }
+  .mock .hint {
+    font-size: 8.5pt; color: #9CA897;
+  }
+
+  /* Ballot row mock */
+  .ballot {
+    background: #15211A;
+    border: 1px solid #0D6B52;
+    border-radius: 10pt;
+    overflow: hidden;
+    margin: 6pt 0;
+  }
+  .ballot .header {
+    background: #0D6B52;
+    color: #FFFFFF;
+    padding: 6pt 10pt;
+    display: table;
+    width: 100%;
+  }
+  .ballot .header .l {
+    display: table-cell;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt;
+    letter-spacing: 0.05em;
+  }
+  .ballot .header .r {
+    display: table-cell;
+    text-align: right;
+  }
+  .ballot .chip {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: #FFFFFF;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 2pt 5pt;
+    border-radius: 8pt;
+    margin-left: 3pt;
+  }
+  .ballot .theme-banner {
+    background: rgba(255,102,204,0.08);
+    padding: 6pt 10pt;
+    border-bottom: 1px solid #2D4A2F;
+  }
+  .ballot .theme-banner .lbl {
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #FF66CC;
+  }
+  .ballot .theme-banner .txt {
+    font-size: 9.5pt;
+    color: #E8F0E9;
+  }
+  .ballot .row {
+    display: table; width: 100%;
+    padding: 5pt 10pt;
+    border-top: 1px solid #2D4A2F;
+  }
+  .ballot .row .p {
+    display: table-cell;
+    font-size: 9pt;
+    color: #E8F0E9;
+    vertical-align: middle;
+  }
+  .ballot .row .picks {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+    width: 90pt;
+  }
+  .ballot .pk {
+    display: inline-block;
+    width: 18pt; height: 18pt;
+    border-radius: 50%;
+    background: #1F3021;
+    border: 1px solid #2D4A2F;
+    text-align: center;
+    line-height: 18pt;
+    font-size: 10pt;
+    margin-left: 3pt;
+    opacity: 0.45;
+  }
+  .ballot .pk.on {
+    background: #0D6B52;
+    border-color: #0D6B52;
+    opacity: 1;
+  }
+
+  /* ─── Push notification mock ───────────────────── */
+  .push {
+    background: #FFFFFF;
+    color: #18201A;
+    border-radius: 12pt;
+    padding: 8pt 12pt;
+    margin: 6pt 0;
+    box-shadow: 0 2pt 8pt rgba(0,0,0,0.15);
+  }
+  .push .ph {
+    display: table; width: 100%;
+    font-size: 8pt; color: #647060;
+  }
+  .push .ph .l { display: table-cell; }
+  .push .ph .r { display: table-cell; text-align: right; }
+  .push .title {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #18201A;
+    margin: 3pt 0 1pt;
+  }
+  .push .body {
+    font-size: 9.5pt;
+    color: #18201A;
+    line-height: 1.4;
+  }
+
+  /* ─── Timeline ─────────────────────────────────── */
+  .flow {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 12pt;
+  }
+  .flow .step {
+    display: table; width: 100%;
+    padding: 5pt 0;
+    border-bottom: 1px dashed rgba(255,102,204,0.15);
+  }
+  .flow .step:last-child { border-bottom: 0; }
+  .flow .step .when {
+    display: table-cell;
+    width: 32%;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    color: #FF66CC;
+    letter-spacing: 0.06em;
+    vertical-align: top;
+  }
+  .flow .step .what {
+    display: table-cell;
+    font-size: 9.5pt;
+    color: #E8F0E9;
+    vertical-align: top;
+  }
+  .flow .step .what strong { color: #FFD400; }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Theme of the Night · New</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P524 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>TL;DR</strong> — Every Thursday now has a third award alongside MOTM and DOTD: <em>Theme of the Night</em>. Admin sets a themed prompt for the week (tonight's is <strong>Kevin Keegan tribute</strong>). Vote for the fella who best captured it — same rules as MOTM/DOTD, same ballot, same 10am Friday close. If admin doesn't set a theme in a given week, the award just doesn't appear — it's opt-in per match.
+</div>
+
+<h2>The three awards</h2>
+
+<div class="awards">
+  <div class="aw motm">
+    <span class="emoji">🏆</span>
+    <div class="name">MOTM</div>
+    <p>Best on the pitch. Goals, defensive stops, keeper heroics — the standout performer of the night.</p>
+    <span class="cap">Since day one</span>
+  </div>
+  <div class="aw dotd">
+    <span class="emoji">🤡</span>
+    <div class="name">DOTD</div>
+    <p>The one who deserves a slap. Air-kicks in front of goal, own goals, saying "unlucky" too much.</p>
+    <span class="cap">Since day one</span>
+  </div>
+  <div class="aw theme">
+    <span class="emoji">🎭</span>
+    <div class="name">Theme</div>
+    <p>Best captures the week's prompt. Whatever admin picks — impression, tribute, celebration, era.</p>
+    <span class="cap">New · 23 Jul 2026</span>
+  </div>
+</div>
+
+<h2>What "theme" means each week</h2>
+
+<p>Admin sets a free-text prompt on the Teams tab when publishing the sides — one line, memorable, room for interpretation. A few for the feel:</p>
+
+<ul>
+  <li><strong>Kevin Keegan tribute</strong> — bubble perm, one-touch passing, closing eyes on volleys</li>
+  <li><strong>Peak dad-strength</strong> — the deceptive-shoulder, hooked-boot, refuses-to-die tackle era</li>
+  <li><strong>Most Ronaldinho moment</strong> — a piece of skill, or the smile that goes with it</li>
+  <li><strong>Best celebration</strong> — the aeroplane, the sliding knee, the awkward finger-guns</li>
+  <li><strong>Grimsby Town circa 2003</strong> — a beautifully bad chip, ideally scored anyway</li>
+</ul>
+
+<p>You'll see the prompt in three places from the moment the teams are published: the "teams ready" push, the Tonight tab strip, and the ballot itself once voting opens.</p>
+
+<h2>What players will see</h2>
+
+<h3>1 · The Tonight tab strip</h3>
+<div class="mock theme-strip">
+  <div class="cap">🎭 Tonight's theme</div>
+  <div class="body"><strong>Kevin Keegan tribute</strong></div>
+  <div class="hint">Vote after full time for the fella who best captured it.</div>
+</div>
+
+<h3>2 · The "teams are ready" push</h3>
+<div class="push">
+  <div class="ph"><span class="l">🟢 WF · Wanstead Fellas</span><span class="r">now</span></div>
+  <div class="title">🟢 Teams are ready</div>
+  <div class="body">Line-ups for 30 Jul are up. Tonight's theme: <strong style="color:#FF66CC;">Kevin Keegan tribute</strong> 🎭</div>
+</div>
+
+<h3>3 · The ballot at 10:30pm — new 3rd slot per player</h3>
+<div class="ballot">
+  <div class="header">
+    <div class="l">CAST YOUR VOTES</div>
+    <div class="r">
+      <span class="chip">🏆 –</span>
+      <span class="chip">🤡 –</span>
+      <span class="chip">🎭 –</span>
+    </div>
+  </div>
+  <div class="theme-banner">
+    <div class="lbl">🎭 Theme of the Night</div>
+    <div class="txt">Kevin Keegan tribute</div>
+  </div>
+  <div class="row">
+    <div class="p">Mikel Winter <span style="color:#9CA897; font-size:7.5pt;">· ⚽ 2</span></div>
+    <div class="picks">
+      <span class="pk">🏆</span>
+      <span class="pk">🤡</span>
+      <span class="pk">🎭</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="p">Beau Samuels <span style="color:#9CA897; font-size:7.5pt;">· ⚽ 2</span></div>
+    <div class="picks">
+      <span class="pk on">🏆</span>
+      <span class="pk">🤡</span>
+      <span class="pk on">🎭</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="p">Justin Franklin</div>
+    <div class="picks">
+      <span class="pk">🏆</span>
+      <span class="pk on">🤡</span>
+      <span class="pk">🎭</span>
+    </div>
+  </div>
+</div>
+
+<h3>4 · The results at 10:00 Friday</h3>
+<p style="font-size:9.5pt; color:#9CA897;">Voting closes, top vote wins each award. Ties split the honour (same rule as MOTM/DOTD). Theme winner sits alongside the other two in the Match tab and the History log going forward.</p>
+
+<h2>The flow, front to back</h2>
+
+<div class="flow">
+  <div class="step"><div class="when">Wed evening</div><div class="what"><strong>Admin</strong> sets the theme prompt in the Teams tab, then publishes.</div></div>
+  <div class="step"><div class="when">Publish moment</div><div class="what"><strong>Group</strong> gets the "teams are ready" push — theme embedded so it's live in the WhatsApp banter immediately.</div></div>
+  <div class="step"><div class="when">Thu 8:00pm</div><div class="what"><strong>Players</strong> arrive at the pitch already knowing what they're being scored on — improv, tribute, dad-mode, whatever it is.</div></div>
+  <div class="step"><div class="when">Thu 10:30pm</div><div class="what"><strong>Voting opens</strong> — the ballot on the Match tab now has three slots per player. Cast all three.</div></div>
+  <div class="step"><div class="when">Fri 10:00am</div><div class="what"><strong>Results publish</strong> — the awards ping goes out with all three winners; theme winner joins MOTM/DOTD in the record.</div></div>
+</div>
+
+<h2>Rules</h2>
+
+<ul>
+  <li><strong>Same as MOTM/DOTD</strong> — one vote per player, editable until 10am Fri.</li>
+  <li><strong>You can vote for yourself.</strong> Whether you should is a moral question.</li>
+  <li><strong>Ties are shared</strong> — if two players tie the vote, both take the award (like MOTM).</li>
+  <li><strong>Admin can override</strong> the auto-tally same way they can for MOTM/DOTD (the "ADMIN CALL" pill). Reserve for edge cases.</li>
+  <li><strong>Opt-in per match</strong> — if admin skips the prompt one week (nothing came to mind, or the vibe wasn't right), the whole slot disappears. No pressure to always have a theme.</li>
+</ul>
+
+<h2>Where the "theme ideas" come from</h2>
+
+<p>Two channels for now:</p>
+<ul>
+  <li><strong>Admin picks it</strong> — usually decided Wed evening at team-publish time, sometimes revised on Thu if a better idea lands.</li>
+  <li><strong>Group suggests it</strong> — nominations in the WhatsApp thread welcomed. If yours gets picked, expect banter.</li>
+</ul>
+
+<div class="callout yellow">
+  <strong>Coming later.</strong> A "Theme history" section on Stats (past prompts + winners), a "Theme Chameleon" badge for anyone who wins 3+, and an in-app suggestion form so the group can drop ideas without cluttering the WhatsApp chat.
+</div>
+
+<hr>
+
+<div class="closer">
+  Admin: <strong>Teams tab → 🎭 Theme of the Night input</strong> · pre-publish.<br>
+  Players: <strong>Match tab → 3rd ballot slot</strong> · post-full-time.
+</div>
+
+</body>
+</html>
