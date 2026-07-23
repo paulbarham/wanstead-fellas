@@ -90,6 +90,16 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Player-controlled text-size preference (Profile → Text size).
+ * Set via applyTextSize() in main.tsx before React mounts. Scales the
+ * root font-size so Tailwind + rem-based components reflow. Default
+ * (compact) leaves the app exactly as it was pre-toggle — bigger is
+ * strictly opt-in. */
+:root { font-size: 16px; }
+:root[data-text-size="compact"] { font-size: 16px; }
+:root[data-text-size="regular"] { font-size: 17.5px; }
+:root[data-text-size="large"]   { font-size: 19px; }
+
 #root {
   height: 100%;
   width: 100%;

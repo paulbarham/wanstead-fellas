@@ -7,6 +7,7 @@ import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
 import PushOptInCard from '../components/PushOptInCard'
+import TextSizeToggle from '../components/TextSizeToggle'
 import PositionPicker from '../components/PositionPicker'
 import FootPicker from '../components/FootPicker'
 import type { Profile, PreferredPosition, PreferredFoot } from '../types'
@@ -575,6 +576,11 @@ export default function ProfilePage() {
       {/* Match-night push notifications */}
       <div className="mb-6">
         <PushOptInCard />
+      </div>
+
+      {/* Text-size preference */}
+      <div className="mb-6">
+        <TextSizeToggle />
       </div>
 
       {/* My Finances */}

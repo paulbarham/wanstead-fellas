@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v11 for the notifications opt-in banner on Tonight — lifts
-// the push-subscription rate by prompting where players actually land
-// (was 13/30; the Profile-only opt-in card wasn't discoverable enough).
-const CACHE = 'wf-v11'
+// Bumped to v12 for the text-size toggle in Profile — three-way pick
+// (Compact / Regular / Large) driven off a data-text-size attr on <html>
+// that scales the root font-size. Default (Compact) keeps today's look.
+const CACHE = 'wf-v12'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
