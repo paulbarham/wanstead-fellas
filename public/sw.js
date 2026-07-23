@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v13 for the universal readability sweep — match report body
-// bumped 13→14px (summary text-sm→text-base) and Help articles 14→15px
-// with matching line-height nudges. Everyone benefits without opt-in.
-const CACHE = 'wf-v13'
+// Bumped to v14 for OS text-size respect — dropped the hardcoded 16px
+// root font-size so browser/OS text-size settings flow through. Toggle
+// now uses % (not px) so it stacks on top of the OS pref.
+const CACHE = 'wf-v14'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

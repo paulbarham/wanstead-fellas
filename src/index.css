@@ -88,17 +88,24 @@ html, body {
   color: var(--color-text);
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* Respect OS-level text-size preferences (iOS Dynamic Type via
+   * Settings → Safari → Page Zoom / Text Size; Android Chrome
+   * Accessibility → Text scaling; browser zoom on desktop). Some
+   * standalone-mode PWAs default this to 'none' which locks us out of
+   * the user's system preference. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Player-controlled text-size preference (Profile → Text size).
- * Set via applyTextSize() in main.tsx before React mounts. Scales the
- * root font-size so Tailwind + rem-based components reflow. Default
- * (compact) leaves the app exactly as it was pre-toggle — bigger is
- * strictly opt-in. */
-:root { font-size: 16px; }
-:root[data-text-size="compact"] { font-size: 16px; }
-:root[data-text-size="regular"] { font-size: 17.5px; }
-:root[data-text-size="large"]   { font-size: 19px; }
+ * Set via applyTextSize() in main.tsx before React mounts. Uses %
+ * (not px) so it multiplies on top of the browser/OS text-size
+ * setting — a player whose OS is set to "Larger Text" gets that base,
+ * then this toggle bumps a further 10 / 20% on top. Default
+ * (compact) is 100% so no unrequested change from prior behaviour. */
+:root[data-text-size="compact"] { font-size: 100%; }
+:root[data-text-size="regular"] { font-size: 110%; }
+:root[data-text-size="large"]   { font-size: 120%; }
 
 #root {
   height: 100%;

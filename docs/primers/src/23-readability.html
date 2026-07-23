@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Readability</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · READABILITY · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #4ADC7A;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12.5pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #4AD9FF; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul, ol { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(255,212,0,0.08);
+    border-left: 3pt solid #FFD400;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
+  .callout.mag   { background: rgba(255,102,204,0.07); border-left-color: #FF66CC; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(74,220,122,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  .kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    border: 1px solid rgba(74,217,255,0.25);
+  }
+
+  /* ─── 3-tile lever grid ────────────────────────── */
+  .levers {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .levers .lv {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 10pt;
+    vertical-align: top;
+  }
+  .levers .lv.a { border-color: #FFD400; }
+  .levers .lv.b { border-color: #4ADC7A; }
+  .levers .lv.c { border-color: #4AD9FF; }
+  .levers .cap {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #9CA897;
+  }
+  .levers .name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11.5pt; margin: 3pt 0 2pt;
+  }
+  .levers .lv.a .name { color: #FFD400; }
+  .levers .lv.b .name { color: #4ADC7A; }
+  .levers .lv.c .name { color: #4AD9FF; }
+  .levers .lv p { font-size: 9pt; color: #E8F0E9; line-height: 1.45; }
+  .levers .lv .who {
+    font-size: 8pt; color: #9CA897;
+    margin-top: 6pt;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ─── Toggle mockup (Profile card) ─────────────── */
+  .toggle-mock {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 10pt;
+    padding: 10pt 12pt;
+    margin: 6pt 0;
+  }
+  .toggle-mock .label {
+    font-size: 9.5pt; font-weight: 700; color: #E8F0E9;
+  }
+  .toggle-mock .desc {
+    font-size: 8.5pt; color: #9CA897;
+    margin: 3pt 0 6pt;
+  }
+  .toggle-row { display: table; width: 100%; border-spacing: 4pt 0; }
+  .toggle-btn {
+    display: table-cell;
+    background: #1F3021;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 7pt 6pt;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .toggle-btn.active {
+    background: #0D6B52;
+    border-color: #0D6B52;
+    color: #FFFFFF;
+  }
+  .toggle-btn .txt {
+    font-weight: 700; display: block; line-height: 1;
+  }
+  .toggle-btn.compact .txt { font-size: 10pt; color: #E8F0E9; }
+  .toggle-btn.regular .txt { font-size: 12pt; color: #FFFFFF; }
+  .toggle-btn.large   .txt { font-size: 14pt; color: #E8F0E9; }
+  .toggle-btn .hint {
+    display: block;
+    font-size: 7pt;
+    color: #9CA897;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 4pt;
+  }
+  .toggle-btn.active .hint { color: rgba(255,255,255,0.75); }
+
+  /* ─── Before/after comparison ──────────────────── */
+  .cmp {
+    display: table; width: 100%;
+    border-spacing: 6pt 0; margin: 8pt 0;
+    table-layout: fixed;
+  }
+  .cmp .side {
+    display: table-cell;
+    background: #FFFFFF;
+    border-radius: 8pt;
+    padding: 10pt 12pt;
+    vertical-align: top;
+  }
+  .cmp .side.before {
+    color: #18201A;
+    border: 1px solid #E2E4DC;
+  }
+  .cmp .side.after {
+    color: #18201A;
+    border: 2px solid #4ADC7A;
+    position: relative;
+  }
+  .cmp .side.after::before {
+    content: 'NEW';
+    position: absolute;
+    top: -8pt; left: 8pt;
+    background: #4ADC7A;
+    color: #0F1710;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 2pt 5pt;
+    border-radius: 3pt;
+  }
+  .cmp .side h4 {
+    margin: 0 0 5pt;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #647060;
+  }
+  .cmp .before-body { font-size: 10pt; line-height: 1.55; color: #18201A; }
+  .cmp .after-body  { font-size: 11pt; line-height: 1.65; color: #18201A; }
+  .cmp .side p { margin: 3pt 0; }
+
+  /* ─── Stack diagram ────────────────────────────── */
+  .stack {
+    margin: 8pt 0;
+    padding: 8pt 10pt;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+  }
+  .stack .row {
+    display: table; width: 100%;
+    padding: 4pt 0;
+    border-bottom: 1px dashed rgba(74,220,122,0.15);
+  }
+  .stack .row:last-child { border-bottom: 0; }
+  .stack .who {
+    display: table-cell;
+    width: 42%;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    color: #FFD400;
+    letter-spacing: 0.06em;
+  }
+  .stack .op {
+    display: table-cell;
+    text-align: center;
+    width: 12%;
+    color: #4ADC7A;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+  }
+  .stack .val {
+    display: table-cell;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    color: #E8F0E9;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Readability · Update</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P523 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>TL;DR</strong> — Some fellas said the app was hard to read. Fixed in three layers: <strong>(1)</strong> the app now respects your phone's system text-size setting, <strong>(2)</strong> the two narrative screens — match report + help — got a small universal bump, and <strong>(3)</strong> there's a new <em>Compact / Regular / Large</em> toggle on Profile so anyone can nudge it bigger. All three stack on top of each other.
+</div>
+
+<h2>Three levers, layered</h2>
+
+<div class="levers">
+  <div class="lv a">
+    <div class="cap">Lever 1</div>
+    <div class="name">Match report + Help got a small bump</div>
+    <p>Body text on the match-report and help-article pages went from <strong>13→14pt</strong>; the report summary lede went from <strong>14→16pt</strong>. Help article paragraphs went <strong>14→15pt</strong>. Universal — no opt-in.</p>
+    <p class="who">Everyone · automatic</p>
+  </div>
+  <div class="lv b">
+    <div class="cap">Lever 2</div>
+    <div class="name">Text-size toggle on Profile</div>
+    <p>New card under Notifications: <strong>Compact · Regular · Large</strong>. Default is Compact (today's look — nothing changes). Regular is +10%, Large is +20%. Applies instantly, saved per device.</p>
+    <p class="who">Anyone · opt-in</p>
+  </div>
+  <div class="lv c">
+    <div class="cap">Lever 3</div>
+    <div class="name">Respect the phone's own text setting</div>
+    <p>iOS <em>Settings → Safari → Page Zoom</em> and Android <em>Accessibility → Font Size</em> now flow through to the app. Set your phone once, every app respects it — WF now included.</p>
+    <p class="who">Anyone with OS text-size on · automatic</p>
+  </div>
+</div>
+
+<h2>The Profile toggle — what you'll see</h2>
+
+<div class="toggle-mock">
+  <div class="label">📖 Text size</div>
+  <div class="desc">Bigger text throughout the app — takes effect instantly. Set back to Compact any time to restore the default look.</div>
+  <div class="toggle-row">
+    <div class="toggle-btn compact active"><span class="txt">Compact</span><span class="hint">Default</span></div>
+    <div class="toggle-btn regular"><span class="txt">Regular</span><span class="hint">+10%</span></div>
+    <div class="toggle-btn large"><span class="txt">Large</span><span class="hint">+20%</span></div>
+  </div>
+</div>
+
+<p style="font-size:9.5pt; color:#9CA897;">Each button shows a preview at the size it'll pick. Preference is saved on the device you set it from — swap phones and set it there too.</p>
+
+<h2>What actually changed on the report page</h2>
+
+<div class="cmp">
+  <div class="side before">
+    <h4>Before</h4>
+    <p class="before-body"><strong style="color:#18201A;">Mikel Winter</strong> — two goals, and it took a top-corner rocket that would win any game to finally break Ross's resistance.</p>
+    <p class="before-body"><strong style="color:#18201A;">Beau Samuels</strong> — late addition after father Martyn pulled out, and rewarded the shout with two goals for Kaya Elkiner FC.</p>
+  </div>
+  <div class="side after">
+    <h4>After</h4>
+    <p class="after-body"><strong style="color:#18201A;">Mikel Winter</strong> — two goals, and it took a top-corner rocket that would win any game to finally break Ross's resistance.</p>
+    <p class="after-body"><strong style="color:#18201A;">Beau Samuels</strong> — late addition after father Martyn pulled out, and rewarded the shout with two goals for Kaya Elkiner FC.</p>
+  </div>
+</div>
+
+<p style="font-size:9pt; color:#9CA897;">Same words, more air. Body text one point bigger, lines with a touch more breathing room. If you're on Regular or Large in Profile, this bump layers on top of that too.</p>
+
+<h2>How the three layers stack</h2>
+
+<div class="stack">
+  <div class="row">
+    <div class="who">iOS / Android base font</div>
+    <div class="op">=</div>
+    <div class="val">16px (or your phone's setting if raised)</div>
+  </div>
+  <div class="row">
+    <div class="who">× Profile toggle (Compact / Regular / Large)</div>
+    <div class="op">×</div>
+    <div class="val">100% / 110% / 120%</div>
+  </div>
+  <div class="row">
+    <div class="who">+ Report + Help page bumps</div>
+    <div class="op">+</div>
+    <div class="val">extra point on prose pages</div>
+  </div>
+  <div class="row">
+    <div class="who">= What you actually see</div>
+    <div class="op">→</div>
+    <div class="val" style="color:#FFD400;">Comfortable for you, not everyone else</div>
+  </div>
+</div>
+
+<p style="font-size:9pt; color:#9CA897;">The stack is compositional. A player with iOS text set to Larger who also picks <em>Large</em> in Profile ends up meaningfully bigger than default — and the layout expands with them rather than clipping.</p>
+
+<h2>What we deliberately didn't change</h2>
+
+<ul>
+  <li><strong>Ceefax-style tables</strong> — teams roster, finance rows, admin panels. The dense mono look is the aesthetic, and the readability complaints weren't about numbers-in-columns.</li>
+  <li><strong>Badges, pills, page IDs</strong> — meant to stay small and out of the way; scaling them ruins the visual hierarchy.</li>
+  <li><strong>Muted grey text colour</strong> — checked the contrast against the dark background, comes in at <strong>7.4:1</strong> (AAA). Not the bottleneck.</li>
+</ul>
+
+<h2>Where to go next</h2>
+
+<ul>
+  <li>Try the toggle: <span class="kbd">Profile → Text size</span>. Poke Regular for a few days; if it feels good, Large is right there too.</li>
+  <li>Setting your phone's system text size once means every app you use — WhatsApp, mail, banking — respects it. That's the real fix if you've been squinting anywhere.</li>
+  <li>Something still hard to read? Ping admin with which screen — targeted spot-fixes are cheap now the plumbing's in place.</li>
+</ul>
+
+<hr>
+
+<div class="closer">
+  Compact = today · Regular = +10% · Large = +20% · your phone's setting on top.<br>
+  📖 <strong>Profile → Text size</strong> · takes a second, saves per device.
+</div>
+
+</body>
+</html>
