@@ -8,6 +8,7 @@ import { FINE_TYPES } from '../types'
 import { getNextThursdayDate, getMatchPhase, getCountdownLabel } from '../lib/time'
 import PlayerAvatar from '../components/PlayerAvatar'
 import InstallBanner from '../components/InstallBanner'
+import NotificationsBanner from '../components/NotificationsBanner'
 import WeatherCard from '../components/WeatherCard'
 import CeefaxHeader from '../components/CeefaxHeader'
 import ProfileCompletionCard from '../components/ProfileCompletionCard'
@@ -435,6 +436,7 @@ export default function TonightPage() {
     <div className="px-4 pt-4 pb-4">
 
       <InstallBanner />
+      <NotificationsBanner />
 
       <CeefaxHeader
         pageId="P101 · TEAMSHEET"

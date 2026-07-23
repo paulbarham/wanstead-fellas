@@ -1,7 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v10 for player self-service dropout — "Can't play tonight"
-// button below FormationPicker on the user's own team card (mig 057).
-const CACHE = 'wf-v10'
+// Bumped to v11 for the notifications opt-in banner on Tonight — lifts
+// the push-subscription rate by prompting where players actually land
+// (was 13/30; the Profile-only opt-in card wasn't discoverable enough).
+const CACHE = 'wf-v11'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
