@@ -2,7 +2,11 @@ import type { Result, ReportNoteItem } from '../types'
 import { hasStructuredReport } from '../lib/report'
 import SectionHeader from './SectionHeader'
 
-const BODY_STYLE = { fontSize: '13px', lineHeight: '1.6', color: 'var(--color-text-muted)' } as const
+// Body sizing for report copy — bumped 13→14px + line-height 1.6→1.65
+// for a universal readability lift (players told us the report was hard
+// to read on smaller screens). The Text-size toggle in Profile scales
+// this proportionally for players who want bigger still.
+const BODY_STYLE = { fontSize: '14px', lineHeight: '1.65', color: 'var(--color-text-muted)' } as const
 
 function splitPoints(text: string): string[] {
   return text
@@ -55,7 +59,7 @@ export default function MatchReport({ result }: { result: Result }) {
   return (
     <div>
       {result.summary && (
-        <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text)', lineHeight: '1.5' }}>
+        <p className="text-base font-medium mb-1" style={{ color: 'var(--color-text)', lineHeight: '1.55' }}>
           {result.summary}
         </p>
       )}

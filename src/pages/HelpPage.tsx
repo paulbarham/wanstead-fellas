@@ -190,8 +190,8 @@ function HelpArticleView({ slug }: { slug: string }) {
           margin: 14px 0 4px;
         }
         .help-article p {
-          font-size: 14px;
-          line-height: 1.55;
+          font-size: 15px;
+          line-height: 1.6;
           color: var(--color-text);
           margin: 6px 0;
         }
@@ -210,8 +210,8 @@ function HelpArticleView({ slug }: { slug: string }) {
           padding-left: 22px;
         }
         .help-article li {
-          font-size: 14px;
-          line-height: 1.5;
+          font-size: 15px;
+          line-height: 1.55;
           margin: 3px 0;
           color: var(--color-text);
         }

@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v12 for the text-size toggle in Profile — three-way pick
-// (Compact / Regular / Large) driven off a data-text-size attr on <html>
-// that scales the root font-size. Default (Compact) keeps today's look.
-const CACHE = 'wf-v12'
+// Bumped to v13 for the universal readability sweep — match report body
+// bumped 13→14px (summary text-sm→text-base) and Help articles 14→15px
+// with matching line-height nudges. Everyone benefits without opt-in.
+const CACHE = 'wf-v13'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
