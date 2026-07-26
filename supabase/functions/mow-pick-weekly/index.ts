@@ -1,6 +1,6 @@
 // Auto-picks the featured Match of the Week for the upcoming weekend.
 //
-// Scheduled: Monday 09:00 UK (via pg_cron — see migration 063 install).
+// Scheduled: Monday 09:00 UK (via pg_cron — see migration 066 install).
 // Also callable ad-hoc via HTTP for admin re-runs.
 //
 // Algorithm:
@@ -8,13 +8,16 @@
 //      UK time (i.e. the weekend the group actually watches).
 //   2. Score each fixture by "WF affinity" = distinct-fella-count with
 //      favourite_club matching either home or away team.
-//   3. Rank: highest affinity wins. Ties broken by:
+//   3. Apply a recency penalty: subtract 2 pts per club appearance in the
+//      last 4 weeks' MoW picks. With 9 West Ham fans and 0 anyone-else
+//      matching every week, without this the same club would win every
+//      Monday. Penalty tunes the rotation without letting a totally
+//      unwatched club win over a barely-recent-but-loved one.
+//   4. Rank: penalised affinity DESC. Ties broken by:
 //        a) prime-time kickoff (Sat 12:30, 15:00, 17:30 preferred),
 //        b) PL over Championship over EL1/EL2.
-//   4. If zero fixtures have any affinity, fall back to the top-affinity
-//      PL fixture (i.e. everyone's second team etc), still respecting
-//      the kickoff-slot tiebreak. Never picks a totally-unwatched fixture
-//      of an obscure club at 3pm Saturday.
+//   5. If zero fixtures have any affinity, the ranking still holds — the
+//      penalty makes no difference when everyone's at 0.
 //
 // Query params (all optional):
 //   ?week_start=YYYY-MM-DD   override the Monday-of-week (default: this Monday)
@@ -129,21 +132,48 @@ Deno.serve(async (req) => {
       affinity.set(r.favourite_club, (affinity.get(r.favourite_club) ?? 0) + 1)
     }
 
-    // Score each fixture.
+    // Recency penalty — count each club's appearances across the last 4
+    // picks. Any pick before the current weekStart counts (so re-running for
+    // the current week doesn't self-penalise). 2 pts deducted per appearance,
+    // capped naturally by how many recent weeks exist.
+    const { data: recentPicks } = await supabase
+      .from('mow_fixtures')
+      .select('pool_fixture_id, week_start, mow_pool_fixtures!inner(home_club, away_club)')
+      .lt('week_start', weekStart)
+      .order('week_start', { ascending: false })
+      .limit(4)
+    const recencyPenalty = new Map<string, number>()
+    for (const row of (recentPicks as Array<{
+      mow_pool_fixtures: { home_club: string; away_club: string } | Array<{ home_club: string; away_club: string }>
+    }>) ?? []) {
+      // supabase-js returns nested rel as either object or array depending on join shape
+      const fx = Array.isArray(row.mow_pool_fixtures) ? row.mow_pool_fixtures[0] : row.mow_pool_fixtures
+      if (!fx) continue
+      recencyPenalty.set(fx.home_club, (recencyPenalty.get(fx.home_club) ?? 0) + 1)
+      recencyPenalty.set(fx.away_club, (recencyPenalty.get(fx.away_club) ?? 0) + 1)
+    }
+
+    // Score each fixture. adjusted = affinity - 2*(max club recency count)
+    const RECENCY_PENALTY = 2
     const ranked = pool.map(fx => {
       const aff = (affinity.get(fx.home_club) ?? 0) + (affinity.get(fx.away_club) ?? 0)
+      const homeRec = recencyPenalty.get(fx.home_club) ?? 0
+      const awayRec = recencyPenalty.get(fx.away_club) ?? 0
+      const worstRec = Math.max(homeRec, awayRec)
       return {
         fx,
         affinity: aff,
+        recency: worstRec,
+        adjusted: aff - RECENCY_PENALTY * worstRec,
         slot: slotScore(fx.kickoff_at),
         comp: COMP_RANK[fx.competition] ?? 0,
       }
-    }).sort((a, b) => (b.affinity - a.affinity) || (b.slot - a.slot) || (b.comp - a.comp))
+    }).sort((a, b) => (b.adjusted - a.adjusted) || (b.slot - a.slot) || (b.comp - a.comp))
 
     const pick = ranked[0]
 
     // Pick note surfaces the picker's reasoning for admin / debug.
-    const note = `affinity=${pick.affinity} · slot=${pick.slot} · comp=${pick.fx.competition} · from ${pool.length} candidates`
+    const note = `adjusted=${pick.adjusted} (aff=${pick.affinity} - ${RECENCY_PENALTY}*${pick.recency}) · slot=${pick.slot} · comp=${pick.fx.competition} · from ${pool.length} candidates`
 
     // Upsert (overwrite when forced=1).
     const upsertRow = {
@@ -165,7 +195,8 @@ Deno.serve(async (req) => {
       fixture: pick.fx,
       shortlist: ranked.slice(0, 5).map(r => ({
         home: r.fx.home_club, away: r.fx.away_club, kickoff: r.fx.kickoff_at,
-        comp: r.fx.competition, affinity: r.affinity, slot: r.slot,
+        comp: r.fx.competition, affinity: r.affinity, recency: r.recency,
+        adjusted: r.adjusted, slot: r.slot,
       })),
     }, null, 2), { headers: { 'Content-Type': 'application/json' } })
   } catch (e) {

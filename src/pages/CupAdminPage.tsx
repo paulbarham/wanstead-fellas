@@ -9,6 +9,7 @@ import {
   GROUP_OUTCOMES, KO_OUTCOMES, knockoutModeLabel, knockoutMode,
 } from '../lib/cup'
 import SweepstakeAdminPanel from '../components/SweepstakeAdminPanel'
+import SeasonCardAdminPanel from '../components/SeasonCardAdminPanel'
 
 const TT_YELLOW = 'var(--tt-yellow)'
 const TT_CYAN = 'var(--tt-cyan)'
@@ -70,6 +71,8 @@ export default function CupAdminPage() {
       {error && (
         <p className="text-xs mb-3 p-2 rounded" style={{ background: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid var(--color-error-border)' }}>{error}</p>
       )}
+
+      <SeasonCardAdminPanel />
 
       <AddMatchForm onAdded={load} />
 
