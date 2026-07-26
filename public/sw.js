@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v17 for the winner-streak bug fix — the newly-published-but-
-// -not-yet-played match was silently snapping every player's current
-// streak to 0 (unscored fixtures were being read as a draw).
-const CACHE = 'wf-v17'
+// Bumped to v18 for Predictor tab shell — permanent 5th nav slot houses
+// World Cup archive + Match of the Week / Season Card coming-soon tiles
+// (mig 061 tracks interest via feature_interest_events).
+const CACHE = 'wf-v18'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

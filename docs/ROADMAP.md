@@ -178,6 +178,19 @@ Rules and capture around what actually happens on the pitch: scores, draws, tie-
 | Started as tonight-only; promote to permanent if it lands | ✅ | chat · migration `055` | Verdict: keep as **one-off/opt-in** rather than default-on every week. Migration 055 adds `matches.shootout_enabled` (default `false`), backfilled `true` for the 9 Jul night so historical results still render pens + bonus. AdminMatchEntry gains a small ON/OFF toggle at the top for admin to flip when a special night justifies it (WC final, cup night). |
 | Shared `buildTable`/standings helper (kill the 3-way duplication) | 🟢 | chat | 3-1-0 + shootout-bonus logic is currently copied across `AdminMatchEntry`, `MatchResultView`, `StatsPage`. Extract to a tested `lib/standings.ts` to stop drift. Deferred from the shootout ship to avoid refactoring the hot path pre-match. |
 
+## 🎯 Predictor games — season formats
+
+The **Cup tab** (WC 2026 predictor) proved the appetite: 1,859 picks across 104 fixtures in 6 weeks, 28 distinct predictors, 65% opening-week retention through to the final. Post-WC, the tab persists as a permanent **Predictor** hub for domestic-season games. Full committee proposal doc at `WF_PL_Predictor_Proposals.pdf` (three formats — LMS · Season Card · Match of the Week). Committee approved **Match of the Week** + **Season Card** for 2026/27, free to play. Last Man Standing deferred.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| Cup tab → Predictor tab shell | ✅ | chat 24 Jul · commit pending · migration `061` | Bottom-nav slot 5 renamed **Predictor** (icon 🎯) — permanent (was WC-only). GameTabs sub-strip inside CupPage lets us host multiple formats: World Cup (archive) · Match of the Week (coming soon) · Season Card (coming soon). Interest telemetry via `feature_interest_events` (mig 061) so we can see how many distinct fellas click into the coming-soon tiles before committing build. |
+| Match of the Week — v1 | 🟡 | proposal 03 · chat 24 Jul | Committee-approved. Auto-picked marquee fixture each week; H/D/A + scoreline; 3 pts result · 5 pts exact. **Fixture picker must include lower leagues** (Championship / League One / L2) using `profiles.favourite_club` affiliations — a Millwall fan's game shouldn't be locked out by a PL-only default. Result + running leaderboard land in the following week's match report. Free to play. |
+| Season Prediction Card — v1 | 🟡 | proposal 02 · chat 24 Jul | Committee-approved. One form before matchday 1 (~10 markets: champions, top 4, relegated 3, Golden Boot, first-sacked, most-clean-sheets) + WF wildcards (own top scorer, first Fella sent off, fines pot by Xmas). Locks at first kick-off. Scored as each market resolves — leaderboard moves all year. Weekly "Predictions Watch" line in the match report keeps it live. Free to play. |
+| Last Man Standing | 🟢 | proposal 01 · chat 24 Jul | **Deferred.** One pick per gameweek, no team twice, draw = out; rounds restart when everyone falls. Interesting but the committee picked MoW + Season first — revisit if MoW gets clear traction and we want a second layer. |
+| Automated PL results feed (free tier) | 🟡 | proposals 01+03 | Prerequisite for MoW auto-scoring. Options: football-data.org (used for WC — 502-prone), api-football, or manual admin CSV / one-liner SQL. Same dependency as any auto-graded predictor. Decide at build time. |
+| Fixture-picker uses lower leagues + club affiliation | 🟡 | chat 24 Jul (rec by admin) | Lower-league fixtures matter — several of the group support outside PL (see `profiles.favourite_club` — 28% adoption, real signal for the ones who set it). Algorithm should weight fixtures where at least one team is a supporter's club before falling back to PL headliners. |
+
 ## 🧢 Team builder polish
 
 Quality-of-life on the AdminTeamBuilder publish + share flow.

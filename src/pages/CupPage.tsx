@@ -39,9 +39,23 @@ const isStreak = (n: number) => n >= MIN_STREAK
 const formatStreak = (n: number): string =>
   n < MIN_STREAK ? '–' : n >= 3 ? `🔥${n}` : String(n)
 
+type Game = 'wc' | 'mow' | 'season'
+
 export default function CupPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
+  // Top-level game switcher — Predictor tab houses the World Cup archive
+  // + two coming-soon PL games (Match of the Week, Season Card). Interest
+  // in the coming-soon tiles is tracked via feature_interest_events so we
+  // can measure appetite before committing build.
+  const [game, setGame] = useState<Game>('wc')
+  useEffect(() => {
+    if (!profile?.id) return
+    const key = `predictor.${game}.view`
+    supabase.from('feature_interest_events').insert({ player_id: profile.id, event: key })
+      .then(() => {}, () => {})
+  }, [game, profile?.id])
+
   const [tab, setTab] = useState<Tab>('hub')
   const [matches, setMatches] = useState<CupMatch[]>([])
   const [myPicks, setMyPicks] = useState<Record<string, CupPrediction>>({})
@@ -121,13 +135,20 @@ export default function CupPage() {
     }
   }
 
+  const gameMeta = {
+    wc:     { title: 'WORLD CUP',          pageid: 'P901 · PREDICTOR' },
+    mow:    { title: 'MATCH OF THE WEEK',  pageid: 'P902 · PREDICTOR' },
+    season: { title: 'SEASON CARD',        pageid: 'P903 · PREDICTOR' },
+  } as const
+  const activeGameMeta = gameMeta[game]
+
   return (
     <div className="px-4 pt-4 pb-6">
       <CeefaxHeader
-        pageId="P901 · PREDICTOR"
-        title="WORLD CUP"
-        meta={headerMeta()}
-        trailing={profile?.is_admin ? (
+        pageId={activeGameMeta.pageid}
+        title={activeGameMeta.title}
+        meta={game === 'wc' ? headerMeta() : undefined}
+        trailing={game === 'wc' && profile?.is_admin ? (
           <button
             onClick={() => navigate('/cup/admin')}
             className="text-xs font-medium px-2 py-1 rounded-lg"
@@ -138,29 +159,38 @@ export default function CupPage() {
         ) : undefined}
       />
 
-      <CupTabs tab={tab} setTab={setTab} myRank={myRank} totalPlayers={leaderboard.length} />
+      <GameTabs game={game} onGame={setGame} />
 
-      {loading && <p className="text-xs mt-4" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>Loading…</p>}
+      {game === 'wc' && (
+        <>
+          <CupTabs tab={tab} setTab={setTab} myRank={myRank} totalPlayers={leaderboard.length} />
 
-      {!loading && tab === 'hub' && (
-        <CupHub
-          matches={matches}
-          myPicks={myPicks}
-          leaderboard={leaderboard}
-          myRank={myRank}
-          onPick={setPick}
-          onTab={setTab}
-        />
+          {loading && <p className="text-xs mt-4" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>Loading…</p>}
+
+          {!loading && tab === 'hub' && (
+            <CupHub
+              matches={matches}
+              myPicks={myPicks}
+              leaderboard={leaderboard}
+              myRank={myRank}
+              onPick={setPick}
+              onTab={setTab}
+            />
+          )}
+          {!loading && tab === 'leaderboard' && (
+            <CupLeaderboard leaderboard={leaderboard} meId={profile?.id} />
+          )}
+          {!loading && tab === 'picks' && (
+            <CupMyPicks matches={matches} myPicks={myPicks} onPick={setPick} />
+          )}
+          {!loading && tab === 'sweepstake' && (
+            <SweepstakeCard />
+          )}
+        </>
       )}
-      {!loading && tab === 'leaderboard' && (
-        <CupLeaderboard leaderboard={leaderboard} meId={profile?.id} />
-      )}
-      {!loading && tab === 'picks' && (
-        <CupMyPicks matches={matches} myPicks={myPicks} onPick={setPick} />
-      )}
-      {!loading && tab === 'sweepstake' && (
-        <SweepstakeCard />
-      )}
+
+      {game === 'mow' && <ComingSoonMoW />}
+      {game === 'season' && <ComingSoonSeason />}
     </div>
   )
 }
@@ -958,5 +988,140 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
         )
       })}
     </div>
+  )
+}
+
+// ── Top-level game switcher (World Cup / Match of the Week / Season Card) ──
+// The Predictor tab houses all three. WC is the live archive from June's
+// tournament; MoW + Season are coming-soon placeholders while we measure
+// interest via feature_interest_events (mig 061) before committing build.
+function GameTabs({ game, onGame }: { game: Game; onGame: (g: Game) => void }) {
+  const items: { id: Game; label: string; icon: string; soon?: boolean }[] = [
+    { id: 'wc',     label: 'World Cup',       icon: '🏆' },
+    { id: 'mow',    label: 'Match of Week',   icon: '🎯', soon: true },
+    { id: 'season', label: 'Season Card',     icon: '📋', soon: true },
+  ]
+  return (
+    <div className="flex gap-1.5 mb-4 mt-1" role="tablist" aria-label="Predictor game">
+      {items.map(it => {
+        const active = it.id === game
+        return (
+          <button
+            key={it.id}
+            role="tab"
+            aria-selected={active}
+            onClick={() => onGame(it.id)}
+            className="flex-1 px-2 py-2 rounded-lg text-[11px] font-semibold flex flex-col items-center gap-0.5 transition-colors"
+            style={{
+              background: active ? 'var(--color-primary)' : 'var(--color-surface)',
+              color: active ? '#FFFFFF' : 'var(--color-text-muted)',
+              border: `1px solid ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
+              fontFamily: 'var(--font-mono)',
+              letterSpacing: '0.02em',
+              position: 'relative',
+            }}
+          >
+            <span style={{ fontSize: 15, lineHeight: 1 }}>{it.icon}</span>
+            <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>{it.label}</span>
+            {it.soon && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 2, right: 3,
+                  background: active ? 'rgba(255,255,255,0.25)' : 'var(--tt-magenta, #FF66CC)',
+                  color: active ? '#FFFFFF' : '#0F1710',
+                  fontSize: 7,
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  padding: '1px 4px',
+                  borderRadius: 3,
+                }}
+              >
+                SOON
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Coming-soon placeholders ─────────────────────────────────────────────
+function ComingSoonCard({ emoji, title, tagline, howItWorks, when }: {
+  emoji: string; title: string; tagline: string; howItWorks: string[]; when: string;
+}) {
+  return (
+    <div className="mt-2 rounded-2xl overflow-hidden"
+      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="px-4 pt-5 pb-3 text-center">
+        <div style={{ fontSize: 42, lineHeight: 1 }}>{emoji}</div>
+        <p className="text-xs uppercase tracking-widest font-semibold mt-3"
+          style={{ color: TT_MAGENTA, letterSpacing: '0.12em' }}>
+          Coming soon
+        </p>
+        <h2 className="font-display tracking-wide mt-1" style={{ color: 'var(--color-text)', fontSize: 24, lineHeight: 1.1 }}>
+          {title}
+        </h2>
+        <p className="text-sm mt-2 mx-auto" style={{ color: 'var(--color-text-muted)', maxWidth: 320 }}>
+          {tagline}
+        </p>
+      </div>
+      <div className="px-4 py-3" style={{ borderTop: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))' }}>
+        <p className="text-[10px] uppercase font-semibold tracking-widest mb-2"
+          style={{ color: 'var(--color-text-muted)' }}>
+          How it'll work
+        </p>
+        <ul className="space-y-1.5">
+          {howItWorks.map((line, i) => (
+            <li key={i} className="text-xs flex items-start gap-2" style={{ color: 'var(--color-text)' }}>
+              <span style={{ color: TT_CYAN, flexShrink: 0 }}>▸</span>
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="px-4 py-2.5" style={{ borderTop: '1px solid var(--color-border)' }}>
+        <p className="text-[11px] text-center" style={{ color: 'var(--color-text-muted)' }}>
+          🗓️ Landing in time for <strong style={{ color: 'var(--color-text)' }}>{when}</strong>
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function ComingSoonMoW() {
+  return (
+    <ComingSoonCard
+      emoji="🎯"
+      title="Match of the Week"
+      tagline="One fixture. Everyone picks. Settled in the Thursday match report."
+      howItWorks={[
+        'Auto-picked fixture each week — includes lower leagues too, so your Championship / League One team gets airtime',
+        'Home / Draw / Away plus a scoreline for the tiebreak',
+        'Scoring: 3 pts right result · 5 pts exact scoreline',
+        'Result + running season leaderboard land in the following week\'s match report',
+        'Free to play — bragging rights only for now',
+      ]}
+      when="the PL 2026/27 opener"
+    />
+  )
+}
+
+function ComingSoonSeason() {
+  return (
+    <ComingSoonCard
+      emoji="📋"
+      title="Season Prediction Card"
+      tagline="Five minutes in August. Nine months of arguing about it."
+      howItWorks={[
+        'One form before matchday 1 — ~10 markets to call: champions, top 4, relegated 3, Golden Boot, first manager sacked, most clean sheets',
+        'Plus a few Wanstead Fellas wildcards (our own top scorer, first Fella sent off, etc)',
+        'Locks at the first kick-off of the season',
+        'Scored as each market resolves — leaderboard moves all year',
+        'Weekly "Predictions Watch" line in the match report keeps it live',
+      ]}
+      when="two weeks before matchday 1"
+    />
   )
 }
