@@ -234,16 +234,12 @@ Deno.serve(async (req) => {
     teams_in_feed: teams.length,
     players_upserted: playersUpserted,
     players_failed: playersFailed,
+    // Manager fields kept for API stability but FD free tier returns coach
+    // all-null (verified 26 Jul 2026) so this is always 0. Managers are
+    // hard-seeded via migration 065 instead.
     managers_upserted: managersUpserted,
     managers_failed: managersFailed,
     skipped_unknown_teams: skippedUnknownTeam,
     unknown_teams: Array.from(unknownTeams),
-    // Debug: expose what FD is returning for coach on the first 3 teams so
-    // we can see the actual shape when managers land as 0.
-    debug_coaches: teams.slice(0, 3).map(t => ({
-      team: t.name,
-      coach_present: t.coach !== null && t.coach !== undefined,
-      coach_raw: t.coach ?? null,
-    })),
   }, null, 2), { headers: { 'Content-Type': 'application/json' } })
 })
