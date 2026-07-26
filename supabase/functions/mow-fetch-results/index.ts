@@ -65,6 +65,9 @@ const FD_TEAM_ALIASES: Record<string, string> = {
   'Watford FC': 'watford',
   'West Bromwich Albion FC': 'wba',
   'Wrexham AFC': 'wrexham',
+  'Bolton Wanderers FC': 'bolton',
+  'Lincoln City FC': 'lincoln',
+  'Cardiff City FC': 'cardiff',
 }
 function fdNormalize(name: string): string | null {
   const direct = FD_TEAM_ALIASES[name]
