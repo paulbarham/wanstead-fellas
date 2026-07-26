@@ -238,5 +238,12 @@ Deno.serve(async (req) => {
     managers_failed: managersFailed,
     skipped_unknown_teams: skippedUnknownTeam,
     unknown_teams: Array.from(unknownTeams),
+    // Debug: expose what FD is returning for coach on the first 3 teams so
+    // we can see the actual shape when managers land as 0.
+    debug_coaches: teams.slice(0, 3).map(t => ({
+      team: t.name,
+      coach_present: t.coach !== null && t.coach !== undefined,
+      coach_raw: t.coach ?? null,
+    })),
   }, null, 2), { headers: { 'Content-Type': 'application/json' } })
 })
