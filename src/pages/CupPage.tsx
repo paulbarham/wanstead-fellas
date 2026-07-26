@@ -11,6 +11,7 @@ import {
 } from '../lib/cup'
 import SweepstakeCard from '../components/SweepstakeCard'
 import MowGame from '../components/MowGame'
+import SeasonCardGame from '../components/SeasonCardGame'
 
 type Tab = 'hub' | 'leaderboard' | 'picks' | 'sweepstake'
 
@@ -191,7 +192,7 @@ export default function CupPage() {
       )}
 
       {game === 'mow' && <MowGame />}
-      {game === 'season' && <ComingSoonSeason />}
+      {game === 'season' && <SeasonCardGame />}
     </div>
   )
 }
@@ -1000,7 +1001,7 @@ function GameTabs({ game, onGame }: { game: Game; onGame: (g: Game) => void }) {
   const items: { id: Game; label: string; icon: string; soon?: boolean }[] = [
     { id: 'wc',     label: 'World Cup',       icon: '🏆' },
     { id: 'mow',    label: 'Match of Week',   icon: '🎯' },
-    { id: 'season', label: 'Season Card',     icon: '📋', soon: true },
+    { id: 'season', label: 'Season Card',     icon: '📋' },
   ]
   return (
     <div className="flex gap-1.5 mb-4 mt-1" role="tablist" aria-label="Predictor game">
@@ -1048,63 +1049,3 @@ function GameTabs({ game, onGame }: { game: Game; onGame: (g: Game) => void }) {
   )
 }
 
-// ── Coming-soon placeholders ─────────────────────────────────────────────
-function ComingSoonCard({ emoji, title, tagline, howItWorks, when }: {
-  emoji: string; title: string; tagline: string; howItWorks: string[]; when: string;
-}) {
-  return (
-    <div className="mt-2 rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <div className="px-4 pt-5 pb-3 text-center">
-        <div style={{ fontSize: 42, lineHeight: 1 }}>{emoji}</div>
-        <p className="text-xs uppercase tracking-widest font-semibold mt-3"
-          style={{ color: TT_MAGENTA, letterSpacing: '0.12em' }}>
-          Coming soon
-        </p>
-        <h2 className="font-display tracking-wide mt-1" style={{ color: 'var(--color-text)', fontSize: 24, lineHeight: 1.1 }}>
-          {title}
-        </h2>
-        <p className="text-sm mt-2 mx-auto" style={{ color: 'var(--color-text-muted)', maxWidth: 320 }}>
-          {tagline}
-        </p>
-      </div>
-      <div className="px-4 py-3" style={{ borderTop: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))' }}>
-        <p className="text-[10px] uppercase font-semibold tracking-widest mb-2"
-          style={{ color: 'var(--color-text-muted)' }}>
-          How it'll work
-        </p>
-        <ul className="space-y-1.5">
-          {howItWorks.map((line, i) => (
-            <li key={i} className="text-xs flex items-start gap-2" style={{ color: 'var(--color-text)' }}>
-              <span style={{ color: TT_CYAN, flexShrink: 0 }}>▸</span>
-              <span>{line}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="px-4 py-2.5" style={{ borderTop: '1px solid var(--color-border)' }}>
-        <p className="text-[11px] text-center" style={{ color: 'var(--color-text-muted)' }}>
-          🗓️ Landing in time for <strong style={{ color: 'var(--color-text)' }}>{when}</strong>
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function ComingSoonSeason() {
-  return (
-    <ComingSoonCard
-      emoji="📋"
-      title="Season Prediction Card"
-      tagline="Five minutes in August. Nine months of arguing about it."
-      howItWorks={[
-        'One form before matchday 1 — ~10 markets to call: champions, top 4, relegated 3, Golden Boot, first manager sacked, most clean sheets',
-        'Plus a few Wanstead Fellas wildcards (our own top scorer, first Fella sent off, etc)',
-        'Locks at the first kick-off of the season',
-        'Scored as each market resolves — leaderboard moves all year',
-        'Weekly "Predictions Watch" line in the match report keeps it live',
-      ]}
-      when="two weeks before matchday 1"
-    />
-  )
-}

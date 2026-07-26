@@ -1,8 +1,9 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v20 for Match of the Week — v1 shell inside the Predictor tab.
-// Schema in mig 062; picker/seed/results edge fns land alongside. Score
-// picker + weekly/season leaderboards live from this bump.
-const CACHE = 'wf-v20'
+// Bumped to v21 for Season Prediction Card — v1 (7 markets, ordered slots
+// for top-4/relegated/promoted, searchable dropdowns for players). Schema
+// in mig 063; 2026-27 card + PL/Champ club options seeded in mig 064;
+// player + manager options land via season-card-seed-options edge fn.
+const CACHE = 'wf-v21'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
