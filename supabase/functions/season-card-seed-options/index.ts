@@ -171,11 +171,18 @@ Deno.serve(async (req) => {
       })
     }
 
-    if (t.coach?.name && t.coach.id != null) {
+    if (t.coach?.name) {
+      // FD free tier sometimes returns coach.id as null — fall back to a
+      // slugified name so every manager still lands (option_key must be
+      // unique per club anyway; club_slug prefix keeps it collision-safe
+      // across managers with the same surname at different clubs).
+      const managerKey = t.coach.id != null
+        ? String(t.coach.id)
+        : `${clubSlug}:${t.coach.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`
       managerRows.push({
         season_card_id: cardId,
         option_type: 'pl_manager',
-        option_key: String(t.coach.id),
+        option_key: managerKey,
         display_name: `${t.coach.name} (${clubSlug.replace(/_/g,' ')})`,
         extra: {
           club_slug: clubSlug,
@@ -187,6 +194,20 @@ Deno.serve(async (req) => {
       })
     }
   }
+
+  // Dedupe players by option_key before upserting. FD's squad endpoint can
+  // return the same player id from two clubs (loan spells, dual registrations
+  // during transfer window). Postgres INSERT ... ON CONFLICT refuses when
+  // the incoming batch itself contains duplicates.
+  const seen = new Set<string>()
+  const dedupedPlayers: typeof playerRows = []
+  for (const row of playerRows) {
+    if (seen.has(row.option_key)) continue
+    seen.add(row.option_key)
+    dedupedPlayers.push(row)
+  }
+  playerRows.length = 0
+  playerRows.push(...dedupedPlayers)
 
   let playersUpserted = 0, playersFailed = 0
   for (let i = 0; i < playerRows.length; i += 300) {
