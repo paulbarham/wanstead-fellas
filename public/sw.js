@@ -1,9 +1,10 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v22 for MoW Chunk B — cron install (mig 066), push
-// notifications (mig 067 + new mow-notify edge fn), recently-picked-club
-// penalty on the picker to stop West Ham dominating every week, and the
-// Season Card admin resolve panel inside CupAdminPage.
-const CACHE = 'wf-v22'
+// Bumped to v23 for two MoW UX fixes flagged post-live:
+//   * MoW push notification tap now deep-links to /cup?game=mow (was
+//     landing on the World Cup archive).
+//   * Score picker starts blank (– / –) instead of a pre-filled 1-1 that
+//     looked pre-submitted; submit is disabled until both scores are set.
+const CACHE = 'wf-v23'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

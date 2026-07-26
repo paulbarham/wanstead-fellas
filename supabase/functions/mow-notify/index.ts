@@ -106,7 +106,10 @@ Deno.serve(async (req) => {
 
     const payload = JSON.stringify({
       title, body: bodyText,
-      url: '/cup', // Predictor tab
+      // Deep-link to the MoW sub-tab. CupPage reads ?game= on mount and
+      // lands on the right game, so tapping the push doesn't dump the
+      // user into the World Cup archive.
+      url: '/cup?game=mow',
       tag: `mow-${mowFixtureId}-${topic}`,
     })
 

@@ -232,8 +232,11 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
   existing: MowPrediction | null
   onSaved: (p: MowPrediction) => void
 }) {
-  const [home, setHome] = useState<number>(existing?.home_score ?? 1)
-  const [away, setAway] = useState<number>(existing?.away_score ?? 1)
+  // null = untouched (renders as dash). Once the fella taps + / -, we
+  // initialise to the sensible starting value. Avoids the "1-1 looks
+  // pre-submitted" confusion flagged 26 Jul.
+  const [home, setHome] = useState<number | null>(existing?.home_score ?? null)
+  const [away, setAway] = useState<number | null>(existing?.away_score ?? null)
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
@@ -242,12 +245,13 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
   }, [existing?.id])
 
   const clamp = (n: number) => Math.max(0, Math.min(10, n))
+  const bumpHome = (delta: number) => setHome(v => clamp((v ?? 0) + delta))
+  const bumpAway = (delta: number) => setAway(v => clamp((v ?? 0) + delta))
 
   async function save() {
+    if (home == null || away == null) return
     setSaving(true); setErr(null)
     const row = { mow_fixture_id: mowFixtureId, player_id: playerId, home_score: home, away_score: away }
-    // Upsert on (mow_fixture_id, player_id) — safe against the "double-tap
-    // submit" race. RLS covers own_insert / own_update.
     const { data, error } = await supabase.from('mow_predictions')
       .upsert(row, { onConflict: 'mow_fixture_id,player_id' })
       .select('id, mow_fixture_id, player_id, home_score, away_score, points_awarded')
@@ -257,7 +261,9 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
     onSaved(data as MowPrediction)
   }
 
-  const dirty = !existing || existing.home_score !== home || existing.away_score !== away
+  const complete = home != null && away != null
+  const dirty = !existing || (complete && (existing.home_score !== home || existing.away_score !== away))
+  const canSubmit = complete && dirty
 
   return (
     <div className="rounded-2xl overflow-hidden"
@@ -268,9 +274,9 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
         </span>
       </div>
       <div className="px-3 py-3 flex items-center justify-around gap-3">
-        <Stepper value={home} onChange={n => setHome(clamp(n))} label="HOME" />
+        <Stepper value={home} onChange={bumpHome} label="HOME" />
         <div style={{ fontFamily: MONO, fontSize: 22, color: 'var(--color-text-muted)' }}>–</div>
-        <Stepper value={away} onChange={n => setAway(clamp(n))} label="AWAY" />
+        <Stepper value={away} onChange={bumpAway} label="AWAY" />
       </div>
       <div className="px-3 pb-3 text-[10px] text-center" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
         Scoring: <span style={{ color: TT_YELLOW, fontWeight: 700 }}>5</span> exact ·
@@ -283,36 +289,51 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
       <div className="px-3 pb-3">
         <button
           onClick={save}
-          disabled={saving || !dirty}
+          disabled={saving || !canSubmit}
           className="w-full py-2.5 rounded-lg font-semibold text-sm"
           style={{
-            background: dirty ? 'var(--color-primary)' : 'var(--color-surface-2, var(--color-bg))',
-            color: dirty ? '#FFFFFF' : 'var(--color-text-muted)',
-            border: '1px solid ' + (dirty ? 'var(--color-primary)' : 'var(--color-border)'),
+            background: canSubmit ? 'var(--color-primary)' : 'var(--color-surface-2, var(--color-bg))',
+            color: canSubmit ? '#FFFFFF' : 'var(--color-text-muted)',
+            border: '1px solid ' + (canSubmit ? 'var(--color-primary)' : 'var(--color-border)'),
             opacity: saving ? 0.6 : 1,
             transition: 'all 0.15s',
           }}
         >
-          {saving ? 'Saving…' : existing ? (dirty ? 'Update pick' : 'Pick saved') : 'Submit pick'}
+          {saving
+            ? 'Saving…'
+            : !complete
+              ? 'Set both scores to submit'
+              : existing
+                ? (dirty ? 'Update pick' : 'Pick saved')
+                : 'Submit pick'}
         </button>
       </div>
     </div>
   )
 }
 
-function Stepper({ value, onChange, label }: { value: number; onChange: (n: number) => void; label: string }) {
+function Stepper({ value, onChange, label }: {
+  value: number | null
+  onChange: (delta: number) => void
+  label: string
+}) {
+  const touched = value != null
   return (
     <div className="flex flex-col items-center gap-1.5">
       <span className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, letterSpacing: '0.1em' }}>
         {label}
       </span>
       <div className="flex items-center gap-2">
-        <StepBtn onClick={() => onChange(value - 1)} disabled={value <= 0} label="−" />
+        <StepBtn onClick={() => onChange(-1)} disabled={touched && value! <= 0} label="−" />
         <span style={{
-          fontFamily: MONO, fontSize: 32, fontWeight: 700, color: TT_YELLOW,
+          fontFamily: MONO, fontSize: 32, fontWeight: 700,
+          color: touched ? TT_YELLOW : 'var(--color-text-muted)',
           minWidth: 40, textAlign: 'center', lineHeight: 1,
-        }}>{value}</span>
-        <StepBtn onClick={() => onChange(value + 1)} disabled={value >= 10} label="+" />
+          opacity: touched ? 1 : 0.5,
+        }}>
+          {touched ? value : '–'}
+        </span>
+        <StepBtn onClick={() => onChange(+1)} disabled={touched && value! >= 10} label="+" />
       </div>
     </div>
   )

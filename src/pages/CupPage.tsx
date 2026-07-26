@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import CeefaxHeader from '../components/CeefaxHeader'
@@ -47,10 +47,22 @@ export default function CupPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
   // Top-level game switcher — Predictor tab houses the World Cup archive
-  // + two coming-soon PL games (Match of the Week, Season Card). Interest
-  // in the coming-soon tiles is tracked via feature_interest_events so we
-  // can measure appetite before committing build.
-  const [game, setGame] = useState<Game>('wc')
+  // + Match of the Week + Season Card. Interest in each is tracked via
+  // feature_interest_events.
+  //
+  // Initial game reads from ?game= so push notification deep-links (e.g.
+  // /cup?game=mow from mow-notify) land on the right sub-tab. Changing
+  // games updates the URL so refreshes / shares preserve context.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialGame: Game = (() => {
+    const q = searchParams.get('game')
+    return q === 'mow' || q === 'season' || q === 'wc' ? q : 'wc'
+  })()
+  const [game, setGameState] = useState<Game>(initialGame)
+  const setGame = (g: Game) => {
+    setGameState(g)
+    setSearchParams(g === 'wc' ? {} : { game: g }, { replace: true })
+  }
   useEffect(() => {
     if (!profile?.id) return
     const key = `predictor.${game}.view`
