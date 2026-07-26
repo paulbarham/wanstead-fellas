@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v19 for World Cup sweepstake Prize Winners block — final
-// standings now surface Winner / Runner-up / Most Conceded / Most Reds
-// with tied-prize handling (share splits evenly on a tie).
-const CACHE = 'wf-v19'
+// Bumped to v20 for Match of the Week — v1 shell inside the Predictor tab.
+// Schema in mig 062; picker/seed/results edge fns land alongside. Score
+// picker + weekly/season leaderboards live from this bump.
+const CACHE = 'wf-v20'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

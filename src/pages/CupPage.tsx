@@ -10,6 +10,7 @@ import {
   pickLabel, TOURNAMENT_START,
 } from '../lib/cup'
 import SweepstakeCard from '../components/SweepstakeCard'
+import MowGame from '../components/MowGame'
 
 type Tab = 'hub' | 'leaderboard' | 'picks' | 'sweepstake'
 
@@ -189,7 +190,7 @@ export default function CupPage() {
         </>
       )}
 
-      {game === 'mow' && <ComingSoonMoW />}
+      {game === 'mow' && <MowGame />}
       {game === 'season' && <ComingSoonSeason />}
     </div>
   )
@@ -998,7 +999,7 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
 function GameTabs({ game, onGame }: { game: Game; onGame: (g: Game) => void }) {
   const items: { id: Game; label: string; icon: string; soon?: boolean }[] = [
     { id: 'wc',     label: 'World Cup',       icon: '🏆' },
-    { id: 'mow',    label: 'Match of Week',   icon: '🎯', soon: true },
+    { id: 'mow',    label: 'Match of Week',   icon: '🎯' },
     { id: 'season', label: 'Season Card',     icon: '📋', soon: true },
   ]
   return (
@@ -1087,24 +1088,6 @@ function ComingSoonCard({ emoji, title, tagline, howItWorks, when }: {
         </p>
       </div>
     </div>
-  )
-}
-
-function ComingSoonMoW() {
-  return (
-    <ComingSoonCard
-      emoji="🎯"
-      title="Match of the Week"
-      tagline="One fixture. Everyone picks. Settled in the Thursday match report."
-      howItWorks={[
-        'Auto-picked fixture each week — includes lower leagues too, so your Championship / League One team gets airtime',
-        'Home / Draw / Away plus a scoreline for the tiebreak',
-        'Scoring: 3 pts right result · 5 pts exact scoreline',
-        'Result + running season leaderboard land in the following week\'s match report',
-        'Free to play — bragging rights only for now',
-      ]}
-      when="the PL 2026/27 opener"
-    />
   )
 }
 
