@@ -97,6 +97,17 @@ function computeRedsFromMatches(team: string, matches: CupMatchLite[]): number {
   return r
 }
 
+// Return every team tied at the top of a numeric tally (ga or reds).
+// Ties on count-based prizes split the pot evenly between owners.
+function view_topByTally<T extends { ga: number; reds: number }>(
+  teams: T[], key: 'ga' | 'reds',
+): T[] {
+  if (teams.length === 0) return []
+  const top = Math.max(...teams.map(t => t[key]))
+  if (top === 0) return []
+  return teams.filter(t => t[key] === top)
+}
+
 export default function SweepstakeCard() {
   const { profile } = useAuth()
   const [entries, setEntries] = useState<SweepEntry[]>([])
@@ -191,7 +202,24 @@ export default function SweepstakeCard() {
     const settled = matches.filter(m => m.actual_outcome != null).length
     const alive_teams = teams.filter(t => t.alive_for_winner).length
 
-    return { teams, owners, ga_ranking, reds_ranking, total_teams, pot, settled, alive_teams }
+    // Post-tournament crowning — computed once winner status exists.
+    // Each prize can tie; ties split the pot evenly. Sorted rank shared
+    // across the two Winner/Runner-up prizes so a single tie in the
+    // final wouldn't skip runner-up (didn't happen for WC 2026 but the
+    // logic should handle it for future tournaments).
+    const winners = teams.filter(t => t.status === 'winner')
+    const runnersUp = teams.filter(t => t.status === 'final_lost')
+    const topGa = view_topByTally(teams, 'ga')
+    const topReds = view_topByTally(teams, 'reds')
+    const crowned = winners.length > 0
+    const prizes = crowned ? {
+      winner: { teams: winners,        stake: PRIZE_WINNER },
+      runner: { teams: runnersUp,      stake: PRIZE_RUNNER_UP },
+      ga:     { teams: topGa,          stake: PRIZE_MOST_CONCEDED },
+      reds:   { teams: topReds,        stake: PRIZE_MOST_REDS },
+    } : null
+
+    return { teams, owners, ga_ranking, reds_ranking, total_teams, pot, settled, alive_teams, prizes, crowned }
   }, [entries, statuses, matches])
 
   if (!loaded) return null
@@ -247,11 +275,31 @@ export default function SweepstakeCard() {
         borderBottom: `1px solid ${C.border}`,
       }}>£{PRIZE_WINNER} WINNER · £{PRIZE_RUNNER_UP} RUNNER-UP · £{PRIZE_MOST_CONCEDED} MOST CONCEDED · £{PRIZE_MOST_REDS} MOST REDS</p>
 
+      {/* Prize winners — shown once the tournament crowns a winner
+          (WC 2026: post-final on 19 Jul). Sits above the in-progress
+          progress bar because at that point the story IS the winners,
+          not "9 teams still alive". Handles ties on the count-based
+          prizes by splitting the pot evenly between owners. */}
+      {view.crowned && view.prizes && (
+        <div style={blockStyle}>
+          <div style={hdrStyle}>
+            <span><span style={{ fontSize: 16 }}>🏆</span> <span style={nameLabel}>Prize Winners · Crowned</span></span>
+            <span style={{ fontFamily: C.mono, color: C.green, fontSize: 10, letterSpacing: '0.12em', fontWeight: 800 }}>FINAL</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <PrizeRow emoji="👑" label="Winner"        prize={view.prizes.winner} me={profile?.id ?? null} tone="gold" />
+            <PrizeRow emoji="🥈" label="Runner-up"     prize={view.prizes.runner} me={profile?.id ?? null} tone="silver" />
+            <PrizeRow emoji="🥅" label="Most Conceded" prize={view.prizes.ga}     me={profile?.id ?? null} tone="cyan" statKey="ga" statUnit="conceded" />
+            <PrizeRow emoji="🟥" label="Most Reds"     prize={view.prizes.reds}   me={profile?.id ?? null} tone="red" statKey="reds" statUnit="reds" />
+          </div>
+        </div>
+      )}
+
       {/* Progress */}
       <div style={blockStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: C.mono, color: C.muted, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
           <span style={{ color: C.cyan, fontWeight: 700 }}>
-            ▶ {knockoutsStarted ? 'KNOCKOUTS' : 'GROUP STAGE'}
+            ▶ {view.crowned ? 'TOURNAMENT COMPLETE' : (knockoutsStarted ? 'KNOCKOUTS' : 'GROUP STAGE')}
           </span>
           <span>{view.alive_teams} / {view.total_teams} TEAMS ALIVE</span>
         </div>
@@ -438,6 +486,99 @@ export default function SweepstakeCard() {
         <span style={{ fontFamily: C.mono, color: C.muted, fontSize: 10, letterSpacing: '0.1em' }}>
           Admin: update status / reds in Cup Admin
         </span>
+      </div>
+    </div>
+  )
+}
+
+// One row in the "Prize Winners" crowned block. Handles ties by
+// splitting the stake evenly + rendering all tied owners inline.
+function PrizeRow({ emoji, label, prize, me, tone, statKey, statUnit }: {
+  emoji: string
+  label: string
+  prize: { teams: Array<{ team_name: string; sweep_name: string; profile_id: string | null; ga: number; reds: number }>; stake: number }
+  me: string | null
+  tone: 'gold' | 'silver' | 'cyan' | 'red'
+  statKey?: 'ga' | 'reds'
+  statUnit?: string
+}) {
+  const toneColor = tone === 'gold' ? C.yellow
+    : tone === 'silver' ? '#CCCCCC'
+    : tone === 'cyan' ? C.cyan
+    : C.red
+  const share = prize.teams.length > 0 ? prize.stake / prize.teams.length : prize.stake
+  const shareStr = Number.isInteger(share) ? `£${share}` : `£${share.toFixed(2)}`
+  const tied = prize.teams.length > 1
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'stretch', gap: 10,
+      padding: '8px 10px', borderRadius: 8,
+      background: 'rgba(255,255,255,0.02)',
+      border: `1px solid ${toneColor}33`,
+    }}>
+      <div style={{ fontSize: 20, lineHeight: 1, alignSelf: 'center' }}>{emoji}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+          <span style={{
+            fontFamily: C.mono, fontSize: 9, letterSpacing: '0.14em',
+            fontWeight: 800, textTransform: 'uppercase', color: toneColor,
+          }}>
+            {label}
+          </span>
+          {tied && (
+            <span style={{
+              fontFamily: C.mono, fontSize: 8, letterSpacing: '0.12em',
+              color: C.muted, textTransform: 'uppercase',
+              padding: '1px 5px', borderRadius: 3,
+              border: `1px solid ${C.border}`,
+            }}>
+              tied · split
+            </span>
+          )}
+        </div>
+        {prize.teams.length === 0 ? (
+          <div style={{ fontFamily: C.mono, color: C.muted, fontSize: 11, marginTop: 3 }}>
+            No winner recorded.
+          </div>
+        ) : (
+          <div style={{ marginTop: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {prize.teams.map(t => {
+              const isMe = !!me && t.profile_id === me
+              return (
+                <div key={t.team_name} style={{
+                  display: 'flex', alignItems: 'baseline', gap: 6,
+                  fontFamily: C.mono, fontSize: 12,
+                  color: isMe ? C.cyan : C.text,
+                  fontWeight: isMe ? 700 : 500,
+                }}>
+                  <span>{t.team_name}</span>
+                  <span style={{ color: C.muted, fontSize: 10 }}>·</span>
+                  <span style={{ color: isMe ? C.cyan : C.green }}>
+                    {t.sweep_name}{isMe ? ' (you)' : ''}
+                  </span>
+                  {statKey && (
+                    <span style={{ color: C.muted, fontSize: 10, marginLeft: 'auto' }}>
+                      {t[statKey]}{statUnit ? ` ${statUnit}` : ''}
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+      <div style={{
+        alignSelf: 'center', textAlign: 'right',
+        fontFamily: C.mono, minWidth: 56,
+      }}>
+        <div style={{ color: toneColor, fontSize: 15, fontWeight: 800, lineHeight: 1 }}>
+          {shareStr}
+        </div>
+        {tied && (
+          <div style={{ fontSize: 8, color: C.muted, letterSpacing: '0.08em', marginTop: 2 }}>
+            of £{prize.stake}
+          </div>
+        )}
       </div>
     </div>
   )

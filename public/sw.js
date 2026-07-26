@@ -1,8 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v18 for Predictor tab shell — permanent 5th nav slot houses
-// World Cup archive + Match of the Week / Season Card coming-soon tiles
-// (mig 061 tracks interest via feature_interest_events).
-const CACHE = 'wf-v18'
+// Bumped to v19 for World Cup sweepstake Prize Winners block — final
+// standings now surface Winner / Runner-up / Most Conceded / Most Reds
+// with tied-prize handling (share splits evenly on a tie).
+const CACHE = 'wf-v19'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
