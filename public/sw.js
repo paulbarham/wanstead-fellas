@@ -1,10 +1,10 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v23 for two MoW UX fixes flagged post-live:
-//   * MoW push notification tap now deep-links to /cup?game=mow (was
-//     landing on the World Cup archive).
-//   * Score picker starts blank (– / –) instead of a pre-filled 1-1 that
-//     looked pre-submitted; submit is disabled until both scores are set.
-const CACHE = 'wf-v23'
+// Bumped to v24 for Season Card header clipping fix — market titles and
+// header "picked" count were being visually clipped at the card corners
+// on iOS. Wider px-4 padding + proper flex truncation (min-w-0 on titles,
+// flex-shrink-0 + whitespace-nowrap on the pts labels) so nothing gets
+// eaten by the rounded-2xl corner arcs anymore.
+const CACHE = 'wf-v24'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
