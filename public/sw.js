@@ -1,13 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v30 — MoW UI polish pass per the CLAUDE.md "Optimise the UI"
-// checklist. Every card refactored off the overflow:hidden + rounded-2xl
-// pattern (bold-text clipping risk). Padding bumped to px-4, flex-between
-// headers guarded with flex-shrink-0 / min-w-0 truncate. New "Picks lock
-// at kickoff — Xd Yh to go" countdown surfaces in the fixture header
-// when kickoff is within 72h. Scoring hint pill tightened, submit copy
-// clarified ("Tap +/− to set both scores"). Settled banner tone softened
-// on 0-pt result.
-const CACHE = 'wf-v30'
+// Bumped to v31 — WeeklyLeaderboard row layout fix. Grid 1fr-auto was
+// stretching the name column to fill the row, dumping a big empty gap
+// between the fella's name and their score. Refactored to flex: name
+// hugs its content (truncates before crowding), score sits right next
+// to it, points (when settled) push to the right edge via ml-auto.
+// Also gave the scroll wrapper bottom-corner radii so the last row
+// doesn't visually clip against the card's rounded corners.
+const CACHE = 'wf-v31'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

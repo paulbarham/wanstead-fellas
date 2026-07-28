@@ -516,29 +516,37 @@ function WeeklyLeaderboard({ rows, meId, phase }: {
           </span>
         )}
       </div>
-      <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+      <div style={{
+        maxHeight: 320,
+        overflowY: 'auto',
+        borderBottomLeftRadius: 11,
+        borderBottomRightRadius: 11,
+      }}>
         {sorted.map((r, i) => {
           const isMe = r.player_id === meId
           const pts = r.points_awarded
           const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : 'var(--color-text-muted)'
           return (
             <div key={r.player_id}
-              className="grid gap-3 px-4 py-2 items-center"
+              className="flex items-center gap-3 px-4 py-2"
               style={{
-                gridTemplateColumns: showPoints ? '1fr auto auto' : '1fr auto',
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
                 background: isMe ? 'rgba(125,211,252,0.10)' : 'transparent',
                 fontSize: 13,
               }}
             >
+              {/* Name hugs its content (default flex sizing); truncates with
+                  ellipsis before crowding out the score. */}
               <span className="truncate min-w-0" style={{
                 color: isMe ? TT_CYAN : 'var(--color-text)', fontWeight: isMe ? 700 : 400,
               }}>{r.display_name}</span>
+              {/* Score sits directly next to the name — no giant gap. */}
               <span className="flex-shrink-0" style={{ fontFamily: MONO, fontSize: 12, color: 'var(--color-text-muted)' }}>
                 {r.home_score}–{r.away_score}
               </span>
+              {/* Points, when shown, are pushed to the far right via ml-auto. */}
               {showPoints && (
-                <span className="flex-shrink-0" style={{ fontFamily: MONO, fontSize: 12, color: tone, fontWeight: 700, minWidth: 28, textAlign: 'right' }}>
+                <span className="flex-shrink-0 ml-auto" style={{ fontFamily: MONO, fontSize: 12, color: tone, fontWeight: 700, minWidth: 28, textAlign: 'right' }}>
                   {pts != null ? `+${pts}` : '—'}
                 </span>
               )}
@@ -573,7 +581,10 @@ function SeasonLeaderboard({ rows, meId }: { rows: SeasonRow[]; meId: string | u
         <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: 'var(--color-text-muted)', textAlign: 'right' }} title="Exact scores">E</span>
         <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: TT_YELLOW, textAlign: 'right' }}>PTS</span>
       </div>
-      <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+      <div style={{
+        maxHeight: 320,
+        overflowY: 'auto',
+      }}>
         {rows.map((r, i) => {
           const isMe = r.player_id === meId
           const rank = i + 1
