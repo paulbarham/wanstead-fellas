@@ -1,9 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v28 — Season Card picker exit affordance. ✕ icon replaced
-// with an iOS-style Cancel text button on the left of the sheet header,
-// title centered, backdrop given cursor:pointer. Tapping the already-
-// selected option now closes silently instead of re-saving.
-const CACHE = 'wf-v28'
+// Bumped to v29 — Season Card grand-slam bonus (mig 070). Perfect card
+// on all 7 markets earns +25 pts on top of base 72. Bonus surfaced in
+// the CardHeader phase strip so users know it's on the table.
+const CACHE = 'wf-v29'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

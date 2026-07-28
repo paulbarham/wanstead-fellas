@@ -22,6 +22,7 @@ interface SeasonCard {
   edit_window_start: string | null
   edit_window_end: string | null
   resolved_at: string | null
+  perfect_bonus_pts: number | null
 }
 interface Market {
   id: string
@@ -70,7 +71,7 @@ export default function SeasonCardGame() {
 
   const refresh = useCallback(async () => {
     const { data: cardRow } = await supabase.from('season_cards')
-      .select('id, season, lock_at, edit_window_start, edit_window_end, resolved_at')
+      .select('id, season, lock_at, edit_window_start, edit_window_end, resolved_at, perfect_bonus_pts')
       .order('season', { ascending: false })
       .limit(1).maybeSingle()
     const c = cardRow as SeasonCard | null
@@ -260,6 +261,11 @@ function CardHeader({ card, phase, filled, total }: {
         <p style={{ color: tone, fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.02em' }}>
           {phaseLine}
         </p>
+        {(card.perfect_bonus_pts ?? 0) > 0 && (
+          <p className="mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: MONO, fontSize: 10, letterSpacing: '0.04em' }}>
+            🏆 <span style={{ color: TT_YELLOW, fontWeight: 700 }}>+{card.perfect_bonus_pts}</span> pts grand-slam bonus for a perfect card
+          </p>
+        )}
       </div>
     </div>
   )
