@@ -49,6 +49,58 @@ Both live in `docs/primers/`. The index in `docs/primers/README.md` flags each r
 - `npm test` — vitest, 38 tests at last count
 - `npm run lint` — eslint (one pre-existing warning in `RankedList`; don't introduce new ones)
 
+## UI conventions & known gotchas
+
+### Never combine `overflow: hidden` with `rounded-*` on cards that hold bold text
+
+DM Sans (`--font-body`) at `font-semibold`/`font-bold` has slightly negative left sidebearings on several capitals (P, T, R, G confirmed). The visible stroke pokes a fraction of a pixel to the LEFT of the character's advance box. If the parent card has `overflow: hidden` — commonly added so a child header's background respects the rounded corners — those extra stroke pixels get chopped clean off at the padding edge.
+
+Symptom the user reports: "the first letter is cut off", "P looks like ?remier", "text is blocked off by the capsule". Happened at least three times on the Season Card (26 Jul 2026, commits `038f0f6` / `1edcd8b` / `c64b0b0`) before landing the correct fix.
+
+**The pattern that works:**
+
+```jsx
+// outer: rounded + border + backgroundClip. NO overflow:hidden.
+<div className="rounded-xl"
+  style={{
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
+    backgroundClip: 'padding-box',
+  }}>
+  {/* header: explicit top corner radii so its background hugs the parent's rounding */}
+  <div className="px-4 py-2"
+    style={{
+      borderTopLeftRadius: 11,   // parent radius - 1px border
+      borderTopRightRadius: 11,
+      borderBottom: '1px solid var(--color-border)',
+      background: 'var(--color-surface-2, var(--color-bg))',
+    }}>
+    ...
+  </div>
+  {/* body: explicit bottom corner radii for the same reason */}
+  <div className="px-4 py-2"
+    style={{ borderBottomLeftRadius: 11, borderBottomRightRadius: 11 }}>
+    ...
+  </div>
+</div>
+```
+
+Rule: `overflow: hidden` on a rounded card that contains text is only safe if the text is regular-weight, small (≤12px), and well inside the padding. For headers with bold titles, use the pattern above.
+
+### Related: text-clipping-safe flex header layouts
+
+`flex justify-between` with a title on the left and a stat/pts on the right silently clips one side when the sum overflows — especially under iOS Larger Text (Dynamic Type) which multiplies our `text-[Npx]` bases. If both children must fit on one row, add `min-w-0 truncate` to the flexible side AND `flex-shrink-0 whitespace-nowrap` to the fixed side. Better still, use `flex flex-wrap items-baseline gap-2` so the right-hand element wraps to a new line rather than clipping.
+
+### "Optimise the UI" checklist
+
+When the user asks to "optimise the UI" (or "polish", "clean up", "make it look nicer"), sweep the changed surface for:
+
+1. `overflow: hidden` on rounded cards containing bold text → replace with the `backgroundClip: padding-box` pattern above.
+2. `flex justify-between` headers → verify at Larger Text (test with `:root { font-size: 140%; }`) that neither side clips.
+3. `truncate` on user-visible labels → prefer wrap for headings, only truncate on genuinely long body content.
+4. Hardcoded pixel padding → check the padding is proportional to the border-radius (padding ≥ radius) so text sits inside the corner arcs.
+5. `text-[Npx]` sizes below 12px → verify they're still legible at Compact text-size setting.
+
 ## Supabase
 
 - Migrations live in `supabase/migrations/NNN_name.sql`, applied via the Supabase MCP `apply_migration` tool. Always commit the SQL file in the same change as the application so source of truth stays in git.
