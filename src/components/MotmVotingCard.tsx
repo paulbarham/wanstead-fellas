@@ -351,9 +351,17 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
     )
 
     return (
-      <div className="rounded-2xl overflow-hidden mb-4"
-        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-primary)' }}>
-        <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'var(--color-primary)' }}>
+      <div className="rounded-2xl mb-4"
+        style={{
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-primary)',
+          backgroundClip: 'padding-box',
+        }}>
+        <div className="px-4 py-3 flex items-center justify-between"
+          style={{
+            background: 'var(--color-primary)',
+            borderTopLeftRadius: 15, borderTopRightRadius: 15,
+          }}>
           <span className="font-display tracking-wide text-white" style={{ fontSize: 18 }}>
             {votedAll ? 'YOUR VOTES' : 'CAST YOUR VOTES'}
           </span>
@@ -471,9 +479,17 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
   // ── Closed: results ───────────────────────────────────────────────────────
   if (isClosed) {
     return (
-      <div className="rounded-2xl overflow-hidden mb-4"
-        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+      <div className="rounded-2xl mb-4"
+        style={{
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+          backgroundClip: 'padding-box',
+        }}>
+        <div className="px-4 py-3 flex items-center justify-between gap-2"
+          style={{
+            borderBottom: '1px solid var(--color-border)',
+            borderTopLeftRadius: 15, borderTopRightRadius: 15,
+          }}>
           <span className="text-[10px] font-semibold uppercase" style={{ color: 'var(--color-text-muted)', letterSpacing: '0.8px' }}>
             Match Awards
           </span>
@@ -595,7 +611,7 @@ export default function MotmVotingCard({ expectedMatchId }: Props = {}) {
                     )
                     const showTheme = !!themePrompt || rows.some(r => r.theme !== '—')
                     return (
-                      <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+                      <div className="rounded-lg" style={{ border: '1px solid var(--color-border)', backgroundClip: 'padding-box', overflow: 'hidden' }}>
                         <table className="w-full text-[11px]">
                           <thead>
                             <tr style={{ color: '#9CA897', background: 'var(--color-surface)' }}>

@@ -617,11 +617,12 @@ export default function AdminFinancePanel() {
             const rightColour = owes ? '#DC2626' : inCredit ? 'var(--tt-green)' : '#0D6B52'
 
             return (
-              <div key={s.player.id} className="rounded-2xl overflow-hidden"
+              <div key={s.player.id} className="rounded-2xl"
                 style={{
                   background: 'var(--color-surface)',
                   border: `1px solid ${borderColor}`,
                   borderLeft: leftAccent,
+                  backgroundClip: 'padding-box',
                 }}>
 
                 {/* Summary row — avatar + name + fixed-width amount cell so

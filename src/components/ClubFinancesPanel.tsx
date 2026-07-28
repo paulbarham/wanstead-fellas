@@ -222,7 +222,7 @@ export default function ClubFinancesPanel() {
       </div>
 
       {/* ── Subscriptions ─────────────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
         <div className="px-4 py-3 flex items-center justify-between gap-2"
           style={{ borderBottom: '1px solid var(--color-border)' }}>
           <div>
@@ -287,7 +287,7 @@ export default function ClubFinancesPanel() {
       </div>
 
       {/* ── Expenses by month ─────────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
         <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <div>
             <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--tt-yellow)' }}>

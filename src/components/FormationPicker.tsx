@@ -261,7 +261,7 @@ export default function FormationPicker({ teamId, teamName, bibs, editable }: Pr
   const bibsChip = bibs !== undefined ? (bibs ? '🟠 BIBS' : '⚫ NO BIBS') : null
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
       <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-sm font-semibold truncate" style={{ color: 'var(--color-text)' }}>{teamName}</span>

@@ -184,8 +184,8 @@ export default function HistoryPage() {
                     {dateLabel}
                   </span>
                 </div>
-                <div className="rounded-2xl overflow-hidden"
-                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                <div className="rounded-2xl"
+                  style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
                   <button
                     className="w-full px-5 py-4 text-left"
                     onClick={() => setExpanded(isExpanded ? null : match.id)}

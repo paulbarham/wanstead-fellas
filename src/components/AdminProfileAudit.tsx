@@ -301,7 +301,7 @@ export default function AdminProfileAudit() {
       </div>
 
       {/* Per-player table */}
-      <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+      <div className="rounded-lg" style={{ border: '1px solid var(--color-border)', backgroundClip: 'padding-box', overflow: 'hidden' }}>
         <table className="w-full" style={{ fontSize: 10 }}>
           <thead>
             <tr style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-muted)' }}>

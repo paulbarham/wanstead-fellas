@@ -64,8 +64,8 @@ export default function PositionAdoptionTracker() {
 
   return (
     <div
-      className="rounded-2xl mb-3 overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+      className="rounded-2xl mb-3"
+      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}
     >
       <button
         type="button"

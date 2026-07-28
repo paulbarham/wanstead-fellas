@@ -925,7 +925,7 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
 
           {/* Live table */}
           {fixtures.length > 0 && (
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
               <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
                 <h3 className="font-semibold text-[var(--color-text)] text-sm">Live Table</h3>
               </div>
@@ -962,7 +962,7 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
 
           {/* Fixtures */}
           {fixtures.length > 0 && (
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
               <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
                 <h3 className="font-semibold text-[var(--color-text)] text-sm">Enter Scores</h3>
               </div>

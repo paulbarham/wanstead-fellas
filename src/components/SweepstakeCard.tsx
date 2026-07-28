@@ -248,9 +248,10 @@ export default function SweepstakeCard() {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{
+    <div className="rounded-2xl" style={{
       border: `1px solid ${C.border}`,
       background: 'linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%)',
+      backgroundClip: 'padding-box',
     }}>
       {/* Header */}
       <div style={{ padding: '14px 16px 4px', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>

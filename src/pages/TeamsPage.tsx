@@ -142,13 +142,17 @@ export default function TeamsPage() {
             return (
               <div key={team.id} className="space-y-3">
               <div
-                className="rounded-xl overflow-hidden"
-                style={{ border: '1px solid var(--color-border)' }}>
+                className="rounded-xl"
+                style={{ border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
 
                 {/* Header band */}
                 <div
                   className="flex items-center justify-between gap-3 px-4 py-3"
-                  style={{ background: 'var(--color-surface-2)', borderBottom: '1px solid var(--color-border)' }}
+                  style={{
+                    background: 'var(--color-surface-2)',
+                    borderBottom: '1px solid var(--color-border)',
+                    borderTopLeftRadius: 11, borderTopRightRadius: 11,
+                  }}
                 >
                   <h2
                     style={{

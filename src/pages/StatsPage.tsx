@@ -91,7 +91,7 @@ function Panel({
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="rounded-2xl overflow-hidden mb-2" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="rounded-2xl mb-2" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
       <button
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
@@ -250,7 +250,7 @@ function RankedList({
   let lastValue = Number.NaN
   let lastRank = 0
   return (
-    <div className="pt-2 rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+    <div className="pt-2 rounded-lg" style={{ border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
       {rows.map((r, i) => {
         const rank = r.value === lastValue ? lastRank : i + 1
         lastValue = r.value

@@ -182,8 +182,8 @@ export default function MyFinances({ profile }: Props) {
           : r.status === 'due-soon' ? 'var(--color-warning-text)'
           : 'var(--color-border)'
         return (
-          <div key={r.monthKey} className="rounded-2xl overflow-hidden"
-            style={{ background: 'var(--color-surface)', border: `1px solid ${border}` }}>
+          <div key={r.monthKey} className="rounded-2xl"
+            style={{ background: 'var(--color-surface)', border: `1px solid ${border}`, backgroundClip: 'padding-box' }}>
             <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
               <div className="flex items-center justify-between">
                 <div>
@@ -226,7 +226,7 @@ export default function MyFinances({ profile }: Props) {
 
       {/* Un-dated fines (rare) — flat list, no month grouping possible */}
       {undatedFines.length > 0 && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+        <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
             <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>Other fines</p>
           </div>
@@ -245,7 +245,7 @@ export default function MyFinances({ profile }: Props) {
 
       {/* Credits — visible whenever the player has any credit on file. */}
       {credits.length > 0 && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--tt-green)' }}>
+        <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--tt-green)', backgroundClip: 'padding-box' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'var(--tt-green)' }}>
@@ -279,7 +279,7 @@ export default function MyFinances({ profile }: Props) {
 
       {/* Outstanding fines */}
       {unpaidFines.length > 0 && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+        <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid #FFFFFF' }}>
             <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>
               Outstanding Fines
@@ -356,8 +356,8 @@ export default function MyFinances({ profile }: Props) {
                   const paidTotal = items.filter(r => r.paid).reduce((s, r) => s + r.amount, 0)
                   const unpaidTotal = monthTotal - paidTotal
                   return (
-                    <div key={k} className="rounded-2xl overflow-hidden"
-                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                    <div key={k} className="rounded-2xl"
+                      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
                       <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #FFFFFF' }}>
                         <div className="flex items-center justify-between">
                           <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#9CA897' }}>

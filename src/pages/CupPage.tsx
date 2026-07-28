@@ -463,7 +463,7 @@ function BestStreakBoard({ rows, meId }: { rows: LeaderRow[]; meId?: string }) {
       <p className="mb-2" style={{ color: TT_GREEN, fontFamily: MONO, fontSize: 10, letterSpacing: '0.14em' }}>
         ▶ HALL OF FAME · BEST STREAKS
       </p>
-      <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
+      <div className="rounded-lg" style={{ border: '1px solid var(--color-border)', fontFamily: MONO, backgroundClip: 'padding-box' }}>
         {ranked.map((r, i) => {
           const rank = i + 1
           const isMe = meId === r.player_id
@@ -851,7 +851,7 @@ function KOOptions({ match, myPick, onPick }: { match: CupMatch; myPick?: CupPre
         { team: match.team1, opts: side1 },
         { team: match.team2, opts: side2 },
       ].map(({ team, opts }) => (
-        <div key={team} className="rounded-md overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+        <div key={team} className="rounded-md" style={{ border: '1px solid var(--color-border)', backgroundClip: 'padding-box', overflow: 'hidden' }}>
           <p className="px-3 py-2" style={{ background: 'var(--color-surface-2)', color: TT_CYAN, fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em' }}>
             ▶ {team.toUpperCase()} WIN
           </p>
@@ -962,7 +962,7 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
   const showStreak = rows.some(r => isStreak(r.best_streak))
   const gridCols = showStreak ? '32px 1fr 42px 46px 46px' : '32px 1fr 46px 46px'
   return (
-    <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
+    <div className="rounded-lg" style={{ border: '1px solid var(--color-border)', fontFamily: MONO, backgroundClip: 'padding-box' }}>
       <div className="grid gap-2 px-3 py-1.5" style={{ gridTemplateColumns: gridCols, background: 'var(--color-surface-2)', color: TT_CYAN, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
         <span>#</span><span>NAME</span><span style={{ textAlign: 'right' }}>%</span>
         {showStreak && <span style={{ textAlign: 'right' }} title="Live run of right-team picks (groups + knockouts, min 2)">STREAK</span>}

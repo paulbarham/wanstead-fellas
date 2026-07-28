@@ -223,8 +223,8 @@ function PlayersPanel() {
           const isEditing = editingId === p.id
           const badges = (p.badges ?? []) as BadgeType[]
           return (
-            <div key={p.id} className="rounded-2xl overflow-hidden"
-              style={{ background: 'var(--color-surface)', border: `1px solid ${isEditing ? '#0D6B52' : 'var(--color-border)'}` }}>
+            <div key={p.id} className="rounded-2xl"
+              style={{ background: 'var(--color-surface)', border: `1px solid ${isEditing ? '#0D6B52' : 'var(--color-border)'}`, backgroundClip: 'padding-box' }}>
 
               {/* Player row */}
               <div

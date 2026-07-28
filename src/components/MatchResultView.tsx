@@ -136,8 +136,8 @@ function TwoTeamResult({ fixtures, scorersByFixture, legacyScorers }: {
 
   if (!main) return null
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="rounded-2xl"
+      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
       <div className="px-5 pt-5 pb-4" style={{ fontFamily: 'var(--font-mono)' }}>
         <div className="flex items-center justify-between gap-3 mb-4">
           <span className="flex-1 text-right" style={{ fontSize: 14, color: 'var(--color-text)' }}>{stripFC(main.team1?.name)}</span>
@@ -200,7 +200,7 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, pred
   return (
     <div className="space-y-4">
       {/* Group table */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
         <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <SectionHeader label="Group Table" />
         </div>
@@ -249,7 +249,7 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, pred
       <PredictedVsActual predictions={predictions} />
 
       {/* Fixtures (with per-fixture scorers if available) */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
         <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <SectionHeader label="Results" />
         </div>
@@ -294,7 +294,7 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, pred
 
       {/* Legacy whole-match scorers blob (only for old matches lacking goals rows) */}
       {hasLegacyScorers && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+        <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
           <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
             <SectionHeader label="Scorers" />
           </div>

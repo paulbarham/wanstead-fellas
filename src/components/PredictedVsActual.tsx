@@ -9,7 +9,7 @@ import SectionHeader from './SectionHeader'
 export default function PredictedVsActual({ predictions }: { predictions: ReportPredictions | null | undefined }) {
   if (!predictions || !predictions.rows?.length) return null
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>
       <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
         <SectionHeader label="Predicted vs. Actual" />
       </div>

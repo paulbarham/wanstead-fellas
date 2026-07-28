@@ -224,7 +224,7 @@ function MatchAdminCard({
       }))
 
   return (
-    <div className="rounded-xl mb-2 overflow-hidden" style={{ border: '1px solid var(--color-border)', fontFamily: MONO }}>
+    <div className="rounded-xl mb-2" style={{ border: '1px solid var(--color-border)', fontFamily: MONO, backgroundClip: 'padding-box' }}>
       <button
         onClick={onToggle}
         className="w-full text-left p-3"

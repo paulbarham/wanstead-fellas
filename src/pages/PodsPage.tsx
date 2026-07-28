@@ -77,8 +77,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function PodCard({ entry }: { entry: PodEntry }) {
   return (
     <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}
+      className="rounded-2xl"
+      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}
     >
       <div className="flex items-start gap-3 p-4">
         <div

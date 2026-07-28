@@ -1,10 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v34 — Season Card "who picked who" surface. Post-lock (and
-// during resolved phase), each market header gets a "👥 N picks" chip
-// that opens a bottom-sheet showing every fella's pick for that market
-// plus a top-3 consensus strip. Pre-lock and during edit_reopen picks
-// stay private so nobody can game the group's calls.
-const CACHE = 'wf-v34'
+// Bumped to v35 — app-wide UI hardening. Applied the CLAUDE.md pattern
+// (drop overflow:hidden, add backgroundClip: padding-box, explicit inner
+// corner radii where children have their own backgrounds) to every
+// user-facing card that had the anti-pattern. Prevents DM Sans font-
+// semibold from clipping the first bold glyph anywhere in the app.
+// Touched: MotmVotingCard, TeamsPage, HistoryPage, PodsPage, StatsPage,
+// MatchResultView, PredictedVsActual, SweepstakeCard + admin surfaces.
+const CACHE = 'wf-v35'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
