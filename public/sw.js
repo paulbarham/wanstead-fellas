@@ -1,8 +1,13 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v29 — Season Card grand-slam bonus (mig 070). Perfect card
-// on all 7 markets earns +25 pts on top of base 72. Bonus surfaced in
-// the CardHeader phase strip so users know it's on the table.
-const CACHE = 'wf-v29'
+// Bumped to v30 — MoW UI polish pass per the CLAUDE.md "Optimise the UI"
+// checklist. Every card refactored off the overflow:hidden + rounded-2xl
+// pattern (bold-text clipping risk). Padding bumped to px-4, flex-between
+// headers guarded with flex-shrink-0 / min-w-0 truncate. New "Picks lock
+// at kickoff — Xd Yh to go" countdown surfaces in the fixture header
+// when kickoff is within 72h. Scoring hint pill tightened, submit copy
+// clarified ("Tap +/− to set both scores"). Settled banner tone softened
+// on 0-pt result.
+const CACHE = 'wf-v30'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

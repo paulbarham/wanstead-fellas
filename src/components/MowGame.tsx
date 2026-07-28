@@ -173,47 +173,81 @@ function FixtureHeader({ pool, homeName, awayName, phase }: {
 }) {
   const kickoff = new Date(pool.kickoff_at)
   const isSettled = phase === 'settled'
+  const isOpen = phase === 'open'
+  const msToKO = kickoff.getTime() - Date.now()
+  const showCountdown = isOpen && msToKO > 0 && msToKO < 3 * 24 * 60 * 60 * 1000 // <72h
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <div className="px-3 py-2 flex items-center justify-between"
-        style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))', fontFamily: MONO }}>
-        <span className="text-[10px] uppercase tracking-widest" style={{ color: TT_CYAN, fontWeight: 700 }}>
+    <div className="rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
+      <div className="px-4 py-2 flex items-center justify-between gap-3"
+        style={{
+          borderTopLeftRadius: 11, borderTopRightRadius: 11,
+          borderBottom: '1px solid var(--color-border)',
+          background: 'var(--color-surface-2, var(--color-bg))',
+          fontFamily: MONO,
+        }}>
+        <span className="text-[10px] uppercase tracking-wide min-w-0 truncate" style={{ color: TT_CYAN, fontWeight: 700 }}>
           🎯 Match of the Week
         </span>
-        <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+        <span className="text-[10px] flex-shrink-0 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>
           {COMP_LABEL[pool.competition] ?? pool.competition}
         </span>
       </div>
 
       <div className="px-3 py-4 flex items-center justify-between gap-2">
-        <TeamCell name={homeName} slug={pool.home_club} align="right" />
-        <div className="flex flex-col items-center px-2" style={{ minWidth: 72 }}>
+        <TeamCell name={homeName} slug={pool.home_club} />
+        <div className="flex flex-col items-center px-2" style={{ minWidth: 82 }}>
           {isSettled ? (
-            <div style={{ fontFamily: MONO, fontSize: 24, fontWeight: 700, color: TT_YELLOW, letterSpacing: '0.05em' }}>
+            <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 700, color: TT_YELLOW, letterSpacing: '0.05em' }}>
               {pool.home_score}–{pool.away_score}
             </div>
           ) : (
             <div style={{ fontFamily: MONO, fontSize: 20, fontWeight: 700, color: 'var(--color-text-muted)' }}>vs</div>
           )}
-          <div className="text-[10px] mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
+          <div className="text-[10px] mt-1 whitespace-nowrap" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
             {formatKickoff(kickoff, isSettled)}
           </div>
         </div>
-        <TeamCell name={awayName} slug={pool.away_club} align="left" />
+        <TeamCell name={awayName} slug={pool.away_club} />
       </div>
+
+      {showCountdown && (
+        <div className="px-4 py-1.5 text-center"
+          style={{
+            borderTop: '1px solid var(--color-border)',
+            borderBottomLeftRadius: 11, borderBottomRightRadius: 11,
+            background: 'var(--color-surface-2, var(--color-bg))',
+          }}>
+          <span className="text-[10px] font-semibold" style={{ color: TT_GREEN, fontFamily: MONO, letterSpacing: '0.04em' }}>
+            ⚡ Picks lock at kickoff · {formatCountdown(msToKO)}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
 
-function TeamCell({ name, slug, align }: { name: string; slug: string; align: 'left'|'right' }) {
+function formatCountdown(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000))
+  const days = Math.floor(total / 86400)
+  const hours = Math.floor((total % 86400) / 3600)
+  const mins = Math.floor((total % 3600) / 60)
+  if (days >= 1) return `${days}d ${hours}h to go`
+  if (hours >= 1) return `${hours}h ${mins}m to go`
+  return `${mins}m to go`
+}
+
+function TeamCell({ name, slug }: { name: string; slug: string }) {
   return (
-    <div className="flex-1 flex flex-col items-center gap-1.5">
+    <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
       <ClubBadge slug={slug} size={44} />
-      <span className="text-xs text-center leading-tight" style={{
+      <span className="text-xs text-center leading-tight break-words px-1" style={{
         color: 'var(--color-text)',
         fontWeight: 600,
-        textAlign: align === 'right' ? 'right' : 'left',
         minHeight: 28,
       }}>{name}</span>
     </div>
@@ -266,31 +300,42 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
   const canSubmit = complete && dirty
 
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))', fontFamily: MONO }}>
-        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: TT_YELLOW }}>
+    <div className="rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
+      <div className="px-4 py-2"
+        style={{
+          borderTopLeftRadius: 11, borderTopRightRadius: 11,
+          borderBottom: '1px solid var(--color-border)',
+          background: 'var(--color-surface-2, var(--color-bg))',
+          fontFamily: MONO,
+        }}>
+        <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: TT_YELLOW }}>
           {existing ? '✓ Your pick — tap to change' : '✎ Predict the score'}
         </span>
       </div>
-      <div className="px-3 py-3 flex items-center justify-around gap-3">
+      <div className="px-4 pt-4 pb-2 flex items-center justify-around gap-3">
         <Stepper value={home} onChange={bumpHome} label="HOME" />
         <div style={{ fontFamily: MONO, fontSize: 22, color: 'var(--color-text-muted)' }}>–</div>
         <Stepper value={away} onChange={bumpAway} label="AWAY" />
       </div>
-      <div className="px-3 pb-3 text-[10px] text-center" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
-        Scoring: <span style={{ color: TT_YELLOW, fontWeight: 700 }}>5</span> exact ·
-        <span style={{ color: TT_CYAN, fontWeight: 700 }}> 3</span> right result ·
-        <span style={{ color: 'var(--color-text-muted)' }}> 0</span> wrong
+      <div className="px-4 pb-3 text-[10px] text-center flex items-center justify-center gap-3 flex-wrap"
+        style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
+        <span><b style={{ color: TT_YELLOW, fontWeight: 700 }}>5 pts</b> exact score</span>
+        <span style={{ color: 'var(--color-border)' }}>·</span>
+        <span><b style={{ color: TT_CYAN, fontWeight: 700 }}>3 pts</b> right result</span>
       </div>
       {err && (
-        <div className="px-3 pb-2 text-[11px]" style={{ color: TT_RED }}>{err}</div>
+        <div className="px-4 pb-2 text-[11px]" style={{ color: TT_RED }}>{err}</div>
       )}
-      <div className="px-3 pb-3">
+      <div className="px-4 pb-4">
         <button
           onClick={save}
           disabled={saving || !canSubmit}
-          className="w-full py-2.5 rounded-lg font-semibold text-sm"
+          className="w-full py-3 rounded-lg font-semibold text-sm"
           style={{
             background: canSubmit ? 'var(--color-primary)' : 'var(--color-surface-2, var(--color-bg))',
             color: canSubmit ? '#FFFFFF' : 'var(--color-text-muted)',
@@ -302,9 +347,9 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
           {saving
             ? 'Saving…'
             : !complete
-              ? 'Set both scores to submit'
+              ? 'Tap +/− to set both scores'
               : existing
-                ? (dirty ? 'Update pick' : 'Pick saved')
+                ? (dirty ? 'Update pick' : '✓ Pick saved')
                 : 'Submit pick'}
         </button>
       </div>
@@ -361,9 +406,13 @@ function StepBtn({ onClick, disabled, label }: { onClick: () => void; disabled: 
 // ── Locked (past kickoff, no result yet) ───────────────────────────────────
 function LockedCard({ myPick }: { myPick: MowPrediction | null }) {
   return (
-    <div className="rounded-2xl px-3 py-3 text-center"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: TT_MAGENTA, fontFamily: MONO }}>
+    <div className="rounded-xl px-4 py-3 text-center"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
+      <p className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: TT_MAGENTA, fontFamily: MONO }}>
         🔒 Locked — awaiting result
       </p>
       {myPick ? (
@@ -374,7 +423,7 @@ function LockedCard({ myPick }: { myPick: MowPrediction | null }) {
         </p>
       ) : (
         <p className="text-sm mt-1.5" style={{ color: 'var(--color-text-muted)' }}>
-          No pick submitted this week.
+          No pick submitted this week — nothing to score.
         </p>
       )}
     </div>
@@ -384,29 +433,33 @@ function LockedCard({ myPick }: { myPick: MowPrediction | null }) {
 // ── Settled (final score in, points computed) ──────────────────────────────
 function SettledCard({ pool, myPick }: { pool: PoolFixture; myPick: MowPrediction | null }) {
   const pts = myPick?.points_awarded ?? 0
-  const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : TT_RED
-  const label = pts === 5 ? 'EXACT SCORE!' : pts === 3 ? 'RIGHT RESULT' : 'MISSED'
+  const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : 'var(--color-text-muted)'
+  const label = pts === 5 ? '🎯 Exact score! +5 pts' : pts === 3 ? '✓ Right result · +3 pts' : 'No points this week'
   return (
-    <div className="rounded-2xl px-3 py-3 text-center"
-      style={{ background: 'var(--color-surface)', border: `1px solid var(--color-border)` }}>
+    <div className="rounded-xl px-4 py-3 text-center"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
       {myPick ? (
         <>
-          <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: tone, fontFamily: MONO }}>
-            {label} · +{pts} pts
+          <p className="text-[11px] uppercase tracking-wide font-semibold" style={{ color: tone, fontFamily: MONO }}>
+            {label}
           </p>
           <p className="text-sm mt-1.5" style={{ color: 'var(--color-text)' }}>
-            Your pick: <strong style={{ color: TT_CYAN, fontFamily: MONO }}>
+            Your pick <strong style={{ color: TT_CYAN, fontFamily: MONO }}>
               {myPick.home_score}–{myPick.away_score}
             </strong>
-            {' · '}
-            Actual: <strong style={{ color: TT_YELLOW, fontFamily: MONO }}>
+            {' vs actual '}
+            <strong style={{ color: TT_YELLOW, fontFamily: MONO }}>
               {pool.home_score}–{pool.away_score}
             </strong>
           </p>
         </>
       ) : (
         <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-          No pick submitted — final: <strong style={{ color: TT_YELLOW, fontFamily: MONO }}>
+          No pick submitted — final was <strong style={{ color: TT_YELLOW, fontFamily: MONO }}>
             {pool.home_score}–{pool.away_score}
           </strong>
         </p>
@@ -422,10 +475,14 @@ function WeeklyLeaderboard({ rows, meId, phase }: {
 }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl px-3 py-3 text-center"
-        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
-          {phase === 'open' ? 'Be the first fella in with a pick.' : 'No picks were submitted this week.'}
+      <div className="rounded-xl px-4 py-4 text-center"
+        style={{
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+          backgroundClip: 'padding-box',
+        }}>
+        <p className="text-xs" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
+          {phase === 'open' ? '⚡ Be the first fella in with a pick' : 'No picks were submitted this week.'}
         </p>
       </div>
     )
@@ -437,40 +494,51 @@ function WeeklyLeaderboard({ rows, meId, phase }: {
   const sorted = showPoints ? rows : [...rows].sort((a, b) => a.display_name.localeCompare(b.display_name))
 
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <div className="px-3 py-2 flex items-center justify-between"
-        style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))', fontFamily: MONO }}>
-        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: TT_CYAN }}>
-          {showPoints ? 'This week — settled' : `${rows.length} picks in`}
+    <div className="rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
+      <div className="px-4 py-2 flex items-center justify-between gap-3"
+        style={{
+          borderTopLeftRadius: 11, borderTopRightRadius: 11,
+          borderBottom: '1px solid var(--color-border)',
+          background: 'var(--color-surface-2, var(--color-bg))',
+          fontFamily: MONO,
+        }}>
+        <span className="text-[10px] uppercase tracking-wide font-semibold min-w-0 truncate" style={{ color: TT_CYAN }}>
+          {showPoints ? 'This week — settled' : `${rows.length} pick${rows.length === 1 ? '' : 's'} in`}
         </span>
-        <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-          {showPoints ? 'PTS' : ''}
-        </span>
+        {showPoints && (
+          <span className="text-[10px] flex-shrink-0 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>
+            PTS
+          </span>
+        )}
       </div>
       <div style={{ maxHeight: 320, overflowY: 'auto' }}>
         {sorted.map((r, i) => {
           const isMe = r.player_id === meId
           const pts = r.points_awarded
-          const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : pts === 0 ? 'var(--color-text-muted)' : 'var(--color-text-muted)'
+          const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : 'var(--color-text-muted)'
           return (
             <div key={r.player_id}
-              className="grid gap-2 px-3 py-1.5 items-center"
+              className="grid gap-3 px-4 py-2 items-center"
               style={{
                 gridTemplateColumns: showPoints ? '1fr auto auto' : '1fr auto',
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
-                background: isMe ? 'rgba(14,116,144,0.10)' : 'transparent',
+                background: isMe ? 'rgba(125,211,252,0.10)' : 'transparent',
                 fontSize: 13,
               }}
             >
-              <span className="truncate" style={{
+              <span className="truncate min-w-0" style={{
                 color: isMe ? TT_CYAN : 'var(--color-text)', fontWeight: isMe ? 700 : 400,
               }}>{r.display_name}</span>
-              <span style={{ fontFamily: MONO, fontSize: 12, color: 'var(--color-text-muted)' }}>
+              <span className="flex-shrink-0" style={{ fontFamily: MONO, fontSize: 12, color: 'var(--color-text-muted)' }}>
                 {r.home_score}–{r.away_score}
               </span>
               {showPoints && (
-                <span style={{ fontFamily: MONO, fontSize: 12, color: tone, fontWeight: 700, minWidth: 24, textAlign: 'right' }}>
+                <span className="flex-shrink-0" style={{ fontFamily: MONO, fontSize: 12, color: tone, fontWeight: 700, minWidth: 28, textAlign: 'right' }}>
                   {pts != null ? `+${pts}` : '—'}
                 </span>
               )}
@@ -485,20 +553,25 @@ function WeeklyLeaderboard({ rows, meId, phase }: {
 // ── Season leaderboard ─────────────────────────────────────────────────────
 function SeasonLeaderboard({ rows, meId }: { rows: SeasonRow[]; meId: string | undefined }) {
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <div className="px-3 py-2 grid gap-2 items-center"
+    <div className="rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
+      <div className="px-4 py-2 grid gap-2 items-center"
         style={{
-          gridTemplateColumns: '18px 1fr 30px 30px 34px',
+          gridTemplateColumns: '22px 1fr 30px 30px 40px',
+          borderTopLeftRadius: 11, borderTopRightRadius: 11,
           borderBottom: '1px solid var(--color-border)',
           background: 'var(--color-surface-2, var(--color-bg))',
           fontFamily: MONO,
         }}>
-        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: TT_CYAN }}>#</span>
-        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: TT_CYAN }}>Season</span>
-        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--color-text-muted)', textAlign: 'right' }}>P</span>
-        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--color-text-muted)', textAlign: 'right' }} title="Exact scores">E</span>
-        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: TT_YELLOW, textAlign: 'right' }}>PTS</span>
+        <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: TT_CYAN }}>#</span>
+        <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: TT_CYAN }}>Season</span>
+        <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: 'var(--color-text-muted)', textAlign: 'right' }} title="Picks settled">P</span>
+        <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: 'var(--color-text-muted)', textAlign: 'right' }} title="Exact scores">E</span>
+        <span className="text-[10px] uppercase tracking-wide font-semibold" style={{ color: TT_YELLOW, textAlign: 'right' }}>PTS</span>
       </div>
       <div style={{ maxHeight: 320, overflowY: 'auto' }}>
         {rows.map((r, i) => {
@@ -507,18 +580,18 @@ function SeasonLeaderboard({ rows, meId }: { rows: SeasonRow[]; meId: string | u
           const isTop = rank <= 3
           return (
             <div key={r.player_id}
-              className="grid gap-2 px-3 py-1.5 items-center"
+              className="grid gap-2 px-4 py-2 items-center"
               style={{
-                gridTemplateColumns: '18px 1fr 30px 30px 34px',
+                gridTemplateColumns: '22px 1fr 30px 30px 40px',
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
-                background: isTop ? 'rgba(201,162,39,0.08)' : isMe ? 'rgba(14,116,144,0.10)' : 'transparent',
+                background: isTop ? 'rgba(245,197,24,0.08)' : isMe ? 'rgba(125,211,252,0.10)' : 'transparent',
                 fontSize: 13,
               }}
             >
               <span style={{ color: isTop ? TT_YELLOW : 'var(--color-text-muted)', fontSize: 11, fontWeight: isTop ? 700 : 400, fontFamily: MONO }}>
                 {String(rank).padStart(2, '0')}
               </span>
-              <span className="truncate" style={{
+              <span className="truncate min-w-0" style={{
                 color: isTop ? TT_YELLOW : isMe ? TT_CYAN : 'var(--color-text)',
                 fontWeight: isTop || isMe ? 700 : 400,
               }}>{r.display_name}</span>
@@ -535,7 +608,12 @@ function SeasonLeaderboard({ rows, meId }: { rows: SeasonRow[]; meId: string | u
           )
         })}
       </div>
-      <div className="px-3 py-1.5 text-[10px]" style={{ borderTop: '1px solid var(--color-border)', color: 'var(--color-text-muted)', fontFamily: MONO, textAlign: 'center' }}>
+      <div className="px-4 py-1.5 text-[10px]"
+        style={{
+          borderTop: '1px solid var(--color-border)',
+          borderBottomLeftRadius: 11, borderBottomRightRadius: 11,
+          color: 'var(--color-text-muted)', fontFamily: MONO, textAlign: 'center',
+        }}>
         P = picks settled · E = exact scores · PTS = season total
       </div>
     </div>
@@ -545,12 +623,17 @@ function SeasonLeaderboard({ rows, meId }: { rows: SeasonRow[]; meId: string | u
 // ── No-fixture-yet preview (holds shape until Monday's picker fires) ──────
 function PreviewCard() {
   return (
-    <div className="mt-2 rounded-2xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <div className="px-4 pt-5 pb-3 text-center">
+    <div className="mt-2 rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
+      <div className="px-4 pt-5 pb-3 text-center"
+        style={{ borderTopLeftRadius: 11, borderTopRightRadius: 11 }}>
         <div style={{ fontSize: 42, lineHeight: 1 }}>🎯</div>
-        <p className="text-xs uppercase tracking-widest font-semibold mt-3"
-          style={{ color: TT_GREEN, letterSpacing: '0.12em' }}>
+        <p className="text-xs uppercase tracking-wide font-semibold mt-3"
+          style={{ color: TT_GREEN, letterSpacing: '0.10em' }}>
           Live · Free to play
         </p>
         <h2 className="font-display tracking-wide mt-1" style={{ color: 'var(--color-text)', fontSize: 24, lineHeight: 1.1 }}>
@@ -561,8 +644,13 @@ function PreviewCard() {
           weighted by which club you support.
         </p>
       </div>
-      <div className="px-4 py-3" style={{ borderTop: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))' }}>
-        <p className="text-[10px] uppercase font-semibold tracking-widest mb-2"
+      <div className="px-4 py-3"
+        style={{
+          borderTop: '1px solid var(--color-border)',
+          borderBottomLeftRadius: 11, borderBottomRightRadius: 11,
+          background: 'var(--color-surface-2, var(--color-bg))',
+        }}>
+        <p className="text-[10px] uppercase font-semibold tracking-wide mb-2"
           style={{ color: 'var(--color-text-muted)' }}>
           How it works
         </p>
