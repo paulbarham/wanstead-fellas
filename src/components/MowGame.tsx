@@ -523,6 +523,12 @@ function WeeklyLeaderboard({ rows, meId, phase, homeClub, awayClub }: {
           </span>
         )}
       </div>
+      {/* Column headers — sits between the section header and the scroll
+          list so the values below are legible without hovering. Grid
+          columns must match the row grid exactly (any drift and the
+          labels stop aligning). */}
+      <ColumnHeaders showPoints={showPoints} />
+
       <div style={{
         maxHeight: 320,
         overflowY: 'auto',
@@ -547,7 +553,7 @@ function WeeklyLeaderboard({ rows, meId, phase, homeClub, awayClub }: {
           const cols = showPoints ? '1fr 24px 56px 36px' : '1fr 24px 56px'
           return (
             <div key={r.player_id}
-              className="grid gap-3 px-4 py-2 items-center"
+              className="grid gap-3 px-5 py-2 items-center"
               style={{
                 gridTemplateColumns: cols,
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
@@ -590,6 +596,29 @@ function WeeklyLeaderboard({ rows, meId, phase, homeClub, awayClub }: {
           )
         })}
       </div>
+    </div>
+  )
+}
+
+function ColumnHeaders({ showPoints }: { showPoints: boolean }) {
+  const cols = showPoints ? '1fr 24px 56px 36px' : '1fr 24px 56px'
+  return (
+    <div className="grid gap-3 px-5 py-1.5 items-center"
+      style={{
+        gridTemplateColumns: cols,
+        borderBottom: '1px solid var(--color-border)',
+        background: 'var(--color-bg)',
+        fontFamily: MONO,
+        fontSize: 9,
+        color: 'var(--color-text-muted)',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+      }}
+    >
+      <span>Fella</span>
+      <span style={{ textAlign: 'center' }}>Pick</span>
+      <span style={{ textAlign: 'center' }}>Score</span>
+      {showPoints && <span style={{ textAlign: 'right' }}>Pts</span>}
     </div>
   )
 }

@@ -1,12 +1,8 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v32 — WeeklyLeaderboard row v3. Split the difference between
-// "far-edge gap" (v30) and "cramped next to name" (v31) with a proper
-// grid: name (flex) · picked-winner crest (24px) · score pill (56px) ·
-// pts (36px, settled). Middle crest fills the space with meaningful
-// info (which team the fella backed to win) rather than empty gap;
-// score is a bordered mono pill for visual weight and consistent
-// column alignment down the list.
-const CACHE = 'wf-v32'
+// Bumped to v33 — WeeklyLeaderboard column headers (FELLA · PICK · SCORE
+// · PTS) so the list reads like a proper table, plus px-4 → px-5 padding
+// so the name breathes off the left card edge.
+const CACHE = 'wf-v33'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
