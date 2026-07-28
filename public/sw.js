@@ -1,12 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v31 — WeeklyLeaderboard row layout fix. Grid 1fr-auto was
-// stretching the name column to fill the row, dumping a big empty gap
-// between the fella's name and their score. Refactored to flex: name
-// hugs its content (truncates before crowding), score sits right next
-// to it, points (when settled) push to the right edge via ml-auto.
-// Also gave the scroll wrapper bottom-corner radii so the last row
-// doesn't visually clip against the card's rounded corners.
-const CACHE = 'wf-v31'
+// Bumped to v32 — WeeklyLeaderboard row v3. Split the difference between
+// "far-edge gap" (v30) and "cramped next to name" (v31) with a proper
+// grid: name (flex) · picked-winner crest (24px) · score pill (56px) ·
+// pts (36px, settled). Middle crest fills the space with meaningful
+// info (which team the fella backed to win) rather than empty gap;
+// score is a bordered mono pill for visual weight and consistent
+// column alignment down the list.
+const CACHE = 'wf-v32'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

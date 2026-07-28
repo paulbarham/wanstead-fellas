@@ -159,7 +159,13 @@ export default function MowGame() {
         <SettledCard pool={pool!} myPick={myPick} />
       )}
 
-      <WeeklyLeaderboard rows={weekly} meId={profile?.id} phase={phase} />
+      <WeeklyLeaderboard
+        rows={weekly}
+        meId={profile?.id}
+        phase={phase}
+        homeClub={pool!.home_club}
+        awayClub={pool!.away_club}
+      />
 
       {season.length > 0 && <SeasonLeaderboard rows={season} meId={profile?.id} />}
     </div>
@@ -469,9 +475,10 @@ function SettledCard({ pool, myPick }: { pool: PoolFixture; myPick: MowPredictio
 }
 
 // ── This-week leaderboard ──────────────────────────────────────────────────
-function WeeklyLeaderboard({ rows, meId, phase }: {
+function WeeklyLeaderboard({ rows, meId, phase, homeClub, awayClub }: {
   rows: WeeklyRow[]; meId: string | undefined
   phase: 'open'|'locked'|'settled'
+  homeClub: string; awayClub: string
 }) {
   if (rows.length === 0) {
     return (
@@ -526,27 +533,56 @@ function WeeklyLeaderboard({ rows, meId, phase }: {
           const isMe = r.player_id === meId
           const pts = r.points_awarded
           const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : 'var(--color-text-muted)'
+          // Their pick maps to a winner: home > away, home < away, or draw.
+          // Uses the space between name and score to communicate WHO they
+          // backed, not just the raw scoreline.
+          const winnerType: 'home' | 'away' | 'draw' =
+            r.home_score > r.away_score ? 'home'
+            : r.home_score < r.away_score ? 'away'
+            : 'draw'
+          // Grid columns: name (flex) · winner badge (24px) · score pill (56px)
+          // · pts (36px, settled only). Consistent right-hand column so
+          // scores stack cleanly down the list; middle badge fills what
+          // would otherwise be dead space with meaningful info.
+          const cols = showPoints ? '1fr 24px 56px 36px' : '1fr 24px 56px'
           return (
             <div key={r.player_id}
-              className="flex items-center gap-3 px-4 py-2"
+              className="grid gap-3 px-4 py-2 items-center"
               style={{
+                gridTemplateColumns: cols,
                 borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
                 background: isMe ? 'rgba(125,211,252,0.10)' : 'transparent',
                 fontSize: 13,
               }}
             >
-              {/* Name hugs its content (default flex sizing); truncates with
-                  ellipsis before crowding out the score. */}
               <span className="truncate min-w-0" style={{
                 color: isMe ? TT_CYAN : 'var(--color-text)', fontWeight: isMe ? 700 : 400,
               }}>{r.display_name}</span>
-              {/* Score sits directly next to the name — no giant gap. */}
-              <span className="flex-shrink-0" style={{ fontFamily: MONO, fontSize: 12, color: 'var(--color-text-muted)' }}>
+              <span className="flex items-center justify-center">
+                {winnerType === 'draw' ? (
+                  <span style={{
+                    fontFamily: MONO, fontSize: 9, fontWeight: 700, letterSpacing: '0.06em',
+                    color: 'var(--color-text-muted)',
+                    padding: '2px 4px', borderRadius: 4,
+                    border: '1px solid var(--color-border)',
+                    lineHeight: 1,
+                  }}>D</span>
+                ) : (
+                  <ClubBadge slug={winnerType === 'home' ? homeClub : awayClub} size={20} />
+                )}
+              </span>
+              <span style={{
+                fontFamily: MONO, fontSize: 12, fontWeight: 600,
+                color: 'var(--color-text)',
+                textAlign: 'center',
+                padding: '2px 0', borderRadius: 4,
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface-2, var(--color-bg))',
+              }}>
                 {r.home_score}–{r.away_score}
               </span>
-              {/* Points, when shown, are pushed to the far right via ml-auto. */}
               {showPoints && (
-                <span className="flex-shrink-0 ml-auto" style={{ fontFamily: MONO, fontSize: 12, color: tone, fontWeight: 700, minWidth: 28, textAlign: 'right' }}>
+                <span style={{ fontFamily: MONO, fontSize: 12, color: tone, fontWeight: 700, textAlign: 'right' }}>
                   {pts != null ? `+${pts}` : '—'}
                 </span>
               )}
