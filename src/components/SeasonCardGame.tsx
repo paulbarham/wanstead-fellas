@@ -53,12 +53,23 @@ interface Prediction {
   points_awarded: number | null
 }
 
+// Public (post-lock) prediction — carries the fella's display name for
+// the "who picked who" bottom sheet.
+interface PublicPick {
+  market_id: string
+  player_id: string
+  pick_index: number
+  option_key: string
+  display_name: string
+}
+
 export default function SeasonCardGame() {
   const { profile } = useAuth()
   const [card, setCard]       = useState<SeasonCard | null>(null)
   const [markets, setMarkets] = useState<Market[]>([])
   const [options, setOptions] = useState<Option[]>([])
   const [picks, setPicks]     = useState<Prediction[]>([])
+  const [publicPicks, setPublicPicks] = useState<PublicPick[]>([])
   const [loading, setLoading] = useState(true)
   const [tick, setTick]       = useState(0)
 
@@ -78,7 +89,19 @@ export default function SeasonCardGame() {
     setCard(c)
     if (!c) { setLoading(false); return }
 
-    const [{ data: mkts }, { data: opts }, { data: pks }] = await Promise.all([
+    // Public visibility rule: picks become visible to everyone once the
+    // card has locked (and stay visible even if a fella updates during
+    // edit_reopen — actually no, edit_reopen goes back to private since
+    // picks are editable again and public visibility would let people
+    // game each other's updates). So: locked or resolved → public.
+    const nowMs = Date.now()
+    const editStart = c.edit_window_start ? new Date(c.edit_window_start).getTime() : null
+    const editEnd   = c.edit_window_end   ? new Date(c.edit_window_end).getTime()   : null
+    const inEditWindow = editStart != null && editEnd != null && nowMs >= editStart && nowMs < editEnd
+    const publicVisibility = c.resolved_at != null
+      || (nowMs >= new Date(c.lock_at).getTime() && !inEditWindow)
+
+    const [{ data: mkts }, { data: opts }, { data: pks }, { data: allPks }] = await Promise.all([
       supabase.from('season_card_markets')
         .select('id, key, title, help_text, num_picks, slot_labels, option_type, resolved_answers, points_per_exact, points_per_partial, display_order')
         .eq('season_card_id', c.id)
@@ -92,10 +115,29 @@ export default function SeasonCardGame() {
             .select('id, market_id, pick_index, option_key, points_awarded')
             .eq('player_id', profile.id)
         : Promise.resolve({ data: [] }),
+      publicVisibility
+        ? supabase.from('season_card_predictions')
+            .select('market_id, player_id, pick_index, option_key, player:profiles(name, surname)')
+        : Promise.resolve({ data: [] }),
     ])
     setMarkets((mkts as Market[]) ?? [])
     setOptions((opts as Option[]) ?? [])
     setPicks((pks as Prediction[]) ?? [])
+    // Flatten the joined player row into a display_name on the pick.
+    const flattened: PublicPick[] = ((allPks as unknown as Array<{
+      market_id: string; player_id: string; pick_index: number; option_key: string
+      player: { name: string; surname: string | null } | Array<{ name: string; surname: string | null }> | null
+    }>) ?? []).map(row => {
+      const p = Array.isArray(row.player) ? row.player[0] : row.player
+      return {
+        market_id: row.market_id,
+        player_id: row.player_id,
+        pick_index: row.pick_index,
+        option_key: row.option_key,
+        display_name: p ? `${p.name} ${p.surname ?? ''}`.trim() : '—',
+      }
+    })
+    setPublicPicks(flattened)
     setLoading(false)
   }, [profile?.id])
 
@@ -128,6 +170,14 @@ export default function SeasonCardGame() {
     for (const k of Object.keys(grouped)) grouped[k].sort((a, b) => a.pick_index - b.pick_index)
     return grouped
   }, [picks])
+
+  // Public picks (post-lock) grouped by market → list of {player, picks[]}.
+  // Empty during open / edit_reopen phases (publicPicks[] is empty then).
+  const publicByMarket = useMemo(() => {
+    const grouped: Record<string, PublicPick[]> = {}
+    for (const p of publicPicks) (grouped[p.market_id] ??= []).push(p)
+    return grouped
+  }, [publicPicks])
 
   const submittedCount = useMemo(() => {
     let total = 0
@@ -194,6 +244,7 @@ export default function SeasonCardGame() {
           market={m}
           options={optionsByType[m.option_type] ?? []}
           myPicks={picksByMarket[m.id] ?? []}
+          otherPicks={publicByMarket[m.id] ?? []}
           editable={editable}
           onSave={savePick}
           onClear={clearPick}
@@ -284,15 +335,26 @@ function relativeTo(target: number, now: number): string {
 }
 
 // ── Market panel (title + N pickers) ───────────────────────────────────────
-function MarketPanel({ market, options, myPicks, editable, onSave, onClear }: {
+function MarketPanel({ market, options, myPicks, otherPicks, editable, onSave, onClear }: {
   market: Market
   options: Option[]
   myPicks: Prediction[]
+  otherPicks: PublicPick[]
   editable: boolean
   onSave: (marketId: string, pickIndex: number, optionKey: string) => void
   onClear: (marketId: string, pickIndex: number) => void
 }) {
   const resolved = market.resolved_answers != null
+  const [picksSheetOpen, setPicksSheetOpen] = useState(false)
+  useBodyScrollLock(picksSheetOpen)
+
+  // Distinct fella count for the "See N picks" chip.
+  const uniqueFellas = useMemo(() => {
+    const s = new Set<string>()
+    for (const p of otherPicks) s.add(p.player_id)
+    return s.size
+  }, [otherPicks])
+
   return (
     <div className="rounded-xl"
       style={{
@@ -321,6 +383,23 @@ function MarketPanel({ market, options, myPicks, editable, onSave, onClear }: {
               ? `${market.points_per_exact} pts`
               : `${market.points_per_exact}/${market.points_per_partial} pts`}
           </span>
+          {/* Post-lock: "See N picks" chip that opens a sheet with every
+              fella's pick for this market + consensus counts. */}
+          {uniqueFellas > 0 && (
+            <button
+              type="button"
+              onClick={() => setPicksSheetOpen(true)}
+              className="text-[10px] whitespace-nowrap px-1.5 py-0.5 rounded active:opacity-70"
+              style={{
+                color: TT_CYAN, fontFamily: MONO, fontWeight: 700,
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface)',
+              }}
+              aria-label={`See ${uniqueFellas} picks for this market`}
+            >
+              👥 {uniqueFellas} picks
+            </button>
+          )}
         </div>
         {market.help_text && (
           <p className="text-[11px] mt-1 leading-snug" style={{ color: 'var(--color-text-muted)' }}>
@@ -328,6 +407,15 @@ function MarketPanel({ market, options, myPicks, editable, onSave, onClear }: {
           </p>
         )}
       </div>
+
+      {picksSheetOpen && (
+        <PicksSheet
+          market={market}
+          picks={otherPicks}
+          options={options}
+          onClose={() => setPicksSheetOpen(false)}
+        />
+      )}
 
       <div className="px-4 py-2 flex flex-col gap-2"
         style={{ borderBottomLeftRadius: 11, borderBottomRightRadius: 11 }}>
@@ -622,6 +710,167 @@ function PickerSheet({ title, query, onQuery, options, value, hasClear, onPick, 
                 </button>
               )
             })
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── PicksSheet — post-lock "who picked who" bottom sheet ──────────────────
+function PicksSheet({ market, picks, options, onClose }: {
+  market: Market
+  picks: PublicPick[]
+  options: Option[]
+  onClose: () => void
+}) {
+  const optionByKey = useMemo(() => {
+    const m = new Map<string, Option>()
+    for (const o of options) m.set(o.option_key, o)
+    return m
+  }, [options])
+
+  // Group picks by fella. Sort each fella's picks by pick_index so the
+  // triple-slot markets read "2nd Arsenal · 3rd Chelsea · 4th Liverpool".
+  const byFella = useMemo(() => {
+    const m = new Map<string, { name: string; picks: PublicPick[] }>()
+    for (const p of picks) {
+      const bucket = m.get(p.player_id) ?? { name: p.display_name, picks: [] }
+      bucket.picks.push(p)
+      m.set(p.player_id, bucket)
+    }
+    for (const b of m.values()) b.picks.sort((a, b) => a.pick_index - b.pick_index)
+    return Array.from(m.values()).sort((a, b) => a.name.localeCompare(b.name))
+  }, [picks])
+
+  // Consensus: count picks per option_key, keep top 3.
+  const consensus = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of picks) counts.set(p.option_key, (counts.get(p.option_key) ?? 0) + 1)
+    return Array.from(counts.entries())
+      .map(([key, count]) => ({ key, count, option: optionByKey.get(key) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3)
+  }, [picks, optionByKey])
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 100,
+        background: 'rgba(0,0,0,0.55)',
+        display: 'flex', alignItems: 'flex-end',
+        justifyContent: 'center',
+        cursor: 'pointer',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: 430,
+          background: 'var(--color-surface)',
+          borderTopLeftRadius: 18, borderTopRightRadius: 18,
+          border: '1px solid var(--color-border)',
+          borderBottom: 'none',
+          boxShadow: '0 -12px 40px rgba(0,0,0,0.55)',
+          maxHeight: '85vh',
+          display: 'flex', flexDirection: 'column',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          cursor: 'default',
+        }}
+      >
+        {/* Drag handle */}
+        <div style={{ padding: '10px 0 6px', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'var(--color-border)' }} />
+        </div>
+
+        {/* Header — Cancel · title · balancer */}
+        <div className="px-3 pb-2 flex items-center gap-3" style={{ minHeight: 36 }}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[13px] font-semibold px-2 py-1"
+            style={{ color: TT_CYAN, background: 'transparent', border: 'none' }}
+            aria-label="Close picks sheet"
+          >
+            Close
+          </button>
+          <span className="text-[13px] font-semibold flex-1 text-center truncate" style={{ color: 'var(--color-text)' }}>
+            Picks · {market.title}
+          </span>
+          <span style={{ width: 60 }} aria-hidden="true" />
+        </div>
+
+        {/* Consensus strip — top 3 popular picks */}
+        {consensus.length > 0 && (
+          <div className="px-4 pb-2 flex items-center gap-2 flex-wrap"
+            style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 10 }}>
+            <span style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
+              Consensus
+            </span>
+            {consensus.map(({ key, count, option }, i) => {
+              const badge = badgeSlugFor(option)
+              const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'
+              return (
+                <span key={key} className="flex items-center gap-1 px-2 py-0.5 rounded"
+                  style={{
+                    background: 'var(--color-surface-2, var(--color-bg))',
+                    border: '1px solid var(--color-border)',
+                    fontSize: 11,
+                  }}
+                >
+                  <span>{medal}</span>
+                  {badge && <ClubBadge slug={badge} size={14} />}
+                  <span className="truncate max-w-[110px]" style={{ color: 'var(--color-text)' }}>
+                    {option?.display_name ?? key}
+                  </span>
+                  <span style={{ fontFamily: MONO, color: TT_CYAN, fontWeight: 700 }}>{count}</span>
+                </span>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Per-fella pick list */}
+        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          {byFella.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              No picks submitted for this market.
+            </div>
+          ) : (
+            byFella.map((f, i) => (
+              <div key={f.name + i}
+                className="grid gap-3 px-4 py-2.5 items-start"
+                style={{
+                  gridTemplateColumns: '1fr auto',
+                  borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
+                  fontSize: 13,
+                }}
+              >
+                <span className="truncate min-w-0" style={{ color: 'var(--color-text)', fontWeight: 500 }}>
+                  {f.name}
+                </span>
+                <div className="flex flex-col items-end gap-1">
+                  {f.picks.map((p, ix) => {
+                    const opt = optionByKey.get(p.option_key)
+                    const badge = badgeSlugFor(opt)
+                    const slotLabel = market.slot_labels?.[p.pick_index] ?? null
+                    return (
+                      <span key={ix} className="flex items-center gap-1.5 whitespace-nowrap"
+                        style={{ fontSize: 12, color: 'var(--color-text)' }}>
+                        {slotLabel && (
+                          <span style={{ fontFamily: MONO, fontSize: 9, color: 'var(--color-text-muted)' }}>
+                            {slotLabel}
+                          </span>
+                        )}
+                        {badge && <ClubBadge slug={badge} size={16} />}
+                        <span>{opt?.display_name ?? p.option_key}</span>
+                      </span>
+                    )
+                  })}
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>

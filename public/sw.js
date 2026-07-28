@@ -1,8 +1,10 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v33 — WeeklyLeaderboard column headers (FELLA · PICK · SCORE
-// · PTS) so the list reads like a proper table, plus px-4 → px-5 padding
-// so the name breathes off the left card edge.
-const CACHE = 'wf-v33'
+// Bumped to v34 — Season Card "who picked who" surface. Post-lock (and
+// during resolved phase), each market header gets a "👥 N picks" chip
+// that opens a bottom-sheet showing every fella's pick for that market
+// plus a top-3 consensus strip. Pre-lock and during edit_reopen picks
+// stay private so nobody can game the group's calls.
+const CACHE = 'wf-v34'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
