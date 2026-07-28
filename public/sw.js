@@ -1,12 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v26 — killed overflow:hidden on Season Card outer containers
-// so DM Sans font-semibold's slightly-negative-left-sidebearing on P/T/R/G
-// glyphs isn't chopped at the padding edge on iOS. Header + body inner
-// divs now carry explicit borderTopLeftRadius/borderBottomLeftRadius=11px
-// so backgrounds still respect the parent rounded-xl corners without an
-// overflow clip. Fixes the "?remier / ?op / ?elegated / ?olden / ?laymaker"
-// clipping the user kept flagging after two earlier attempts.
-const CACHE = 'wf-v26'
+// Bumped to v27 — Season Card picker redesigned as a proper bottom-sheet
+// modal instead of an inline absolute-positioned dropdown that overlaid
+// other market cards. Full-viewport backdrop, semi-transparent black,
+// sheet slides from bottom with drag-handle + close X + search + full
+// scrollable list. Also fixed missing club badges on pl_club /
+// championship_club options (they never populated extra.club_slug so the
+// badge helper now falls back to option_key for those types).
+const CACHE = 'wf-v27'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import ClubBadge from './ClubBadge'
@@ -350,7 +350,25 @@ function MarketPanel({ market, options, myPicks, editable, onSave, onClear }: {
   )
 }
 
-// ── One slot (searchable dropdown) ─────────────────────────────────────────
+// Club types put their slug in option_key; player/manager options carry a
+// club_slug in extra. Unify so ClubBadge always resolves.
+function badgeSlugFor(o: Option | null | undefined): string | null {
+  if (!o) return null
+  if (o.option_type === 'pl_club' || o.option_type === 'championship_club') return o.option_key
+  return o.extra?.club_slug ?? null
+}
+
+// Prevent the underlying page from scrolling behind the modal on iOS.
+function useBodyScrollLock(locked: boolean) {
+  useEffect(() => {
+    if (!locked) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [locked])
+}
+
+// ── One slot (bottom-sheet picker) ────────────────────────────────────────
 function SlotPicker({ slotIndex, slotLabel, options, value, points, resolved, resolvedForSlot, editable, onPick, onClear }: {
   slotIndex: number
   slotLabel: string | null
@@ -365,16 +383,7 @@ function SlotPicker({ slotIndex, slotLabel, options, value, points, resolved, re
 }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const boxRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    const onDoc = (e: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [open])
+  useBodyScrollLock(open)
 
   const selected = useMemo(() => options.find(o => o.option_key === value) ?? null, [options, value])
   const resolvedOption = useMemo(
@@ -384,16 +393,21 @@ function SlotPicker({ slotIndex, slotLabel, options, value, points, resolved, re
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return options.slice(0, 100)
-    return options.filter(o => o.display_name.toLowerCase().includes(q)).slice(0, 100)
+    if (!q) return options
+    return options.filter(o => o.display_name.toLowerCase().includes(q))
   }, [options, query])
 
   const pointsTone = points === null ? 'var(--color-text-muted)'
     : points > 0 ? (points >= 3 ? TT_YELLOW : TT_CYAN)
     : TT_RED
 
+  const selectedBadge = badgeSlugFor(selected)
+  const resolvedBadge = badgeSlugFor(resolvedOption)
+
+  function close() { setOpen(false); setQuery('') }
+
   return (
-    <div ref={boxRef} style={{ position: 'relative' }}>
+    <div style={{ position: 'relative' }}>
       <div className="flex items-center gap-2">
         {slotLabel && (
           <div style={{
@@ -403,12 +417,12 @@ function SlotPicker({ slotIndex, slotLabel, options, value, points, resolved, re
         )}
         <button
           type="button"
-          onClick={() => editable && setOpen(o => !o)}
+          onClick={() => editable && setOpen(true)}
           disabled={!editable}
           className="flex-1 flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left"
           style={{
             background: 'var(--color-surface-2, var(--color-bg))',
-            border: `1px solid ${open ? 'var(--color-primary)' : 'var(--color-border)'}`,
+            border: `1px solid ${selected ? 'var(--color-border)' : 'var(--color-border)'}`,
             fontSize: 13,
             color: selected ? 'var(--color-text)' : 'var(--color-text-muted)',
             opacity: editable ? 1 : 0.85,
@@ -416,7 +430,7 @@ function SlotPicker({ slotIndex, slotLabel, options, value, points, resolved, re
           }}
         >
           <span className="flex items-center gap-2 min-w-0">
-            {selected?.extra?.club_slug && <ClubBadge slug={selected.extra.club_slug} size={20} />}
+            {selectedBadge && <ClubBadge slug={selectedBadge} size={20} />}
             <span className="truncate">
               {selected ? selected.display_name : (editable ? 'Choose…' : '—')}
             </span>
@@ -436,72 +450,171 @@ function SlotPicker({ slotIndex, slotLabel, options, value, points, resolved, re
       </div>
 
       {resolved && (
-        <div className="mt-1 text-[11px]" style={{ paddingLeft: slotLabel ? 54 : 0, color: 'var(--color-text-muted)' }}>
-          Actual: <span style={{ color: TT_YELLOW, fontWeight: 600 }}>
+        <div className="mt-1 text-[11px] flex items-center gap-1.5" style={{ paddingLeft: slotLabel ? 54 : 0, color: 'var(--color-text-muted)' }}>
+          <span>Actual:</span>
+          {resolvedBadge && <ClubBadge slug={resolvedBadge} size={14} />}
+          <span style={{ color: TT_YELLOW, fontWeight: 600 }}>
             {resolvedOption?.display_name ?? resolvedForSlot ?? '—'}
           </span>
         </div>
       )}
 
       {open && editable && (
-        <div style={{
-          position: 'absolute', top: '100%', left: slotLabel ? 54 : 0, right: 0, zIndex: 30,
-          marginTop: 4,
-          background: 'var(--color-surface)', border: '1px solid var(--color-primary)',
-          borderRadius: 10, overflow: 'hidden', boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
-        }}>
-          <div style={{ padding: 8, borderBottom: '1px solid var(--color-border)' }}>
-            <input
-              autoFocus
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search…"
-              className="w-full px-2 py-1.5 rounded"
-              style={{
-                background: 'var(--color-surface-2, var(--color-bg))',
-                border: '1px solid var(--color-border)',
-                fontSize: 13, color: 'var(--color-text)',
-              }}
-            />
-          </div>
-          <div style={{ maxHeight: 260, overflowY: 'auto' }}>
-            {value && (
-              <button
-                type="button"
-                onClick={() => { onClear(); setOpen(false); setQuery('') }}
-                className="w-full text-left px-3 py-1.5 text-[11px]"
-                style={{ color: TT_RED, fontFamily: MONO, borderBottom: '1px solid var(--color-border)' }}
-              >
-                ✕ Clear pick
-              </button>
-            )}
-            {filtered.length === 0 && (
-              <div className="px-3 py-3 text-center text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                No matches
-              </div>
-            )}
-            {filtered.map(o => (
-              <button
-                key={o.id}
-                type="button"
-                onClick={() => { onPick(o.option_key); setOpen(false); setQuery('') }}
-                className="w-full text-left flex items-center gap-2 px-3 py-1.5 hover:opacity-80"
-                style={{
-                  fontSize: 13,
-                  background: o.option_key === value ? 'rgba(14,116,144,0.12)' : 'transparent',
-                  color: 'var(--color-text)',
-                  borderTop: '1px solid var(--color-border)',
-                }}
-              >
-                {o.extra?.club_slug && <ClubBadge slug={o.extra.club_slug} size={18} />}
-                <span className="flex-1 truncate">{o.display_name}</span>
-                {o.option_key === value && <span style={{ color: TT_CYAN, fontFamily: MONO }}>✓</span>}
-              </button>
-            ))}
-          </div>
-        </div>
+        <PickerSheet
+          title={slotLabel ? `Pick — ${slotLabel}` : 'Pick option'}
+          query={query}
+          onQuery={setQuery}
+          options={filtered}
+          value={value}
+          hasClear={!!value}
+          onPick={(key) => { onPick(key); close() }}
+          onClear={() => { onClear(); close() }}
+          onClose={close}
+        />
       )}
       {void slotIndex}
+    </div>
+  )
+}
+
+// ── Full-viewport bottom-sheet picker ──────────────────────────────────────
+function PickerSheet({ title, query, onQuery, options, value, hasClear, onPick, onClear, onClose }: {
+  title: string
+  query: string
+  onQuery: (q: string) => void
+  options: Option[]
+  value: string | null
+  hasClear: boolean
+  onPick: (key: string) => void
+  onClear: () => void
+  onClose: () => void
+}) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 100,
+        background: 'rgba(0,0,0,0.55)',
+        display: 'flex', alignItems: 'flex-end',
+        justifyContent: 'center',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: 430,
+          background: 'var(--color-surface)',
+          borderTopLeftRadius: 18, borderTopRightRadius: 18,
+          border: '1px solid var(--color-border)',
+          borderBottom: 'none',
+          boxShadow: '0 -12px 40px rgba(0,0,0,0.55)',
+          maxHeight: '85vh',
+          display: 'flex', flexDirection: 'column',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        {/* Drag handle */}
+        <div style={{ padding: '10px 0 6px', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'var(--color-border)' }} />
+        </div>
+
+        {/* Header */}
+        <div className="px-4 pb-2 flex items-center justify-between gap-3">
+          <span className="text-[13px] font-semibold" style={{ color: 'var(--color-text)' }}>
+            {title}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full flex items-center justify-center"
+            style={{
+              width: 28, height: 28,
+              background: 'var(--color-surface-2, var(--color-bg))',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-muted)',
+              fontSize: 14, lineHeight: 1,
+            }}
+            aria-label="Close picker"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="px-4 pb-2">
+          <input
+            autoFocus
+            value={query}
+            onChange={e => onQuery(e.target.value)}
+            placeholder="Search…"
+            className="w-full rounded-lg"
+            style={{
+              background: 'var(--color-surface-2, var(--color-bg))',
+              border: '1px solid var(--color-border)',
+              padding: '10px 12px',
+              fontSize: 14, color: 'var(--color-text)',
+              outline: 'none',
+            }}
+          />
+        </div>
+
+        {/* Clear pill (only if a value is set) */}
+        {hasClear && (
+          <div className="px-4 pb-2">
+            <button
+              type="button"
+              onClick={onClear}
+              className="w-full py-2 rounded-lg text-[12px] font-semibold"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(220,38,38,0.4)',
+                color: TT_RED,
+                fontFamily: MONO,
+              }}
+            >
+              ✕ Clear this pick
+            </button>
+          </div>
+        )}
+
+        {/* Option list */}
+        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          {options.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              No matches for “{query}”
+            </div>
+          ) : (
+            options.map((o, i) => {
+              const isSelected = o.option_key === value
+              const badge = badgeSlugFor(o)
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  onClick={() => onPick(o.option_key)}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left active:opacity-70"
+                  style={{
+                    background: isSelected ? 'rgba(14,116,144,0.14)' : 'transparent',
+                    borderTop: i === 0 ? '1px solid var(--color-border)' : 'none',
+                    borderBottom: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                    fontSize: 14,
+                  }}
+                >
+                  {badge ? <ClubBadge slug={badge} size={24} /> : <span style={{ width: 24 }} />}
+                  <span className="flex-1 truncate" style={{
+                    color: isSelected ? TT_CYAN : 'var(--color-text)',
+                    fontWeight: isSelected ? 600 : 400,
+                  }}>
+                    {o.display_name}
+                  </span>
+                  {isSelected && <span style={{ color: TT_CYAN, fontSize: 16 }}>✓</span>}
+                </button>
+              )
+            })
+          )}
+        </div>
+      </div>
     </div>
   )
 }
