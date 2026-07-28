@@ -100,6 +100,24 @@ When the user asks to "optimise the UI" (or "polish", "clean up", "make it look 
 3. `truncate` on user-visible labels → prefer wrap for headings, only truncate on genuinely long body content.
 4. Hardcoded pixel padding → check the padding is proportional to the border-radius (padding ≥ radius) so text sits inside the corner arcs.
 5. `text-[Npx]` sizes below 12px → verify they're still legible at Compact text-size setting.
+6. **Inline absolutely-positioned dropdowns / pop-overs** → replace with the bottom-sheet pattern below when the list has more than ~8 items or the parent card lives next to sibling content.
+
+### Pickers — always use the bottom-sheet pattern for searchable lists
+
+Absolutely-positioned inline dropdowns look cheap and overlay sibling cards chaotically on mobile (documented pain: Season Card dropdown 28 Jul 2026, commit `08fc46e`). Use a bottom-sheet modal instead. Reference implementation: `PickerSheet` in `src/components/SeasonCardGame.tsx`.
+
+**Requirements for any picker sheet:**
+
+- **Full-viewport fixed backdrop**, `rgba(0,0,0,0.55)`, `zIndex: 100`, `cursor: pointer`. Tapping the backdrop cancels + closes.
+- **Sheet anchored to the bottom**, `maxWidth: 430`, `maxHeight: 85vh`, top corners `borderTopLeftRadius: 18` (bottom corners flush), `boxShadow: '0 -12px 40px rgba(0,0,0,0.55)'`. `paddingBottom: 'env(safe-area-inset-bottom)'` respects the home indicator.
+- **Drag-handle bar** (40 × 4 rounded) at the top as visual "dismissable" affordance.
+- **iOS-style header**: `Cancel` (TT_CYAN text button) on the left · title centered · balancing spacer on the right. Users must NEVER have to hunt for how to exit.
+- **Autofocused search input** with generous padding (`10px 12px`, `fontSize: 14`).
+- **Body scroll lock** while sheet is open (via a `useBodyScrollLock` hook or equivalent) so iOS doesn't rubber-band the page beneath.
+- **44px-tall touch targets** for each option row: crest/icon + name + selected ✓, with `active:opacity-70`.
+- **"Clear" as a distinct bordered destructive pill** above the list when a value is set — never a tiny link buried in the list.
+- **Tapping the currently-selected option = close silently** (don't re-fire the save; wasteful and causes a flicker).
+- No arbitrary list slicing (e.g. `slice(0, 100)`) — search filters, list renders full length. Virtualisation not needed at our scale (<1000 items).
 
 ## Supabase
 

@@ -467,7 +467,12 @@ function SlotPicker({ slotIndex, slotLabel, options, value, points, resolved, re
           options={filtered}
           value={value}
           hasClear={!!value}
-          onPick={(key) => { onPick(key); close() }}
+          onPick={(key) => {
+            // Tapping the already-selected option is treated as "close
+            // without change" — no wasteful re-save, no UI flicker.
+            if (key !== value) onPick(key)
+            close()
+          }}
           onClear={() => { onClear(); close() }}
           onClose={close}
         />
@@ -497,6 +502,7 @@ function PickerSheet({ title, query, onQuery, options, value, hasClear, onPick, 
         background: 'rgba(0,0,0,0.55)',
         display: 'flex', alignItems: 'flex-end',
         justifyContent: 'center',
+        cursor: 'pointer', // makes the tap-to-close backdrop feel intentional
       }}
     >
       <div
@@ -511,33 +517,31 @@ function PickerSheet({ title, query, onQuery, options, value, hasClear, onPick, 
           maxHeight: '85vh',
           display: 'flex', flexDirection: 'column',
           paddingBottom: 'env(safe-area-inset-bottom)',
+          cursor: 'default',
         }}
       >
-        {/* Drag handle */}
+        {/* Drag handle — visual affordance that the sheet is dismissable */}
         <div style={{ padding: '10px 0 6px', display: 'flex', justifyContent: 'center' }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'var(--color-border)' }} />
         </div>
 
-        {/* Header */}
-        <div className="px-4 pb-2 flex items-center justify-between gap-3">
-          <span className="text-[13px] font-semibold" style={{ color: 'var(--color-text)' }}>
-            {title}
-          </span>
+        {/* Header — iOS-style Cancel left · title center · nothing right.
+            Explicit Cancel button so users don't have to hunt for the ✕
+            or discover the backdrop-tap. */}
+        <div className="px-3 pb-2 flex items-center gap-3" style={{ minHeight: 36 }}>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full flex items-center justify-center"
-            style={{
-              width: 28, height: 28,
-              background: 'var(--color-surface-2, var(--color-bg))',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-muted)',
-              fontSize: 14, lineHeight: 1,
-            }}
-            aria-label="Close picker"
+            className="text-[13px] font-semibold px-2 py-1"
+            style={{ color: TT_CYAN, background: 'transparent', border: 'none' }}
+            aria-label="Cancel and close picker"
           >
-            ✕
+            Cancel
           </button>
+          <span className="text-[13px] font-semibold flex-1 text-center truncate" style={{ color: 'var(--color-text)' }}>
+            {title}
+          </span>
+          <span style={{ width: 60 }} aria-hidden="true" /> {/* balance the Cancel button width */}
         </div>
 
         {/* Search */}

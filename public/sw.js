@@ -1,12 +1,9 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v27 — Season Card picker redesigned as a proper bottom-sheet
-// modal instead of an inline absolute-positioned dropdown that overlaid
-// other market cards. Full-viewport backdrop, semi-transparent black,
-// sheet slides from bottom with drag-handle + close X + search + full
-// scrollable list. Also fixed missing club badges on pl_club /
-// championship_club options (they never populated extra.club_slug so the
-// badge helper now falls back to option_key for those types).
-const CACHE = 'wf-v27'
+// Bumped to v28 — Season Card picker exit affordance. ✕ icon replaced
+// with an iOS-style Cancel text button on the left of the sheet header,
+// title centered, backdrop given cursor:pointer. Tapping the already-
+// selected option now closes silently instead of re-saving.
+const CACHE = 'wf-v28'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
