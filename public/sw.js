@@ -1,12 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v25 for Season Card market-header redesign — the previous
-// flex-between layout was clipping the title's first letter (P/T/R/G/P)
-// and the pts label's last letter on iOS Larger Text. Rewrote as a
-// wrap-friendly baseline flex: title flows first, pts sits as a bordered
-// pill next to it (or below on a narrow line), no truncate, no
-// flex-shrink pressure. Also rounded-2xl → rounded-xl so corner arcs
-// don't eat into text at wider text-size settings.
-const CACHE = 'wf-v25'
+// Bumped to v26 — killed overflow:hidden on Season Card outer containers
+// so DM Sans font-semibold's slightly-negative-left-sidebearing on P/T/R/G
+// glyphs isn't chopped at the padding edge on iOS. Header + body inner
+// divs now carry explicit borderTopLeftRadius/borderBottomLeftRadius=11px
+// so backgrounds still respect the parent rounded-xl corners without an
+// overflow clip. Fixes the "?remier / ?op / ?elegated / ?olden / ?laymaker"
+// clipping the user kept flagging after two earlier attempts.
+const CACHE = 'wf-v26'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

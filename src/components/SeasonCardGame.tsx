@@ -234,10 +234,20 @@ function CardHeader({ card, phase, filled, total }: {
   }
 
   return (
-    <div className="rounded-xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
       <div className="px-4 py-2 flex items-center justify-between gap-3"
-        style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))', fontFamily: MONO }}>
+        style={{
+          borderTopLeftRadius: 11,
+          borderTopRightRadius: 11,
+          borderBottom: '1px solid var(--color-border)',
+          background: 'var(--color-surface-2, var(--color-bg))',
+          fontFamily: MONO,
+        }}>
         <span className="text-[10px] uppercase tracking-wide font-semibold min-w-0 break-words" style={{ color: TT_CYAN }}>
           📋 Season Card · {card.season}
         </span>
@@ -245,7 +255,8 @@ function CardHeader({ card, phase, filled, total }: {
           {filled}/{total} picked
         </span>
       </div>
-      <div className="px-4 py-2 text-center">
+      <div className="px-4 py-2 text-center"
+        style={{ borderBottomLeftRadius: 11, borderBottomRightRadius: 11 }}>
         <p style={{ color: tone, fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.02em' }}>
           {phaseLine}
         </p>
@@ -277,10 +288,19 @@ function MarketPanel({ market, options, myPicks, editable, onSave, onClear }: {
 }) {
   const resolved = market.resolved_answers != null
   return (
-    <div className="rounded-xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
       <div className="px-4 py-2.5"
-        style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))' }}>
+        style={{
+          borderTopLeftRadius: 11,
+          borderTopRightRadius: 11,
+          borderBottom: '1px solid var(--color-border)',
+          background: 'var(--color-surface-2, var(--color-bg))',
+        }}>
         <div className="flex items-baseline gap-2 flex-wrap">
           <span className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--color-text)' }}>
             {market.title}
@@ -303,7 +323,8 @@ function MarketPanel({ market, options, myPicks, editable, onSave, onClear }: {
         )}
       </div>
 
-      <div className="px-4 py-2 flex flex-col gap-2">
+      <div className="px-4 py-2 flex flex-col gap-2"
+        style={{ borderBottomLeftRadius: 11, borderBottomRightRadius: 11 }}>
         {Array.from({ length: market.num_picks }).map((_, i) => {
           const pick = myPicks.find(p => p.pick_index === i)
           const slotLabel = market.slot_labels?.[i] ?? null
