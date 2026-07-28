@@ -234,11 +234,11 @@ function CardHeader({ card, phase, filled, total }: {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden"
+    <div className="rounded-xl overflow-hidden"
       style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
       <div className="px-4 py-2 flex items-center justify-between gap-3"
         style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))', fontFamily: MONO }}>
-        <span className="text-[10px] uppercase tracking-widest font-semibold truncate min-w-0" style={{ color: TT_CYAN }}>
+        <span className="text-[10px] uppercase tracking-wide font-semibold min-w-0 break-words" style={{ color: TT_CYAN }}>
           📋 Season Card · {card.season}
         </span>
         <span className="text-[10px] flex-shrink-0 whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>
@@ -277,22 +277,27 @@ function MarketPanel({ market, options, myPicks, editable, onSave, onClear }: {
 }) {
   const resolved = market.resolved_answers != null
   return (
-    <div className="rounded-2xl overflow-hidden"
+    <div className="rounded-xl overflow-hidden"
       style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-      <div className="px-4 py-2"
+      <div className="px-4 py-2.5"
         style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-2, var(--color-bg))' }}>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-[13px] font-semibold truncate min-w-0" style={{ color: 'var(--color-text)' }}>
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--color-text)' }}>
             {market.title}
           </span>
-          <span className="text-[10px] flex-shrink-0 whitespace-nowrap" style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
+          <span className="text-[10px] whitespace-nowrap px-1.5 py-0.5 rounded"
+            style={{
+              color: 'var(--color-text-muted)', fontFamily: MONO,
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
+            }}>
             {market.num_picks === 1
               ? `${market.points_per_exact} pts`
               : `${market.points_per_exact}/${market.points_per_partial} pts`}
           </span>
         </div>
         {market.help_text && (
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+          <p className="text-[11px] mt-1 leading-snug" style={{ color: 'var(--color-text-muted)' }}>
             {market.help_text}
           </p>
         )}

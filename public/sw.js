@@ -1,10 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v24 for Season Card header clipping fix — market titles and
-// header "picked" count were being visually clipped at the card corners
-// on iOS. Wider px-4 padding + proper flex truncation (min-w-0 on titles,
-// flex-shrink-0 + whitespace-nowrap on the pts labels) so nothing gets
-// eaten by the rounded-2xl corner arcs anymore.
-const CACHE = 'wf-v24'
+// Bumped to v25 for Season Card market-header redesign — the previous
+// flex-between layout was clipping the title's first letter (P/T/R/G/P)
+// and the pts label's last letter on iOS Larger Text. Rewrote as a
+// wrap-friendly baseline flex: title flows first, pts sits as a bordered
+// pill next to it (or below on a narrow line), no truncate, no
+// flex-shrink pressure. Also rounded-2xl → rounded-xl so corner arcs
+// don't eat into text at wider text-size settings.
+const CACHE = 'wf-v25'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
