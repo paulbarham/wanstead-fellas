@@ -1,4 +1,4 @@
--- Barham Family Trip — full backend setup.
+-- Holiday app — full backend setup.
 -- Paste this whole file into the Supabase SQL Editor and press Run.
 -- Idempotent: safe to run more than once.
 -- (Source of truth is supabase/migrations/*.sql — this is those files concatenated.)
@@ -249,33 +249,27 @@ create trigger on_auth_user_created
 -- ============================================================
 -- supabase/migrations/005_family_seed.sql
 -- ============================================================
--- The Barham family. Editable data, kept in git so the roster is reproducible.
+-- TEMPLATE family seed — REPLACE these with your travellers.
 --
--- The four with an email get their members row auto-created (with these names /
--- colours) the first time they open the app and request a magic link. Tobias &
--- Niyah have no device, so they're inserted directly as managed members under
--- Paul's email — Paul sets their day choices from his own login.
+-- People with an email get their members row auto-created (with these names /
+-- colours) the first time they open the app and sign in. Anyone with no device
+-- is inserted directly as a managed member under a managing adult's email.
 
 -- Sign-in roster (matched to auth.users by email, case-insensitive).
 insert into public.member_seed (email, display_name, age_group, color) values
-  ('pabarham@gmail.com',          'Paul',    'adult', '#0e3a48'),
-  ('nicholaannbarham@gmail.com',  'Nichola', 'adult', '#4a8896'),
-  ('ameliabarham39@gmail.com',    'Amelia',  'teen',  '#e08853'),
-  ('marleyellisbarham@gmail.com', 'Marley',  'teen',  '#c86c3a')
+  ('you@example.com',     'You',     'adult', '#0e3a48'),
+  ('partner@example.com', 'Partner', 'adult', '#4a8896'),
+  ('child1@example.com',  'Child 1', 'teen',  '#e08853')
 on conflict (email) do update
   set display_name = excluded.display_name,
       age_group    = excluded.age_group,
       color        = excluded.color;
 
--- Managed members (no device) under Paul. Insert once; guarded by name so a
--- re-run doesn't duplicate them.
+-- Managed members (no device) under a managing adult's email. Insert once;
+-- guarded by name so a re-run doesn't duplicate them.
 insert into public.members (id, display_name, age_group, color, manager_email)
-select gen_random_uuid(), 'Tobias', 'child', '#7a9e5e', 'pabarham@gmail.com'
-where not exists (select 1 from public.members where display_name = 'Tobias' and manager_email = 'pabarham@gmail.com');
-
-insert into public.members (id, display_name, age_group, color, manager_email)
-select gen_random_uuid(), 'Niyah', 'child', '#b5657e', 'pabarham@gmail.com'
-where not exists (select 1 from public.members where display_name = 'Niyah' and manager_email = 'pabarham@gmail.com');
+select gen_random_uuid(), 'Child 2', 'child', '#7a9e5e', 'you@example.com'
+where not exists (select 1 from public.members where display_name = 'Child 2' and manager_email = 'you@example.com');
 
 -- ============================================================
 -- supabase/migrations/006_family_gate.sql
@@ -395,28 +389,13 @@ begin
 end $$;
 alter table public.bookings replica identity full;
 
--- Seed with the current list (only if the table is empty). Notes mirror the
--- original data/itinerary.json bookings; edit freely in-app from here on.
+-- TEMPLATE seed (only if the table is empty). Replace with your bookings, or
+-- just add them in-app once you're signed in.
 insert into public.bookings (name, note, sort)
 select v.name, v.note, v.sort from (values
-  ('Flights — LHR → San Francisco / Las Vegas → LHR', 'Six seats. Open-jaw: fly into SFO, home from LAS. Confirm seat allocation for the family together.', 0),
-  ('ESTA visa waivers ×6', 'One per traveller including the twins. Apply at least 72 hours before flying; print or screenshot the approvals.', 1),
-  ('Rental car — 7-seater SUV', '22-day hire, SFO pickup / LAS drop-off (one-way fee applies). Two booster seats for the twins.', 2),
-  ('Travel insurance — family policy', 'Full family cover including the theme-park and Grand Canyon activities and US medical.', 3),
-  ('San Francisco hotel — 5 nights', '8–12 Aug. Near the Wharf / Embarcadero for walkability. Family room or two connecting.', 4),
-  ('Alcatraz cruise tickets', 'Day 3. Sells out weeks ahead — book as early as possible. Departs Pier 33.', 5),
-  ('Muir Woods parking / shuttle reservation', 'Day 4. Timed reservation mandatory — no turn-ups. Book the parking or the shuttle in advance.', 6),
-  ('Monterey Bay Aquarium tickets', 'Day 6. Dated online tickets are cheaper and skip the queue.', 7),
-  ('Hearst Castle tour', 'Day 8. Timed tour bus from the visitor centre — must be pre-booked.', 8),
-  ('Big Sur / Cambria hotel — 1 night', '15 Aug in Cambria or San Simeon. Books out early in summer along this stretch.', 9),
-  ('Santa Monica hotel — 4 nights', '16–20 Aug. Walkable to the pier and beach path.', 10),
-  ('Universal Studios Hollywood tickets', 'Day 12. Dated tickets; consider the Express pass for August crowds.', 11),
-  ('Los Angeles hotel — 5 nights', '20–25 Aug. Central-ish base with parking and a pool for the down-days.', 12),
-  ('Disneyland tickets + park reservation', 'Day 15. Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before.', 13),
-  ('Six Flags Magic Mountain tickets', 'Day 17. Buy online in advance; the teens'' day.', 14),
-  ('Las Vegas hotel — 4 nights', '25–29 Aug. Family-friendly Strip resort with a big pool complex.', 15),
-  ('Grand Canyon West day tour', 'Day 21. Book the Skywalk / West Rim package and confirm the pickup or self-drive parking.', 16),
-  ('Las Vegas Raiders tickets', 'NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (26–29 Aug) and book seats together.', 17)
+  ('Flights', 'Seats, dates, confirmation ref.', 0),
+  ('Hotel — First Place', 'Nights, address, ref.', 1),
+  ('Travel insurance', 'Family policy covering the whole trip.', 2)
 ) as v(name, note, sort)
 where not exists (select 1 from public.bookings);
 

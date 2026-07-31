@@ -1,4 +1,11 @@
-# Barham Family Trip 🌴
+# Family Holiday PWA 🌴
+
+> **This is the reusable `holiday-shell` branch** — a generic starting point.
+> To spin it up for a new trip, follow **[TEMPLATE.md](TEMPLATE.md)**.
+> (The docs below describe the app in its original "Barham" form as a worked example.)
+
+---
+
 
 A phone-first, install-to-home-screen **Progressive Web App** for the Barham family's
 California & Nevada holiday (**8–29 Aug 2026**). Six of us — Paul, Nichola, Amelia, Marley,

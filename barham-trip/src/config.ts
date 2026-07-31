@@ -8,9 +8,9 @@
 //   • tailwind.config.ts + src/styles.css  the colour palette (optional)
 export const APP = {
   /** Full name on the login splash. */
-  name: 'Barham Family Trip',
+  name: 'My Family Holiday',
   /** Short name in the top header. */
-  short: 'Barham Trip',
+  short: 'Holiday',
   /** Single letter/emoji for the logo tile. */
-  iconLetter: 'B',
+  iconLetter: '🏝️',
 }

@@ -16,20 +16,18 @@ export interface Member {
   manager_email?: string | null
 }
 
-// Real family: four sign in with their own email (magic link); Tobias & Niyah
-// have no device and sit under Paul. In local preview mode the "identity" used
-// for the managed check is the seat id, so Tobias/Niyah point at 'seat-paul'.
+// TEMPLATE roster — replace with your travellers. In local preview mode the
+// "identity" used for the managed check is the seat id, so a no-device member
+// points their manager_email at the managing adult's seat id.
 export const DEFAULT_FAMILY: Member[] = [
-  { id: 'seat-paul', display_name: 'Paul', avatar_url: null, age_group: 'adult', color: '#0e3a48' },
-  { id: 'seat-nichola', display_name: 'Nichola', avatar_url: null, age_group: 'adult', color: '#4a8896' },
-  { id: 'seat-amelia', display_name: 'Amelia', avatar_url: null, age_group: 'teen', color: '#e08853' },
-  { id: 'seat-marley', display_name: 'Marley', avatar_url: null, age_group: 'teen', color: '#c86c3a' },
-  { id: 'seat-tobias', display_name: 'Tobias', avatar_url: null, age_group: 'child', color: '#7a9e5e', manager_email: 'seat-paul' },
-  { id: 'seat-niyah', display_name: 'Niyah', avatar_url: null, age_group: 'child', color: '#b5657e', manager_email: 'seat-paul' },
+  { id: 'seat-1', display_name: 'You', avatar_url: null, age_group: 'adult', color: '#0e3a48' },
+  { id: 'seat-2', display_name: 'Partner', avatar_url: null, age_group: 'adult', color: '#4a8896' },
+  { id: 'seat-3', display_name: 'Child 1', avatar_url: null, age_group: 'teen', color: '#e08853' },
+  { id: 'seat-4', display_name: 'Child 2', avatar_url: null, age_group: 'child', color: '#7a9e5e', manager_email: 'seat-1' },
 ]
 
-/** The six travellers, for the "Who's coming" display (independent of who has
- *  signed in). Tobias & Niyah have no phone and share Dad's. */
+/** The travellers, for the "Who's coming" display (independent of who has
+ *  signed in). Give a `note` for anyone sharing a device. */
 export interface Traveller {
   name: string
   color: string
@@ -37,12 +35,10 @@ export interface Traveller {
 }
 
 export const TRAVELLERS: Traveller[] = [
-  { name: 'Dad', color: '#0e3a48' },
-  { name: 'Mum', color: '#4a8896' },
-  { name: 'Marley', color: '#e08853' },
-  { name: 'Mimi', color: '#c86c3a' },
-  { name: 'Tobias', color: '#7a9e5e', note: "on Dad's phone" },
-  { name: 'Niyah', color: '#b5657e', note: "on Dad's phone" },
+  { name: 'You', color: '#0e3a48' },
+  { name: 'Partner', color: '#4a8896' },
+  { name: 'Child 1', color: '#e08853' },
+  { name: 'Child 2', color: '#c86c3a', note: 'no phone' },
 ]
 
 /** First initial(s) for the avatar dot. */

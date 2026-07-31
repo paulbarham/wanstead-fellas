@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'prompt', // we surface our own "Refresh" toast
       includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Barham Family Trip',
-        short_name: 'Barham Trip',
-        description: 'Our California & Nevada holiday, 8–29 Aug 2026 — day-by-day, in your pocket.',
+        name: 'My Family Holiday',
+        short_name: 'Holiday',
+        description: 'Our family holiday, day-by-day, in your pocket.',
         theme_color: '#0e3a48',
         background_color: '#fbf9f5',
         display: 'standalone',

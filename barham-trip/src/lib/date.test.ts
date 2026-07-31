@@ -1,49 +1,50 @@
 import { describe, it, expect } from 'vitest'
+import { parseISO, subDays, addDays } from 'date-fns'
 import { tripPosition, clampDayN, hasPrevDay, hasNextDay } from './date'
+import { meta, allDays, FIRST_DAY_N, LAST_DAY_N } from './itinerary'
 
+const start = parseISO(meta.start_date)
+const end = parseISO(meta.end_date)
+
+// Trip-agnostic — derived from meta, so they pass for any itinerary.
 describe('tripPosition', () => {
   it('reports days-until before the trip', () => {
-    const pos = tripPosition(new Date('2026-08-01T09:00:00'))
+    const pos = tripPosition(subDays(start, 3))
     expect(pos.phase).toBe('before')
-    if (pos.phase === 'before') expect(pos.daysUntil).toBe(7)
+    if (pos.phase === 'before') expect(pos.daysUntil).toBe(3)
   })
 
-  it('matches the right day during the trip', () => {
-    const pos = tripPosition(new Date('2026-08-14T12:00:00'))
+  it('is the first day on the start date', () => {
+    const pos = tripPosition(start)
     expect(pos.phase).toBe('during')
-    if (pos.phase === 'during') {
-      expect(pos.day.n).toBe(7)
-      expect(pos.day.iso_date).toBe('2026-08-14')
-    }
+    if (pos.phase === 'during') expect(pos.day.n).toBe(FIRST_DAY_N)
   })
 
-  it('handles the first and last day inclusively', () => {
-    const first = tripPosition(new Date('2026-08-08T23:00:00'))
-    const last = tripPosition(new Date('2026-08-29T06:00:00'))
-    expect(first.phase).toBe('during')
-    expect(last.phase).toBe('during')
-    if (first.phase === 'during') expect(first.day.n).toBe(1)
-    if (last.phase === 'during') expect(last.day.n).toBe(22)
+  it('is the last day on the end date', () => {
+    const pos = tripPosition(end)
+    expect(pos.phase).toBe('during')
+    if (pos.phase === 'during') expect(pos.day.n).toBe(LAST_DAY_N)
   })
 
   it('reports days-since after the trip', () => {
-    const pos = tripPosition(new Date('2026-09-01T09:00:00'))
+    const pos = tripPosition(addDays(end, 2))
     expect(pos.phase).toBe('after')
-    if (pos.phase === 'after') expect(pos.daysSince).toBe(3)
+    if (pos.phase === 'after') expect(pos.daysSince).toBe(2)
   })
 })
 
 describe('day navigation helpers', () => {
   it('clamps to the valid range', () => {
-    expect(clampDayN(0)).toBe(1)
-    expect(clampDayN(99)).toBe(22)
-    expect(clampDayN(10)).toBe(10)
+    expect(clampDayN(0)).toBe(FIRST_DAY_N)
+    expect(clampDayN(99999)).toBe(LAST_DAY_N)
   })
 
   it('knows the edges', () => {
-    expect(hasPrevDay(1)).toBe(false)
-    expect(hasNextDay(1)).toBe(true)
-    expect(hasPrevDay(22)).toBe(true)
-    expect(hasNextDay(22)).toBe(false)
+    expect(hasPrevDay(FIRST_DAY_N)).toBe(false)
+    expect(hasNextDay(LAST_DAY_N)).toBe(false)
+    if (allDays.length > 1) {
+      expect(hasNextDay(FIRST_DAY_N)).toBe(true)
+      expect(hasPrevDay(LAST_DAY_N)).toBe(true)
+    }
   })
 })
