@@ -26,6 +26,8 @@ interface AuthValue {
   members: Member[]
   isLocalMode: boolean
   signInWithMagicLink: (email: string) => Promise<{ error?: string }>
+  /** Verify the 6-digit code from the email (keeps sign-in inside an installed PWA). */
+  verifyEmailOtp: (email: string, token: string) => Promise<{ error?: string }>
   /** Local-mode only: pick which seat you are. */
   signInAsSeat: (memberId: string) => void
   signOut: () => Promise<void>
@@ -119,6 +121,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error ? { error: error.message } : {}
   }
 
+  async function verifyEmailOtp(email: string, token: string): Promise<{ error?: string }> {
+    if (!supabase) return { error: 'No backend configured.' }
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token: token.trim(),
+      type: 'email',
+    })
+    return error ? { error: error.message } : {}
+  }
+
   function signInAsSeat(memberId: string) {
     localStorage.setItem(LOCAL_SEAT_KEY, memberId)
     setLocalSeat(memberId)
@@ -143,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     members,
     isLocalMode,
     signInWithMagicLink,
+    verifyEmailOtp,
     signInAsSeat,
     signOut,
     refreshMembers: loadMembers,

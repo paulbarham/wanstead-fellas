@@ -1,17 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { Mail, ArrowRight, Check } from 'lucide-react'
+import { Mail, ArrowRight, Check, KeyRound } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { meta } from '../lib/itinerary'
 import Avatar from '../components/Avatar'
 
 export default function Login() {
-  const { isLocalMode, members, signInWithMagicLink, signInAsSeat, member } = useAuth()
+  const { isLocalMode, members, signInWithMagicLink, verifyEmailOtp, signInAsSeat, member } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: string } | null)?.from ?? '/'
 
   const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
   const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -29,6 +30,16 @@ export default function Login() {
     setBusy(false)
     if (error) setError(error)
     else setSent(true)
+  }
+
+  async function handleVerifyCode(e: FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setBusy(true)
+    const { error } = await verifyEmailOtp(email, code)
+    setBusy(false)
+    if (error) setError(error)
+    else navigate(from, { replace: true })
   }
 
   function pickSeat(id: string) {
@@ -65,22 +76,52 @@ export default function Login() {
           ) : (
             <div className="rounded-card bg-white p-5 shadow-card">
               {sent ? (
-                <div className="flex flex-col items-center py-6 text-center">
-                  <div
-                    className="grid h-12 w-12 place-items-center rounded-full"
-                    style={{ background: 'var(--sand)' }}
-                  >
-                    <Check style={{ color: 'var(--coral-dark)' }} />
+                <div className="py-2">
+                  <div className="flex flex-col items-center text-center">
+                    <div
+                      className="grid h-12 w-12 place-items-center rounded-full"
+                      style={{ background: 'var(--sand)' }}
+                    >
+                      <Check style={{ color: 'var(--coral-dark)' }} />
+                    </div>
+                    <h2 className="font-display mt-3 text-xl text-navy">Check your email</h2>
+                    <p className="mt-1 text-[14px] text-navy/70">
+                      We've sent it to <span className="font-semibold">{email}</span>. Either tap the
+                      link, or enter the 6-digit code below.
+                    </p>
                   </div>
-                  <h2 className="font-display mt-3 text-xl text-navy">Check your email</h2>
-                  <p className="mt-1 text-[14px] text-navy/70">
-                    We've sent a magic link to <span className="font-semibold">{email}</span>. Tap it
-                    on this phone to sign in.
-                  </p>
+
+                  {/* Code entry — keeps sign-in inside the installed app (best on iPhone). */}
+                  <form onSubmit={handleVerifyCode} className="mt-4">
+                    <div className="flex items-center gap-2 rounded-xl px-3" style={{ border: '1px solid rgba(14,58,72,0.18)' }}>
+                      <KeyRound size={18} className="text-navy/50" />
+                      <input
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                        placeholder="6-digit code"
+                        autoComplete="one-time-code"
+                        className="flex-1 bg-transparent py-3 text-[16px] tracking-[0.3em] outline-none"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={busy || code.length < 6}
+                      className="btn-coral mt-3 w-full disabled:opacity-50"
+                    >
+                      Sign in
+                    </button>
+                  </form>
+
                   <button
-                    className="mt-4 text-[13px] font-semibold"
+                    className="mt-4 block w-full text-center text-[13px] font-semibold"
                     style={{ color: 'var(--coral-dark)' }}
-                    onClick={() => setSent(false)}
+                    onClick={() => {
+                      setSent(false)
+                      setCode('')
+                    }}
                   >
                     Use a different email
                   </button>
