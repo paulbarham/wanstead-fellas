@@ -1,0 +1,56 @@
+import { describe, it, expect } from 'vitest'
+import {
+  legs,
+  allDays,
+  bookings,
+  packing,
+  costs,
+  getDay,
+  getLeg,
+  recommendedOption,
+  alternativeOptions,
+  slugKey,
+  TOTAL_DAYS,
+} from './itinerary'
+
+describe('itinerary data', () => {
+  it('has five legs covering 22 contiguous days', () => {
+    expect(legs.length).toBe(5)
+    expect(TOTAL_DAYS).toBe(22)
+    const ns = allDays.map((d) => d.n)
+    expect(ns).toEqual(Array.from({ length: 22 }, (_, i) => i + 1))
+  })
+
+  it('every day has a recommended option and valid iso date', () => {
+    for (const day of allDays) {
+      expect(recommendedOption(day)).toBeTruthy()
+      expect(day.iso_date).toMatch(/^2026-08-\d{2}$/)
+      expect(day.options.length).toBeGreaterThanOrEqual(1)
+    }
+  })
+
+  it('alternatives never exceed two (alt1 / alt2 slots)', () => {
+    for (const day of allDays) {
+      expect(alternativeOptions(day).length).toBeLessThanOrEqual(2)
+    }
+  })
+
+  it('lookups work', () => {
+    expect(getDay(1)?.title).toContain('Arrival')
+    expect(getLeg('vegas')?.title).toBe('Las Vegas')
+    expect(getDay(999)).toBeUndefined()
+  })
+
+  it('has the expected checklist counts', () => {
+    expect(bookings.length).toBe(17)
+    expect(packing.length).toBe(10)
+    expect(costs.length).toBeGreaterThan(0)
+  })
+
+  it('slugKey produces stable primary keys', () => {
+    expect(slugKey('Muir Woods parking / shuttle reservation')).toBe(
+      'muir-woods-parking-shuttle-reservation',
+    )
+    expect(slugKey('  ESTA ×6!! ')).toBe('esta-6')
+  })
+})

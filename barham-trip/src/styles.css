@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens — mirrored from the printed itinerary PDF. Kept as CSS vars too
+   so inline styles (sheets, callouts) can reference the exact same values. */
+:root {
+  --navy: #0e3a48;
+  --navy-dark: #062b36;
+  --coral: #e08853;
+  --coral-dark: #c86c3a;
+  --sand: #f4e7d5;
+  --sand-2: #fbf3e5;
+  --teal: #4a8896;
+  --bg: #fbf9f5;
+
+  --font-display: Georgia, Cambria, 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--navy);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Never bounce the whole page behind sheets/modals on iOS. */
+  overscroll-behavior-y: none;
+}
+
+/* Respect the notch / home indicator. */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  /* Coral CTA button — generous tap target. */
+  .btn-coral {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 font-semibold text-white transition active:opacity-80;
+    background: var(--coral);
+    min-height: 48px;
+  }
+  .btn-navy {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 font-semibold text-white transition active:opacity-80;
+    background: var(--navy);
+    min-height: 48px;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 font-semibold transition active:opacity-70;
+    border: 1px solid var(--color, rgba(14, 58, 72, 0.18));
+    min-height: 48px;
+  }
+
+  /* Sand pill used for the option's food line / small labels. */
+  .pill-sand {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-[13px] font-medium;
+    background: var(--sand);
+    color: var(--coral-dark);
+  }
+}
+
+/* Hide scrollbars on horizontal chip rows but keep them scrollable. */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
