@@ -1,14 +1,21 @@
 -- Barham Family Trip — core schema + RLS.
--- Small closed family group (6 seats). Everyone can see everyone; personal
--- lists (packing, notes) are private; bookings + RSVPs are shared.
+-- Small closed family group. Everyone can see everyone; personal lists (packing,
+-- notes) are private; bookings + RSVPs are shared. Members with no device of
+-- their own (Tobias & Niyah) carry a manager_email and are controlled by that
+-- adult from their own login.
 
--- Family members mirror auth.users; rows are written by the seed script.
+-- Family members. `id` equals the auth user id for people who sign in (set by
+-- the on_auth_user_created trigger); managed members get a random id and never
+-- sign in, so there is deliberately NO foreign key to auth.users here.
 create table if not exists public.members (
-  id uuid primary key references auth.users(id) on delete cascade,
+  id uuid primary key,
   display_name text not null,
   avatar_url text,
   age_group text check (age_group in ('adult', 'teen', 'child')) not null,
-  color text default '#e08853'
+  color text default '#e08853',
+  -- If set, this member has no device and is managed by the adult with this
+  -- email (matched against auth.users.email at write time).
+  manager_email text
 );
 
 -- Bookings: shared ticks.
@@ -28,7 +35,7 @@ create table if not exists public.packing_status (
   primary key (member_id, item_key)
 );
 
--- Per-user RSVP for each day option.
+-- Per-user (or managed) RSVP for each day option.
 create table if not exists public.day_rsvp (
   member_id uuid references public.members(id) on delete cascade,
   day_n int not null check (day_n between 1 and 22),
@@ -46,17 +53,26 @@ create table if not exists public.notes (
   created_at timestamptz default now()
 );
 
--- PIN login table (for the twins). Never readable by clients — the pin-login
--- edge function reads it with the service role.
---   pin_hash format: "<salt>:<sha256hex(salt + ':' + pin)>" — computed
---   identically by scripts/seed_family.ts (Node) and the pin-login edge
---   function (Deno), so no native bcrypt dependency is needed in either runtime.
---   email lets the function mint a session for the right pre-provisioned account.
-create table if not exists public.family_pins (
-  member_id uuid primary key references public.members(id) on delete cascade,
-  email text not null,
-  pin_hash text not null
-);
+-- ---------------------------------------------------------------------------
+-- Helper: may the current user act for `target` (themselves, or someone they
+-- manage by email)?
+-- ---------------------------------------------------------------------------
+create or replace function public.can_act_for(target uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select target = auth.uid()
+      or exists (
+        select 1
+        from public.members m
+        where m.id = target
+          and m.manager_email is not null
+          and lower(m.manager_email) = lower((select email from auth.users where id = auth.uid()))
+      );
+$$;
 
 -- ---------------------------------------------------------------------------
 -- Row Level Security
@@ -66,14 +82,13 @@ alter table public.booking_status enable row level security;
 alter table public.packing_status enable row level security;
 alter table public.day_rsvp enable row level security;
 alter table public.notes enable row level security;
-alter table public.family_pins enable row level security; -- no policies: locked to service role
 
--- Everyone in the family can see everyone.
+-- Everyone signed in can see the whole family.
 drop policy if exists "family read members" on public.members;
 create policy "family read members" on public.members
   for select using (auth.uid() is not null);
 
--- A member may update their own row (e.g. avatar_url, display_name).
+-- You may update your own row (avatar, name).
 drop policy if exists "member self update" on public.members;
 create policy "member self update" on public.members
   for update using (id = auth.uid()) with check (id = auth.uid());
@@ -89,18 +104,18 @@ drop policy if exists "shared bookings update" on public.booking_status;
 create policy "shared bookings update" on public.booking_status
   for update using (auth.uid() is not null);
 
--- Packing: strictly per-user.
-drop policy if exists "packing self" on public.packing_status;
-create policy "packing self" on public.packing_status
-  for all using (member_id = auth.uid()) with check (member_id = auth.uid());
+-- Packing: yours, or anyone you manage.
+drop policy if exists "packing self or managed" on public.packing_status;
+create policy "packing self or managed" on public.packing_status
+  for all using (public.can_act_for(member_id)) with check (public.can_act_for(member_id));
 
--- RSVP: readable by the whole family, writable only for yourself.
+-- RSVP: readable by the whole family; writable for yourself or anyone you manage.
 drop policy if exists "rsvp read family" on public.day_rsvp;
 create policy "rsvp read family" on public.day_rsvp
   for select using (auth.uid() is not null);
-drop policy if exists "rsvp self write" on public.day_rsvp;
-create policy "rsvp self write" on public.day_rsvp
-  for all using (member_id = auth.uid()) with check (member_id = auth.uid());
+drop policy if exists "rsvp self or managed write" on public.day_rsvp;
+create policy "rsvp self or managed write" on public.day_rsvp
+  for all using (public.can_act_for(member_id)) with check (public.can_act_for(member_id));
 
 -- Notes: strictly per-user.
 drop policy if exists "notes self" on public.notes;

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { supabase, hasSupabase, functionsUrl, supabaseAnonKey } from '../lib/supabase'
+import { supabase, hasSupabase } from '../lib/supabase'
 import { DEFAULT_FAMILY, type Member } from '../lib/family'
 
 const LOCAL_SEAT_KEY = 'barham-trip-seat'
@@ -19,11 +19,13 @@ interface AuthValue {
   session: Session | null
   /** The current signed-in family member, or null if signed out. */
   member: Member | null
+  /** Identity used for the "who do I manage" check: real email in Supabase mode,
+   *  seat id in local mode. */
+  currentEmail: string | null
   /** Everyone in the family (for the family panel / avatars). */
   members: Member[]
   isLocalMode: boolean
   signInWithMagicLink: (email: string) => Promise<{ error?: string }>
-  signInWithPin: (pin: string) => Promise<{ error?: string }>
   /** Local-mode only: pick which seat you are. */
   signInAsSeat: (memberId: string) => void
   signOut: () => Promise<void>
@@ -50,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const { data, error } = await supabase
       .from('members')
-      .select('id, display_name, avatar_url, age_group, color, managed_by')
+      .select('id, display_name, avatar_url, age_group, color, manager_email')
       .order('display_name')
     if (!error && data && data.length) {
       setMembers(data as Member[])
@@ -117,29 +119,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error ? { error: error.message } : {}
   }
 
-  async function signInWithPin(pin: string): Promise<{ error?: string }> {
-    if (!supabase) return { error: 'No backend configured.' }
-    try {
-      const res = await fetch(functionsUrl('pin-login'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${supabaseAnonKey}`,
-          apikey: supabaseAnonKey,
-        },
-        body: JSON.stringify({ pin }),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) return { error: body?.error ?? 'Incorrect PIN.' }
-      const { access_token, refresh_token } = body
-      if (!access_token || !refresh_token) return { error: 'Login failed — try again.' }
-      const { error } = await supabase.auth.setSession({ access_token, refresh_token })
-      return error ? { error: error.message } : {}
-    } catch {
-      return { error: 'Could not reach the server. Check your connection.' }
-    }
-  }
-
   function signInAsSeat(memberId: string) {
     localStorage.setItem(LOCAL_SEAT_KEY, memberId)
     setLocalSeat(memberId)
@@ -152,15 +131,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null)
   }
 
+  // Identity for the managed-member check: real email (Supabase) or seat id (local).
+  const currentEmail = isLocalMode ? member?.id ?? null : session?.user.email ?? null
+
   const value: AuthValue = {
     loading,
     ready,
     session,
     member,
+    currentEmail,
     members,
     isLocalMode,
     signInWithMagicLink,
-    signInWithPin,
     signInAsSeat,
     signOut,
     refreshMembers: loadMembers,

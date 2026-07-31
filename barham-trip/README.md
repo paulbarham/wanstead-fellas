@@ -1,9 +1,9 @@
 # Barham Family Trip 🌴
 
 A phone-first, install-to-home-screen **Progressive Web App** for the Barham family's
-California & Nevada holiday (**8–29 Aug 2026**). Six of us — two adults + four kids
-(17, 15, and 9-year-old twins) — each log in on our own phone and see the plan for
-every day, tick off bookings together, pack our own bags, and say who's in for each day.
+California & Nevada holiday (**8–29 Aug 2026**). Six of us — Paul, Nichola, Amelia, Marley,
+and the two youngest Tobias & Niyah — each see the plan for every day, tick off bookings
+together, pack our own bags, and say who's in for each day.
 
 Built to work **fully offline** once installed — critical for the no-signal stretches
 through Big Sur and Death Valley.
@@ -16,19 +16,18 @@ through Big Sur and Death Valley.
 - **Tailwind CSS** with the exact palette from the printed itinerary
 - **vite-plugin-pwa** (Workbox) — service worker, manifest, precache of the whole app + itinerary
 - **React Router v6**
-- **Supabase** — magic-link + PIN auth, shared bookings, per-day RSVPs, per-user packing, realtime
+- **Supabase** — magic-link auth, shared bookings, per-day RSVPs, per-user packing, realtime
 - **Zustand** — offline-first local state that the UI renders from
 - **date-fns**, **lucide-react**
 
-The full 22-day trip lives in [`data/itinerary.json`](data/itinerary.json) and is
-statically imported, so it ships inside the JS bundle and is available offline the moment
-you install the app.
+The full 22-day trip lives in [`data/itinerary.json`](data/itinerary.json) and is statically
+imported, so it ships inside the JS bundle and is available offline the moment you install.
 
 ## Screens
 
 | Route | What it is |
 |---|---|
-| `/login` | Gradient splash. Magic-link email sign-in + a Family PIN for the twins. |
+| `/login` | Gradient splash. Magic-link email sign-in (or a "pick your seat" picker in local preview). |
 | `/` (Today) | Auto-detects today: shows today's day card, or a "Trip starts in N days" countdown. |
 | `/trip` | The five legs (SF · PCH · Santa Monica · LA · Vegas). |
 | `/leg/:id` | Leg overview + timeline of its days. |
@@ -51,8 +50,7 @@ pnpm dev            # http://localhost:5173
 
 **No Supabase needed to preview.** With no env vars set the app runs in **local preview
 mode**: you pick a "seat" on the login screen and all state is stored on your device. Every
-screen works, so you can see the whole thing immediately. Auth + live sharing switch on the
-moment you add real Supabase credentials.
+screen works. Auth + live sharing switch on the moment you add real Supabase credentials.
 
 Other scripts:
 
@@ -65,62 +63,44 @@ node scripts/gen-icons.mjs   # regenerate the coral "B" PWA icons
 
 ---
 
-## Connecting Supabase (auth + shared state)
+## Connecting Supabase — free, no secrets, one SQL paste
 
-1. **Create a project** (Supabase dashboard, or the Supabase MCP `create_project`).
-2. **Env vars** — copy `.env.example` to `.env.local` and fill in:
+> **Cost: £0.** Supabase Free plan (2 projects/org) + Vercel Hobby both cover a family of six.
+
+1. **Create a project** — Supabase dashboard → *New project* → name `barham-trip`, region
+   **London (eu-west-2)**, set a DB password. Wait ~2 min for it to go green.
+
+2. **Run the setup SQL** — dashboard → *SQL Editor → New query* → paste the entire contents of
+   [`supabase/setup.sql`](supabase/setup.sql) → **Run**. That one file creates every table,
+   RLS policy, realtime + storage config, the auto-provision trigger, and seeds the family
+   roster. It's idempotent — safe to re-run. (The individual files in
+   [`supabase/migrations/`](supabase/migrations) are the source of truth; `setup.sql` is just
+   them concatenated.)
+
+3. **Add env vars** — copy `.env.example` to `.env.local` and fill in (Settings → API):
 
    ```sh
    VITE_SUPABASE_URL=https://<ref>.supabase.co
-   VITE_SUPABASE_ANON_KEY=<anon-key>
+   VITE_SUPABASE_ANON_KEY=<anon / publishable key>
    ```
 
-3. **Apply the migrations** (dashboard SQL editor, `supabase db push`, or the MCP
-   `apply_migration` tool), in order:
+   Both are safe to expose to the browser. **No service-role key is ever needed.**
 
-   - `supabase/migrations/001_schema.sql` — tables + RLS
-   - `supabase/migrations/002_realtime.sql` — realtime on `booking_status` + `day_rsvp`
-   - `supabase/migrations/003_storage.sql` — `avatars` + `day-photos` buckets
+That's the entire backend. Restart `pnpm dev` and everyone can sign in.
 
-4. **Deploy the PIN-login edge function** (for the twins):
+### How accounts work (no seed script, no PINs)
 
-   ```sh
-   supabase functions deploy pin-login --no-verify-jwt
-   ```
+- **Paul, Nichola, Amelia, Marley** sign in with a **magic link** to their own email. The
+  first time they do, a database trigger auto-creates their `members` row, pulling their name,
+  age band and avatar colour from the seed table (`member_seed`, written by `setup.sql`).
+- **Tobias & Niyah** have no device. `setup.sql` inserts them as **managed members** under
+  Paul's email. When Paul is signed in he sees "Tobias · you manage this" / "Niyah · you
+  manage this" controls on each day and sets their choices for them. Row-Level Security
+  enforces that only their managing adult can write their RSVPs.
 
-   It uses the project's built-in `SUPABASE_URL`, `SUPABASE_ANON_KEY` and
-   `SUPABASE_SERVICE_ROLE_KEY` secrets — no extra config.
-
-5. **Seed the six accounts** — see below.
-
-### How auth works
-
-- **Adults + teens** sign in with a **Supabase magic link** to their own email.
-- **The twins (no email)** sign in with a **4-digit Family PIN**. The PIN is hashed
-  (`salt:sha256(salt:pin)`, computed identically in the seed script and the edge function)
-  and stored in `family_pins`, which is locked to the service role by RLS. On a correct PIN
-  the `pin-login` function mints a one-time OTP for that pre-provisioned account and verifies
-  it server-side to return a real session — **no passwords are ever stored**.
-
----
-
-## Seeding the family (one-shot, run once by Paul)
-
-```sh
-SUPABASE_URL=https://<ref>.supabase.co \
-SUPABASE_SERVICE_ROLE_KEY=<service-role-key> \
-pnpm seed
-```
-
-It walks you through the six seats, asking for each person's **display name** and **email**
-(adults/teens) or a **4-digit PIN** (twins), then creates the auth users, the `members` rows,
-and the hashed PINs. Re-running is safe — existing accounts are updated, not duplicated.
-
-At the end it prints a **hand-out checklist**: which email to magic-link each person, and the
-two PINs for the twins.
-
-> The service role key is all-powerful — run this locally, never commit it, and never expose it
-> to the client (it must not be prefixed with `VITE_`).
+To change the roster (names, colours, add someone), edit
+[`supabase/migrations/005_family_seed.sql`](supabase/migrations/005_family_seed.sql), re-run
+it, and it updates in place.
 
 ---
 
@@ -136,16 +116,20 @@ two PINs for the twins.
 
 ---
 
-## Deploy (Vercel)
+## Deploy (Vercel) — ⚠️ set the root directory
 
-```sh
-vercel --prod
-```
+Because this app lives in the `barham-trip/` subfolder of the repo, the **Root Directory must
+be `barham-trip`**, or Vercel will try to build the wrong project.
 
-- Framework preset: **Vite**. Build `pnpm build`, output `dist`.
-- `vercel.json` already handles SPA rewrites + no-cache for `sw.js`/manifest.
-- Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as Vercel env vars.
-- Point the chosen domain (e.g. `trip.barham.family`) at the deployment.
+- Vercel dashboard → *Add New Project* → import the repo.
+- **Root Directory** → `barham-trip`
+- Framework preset: **Vite** (auto-detected). Build `pnpm build`, output `dist`.
+- Add env vars `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+- Deploy. `vercel.json` already handles SPA rewrites + no-cache for `sw.js`/manifest.
+- Add the custom domain (e.g. `trip.barham.family`) under Settings → Domains if you want one.
+
+The existing Wanstead Fellas Vercel project (which deploys from the repo root) is unaffected —
+a sibling subfolder is invisible to its build.
 
 ---
 
@@ -154,9 +138,7 @@ vercel --prod
 ```
 barham-trip/
   data/itinerary.json            # the whole 22-day trip (static import)
-  scripts/
-    seed_family.ts               # one-shot family setup
-    gen-icons.mjs                # generates the coral "B" PWA icons (no deps)
+  scripts/gen-icons.mjs          # generates the coral "B" PWA icons (no deps)
   src/
     lib/         supabase · itinerary (typed accessors) · date · family · weather
     store/       local.ts        # zustand offline-first state
@@ -165,8 +147,9 @@ barham-trip/
                  BottomTabs · AppLayout · OfflineIndicator · UpdateToast · Avatar · WeatherChip
     routes/      Login · Today · Trip · Leg · Day · Bookings · Packing · Costs · Me
   supabase/
-    migrations/  001_schema · 002_realtime · 003_storage
-    functions/pin-login/         # twins' PIN sign-in
+    setup.sql                    # paste-and-run: the whole backend in one file
+    migrations/                  # source of truth (001 schema · 002 realtime · 003 storage ·
+                                 #   004 auto-provision trigger · 005 family seed)
   public/        manifest icons (icon-192/512, apple-touch-icon), favicon
 ```
 

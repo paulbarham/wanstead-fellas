@@ -18,7 +18,7 @@ const choiceColor: Record<RsvpChoice, string> = {
 
 /** Avatars + live "I'm in / I'll skip / pick an alternative" for a day. */
 export default function FamilyStrip({ day }: Props) {
-  const { members, member } = useAuth()
+  const { members, member, currentEmail } = useAuth()
   const { choices, myChoice, setChoice, setChoiceFor } = useDayRsvp(day.n)
 
   const rec = recommendedOption(day)
@@ -35,7 +35,11 @@ export default function FamilyStrip({ day }: Props) {
   ]
 
   // People with no device who I look after (e.g. Paul manages Tobias & Niyah).
-  const managed = member ? members.filter((m) => m.managed_by === member.id) : []
+  const managed = currentEmail
+    ? members.filter(
+        (m) => m.manager_email && m.manager_email.toLowerCase() === currentEmail.toLowerCase(),
+      )
+    : []
 
   return (
     <section

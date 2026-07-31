@@ -1,18 +1,17 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { Mail, KeyRound, ArrowRight, Check } from 'lucide-react'
+import { Mail, ArrowRight, Check } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { meta } from '../lib/itinerary'
 import Avatar from '../components/Avatar'
 
 export default function Login() {
-  const { isLocalMode, members, signInWithMagicLink, signInWithPin, signInAsSeat, member } = useAuth()
+  const { isLocalMode, members, signInWithMagicLink, signInAsSeat, member } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: string } | null)?.from ?? '/'
 
   const [email, setEmail] = useState('')
-  const [pin, setPin] = useState('')
   const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,16 +29,6 @@ export default function Login() {
     setBusy(false)
     if (error) setError(error)
     else setSent(true)
-  }
-
-  async function handlePin(e: FormEvent) {
-    e.preventDefault()
-    setError(null)
-    setBusy(true)
-    const { error } = await signInWithPin(pin.trim())
-    setBusy(false)
-    if (error) setError(error)
-    else navigate(from, { replace: true })
   }
 
   function pickSeat(id: string) {
@@ -97,66 +86,31 @@ export default function Login() {
                   </button>
                 </div>
               ) : (
-                <>
-                  {/* Magic link */}
-                  <form onSubmit={handleMagicLink}>
-                    <label className="text-[13px] font-semibold text-navy">Sign in with email</label>
-                    <div className="mt-2 flex items-center gap-2 rounded-xl px-3" style={{ border: '1px solid rgba(14,58,72,0.18)' }}>
-                      <Mail size={18} className="text-navy/50" />
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@email.com"
-                        autoComplete="email"
-                        className="flex-1 bg-transparent py-3 text-[15px] outline-none"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={busy}
-                      className="btn-coral mt-3 w-full disabled:opacity-60"
-                    >
-                      Send magic link <ArrowRight size={18} />
-                    </button>
-                  </form>
-
-                  {/* Divider */}
-                  <div className="my-5 flex items-center gap-3">
-                    <span className="h-px flex-1" style={{ background: 'rgba(14,58,72,0.12)' }} />
-                    <span className="text-[12px] font-semibold uppercase tracking-wide text-navy/40">
-                      or
-                    </span>
-                    <span className="h-px flex-1" style={{ background: 'rgba(14,58,72,0.12)' }} />
+                <form onSubmit={handleMagicLink}>
+                  <label className="text-[13px] font-semibold text-navy">Sign in with your email</label>
+                  <p className="mb-2 mt-1 text-[13px] text-navy/55">
+                    We'll email you a magic link — tap it on this phone and you're in.
+                  </p>
+                  <div className="flex items-center gap-2 rounded-xl px-3" style={{ border: '1px solid rgba(14,58,72,0.18)' }}>
+                    <Mail size={18} className="text-navy/50" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@email.com"
+                      autoComplete="email"
+                      className="flex-1 bg-transparent py-3 text-[15px] outline-none"
+                    />
                   </div>
-
-                  {/* Family PIN */}
-                  <form onSubmit={handlePin}>
-                    <label className="text-[13px] font-semibold text-navy">
-                      Family PIN <span className="font-normal text-navy/50">(for the twins)</span>
-                    </label>
-                    <div className="mt-2 flex items-center gap-2 rounded-xl px-3" style={{ border: '1px solid rgba(14,58,72,0.18)' }}>
-                      <KeyRound size={18} className="text-navy/50" />
-                      <input
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={4}
-                        value={pin}
-                        onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                        placeholder="4-digit code"
-                        className="flex-1 bg-transparent py-3 text-[15px] tracking-[0.4em] outline-none"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={busy || pin.length !== 4}
-                      className="btn-navy mt-3 w-full disabled:opacity-50"
-                    >
-                      Enter
-                    </button>
-                  </form>
-                </>
+                  <button
+                    type="submit"
+                    disabled={busy}
+                    className="btn-coral mt-3 w-full disabled:opacity-60"
+                  >
+                    Send magic link <ArrowRight size={18} />
+                  </button>
+                </form>
               )}
 
               {error && (
