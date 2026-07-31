@@ -969,19 +969,25 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
               <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
                 <h3 className="font-semibold text-[var(--color-text)] text-sm">Live Table</h3>
               </div>
-              <table className="w-full text-xs">
+              <table className="w-full" style={{ fontSize: 13 }}>
                 <thead>
-                  <tr style={{ color: 'var(--color-text-muted)', background: '#F8F9F6', borderBottom: '1px solid var(--color-border)' }}>
-                    <th className="py-2 text-center font-medium" style={{ width: 28, paddingLeft: 12 }}>#</th>
-                    <th className="py-2 text-left font-medium" style={{ paddingLeft: 8 }}>Team</th>
-                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>P</th>
-                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>W</th>
-                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>D</th>
-                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>L</th>
-                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>F</th>
-                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>A</th>
-                    <th className="px-2 py-2 text-center font-medium" style={{ width: 40 }}>GD</th>
-                    <th className="px-2 py-2 text-center font-bold" style={{ width: 40, color: 'var(--color-text)' }}>Pts</th>
+                  <tr style={{
+                    color: 'var(--tt-cyan)',
+                    background: 'var(--color-surface-2, var(--color-bg))',
+                    borderBottom: '1px solid var(--color-border)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 13,
+                  }}>
+                    <th className="py-2.5 text-center font-bold" style={{ width: 28, paddingLeft: 12 }}>#</th>
+                    <th className="py-2.5 text-left font-bold" style={{ paddingLeft: 8 }}>TEAM</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 30 }}>P</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 30 }}>W</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 30 }}>D</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 30 }}>L</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 30 }}>F</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 30 }}>A</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 40 }}>GD</th>
+                    <th className="px-2 py-2.5 text-center font-bold" style={{ width: 44, color: 'var(--tt-yellow)' }}>PTS</th>
                   </tr>
                 </thead>
                 <tbody>

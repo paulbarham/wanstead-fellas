@@ -204,19 +204,23 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, pred
         <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <SectionHeader label="Group Table" />
         </div>
-        <table className="w-full" style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+        <table className="w-full" style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>
           <thead>
-            <tr style={{ color: 'var(--tt-cyan)' }}>
-              <th className="py-2 text-center font-semibold" style={{ width: 32, paddingLeft: 8, paddingRight: 4, letterSpacing: '0.06em' }}>#</th>
-              <th className="py-2 text-left font-semibold" style={{ paddingRight: 4, letterSpacing: '0.06em' }}>TEAM</th>
-              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>P</th>
-              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>W</th>
-              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>D</th>
-              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>L</th>
-              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>F</th>
-              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>A</th>
-              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>GD</th>
-              <th className="px-2 py-2 font-semibold" style={{ color: 'var(--tt-yellow)', letterSpacing: '0.06em' }}>PTS</th>
+            <tr style={{
+              color: 'var(--tt-cyan)',
+              background: 'var(--color-surface-2, var(--color-bg))',
+              fontSize: 13,
+            }}>
+              <th className="py-2.5 text-center font-bold" style={{ width: 32, paddingLeft: 8, paddingRight: 4 }}>#</th>
+              <th className="py-2.5 text-left font-bold" style={{ paddingRight: 4 }}>TEAM</th>
+              <th className="px-2 py-2.5 font-bold">P</th>
+              <th className="px-2 py-2.5 font-bold">W</th>
+              <th className="px-2 py-2.5 font-bold">D</th>
+              <th className="px-2 py-2.5 font-bold">L</th>
+              <th className="px-2 py-2.5 font-bold">F</th>
+              <th className="px-2 py-2.5 font-bold">A</th>
+              <th className="px-2 py-2.5 font-bold">GD</th>
+              <th className="px-2 py-2.5 font-bold" style={{ color: 'var(--tt-yellow)' }}>PTS</th>
             </tr>
           </thead>
           <tbody>

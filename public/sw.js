@@ -1,13 +1,11 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v36 — two things:
-//   1. Admin match entry can now record a genuine 0-0 draw. Explicit
-//      "Record 0–0 draw" pill under each unscored fixture, and the
-//      stepper "−" button is disabled at 0 so a stray tap doesn't fall
-//      into the eager-clear branch and nuke the result.
-//   2. F (goals for) + A (goals against) columns added to the league
-//      tables (both admin Live Table + user-facing Group Table on the
-//      Match tab). Fulfils feedback from Ross Marks 24 Jul.
-const CACHE = 'wf-v36'
+// Bumped to v37 — league table header legibility. 12 → 13px, tightened
+// spacing (dropped the 0.06em letter-spacing that stretched short
+// labels like PTS), bumped weight to font-bold, added surface-2
+// background stripe on the header row for stronger separation from
+// the body. Admin Live Table header also switched from the legacy
+// light-theme #F8F9F6 background to the theme-aware surface-2.
+const CACHE = 'wf-v37'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
