@@ -62,13 +62,13 @@ export function useDayRsvp(dayN: number) {
 
   const myChoice: RsvpChoice | undefined = member ? rsvp[rsvpKey(member.id, dayN)] : undefined
 
-  async function setChoice(choice: RsvpChoice) {
-    if (!member) return
-    setRsvpLocal(member.id, dayN, choice)
+  /** Set the RSVP for a specific member (self, or someone you manage). */
+  async function setChoiceFor(memberId: string, choice: RsvpChoice) {
+    setRsvpLocal(memberId, dayN, choice)
     if (supabase) {
       await supabase.from('day_rsvp').upsert(
         {
-          member_id: member.id,
+          member_id: memberId,
           day_n: dayN,
           choice,
           updated_at: new Date().toISOString(),
@@ -78,5 +78,10 @@ export function useDayRsvp(dayN: number) {
     }
   }
 
-  return { choices, myChoice, setChoice }
+  async function setChoice(choice: RsvpChoice) {
+    if (!member) return
+    await setChoiceFor(member.id, choice)
+  }
+
+  return { choices, myChoice, setChoice, setChoiceFor }
 }

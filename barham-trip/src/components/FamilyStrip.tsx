@@ -19,7 +19,7 @@ const choiceColor: Record<RsvpChoice, string> = {
 /** Avatars + live "I'm in / I'll skip / pick an alternative" for a day. */
 export default function FamilyStrip({ day }: Props) {
   const { members, member } = useAuth()
-  const { choices, myChoice, setChoice } = useDayRsvp(day.n)
+  const { choices, myChoice, setChoice, setChoiceFor } = useDayRsvp(day.n)
 
   const rec = recommendedOption(day)
   const alts = alternativeOptions(day)
@@ -34,6 +34,9 @@ export default function FamilyStrip({ day }: Props) {
     { key: 'skip', label: "I'll skip" },
   ]
 
+  // People with no device who I look after (e.g. Paul manages Tobias & Niyah).
+  const managed = member ? members.filter((m) => m.managed_by === member.id) : []
+
   return (
     <section
       className="rounded-card p-4 shadow-card"
@@ -46,38 +49,31 @@ export default function FamilyStrip({ day }: Props) {
 
       {/* My controls */}
       {member ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {options.map((opt) => {
-            const active = myChoice === opt.key
-            const isSkip = opt.key === 'skip'
-            return (
-              <button
-                key={opt.key}
-                onClick={() => setChoice(opt.key)}
-                className="inline-flex items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold transition active:opacity-70"
-                style={{
-                  minHeight: 44,
-                  background: active
-                    ? isSkip
-                      ? 'rgba(14,58,72,0.08)'
-                      : choiceColor[opt.key]
-                    : 'var(--sand-2)',
-                  color: active && !isSkip ? '#fff' : 'var(--navy)',
-                  border: active ? '1px solid transparent' : '1px solid rgba(14,58,72,0.14)',
-                }}
-              >
-                {opt.key === 'skip' ? <X size={14} /> : active ? <Check size={14} /> : null}
-                <span className="max-w-[160px] truncate">{opt.label}</span>
-              </button>
-            )
-          })}
-        </div>
+        <ChoiceRow options={options} current={myChoice} onChoose={setChoice} />
       ) : (
         <p className="mt-2 text-[13px] text-navy/60">Sign in to add your choice.</p>
       )}
 
+      {/* Controls for anyone I manage */}
+      {managed.map((m) => (
+        <div key={m.id} className="mt-4 border-t pt-3" style={{ borderColor: 'rgba(14,58,72,0.08)' }}>
+          <div className="flex items-center gap-2">
+            <Avatar member={m} size={24} />
+            <span className="text-[13px] font-semibold text-navy">
+              {m.display_name}
+              <span className="ml-1 font-normal text-navy/45">· you manage this</span>
+            </span>
+          </div>
+          <ChoiceRow
+            options={options}
+            current={choices[m.id]}
+            onChoose={(c) => setChoiceFor(m.id, c)}
+          />
+        </div>
+      ))}
+
       {/* Everyone's live choices */}
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-3">
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-3 border-t pt-3" style={{ borderColor: 'rgba(14,58,72,0.08)' }}>
         {members.map((m) => {
           const c = choices[m.id]
           return (
@@ -108,5 +104,44 @@ export default function FamilyStrip({ day }: Props) {
         })}
       </div>
     </section>
+  )
+}
+
+function ChoiceRow({
+  options,
+  current,
+  onChoose,
+}: {
+  options: { key: RsvpChoice; label: string }[]
+  current: RsvpChoice | undefined
+  onChoose: (c: RsvpChoice) => void
+}) {
+  return (
+    <div className="mt-2.5 flex flex-wrap gap-2">
+      {options.map((opt) => {
+        const active = current === opt.key
+        const isSkip = opt.key === 'skip'
+        return (
+          <button
+            key={opt.key}
+            onClick={() => onChoose(opt.key)}
+            className="inline-flex items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold transition active:opacity-70"
+            style={{
+              minHeight: 44,
+              background: active
+                ? isSkip
+                  ? 'rgba(14,58,72,0.08)'
+                  : choiceColor[opt.key]
+                : 'var(--sand-2)',
+              color: active && !isSkip ? '#fff' : 'var(--navy)',
+              border: active ? '1px solid transparent' : '1px solid rgba(14,58,72,0.14)',
+            }}
+          >
+            {opt.key === 'skip' ? <X size={14} /> : active ? <Check size={14} /> : null}
+            <span className="max-w-[160px] truncate">{opt.label}</span>
+          </button>
+        )
+      })}
+    </div>
   )
 }

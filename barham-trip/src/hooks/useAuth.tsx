@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const { data, error } = await supabase
       .from('members')
-      .select('id, display_name, avatar_url, age_group, color')
+      .select('id, display_name, avatar_url, age_group, color, managed_by')
       .order('display_name')
     if (!error && data && data.length) {
       setMembers(data as Member[])
