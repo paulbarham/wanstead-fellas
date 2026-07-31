@@ -15,6 +15,20 @@
       "range": "Sat 8 — Wed 12 Aug",
       "tagline": "Fog, hills and sourdough — easing in on the bay.",
       "notes": "Five nights to shake off the jet lag. Mornings are foggy and cool right through August (Karl the Fog is real), so keep a layer in every bag even when it looks sunny. Parking is brutal — lean on cable cars, ferries and walking.",
+      "ideas": [
+        { "title": "Alcatraz Island", "note": "Former island prison — the audio tour narrated by ex-guards and inmates is gripping. Pre-book, it sells out." },
+        { "title": "Walk or cycle the Golden Gate Bridge", "note": "Ride over to the harbour town of Sausalito, then ferry back with the bikes." },
+        { "title": "Ride a cable car", "note": "The Powell-Hyde line climbs past the Lombard Street zig-zags — hang off the side." },
+        { "title": "Fisherman's Wharf & Pier 39", "note": "Barking sea lions, sourdough bread bowls, street performers and arcades." },
+        { "title": "Exploratorium", "note": "Enormous hands-on science playground on Pier 15 — hours of fun, air-conditioned." },
+        { "title": "California Academy of Sciences", "note": "Aquarium, planetarium and a four-storey rainforest under one living roof (Golden Gate Park)." },
+        { "title": "Muir Woods", "note": "Cathedral-quiet grove of giant redwoods, 30 min north. Parking/shuttle reservation required." },
+        { "title": "Painted Ladies, Alamo Square", "note": "The postcard row of Victorian houses with the skyline behind." },
+        { "title": "Chinatown", "note": "Oldest in North America — the fortune-cookie factory is a hit with kids." },
+        { "title": "Twin Peaks at sunset", "note": "The best panoramic view over the entire city; bring a layer, it's windy." },
+        { "title": "Mission District", "note": "The city's best burritos plus streets of colourful murals (Balmy Alley)." },
+        { "title": "SF Giants baseball at Oracle Park", "note": "Waterfront ballpark — check whether the Giants are home during our dates." }
+      ],
       "days": [
         {
           "n": 1,
@@ -172,6 +186,19 @@
       "range": "Thu 13 — Sun 16 Aug",
       "tagline": "The drive is the destination — Big Sur, cliffs and elephant seals.",
       "notes": "Four days threading Highway 1 down the coast. The road itself is the main event: hairpins, sea cliffs and pull-offs. Phone signal is patchy to non-existent through Big Sur — screenshot anything you need, and trust this app, which runs fully offline. Fill the tank whenever it drops below half.",
+      "ideas": [
+        { "title": "17-Mile Drive", "note": "Scenic private toll road past Pebble Beach and the lone cypress." },
+        { "title": "Bixby Creek Bridge", "note": "The iconic Big Sur photo stop — pull off just before it." },
+        { "title": "McWay Falls", "note": "An 80ft waterfall dropping onto a cove beach; short easy walk to the overlook." },
+        { "title": "Pfeiffer Beach", "note": "Purple-tinged sand and a sea arch, down a narrow hidden lane." },
+        { "title": "Point Lobos Reserve", "note": "Gentle cliff trails, tide pools and sea lions — good for the twins." },
+        { "title": "Monterey Bay Aquarium", "note": "World-class; the sea-otter feed and kelp forest are unmissable." },
+        { "title": "Santa Cruz Beach Boardwalk", "note": "Old-school seaside rides — the wooden Giant Dipper coaster is a scream." },
+        { "title": "Hearst Castle", "note": "Opulent hilltop mansion with Roman pools; timed tour bus from the visitor centre." },
+        { "title": "Elephant seal rookery, Piedras Blancas", "note": "Hundreds of enormous seals on the beach a few metres from a free boardwalk." },
+        { "title": "Morro Bay", "note": "Kayak the calm bay beneath the giant 176m Morro Rock." },
+        { "title": "Lunch at Nepenthe", "note": "Cliff-top terrace 800ft above the Pacific — arrive early or book." }
+      ],
       "days": [
         {
           "n": 6,
@@ -294,6 +321,18 @@
       "range": "Mon 17 — Thu 20 Aug",
       "tagline": "Beach base — pier lights, bikes and Pacific sunsets.",
       "notes": "Four nights parked by the beach. Everything here is walkable or a short cruiser-bike ride, so the car can mostly stay put. The classic beach-path runs all the way from Santa Monica to Venice — use it.",
+      "ideas": [
+        { "title": "Santa Monica Pier & Pacific Park", "note": "Solar-powered Ferris wheel and coaster right over the ocean." },
+        { "title": "Cycle the beach path to Venice", "note": "Flat 3.5km each way; hire cruiser bikes for the whole stay." },
+        { "title": "Venice Beach boardwalk & Muscle Beach", "note": "Skaters, street performers and the famous outdoor gym — peak people-watching." },
+        { "title": "Venice Canals", "note": "A quiet, pretty walk over little bridges — a total contrast to the boardwalk." },
+        { "title": "Abbot Kinney Boulevard", "note": "Trendy boutiques, murals and arguably the best casual food in LA." },
+        { "title": "Beginner surf lesson", "note": "Mellow breaks and instructors used to kids — everyone stands up eventually." },
+        { "title": "Malibu beaches (El Matador)", "note": "Sea caves and arches up the coast; small car park, go early." },
+        { "title": "Third Street Promenade", "note": "Open-air shopping street with buskers, a few minutes from the pier." },
+        { "title": "Getty Villa", "note": "Roman and Greek antiquities in a stunning re-created villa (free, book ahead)." },
+        { "title": "Original Farmers Market & The Grove", "note": "Historic food stalls next to an open-air shopping district." }
+      ],
       "days": [
         {
           "n": 10,
@@ -416,6 +455,20 @@
       "range": "Fri 21 — Tue 25 Aug",
       "tagline": "Hollywood, theme parks and the big-city stretch.",
       "notes": "Five nights to take on LA proper. It's vast and the traffic is real — plan each day around one area and travel outside peak hours. This is the leg where the four kids' different tastes pull hardest, so a couple of days are built to split the group.",
+      "ideas": [
+        { "title": "Hollywood Walk of Fame & TCL Chinese Theatre", "note": "The stars, the handprints and the tourist buzz of Hollywood Blvd." },
+        { "title": "Griffith Observatory", "note": "Free space museum, telescopes, and the definitive Hollywood Sign view at sunset." },
+        { "title": "Universal Studios Hollywood", "note": "Harry Potter, Super Nintendo World, Jurassic World and the backlot Studio Tour." },
+        { "title": "Disneyland / California Adventure", "note": "The original Disney parks, down in Anaheim — a full magical day." },
+        { "title": "Six Flags Magic Mountain", "note": "One of the biggest roller-coaster line-ups on the planet — the teenagers' day." },
+        { "title": "The Broad", "note": "Modern art incl. Yayoi Kusama's Infinity Mirror Rooms — free, but book timed tickets." },
+        { "title": "La Brea Tar Pits", "note": "Bubbling Ice Age tar pits and a museum of sabre-tooths and mammoths, mid-city." },
+        { "title": "Getty Center", "note": "Art, gardens, architecture and huge city views — free (pay for parking)." },
+        { "title": "Warner Bros. Studio Tour", "note": "Behind real working film and TV sets — brilliant for film-mad teens." },
+        { "title": "Rodeo Drive & Beverly Hills", "note": "Window-shopping and people-watching in the famous zip code." },
+        { "title": "LA Dodgers at Dodger Stadium", "note": "Classic MLB night out — check whether they're home during our dates." },
+        { "title": "Griffith Park & LA Zoo", "note": "Huge park with a zoo and a vintage train museum — space for the twins to roam." }
+      ],
       "days": [
         {
           "n": 14,
@@ -566,6 +619,20 @@
       "range": "Wed 26 — Sat 29 Aug",
       "tagline": "Neon, desert wonders and one last blow-out.",
       "notes": "Four nights to finish in the desert. August in Nevada is brutally hot (40°C+) — plan outdoor stuff for early and late, and hide from the midday sun in the air-conditioned casinos and pools. Hydrate constantly, especially the kids. The Grand Canyon and Death Valley pages are built to work with no signal at all.",
+      "ideas": [
+        { "title": "The Strip after dark", "note": "Bellagio fountains, the neon, and free casino spectacles all the way down." },
+        { "title": "High Roller observation wheel", "note": "550ft views over the valley — spectacular by day or night." },
+        { "title": "Gondola ride at The Venetian", "note": "Indoor and outdoor canals with singing gondoliers — kitsch and fun." },
+        { "title": "Adventuredome at Circus Circus", "note": "Indoor theme park — the perfect way to dodge the midday heat." },
+        { "title": "Grand Canyon West / Skywalk", "note": "The big day trip — glass walkway out over the void. Leave at dawn." },
+        { "title": "Hoover Dam", "note": "Walk across the colossal dam and the bypass bridge, 45 min from the Strip." },
+        { "title": "Death Valley", "note": "Otherworldly desert — Badwater Basin and Zabriskie Point. Extreme heat; prep well." },
+        { "title": "Seven Magic Mountains", "note": "Stack of giant neon-painted boulders 20 min south — a quick, fun photo." },
+        { "title": "Fremont Street Experience", "note": "Old-town Vegas: canopy light show, buskers and a zipline overhead." },
+        { "title": "Red Rock Canyon", "note": "Scenic 13-mile loop drive through red sandstone, 30 min from the Strip." },
+        { "title": "A family show", "note": "A Cirque du Soleil production or a big magic show — book ahead." },
+        { "title": "Las Vegas Raiders at Allegiant Stadium", "note": "NFL under the dome — check whether they're home during our dates." }
+      ],
       "days": [
         {
           "n": 19,

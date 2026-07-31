@@ -17,6 +17,12 @@ export interface Tip {
   body: string
 }
 
+/** A "things to do here" suggestion for a leg (place). */
+export interface Idea {
+  title: string
+  note?: string
+}
+
 export interface TripDay {
   n: number
   weekday: string
@@ -35,6 +41,7 @@ export interface Leg {
   range: string
   tagline: string
   notes: string
+  ideas?: Idea[]
   days: TripDay[]
 }
 

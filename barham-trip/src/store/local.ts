@@ -15,6 +15,15 @@ export interface BookingTick {
   checked_at: string | null
 }
 
+export interface UserIdea {
+  id: string
+  leg_id: string
+  title: string
+  note: string | null
+  added_by: string | null
+  created_at: string
+}
+
 interface LocalState {
   // booking_key -> tick
   bookings: Record<string, BookingTick>
@@ -22,10 +31,17 @@ interface LocalState {
   packing: Record<string, boolean>
   // `${memberId}:${dayN}` -> choice
   rsvp: Record<string, RsvpChoice>
+  // legId -> family-added ideas
+  userIdeas: Record<string, UserIdea[]>
 
   setBooking: (key: string, tick: BookingTick) => void
   setPacking: (memberId: string, itemKey: string, checked: boolean) => void
   setRsvp: (memberId: string, dayN: number, choice: RsvpChoice) => void
+
+  addUserIdea: (idea: UserIdea) => void
+  removeUserIdea: (legId: string, id: string) => void
+  /** Merge a remote snapshot of a leg's ideas into local state (by id). */
+  mergeUserIdeas: (legId: string, ideas: UserIdea[]) => void
 
   // Bulk hydrate from a remote snapshot (called by hooks on first load).
   hydrateBookings: (rows: Record<string, BookingTick>) => void
@@ -42,6 +58,7 @@ export const useLocalStore = create<LocalState>()(
       bookings: {},
       packing: {},
       rsvp: {},
+      userIdeas: {},
 
       setBooking: (key, tick) =>
         set((s) => ({ bookings: { ...s.bookings, [key]: tick } })),
@@ -51,6 +68,32 @@ export const useLocalStore = create<LocalState>()(
 
       setRsvp: (memberId, dayN, choice) =>
         set((s) => ({ rsvp: { ...s.rsvp, [rsvpKey(memberId, dayN)]: choice } })),
+
+      addUserIdea: (idea) =>
+        set((s) => {
+          const list = s.userIdeas[idea.leg_id] ?? []
+          if (list.some((i) => i.id === idea.id)) return s
+          return { userIdeas: { ...s.userIdeas, [idea.leg_id]: [...list, idea] } }
+        }),
+
+      removeUserIdea: (legId, id) =>
+        set((s) => ({
+          userIdeas: {
+            ...s.userIdeas,
+            [legId]: (s.userIdeas[legId] ?? []).filter((i) => i.id !== id),
+          },
+        })),
+
+      mergeUserIdeas: (legId, ideas) =>
+        set((s) => {
+          const byId = new Map<string, UserIdea>()
+          for (const i of s.userIdeas[legId] ?? []) byId.set(i.id, i)
+          for (const i of ideas) byId.set(i.id, i)
+          const merged = [...byId.values()].sort((a, b) =>
+            a.created_at.localeCompare(b.created_at),
+          )
+          return { userIdeas: { ...s.userIdeas, [legId]: merged } }
+        }),
 
       hydrateBookings: (rows) => set((s) => ({ bookings: { ...s.bookings, ...rows } })),
       hydrateRsvp: (rows) => set((s) => ({ rsvp: { ...s.rsvp, ...rows } })),

@@ -3,6 +3,7 @@ import { ChevronRight, Info } from 'lucide-react'
 import { getLeg, recommendedOption, legs } from '../lib/itinerary'
 import DayBadge from '../components/DayBadge'
 import LegBanner from '../components/LegBanner'
+import LegIdeas from '../components/LegIdeas'
 
 export default function Leg() {
   const { id } = useParams()
@@ -56,6 +57,8 @@ export default function Leg() {
           })}
         </div>
       </div>
+
+      <LegIdeas leg={leg} />
     </div>
   )
 }
