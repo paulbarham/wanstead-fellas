@@ -27,7 +27,7 @@ export default function WeatherChip({ legTitle, isoDate }: Props) {
   return (
     <div
       className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[13px] font-medium"
-      style={{ background: 'var(--sand-2)', color: 'var(--navy)' }}
+      style={{ background: 'var(--sand-2)', color: 'var(--text)' }}
     >
       <Sun size={15} style={{ color: 'var(--coral)' }} />
       <span className="font-semibold">{weather.tempMaxC}°</span>

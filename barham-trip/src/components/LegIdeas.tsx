@@ -38,7 +38,7 @@ export default function LegIdeas({ leg }: Props) {
       id="leg-ideas"
       className="rounded-card p-4 shadow-card"
       style={{
-        background: '#fff',
+        background: 'var(--surface)',
         border: '1px solid rgba(14,58,72,0.1)',
         backgroundClip: 'padding-box',
         scrollMarginTop: 72,
@@ -124,10 +124,10 @@ export default function LegIdeas({ leg }: Props) {
                   target="_blank"
                   rel="noreferrer"
                   className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
-                  style={{ background: '#fff', border: '1px solid rgba(14,58,72,0.12)' }}
+                  style={{ background: 'var(--surface)', border: '1px solid rgba(14,58,72,0.12)' }}
                   aria-label={`Open ${idea.title} in Maps`}
                 >
-                  <MapPin size={15} style={{ color: 'var(--navy)' }} />
+                  <MapPin size={15} style={{ color: 'var(--text)' }} />
                 </a>
                 {member && idea.added_by === member.id && (
                   <button

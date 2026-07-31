@@ -20,7 +20,7 @@ export default function OptionCard({ option, hero = false }: Props) {
     <div
       className="rounded-card p-4 shadow-card"
       style={{
-        background: isRec ? '#ffffff' : 'var(--sand-2)',
+        background: isRec ? 'var(--surface)' : 'var(--sand-2)',
         border: `1px solid ${isRec ? 'rgba(224,136,83,0.35)' : 'rgba(74,136,150,0.28)'}`,
         backgroundClip: 'padding-box',
       }}

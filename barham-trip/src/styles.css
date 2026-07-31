@@ -14,6 +14,12 @@
   --teal: #4a8896;
   --bg: #fbf9f5;
 
+  /* Semantic, theme-aware tokens (flip in dark). */
+  --surface: #ffffff; /* card backgrounds */
+  --text: #0e3a48; /* primary text (matches navy in light) */
+  --border: rgba(14, 58, 72, 0.1);
+  --header-bg: rgba(251, 249, 245, 0.9);
+
   --font-display: Georgia, Cambria, 'Times New Roman', serif;
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
@@ -85,3 +91,44 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Dark mode. Tokens flip; a small set of Tailwind color utilities
+   are remapped (they compile to fixed values, so we override them).
+   ───────────────────────────────────────────────────────────── */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b1c22;
+  --navy: #1d4c5c; /* lighten navy FILLS (day badge, callouts) so they show on dark */
+  --navy-dark: #12333d;
+  --surface: #123039;
+  --sand: #1a3b45;
+  --sand-2: #173a44;
+  --text: #e9eff1;
+  --border: rgba(255, 255, 255, 0.12);
+  --header-bg: rgba(11, 28, 34, 0.9);
+  --coral: #e79366;
+  --coral-dark: #f0a374;
+  --teal: #6aa9b6;
+}
+
+/* Remap the fixed Tailwind color utilities the app uses. */
+:root[data-theme='dark'] .bg-white {
+  background-color: var(--surface);
+}
+:root[data-theme='dark'] .bg-page {
+  background-color: var(--bg);
+}
+:root[data-theme='dark'] .text-navy {
+  color: var(--text);
+}
+:root[data-theme='dark'] .text-navy\/40 { color: rgb(233 239 241 / 0.4); }
+:root[data-theme='dark'] .text-navy\/45 { color: rgb(233 239 241 / 0.45); }
+:root[data-theme='dark'] .text-navy\/50 { color: rgb(233 239 241 / 0.5); }
+:root[data-theme='dark'] .text-navy\/55 { color: rgb(233 239 241 / 0.55); }
+:root[data-theme='dark'] .text-navy\/60 { color: rgb(233 239 241 / 0.6); }
+:root[data-theme='dark'] .text-navy\/65 { color: rgb(233 239 241 / 0.65); }
+:root[data-theme='dark'] .text-navy\/70 { color: rgb(233 239 241 / 0.7); }
+:root[data-theme='dark'] .text-navy\/75 { color: rgb(233 239 241 / 0.75); }
+:root[data-theme='dark'] .text-navy\/80 { color: rgb(233 239 241 / 0.8); }
+:root[data-theme='dark'] .text-navy\/85 { color: rgb(233 239 241 / 0.85); }

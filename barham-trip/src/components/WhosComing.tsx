@@ -7,7 +7,7 @@ export default function WhosComing() {
   return (
     <section
       className="rounded-card p-4 shadow-card"
-      style={{ background: '#fff', border: '1px solid rgba(14,58,72,0.1)', backgroundClip: 'padding-box' }}
+      style={{ background: 'var(--surface)', border: '1px solid rgba(14,58,72,0.1)', backgroundClip: 'padding-box' }}
     >
       <div className="flex items-center gap-2">
         <Users size={18} style={{ color: 'var(--coral-dark)' }} />

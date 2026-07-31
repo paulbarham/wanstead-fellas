@@ -1,8 +1,9 @@
 import { useState, type ReactNode } from 'react'
 import { Outlet, Link, useNavigate } from 'react-router-dom'
-import { Menu, X, PoundSterling, User, Plane, LogOut } from 'lucide-react'
+import { Menu, X, PoundSterling, User, Plane, LogOut, Moon, Sun } from 'lucide-react'
 import { meta } from '../lib/itinerary'
 import { useAuth } from '../hooks/useAuth'
+import { useTheme } from '../hooks/useTheme'
 import BottomTabs from './BottomTabs'
 import OfflineIndicator from './OfflineIndicator'
 import UpdateToast from './UpdateToast'
@@ -12,6 +13,7 @@ import Avatar from './Avatar'
 export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { member, signOut } = useAuth()
+  const { theme, toggle: toggleTheme } = useTheme()
   const navigate = useNavigate()
 
   async function handleSignOut() {
@@ -26,7 +28,7 @@ export default function AppLayout() {
 
       <header
         className="safe-top sticky top-0 z-30 flex items-center gap-3 px-4 py-3 backdrop-blur"
-        style={{ background: 'rgba(251,249,245,0.9)', borderBottom: '1px solid rgba(14,58,72,0.08)' }}
+        style={{ background: 'var(--header-bg)', borderBottom: '1px solid var(--border)' }}
       >
         <Link to="/" className="flex min-w-0 items-center gap-2">
           <span
@@ -42,7 +44,7 @@ export default function AppLayout() {
           onClick={() => setMenuOpen(true)}
           className="ml-auto grid h-10 w-10 place-items-center rounded-lg"
           aria-label="Menu"
-          style={{ color: 'var(--navy)' }}
+          style={{ color: 'var(--text)' }}
         >
           <Menu size={24} />
         </button>
@@ -74,7 +76,7 @@ export default function AppLayout() {
                 className="grid h-9 w-9 place-items-center rounded-lg"
                 aria-label="Close menu"
               >
-                <X size={22} style={{ color: 'var(--navy)' }} />
+                <X size={22} style={{ color: 'var(--text)' }} />
               </button>
             </div>
 
@@ -83,7 +85,7 @@ export default function AppLayout() {
                 to="/me"
                 onClick={() => setMenuOpen(false)}
                 className="mt-5 flex items-center gap-3 rounded-card p-3"
-                style={{ background: '#fff', border: '1px solid rgba(14,58,72,0.1)' }}
+                style={{ background: 'var(--surface)', border: '1px solid rgba(14,58,72,0.1)' }}
               >
                 <Avatar member={member} size={44} />
                 <div className="leading-tight">
@@ -97,6 +99,16 @@ export default function AppLayout() {
               <DrawerLink to="/trip" icon={<Plane size={18} />} label="Trip overview" onClick={() => setMenuOpen(false)} />
               <DrawerLink to="/costs" icon={<PoundSterling size={18} />} label="Costs" onClick={() => setMenuOpen(false)} />
               <DrawerLink to="/me" icon={<User size={18} />} label="Account" onClick={() => setMenuOpen(false)} />
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-left font-medium text-navy active:opacity-70"
+                style={{ minHeight: 48 }}
+              >
+                <span style={{ color: 'var(--coral-dark)' }}>
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </span>
+                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              </button>
             </nav>
 
             <button
