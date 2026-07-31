@@ -3,7 +3,6 @@ import type { TripDay } from '../lib/itinerary'
 import { recommendedOption, alternativeOptions, getLegForDay } from '../lib/itinerary'
 import DayBadge from './DayBadge'
 import OptionCard from './OptionCard'
-import FamilyStrip from './FamilyStrip'
 import WeatherChip from './WeatherChip'
 
 interface Props {
@@ -80,8 +79,6 @@ export default function DayView({ day, isToday = false }: Props) {
         </div>
       )}
 
-      {/* Family RSVP */}
-      <FamilyStrip day={day} />
     </div>
   )
 }
