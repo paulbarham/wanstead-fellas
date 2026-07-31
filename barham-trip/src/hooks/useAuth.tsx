@@ -25,9 +25,15 @@ interface AuthValue {
   /** Everyone in the family (for the family panel / avatars). */
   members: Member[]
   isLocalMode: boolean
-  signInWithMagicLink: (email: string) => Promise<{ error?: string }>
-  /** Verify the 6-digit code from the email (keeps sign-in inside an installed PWA). */
-  verifyEmailOtp: (email: string, token: string) => Promise<{ error?: string }>
+  /** Sign in an existing family account with email + password. */
+  signInWithPassword: (email: string, password: string) => Promise<{ error?: string }>
+  /** First-time: create the account + set the password (no email confirmation). */
+  signUpWithPassword: (
+    email: string,
+    password: string,
+  ) => Promise<{ error?: string; needsConfirm?: boolean }>
+  /** Is this email on the family roster? (gate before creating an account) */
+  isFamilyEmail: (email: string) => Promise<boolean>
   /** Local-mode only: pick which seat you are. */
   signInAsSeat: (memberId: string) => void
   signOut: () => Promise<void>
@@ -112,23 +118,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [isLocalMode, members, localSeat, session])
 
-  async function signInWithMagicLink(email: string): Promise<{ error?: string }> {
+  async function signInWithPassword(email: string, password: string): Promise<{ error?: string }> {
     if (!supabase) return { error: 'No backend configured.' }
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin },
-    })
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
     return error ? { error: error.message } : {}
   }
 
-  async function verifyEmailOtp(email: string, token: string): Promise<{ error?: string }> {
+  async function signUpWithPassword(
+    email: string,
+    password: string,
+  ): Promise<{ error?: string; needsConfirm?: boolean }> {
     if (!supabase) return { error: 'No backend configured.' }
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim(),
-      token: token.trim(),
-      type: 'email',
-    })
-    return error ? { error: error.message } : {}
+    const { data, error } = await supabase.auth.signUp({ email: email.trim(), password })
+    if (error) return { error: error.message }
+    // With email confirmation disabled, signUp returns a live session. If it
+    // didn't, confirmation is still switched on server-side.
+    if (!data.session) return { needsConfirm: true }
+    return {}
+  }
+
+  async function isFamilyEmail(email: string): Promise<boolean> {
+    if (!supabase) return true
+    const { data } = await supabase.rpc('is_family_member', { check_email: email.trim() })
+    return data === true
   }
 
   function signInAsSeat(memberId: string) {
@@ -154,8 +166,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     currentEmail,
     members,
     isLocalMode,
-    signInWithMagicLink,
-    verifyEmailOtp,
+    signInWithPassword,
+    signUpWithPassword,
+    isFamilyEmail,
     signInAsSeat,
     signOut,
     refreshMembers: loadMembers,

@@ -88,15 +88,23 @@ node scripts/gen-icons.mjs   # regenerate the coral "B" PWA icons
 
 That's the entire backend. Restart `pnpm dev` and everyone can sign in.
 
-### How accounts work (no seed script, no PINs)
+### How accounts work (email + password, no emails to send)
 
-- **Paul, Nichola, Amelia, Marley** sign in with a **magic link** to their own email. The
-  first time they do, a database trigger auto-creates their `members` row, pulling their name,
-  age band and avatar colour from the seed table (`member_seed`, written by `setup.sql`).
+- **Paul, Nichola, Amelia, Marley** sign in with their **email + a password**. The first time
+  someone signs in, the app creates the account and sets that password (gated to family emails
+  via `is_family_member`); after that it's a normal password sign-in. A database trigger
+  auto-creates their `members` row on first sign-in, pulling name/age-band/colour from the seed
+  table (`member_seed`, written by `setup.sql`). **No email sending is involved**, so it works
+  perfectly inside an installed home-screen PWA and has no rate limits.
+  - Requires **Authentication → Providers → Email → "Confirm email" = OFF** in the Supabase
+    dashboard (so sign-up returns a session immediately without a confirmation email).
+  - Forgot a password? Paul deletes that user in **Authentication → Users**; they sign in again
+    to re-set it.
 - **Tobias & Niyah** have no device. `setup.sql` inserts them as **managed members** under
-  Paul's email. When Paul is signed in he sees "Tobias · you manage this" / "Niyah · you
-  manage this" controls on each day and sets their choices for them. Row-Level Security
-  enforces that only their managing adult can write their RSVPs.
+  Paul's email (matched by `manager_email`, so it survives Paul re-creating his account). When
+  Paul is signed in he sees "Tobias · you manage this" / "Niyah · you manage this" controls on
+  each day and sets their choices for them. RLS enforces that only their managing adult can
+  write their RSVPs.
 
 To change the roster (names, colours, add someone), edit
 [`supabase/migrations/005_family_seed.sql`](supabase/migrations/005_family_seed.sql), re-run

@@ -1,19 +1,27 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { Mail, ArrowRight, Check, KeyRound } from 'lucide-react'
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { meta } from '../lib/itinerary'
 import Avatar from '../components/Avatar'
 
 export default function Login() {
-  const { isLocalMode, members, signInWithMagicLink, verifyEmailOtp, signInAsSeat, member } = useAuth()
+  const {
+    isLocalMode,
+    members,
+    signInWithPassword,
+    signUpWithPassword,
+    isFamilyEmail,
+    signInAsSeat,
+    member,
+  } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: string } | null)?.from ?? '/'
 
   const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
-  const [sent, setSent] = useState(false)
+  const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -22,24 +30,46 @@ export default function Login() {
     return <Navigate to={from} replace />
   }
 
-  async function handleMagicLink(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.')
+      return
+    }
     setBusy(true)
-    const { error } = await signInWithMagicLink(email.trim())
-    setBusy(false)
-    if (error) setError(error)
-    else setSent(true)
-  }
 
-  async function handleVerifyCode(e: FormEvent) {
-    e.preventDefault()
-    setError(null)
-    setBusy(true)
-    const { error } = await verifyEmailOtp(email, code)
+    // 1. Try to sign in as an existing account.
+    const signIn = await signInWithPassword(email, password)
+    if (!signIn.error) {
+      navigate(from, { replace: true })
+      return
+    }
+
+    // 2. Sign-in failed — only offer to create an account for family emails.
+    const family = await isFamilyEmail(email)
+    if (!family) {
+      setBusy(false)
+      setError("That email isn't on the family list. Ask Paul to add you.")
+      return
+    }
+
+    // 3. First-time family member → create the account with this password.
+    const signUp = await signUpWithPassword(email, password)
     setBusy(false)
-    if (error) setError(error)
-    else navigate(from, { replace: true })
+    if (signUp.needsConfirm) {
+      setError('Almost there — Paul needs to turn off email confirmation in Supabase, then try again.')
+      return
+    }
+    if (signUp.error) {
+      setError(
+        /already registered/i.test(signUp.error)
+          ? 'Wrong password for this account. Try again.'
+          : signUp.error,
+      )
+      return
+    }
+    navigate(from, { replace: true })
   }
 
   function pickSeat(id: string) {
@@ -65,9 +95,7 @@ export default function Login() {
           <p className="mt-2 text-[15px] font-medium text-white/85">
             {meta.trip} · six of us, three weeks, one plan.
           </p>
-          <p className="mt-1 text-[13px] uppercase tracking-wide text-white/70">
-            8 — 29 August 2026
-          </p>
+          <p className="mt-1 text-[13px] uppercase tracking-wide text-white/70">8 — 29 August 2026</p>
         </div>
 
         <div className="mt-8">
@@ -75,84 +103,57 @@ export default function Login() {
             <SeatPicker members={members} onPick={pickSeat} />
           ) : (
             <div className="rounded-card bg-white p-5 shadow-card">
-              {sent ? (
-                <div className="py-2">
-                  <div className="flex flex-col items-center text-center">
-                    <div
-                      className="grid h-12 w-12 place-items-center rounded-full"
-                      style={{ background: 'var(--sand)' }}
-                    >
-                      <Check style={{ color: 'var(--coral-dark)' }} />
-                    </div>
-                    <h2 className="font-display mt-3 text-xl text-navy">Check your email</h2>
-                    <p className="mt-1 text-[14px] text-navy/70">
-                      We've sent it to <span className="font-semibold">{email}</span>. Either tap the
-                      link, or enter the 6-digit code below.
-                    </p>
-                  </div>
+              <form onSubmit={handleSubmit}>
+                <label className="text-[13px] font-semibold text-navy">Sign in</label>
+                <p className="mb-3 mt-1 text-[13px] text-navy/55">
+                  Enter your email and a password. The first time you sign in, that sets your
+                  password.
+                </p>
 
-                  {/* Code entry — keeps sign-in inside the installed app (best on iPhone). */}
-                  <form onSubmit={handleVerifyCode} className="mt-4">
-                    <div className="flex items-center gap-2 rounded-xl px-3" style={{ border: '1px solid rgba(14,58,72,0.18)' }}>
-                      <KeyRound size={18} className="text-navy/50" />
-                      <input
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={6}
-                        value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                        placeholder="6-digit code"
-                        autoComplete="one-time-code"
-                        className="flex-1 bg-transparent py-3 text-[16px] tracking-[0.3em] outline-none"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={busy || code.length < 6}
-                      className="btn-coral mt-3 w-full disabled:opacity-50"
-                    >
-                      Sign in
-                    </button>
-                  </form>
+                <div
+                  className="flex items-center gap-2 rounded-xl px-3"
+                  style={{ border: '1px solid rgba(14,58,72,0.18)' }}
+                >
+                  <Mail size={18} className="text-navy/50" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@email.com"
+                    autoComplete="email"
+                    className="flex-1 bg-transparent py-3 text-[15px] outline-none"
+                  />
+                </div>
 
+                <div
+                  className="mt-2 flex items-center gap-2 rounded-xl px-3"
+                  style={{ border: '1px solid rgba(14,58,72,0.18)' }}
+                >
+                  <Lock size={18} className="text-navy/50" />
+                  <input
+                    type={showPw ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password (min 6 characters)"
+                    autoComplete="current-password"
+                    className="flex-1 bg-transparent py-3 text-[15px] outline-none"
+                  />
                   <button
-                    className="mt-4 block w-full text-center text-[13px] font-semibold"
-                    style={{ color: 'var(--coral-dark)' }}
-                    onClick={() => {
-                      setSent(false)
-                      setCode('')
-                    }}
+                    type="button"
+                    onClick={() => setShowPw((v) => !v)}
+                    className="text-navy/45"
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
                   >
-                    Use a different email
+                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-              ) : (
-                <form onSubmit={handleMagicLink}>
-                  <label className="text-[13px] font-semibold text-navy">Sign in with your email</label>
-                  <p className="mb-2 mt-1 text-[13px] text-navy/55">
-                    We'll email you a magic link — tap it on this phone and you're in.
-                  </p>
-                  <div className="flex items-center gap-2 rounded-xl px-3" style={{ border: '1px solid rgba(14,58,72,0.18)' }}>
-                    <Mail size={18} className="text-navy/50" />
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@email.com"
-                      autoComplete="email"
-                      className="flex-1 bg-transparent py-3 text-[15px] outline-none"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={busy}
-                    className="btn-coral mt-3 w-full disabled:opacity-60"
-                  >
-                    Send magic link <ArrowRight size={18} />
-                  </button>
-                </form>
-              )}
+
+                <button type="submit" disabled={busy} className="btn-coral mt-3 w-full disabled:opacity-60">
+                  {busy ? 'Signing in…' : 'Sign in'} <ArrowRight size={18} />
+                </button>
+              </form>
 
               {error && (
                 <p className="mt-3 text-center text-[13px] font-medium" style={{ color: '#b3402a' }}>
@@ -182,8 +183,8 @@ function SeatPicker({
     <div className="rounded-card bg-white p-5 shadow-card">
       <h2 className="font-display text-xl text-navy">Who are you?</h2>
       <p className="mt-1 text-[13px] text-navy/60">
-        Preview mode — pick your seat. (Once the family accounts are set up, you'll sign in with
-        email or a PIN.)
+        Preview mode — pick your seat. (Once the family accounts are set up, you'll sign in with your
+        email and password.)
       </p>
       <div className="mt-4 grid grid-cols-2 gap-2">
         {members.map((m) => (
