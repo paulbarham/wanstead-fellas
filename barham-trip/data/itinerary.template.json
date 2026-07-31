@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "family": "Your Family",
+    "trip": "Trip Name YEAR",
+    "start_date": "2027-07-01",
+    "end_date": "2027-07-10",
+    "travellers": 4,
+    "notes": "One or two sentences setting the scene — who's going, how long, the big themes. Shown on the countdown hero before the trip starts."
+  },
+  "legs": [
+    {
+      "id": "leg1",
+      "num": "01",
+      "title": "First Place",
+      "range": "Thu 1 — Sun 4 Jul",
+      "tagline": "A short, punchy line about this leg.",
+      "notes": "A paragraph of practical notes for this leg — weather, getting around, anything to know.",
+      "ideas": [
+        { "title": "A thing to do here", "note": "One line so people can research it. Tap the map pin opens Google Maps." },
+        { "title": "Another idea", "note": "Optional note." }
+      ],
+      "days": [
+        {
+          "n": 1,
+          "weekday": "Thursday",
+          "date": "1 Jul",
+          "iso_date": "2027-07-01",
+          "title": "Arrival day",
+          "subtitle": "A short subtitle under the title.",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "GENTLE START",
+              "title": "The recommended plan for today",
+              "plan": "What you'd actually do — a paragraph. This is the hero card.",
+              "food": "A food pick for the day."
+            },
+            {
+              "kind": "alternative",
+              "badge": "IF ENERGY'S UP",
+              "title": "An alternative idea",
+              "plan": "A second option shown under the recommended one.",
+              "food": "A food pick for the alternative."
+            }
+          ],
+          "tip": { "label": "Book early", "body": "An optional navy tip callout. Use null if there's no tip." }
+        },
+        {
+          "n": 2,
+          "weekday": "Friday",
+          "date": "2 Jul",
+          "iso_date": "2027-07-02",
+          "title": "Second day",
+          "subtitle": "…",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "MAIN EVENT",
+              "title": "…",
+              "plan": "…",
+              "food": "…"
+            }
+          ],
+          "tip": null
+        }
+      ]
+    }
+  ],
+  "bookings": [
+    { "name": "Flights", "note": "Seats, dates, confirmation ref." },
+    { "name": "Hotel — First Place", "note": "Nights, address, ref." }
+  ],
+  "packing": [
+    { "name": "Passports & travel docs", "note": "All of them, in one folder." },
+    { "name": "Chargers & adapters", "note": "Right plug type for the destination." }
+  ],
+  "costs": [
+    { "item": "Flights", "amount": "£0" },
+    { "item": "Hotels", "amount": "£0" },
+    { "item": "Estimated total", "amount": "£0" }
+  ]
+}

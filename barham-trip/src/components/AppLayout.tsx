@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { Menu, X, PoundSterling, User, Plane, LogOut, Moon, Sun } from 'lucide-react'
 import { meta } from '../lib/itinerary'
+import { APP } from '../config'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
 import BottomTabs from './BottomTabs'
@@ -35,9 +36,9 @@ export default function AppLayout() {
             className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg font-display text-lg font-bold text-white"
             style={{ background: 'var(--coral)' }}
           >
-            B
+            {APP.iconLetter}
           </span>
-          <span className="font-display text-lg leading-tight text-navy">Barham Trip</span>
+          <span className="font-display text-lg leading-tight text-navy">{APP.short}</span>
         </Link>
 
         <button

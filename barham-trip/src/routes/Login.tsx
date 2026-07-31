@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { meta } from '../lib/itinerary'
+import { APP } from '../config'
 import Avatar from '../components/Avatar'
 
 export default function Login() {
@@ -93,9 +94,9 @@ export default function Login() {
             className="mb-5 grid h-16 w-16 place-items-center rounded-2xl font-display text-3xl font-bold"
             style={{ background: 'rgba(255,255,255,0.16)', border: '1px solid rgba(255,255,255,0.3)' }}
           >
-            B
+            {APP.iconLetter}
           </div>
-          <h1 className="font-display text-4xl leading-tight">Barham Family Trip</h1>
+          <h1 className="font-display text-4xl leading-tight">{APP.name}</h1>
           <p className="mt-2 text-[15px] font-medium text-white/85">
             {meta.trip} · six of us, three weeks, one plan.
           </p>
