@@ -7,7 +7,29 @@
 // backend, this store alone (persisted to localStorage) runs the whole app.
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { RsvpChoice } from '../lib/itinerary'
+import { bookings as seedBookings, slugKey, type RsvpChoice } from '../lib/itinerary'
+
+export interface BookingRow {
+  id: string
+  name: string
+  note: string | null
+  sort: number
+  checked: boolean
+  checked_by: string | null
+  checked_at: string | null
+}
+
+/** Initial editable bookings list — seeded from the bundled JSON so the list is
+ *  populated offline / on first load, before the DB (if any) syncs. */
+const initialBookings: BookingRow[] = seedBookings.map((b, i) => ({
+  id: slugKey(b.name),
+  name: b.name,
+  note: b.note,
+  sort: i,
+  checked: false,
+  checked_by: null,
+  checked_at: null,
+}))
 
 export interface BookingTick {
   checked: boolean
@@ -33,6 +55,8 @@ interface LocalState {
   rsvp: Record<string, RsvpChoice>
   // legId -> family-added ideas
   userIdeas: Record<string, UserIdea[]>
+  // editable, shared bookings list
+  bookingsList: BookingRow[]
 
   setBooking: (key: string, tick: BookingTick) => void
   setPacking: (memberId: string, itemKey: string, checked: boolean) => void
@@ -42,6 +66,10 @@ interface LocalState {
   removeUserIdea: (legId: string, id: string) => void
   /** Merge a remote snapshot of a leg's ideas into local state (by id). */
   mergeUserIdeas: (legId: string, ideas: UserIdea[]) => void
+
+  setBookingsList: (rows: BookingRow[]) => void
+  upsertBookingRow: (row: BookingRow) => void
+  removeBookingRow: (id: string) => void
 
   // Bulk hydrate from a remote snapshot (called by hooks on first load).
   hydrateBookings: (rows: Record<string, BookingTick>) => void
@@ -59,6 +87,7 @@ export const useLocalStore = create<LocalState>()(
       packing: {},
       rsvp: {},
       userIdeas: {},
+      bookingsList: initialBookings,
 
       setBooking: (key, tick) =>
         set((s) => ({ bookings: { ...s.bookings, [key]: tick } })),
@@ -94,6 +123,20 @@ export const useLocalStore = create<LocalState>()(
           )
           return { userIdeas: { ...s.userIdeas, [legId]: merged } }
         }),
+
+      setBookingsList: (rows) => set(() => ({ bookingsList: rows })),
+
+      upsertBookingRow: (row) =>
+        set((s) => {
+          const idx = s.bookingsList.findIndex((b) => b.id === row.id)
+          if (idx === -1) return { bookingsList: [...s.bookingsList, row] }
+          const next = s.bookingsList.slice()
+          next[idx] = row
+          return { bookingsList: next }
+        }),
+
+      removeBookingRow: (id) =>
+        set((s) => ({ bookingsList: s.bookingsList.filter((b) => b.id !== id) })),
 
       hydrateBookings: (rows) => set((s) => ({ bookings: { ...s.bookings, ...rows } })),
       hydrateRsvp: (rows) => set((s) => ({ rsvp: { ...s.rsvp, ...rows } })),
