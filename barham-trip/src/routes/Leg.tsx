@@ -1,5 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { ChevronRight, Info } from 'lucide-react'
+import { ChevronRight, ChevronDown, Info, Lightbulb } from 'lucide-react'
 import { getLeg, recommendedOption, legs } from '../lib/itinerary'
 import DayBadge from '../components/DayBadge'
 import LegBanner from '../components/LegBanner'
@@ -14,6 +14,19 @@ export default function Leg() {
   return (
     <div className="space-y-4">
       <LegBanner leg={leg} />
+
+      {/* Shortcut to the ideas board */}
+      <button
+        onClick={() =>
+          document.getElementById('leg-ideas')?.scrollIntoView({ behavior: 'smooth' })
+        }
+        className="flex w-full items-center gap-2.5 rounded-card px-4 py-3 shadow-card active:opacity-90"
+        style={{ background: 'var(--sand-2)', border: '1px solid rgba(224,136,83,0.3)', minHeight: 52 }}
+      >
+        <Lightbulb size={18} style={{ color: 'var(--coral-dark)' }} />
+        <span className="text-[15px] font-semibold text-navy">Things to do in {leg.title}</span>
+        <ChevronDown size={18} className="ml-auto" style={{ color: 'var(--coral-dark)' }} />
+      </button>
 
       {/* Notes callout */}
       <div

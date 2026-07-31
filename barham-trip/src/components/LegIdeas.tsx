@@ -35,8 +35,14 @@ export default function LegIdeas({ leg }: Props) {
 
   return (
     <section
+      id="leg-ideas"
       className="rounded-card p-4 shadow-card"
-      style={{ background: '#fff', border: '1px solid rgba(14,58,72,0.1)', backgroundClip: 'padding-box' }}
+      style={{
+        background: '#fff',
+        border: '1px solid rgba(14,58,72,0.1)',
+        backgroundClip: 'padding-box',
+        scrollMarginTop: 72,
+      }}
     >
       <div className="flex items-center gap-2">
         <Lightbulb size={18} style={{ color: 'var(--coral-dark)' }} />
