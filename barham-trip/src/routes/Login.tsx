@@ -56,12 +56,8 @@ export default function Login() {
 
     // 3. First-time family member → create the account with this password.
     const signUp = await signUpWithPassword(email, password)
-    setBusy(false)
-    if (signUp.needsConfirm) {
-      setError('Almost there — Paul needs to turn off email confirmation in Supabase, then try again.')
-      return
-    }
     if (signUp.error) {
+      setBusy(false)
       setError(
         /already registered/i.test(signUp.error)
           ? 'Wrong password for this account. Try again.'
@@ -69,7 +65,15 @@ export default function Login() {
       )
       return
     }
-    navigate(from, { replace: true })
+
+    // 4. Sign in (accounts are auto-confirmed server-side, so this works right away).
+    const retry = await signInWithPassword(email, password)
+    setBusy(false)
+    if (!retry.error) {
+      navigate(from, { replace: true })
+      return
+    }
+    setError('Account created — tap Sign in once more to finish.')
   }
 
   function pickSeat(id: string) {
