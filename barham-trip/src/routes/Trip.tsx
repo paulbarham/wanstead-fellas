@@ -1,5 +1,6 @@
 import { legs, meta, TOTAL_DAYS } from '../lib/itinerary'
 import LegBanner from '../components/LegBanner'
+import WhosComing from '../components/WhosComing'
 
 export default function Trip() {
   return (
@@ -10,6 +11,8 @@ export default function Trip() {
           {meta.trip} · {TOTAL_DAYS} days · {meta.travellers} of us · five legs up and down the coast.
         </p>
       </div>
+
+      <WhosComing />
 
       <div className="space-y-3">
         {legs.map((leg) => (

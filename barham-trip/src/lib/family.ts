@@ -28,6 +28,23 @@ export const DEFAULT_FAMILY: Member[] = [
   { id: 'seat-niyah', display_name: 'Niyah', avatar_url: null, age_group: 'child', color: '#b5657e', manager_email: 'seat-paul' },
 ]
 
+/** The six travellers, for the "Who's coming" display (independent of who has
+ *  signed in). Tobias & Niyah have no phone and share Dad's. */
+export interface Traveller {
+  name: string
+  color: string
+  note?: string
+}
+
+export const TRAVELLERS: Traveller[] = [
+  { name: 'Dad', color: '#0e3a48' },
+  { name: 'Mum', color: '#4a8896' },
+  { name: 'Marley', color: '#e08853' },
+  { name: 'Mimi', color: '#c86c3a' },
+  { name: 'Tobias', color: '#7a9e5e', note: "on Dad's phone" },
+  { name: 'Niyah', color: '#b5657e', note: "on Dad's phone" },
+]
+
 /** First initial(s) for the avatar dot. */
 export function initials(name: string): string {
   const cleaned = name.replace(/\(.*?\)/g, '').trim()

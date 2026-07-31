@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Lightbulb, Plus, Search, X, Sparkles } from 'lucide-react'
+import { Lightbulb, Plus, MapPin, X, Sparkles } from 'lucide-react'
 import type { Leg } from '../lib/itinerary'
 import { useLegIdeas } from '../hooks/useLegIdeas'
 import { useAuth } from '../hooks/useAuth'
@@ -21,8 +21,8 @@ export default function LegIdeas({ leg }: Props) {
   const nameFor = (id: string | null) =>
     id ? members.find((m) => m.id === id)?.display_name ?? 'Someone' : 'Someone'
 
-  const searchUrl = (t: string) =>
-    `https://www.google.com/search?q=${encodeURIComponent(`${t} ${leg.title}`)}`
+  const mapsUrl = (t: string) =>
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${t}, ${leg.title}`)}`
 
   async function handleAdd(e: FormEvent) {
     e.preventDefault()
@@ -49,7 +49,7 @@ export default function LegIdeas({ leg }: Props) {
         <h3 className="font-display text-lg text-navy">Things to do in {leg.title}</h3>
       </div>
       <p className="mt-1 text-[13px] text-navy/60">
-        Ideas to research — tap the search icon to look one up, or add your own for everyone to see.
+        Ideas to research — tap the map pin to find it, or add your own for everyone to see.
       </p>
 
       {/* Add-your-own */}
@@ -120,14 +120,14 @@ export default function LegIdeas({ leg }: Props) {
                   </div>
                 </div>
                 <a
-                  href={searchUrl(idea.title)}
+                  href={mapsUrl(idea.title)}
                   target="_blank"
                   rel="noreferrer"
                   className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
                   style={{ background: '#fff', border: '1px solid rgba(14,58,72,0.12)' }}
-                  aria-label={`Search ${idea.title}`}
+                  aria-label={`Open ${idea.title} in Maps`}
                 >
-                  <Search size={15} style={{ color: 'var(--navy)' }} />
+                  <MapPin size={15} style={{ color: 'var(--navy)' }} />
                 </a>
                 {member && idea.added_by === member.id && (
                   <button
@@ -158,14 +158,14 @@ export default function LegIdeas({ leg }: Props) {
                   {idea.note && <div className="mt-0.5 text-[13px] leading-snug text-navy/65">{idea.note}</div>}
                 </div>
                 <a
-                  href={searchUrl(idea.title)}
+                  href={mapsUrl(idea.title)}
                   target="_blank"
                   rel="noreferrer"
                   className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
                   style={{ background: 'var(--sand-2)' }}
-                  aria-label={`Search ${idea.title}`}
+                  aria-label={`Open ${idea.title} in Maps`}
                 >
-                  <Search size={15} style={{ color: 'var(--coral-dark)' }} />
+                  <MapPin size={15} style={{ color: 'var(--coral-dark)' }} />
                 </a>
               </li>
             ))}
