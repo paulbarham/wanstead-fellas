@@ -213,6 +213,8 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, pred
               <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>W</th>
               <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>D</th>
               <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>L</th>
+              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>F</th>
+              <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>A</th>
               <th className="px-2 py-2 font-semibold" style={{ letterSpacing: '0.06em' }}>GD</th>
               <th className="px-2 py-2 font-semibold" style={{ color: 'var(--tt-yellow)', letterSpacing: '0.06em' }}>PTS</th>
             </tr>
@@ -234,6 +236,8 @@ function FourTeamResult({ teams, fixtures, scorersByFixture, legacyScorers, pred
                   <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.won}</td>
                   <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.drawn}</td>
                   <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.lost}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.gf}</td>
+                  <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.ga}</td>
                   <td className="px-2 py-2.5 text-center" style={{ color: mutedColor }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
                   <td className="px-2 py-2.5 text-center" style={{ color: isLeader ? 'var(--tt-yellow)' : 'var(--tt-cyan)', fontWeight: 700 }}>
                     {row.pts}

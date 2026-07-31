@@ -359,6 +359,9 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
 
   function ScoreStepper({ fixtureId, field, value }: { fixtureId: string; field: 'score1' | 'score2'; value: number | null }) {
     const current = value ?? 0
+    // Disable "−" at 0 so a stray tap doesn't fall into updateFixtureScore's
+    // eager-clear branch (both-effectively-zero) and nuke a real 0-0 draw.
+    const decDisabled = current === 0
     return (
       <div
         className="flex items-center gap-1.5 rounded-lg px-1.5 py-1"
@@ -367,8 +370,15 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
         <button
           type="button"
           onClick={() => updateFixtureScore(fixtureId, field, String(Math.max(0, current - 1)))}
+          disabled={decDisabled}
           className="w-7 h-7 rounded flex items-center justify-center"
-          style={{ color: 'var(--tt-yellow)', fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, background: 'transparent' }}
+          style={{
+            color: decDisabled ? 'var(--color-text-muted)' : 'var(--tt-yellow)',
+            fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700,
+            background: 'transparent',
+            opacity: decDisabled ? 0.35 : 1,
+            cursor: decDisabled ? 'default' : 'pointer',
+          }}
           aria-label="Decrement"
         >
           −
@@ -390,6 +400,24 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
         </button>
       </div>
     )
+  }
+
+  // Explicit "record a 0-0 draw" — bypasses the eager-clear logic in
+  // updateFixtureScore that treats both-zero as a fresh reset. Shown as a
+  // dedicated pill next to the fixture only when neither side has been
+  // scored yet. Documented in commit — the trade-off in updateFixtureScore
+  // was flagged as needing exactly this affordance.
+  async function markZeroZero(fixtureId: string) {
+    setFixtures(prev => prev.map(f => f.id === fixtureId ? { ...f, score1: 0, score2: 0, shootout_winner: null } : f))
+    setScoreError(null)
+    setFixtureScorers(prev => ({
+      ...prev,
+      [fixtureId]: { team1: [], team2: [] },
+    }))
+    const { error } = await supabase.from('fixtures')
+      .update({ score1: 0, score2: 0, shootout_winner: null })
+      .eq('id', fixtureId)
+    if (error) setScoreError(`0-0 not saved: ${error.message}`)
   }
 
   async function updateFixtureScore(fixtureId: string, field: 'score1' | 'score2', value: string) {
@@ -886,6 +914,18 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
                     <ScoreStepper fixtureId={f.id} field="score2" value={f.score2} />
                     <span className="flex-1 text-sm" style={{ color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                   </div>
+                  {f.score1 == null && f.score2 == null && (
+                    <div className="text-center mt-1">
+                      <button
+                        type="button"
+                        onClick={() => markZeroZero(f.id)}
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                        style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', border: '1px solid var(--color-border)', background: 'transparent' }}
+                      >
+                        Record 0–0 draw
+                      </button>
+                    </div>
+                  )}
                   {renderFixtureScorers(f.id, f.team1, f.team2)}
                   {renderPenalties(f)}
                 </div>
@@ -938,6 +978,8 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>W</th>
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>D</th>
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>L</th>
+                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>F</th>
+                    <th className="px-2 py-2 text-center font-medium" style={{ width: 30 }}>A</th>
                     <th className="px-2 py-2 text-center font-medium" style={{ width: 40 }}>GD</th>
                     <th className="px-2 py-2 text-center font-bold" style={{ width: 40, color: 'var(--color-text)' }}>Pts</th>
                   </tr>
@@ -951,6 +993,8 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
                       <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.won}</td>
                       <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.drawn}</td>
                       <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.lost}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.gf}</td>
+                      <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.ga}</td>
                       <td className="px-2 py-2.5 text-center" style={{ color: 'var(--color-text-muted)' }}>{row.gf - row.ga >= 0 ? `+${row.gf - row.ga}` : row.gf - row.ga}</td>
                       <td className="px-2 py-2.5 text-center font-bold" style={{ color: 'var(--color-text)' }}>{row.pts}</td>
                     </tr>
@@ -976,6 +1020,18 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
                       <ScoreStepper fixtureId={f.id} field="score2" value={f.score2} />
                       <span className="flex-1 text-xs" style={{ color: 'var(--color-text)' }}>{stripFC(f.team2?.name)}</span>
                     </div>
+                    {f.score1 == null && f.score2 == null && (
+                      <div className="text-center mt-1">
+                        <button
+                          type="button"
+                          onClick={() => markZeroZero(f.id)}
+                          className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                          style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', border: '1px solid var(--color-border)', background: 'transparent' }}
+                        >
+                          Record 0–0 draw
+                        </button>
+                      </div>
+                    )}
                     {renderFixtureScorers(f.id, f.team1, f.team2)}
                     {renderPenalties(f)}
                   </div>
