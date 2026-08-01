@@ -66,6 +66,7 @@
   h2::before { content: "▶ "; color: #FF66CC; }
   h2.mow::before { content: "🎯 "; }
   h2.season::before { content: "📋 "; }
+  h2.rossini::before { content: "🤖 "; }
   h3 {
     font-family: 'Arial Black', 'Helvetica', sans-serif;
     color: #4ADC7A; font-size: 10.5pt;
@@ -90,7 +91,6 @@
   .callout.pink  { background: rgba(255,102,204,0.08); border-left-color: #FF66CC; }
   .callout.yellow{ background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
 
-  /* Two-game tile row */
   .games {
     display: table; width: 100%;
     border-spacing: 8pt 0; margin: 6pt 0;
@@ -124,7 +124,6 @@
     margin-top: 6pt; display: block;
   }
 
-  /* Fixture pill for MoW mock */
   .fixture {
     background: #15211A;
     border: 1px solid #2D4A2F;
@@ -139,9 +138,7 @@
     text-transform: uppercase; color: #4AD9FF;
     display: block; margin-bottom: 4pt;
   }
-  .fixture .teams {
-    font-size: 11pt; color: #E8F0E9;
-  }
+  .fixture .teams { font-size: 11pt; color: #E8F0E9; }
   .fixture .score {
     font-family: 'Arial Black', sans-serif;
     font-size: 14pt; color: #FFD400;
@@ -153,7 +150,6 @@
     margin-top: 4pt; letter-spacing: 0.06em;
   }
 
-  /* Scoring key row */
   .score-key {
     display: table; width: 100%;
     background: #15211A; border: 1px solid #2D4A2F;
@@ -168,12 +164,37 @@
   }
   .score-key .val {
     font-family: 'Arial Black', sans-serif;
-    font-size: 14pt;
-    display: block;
+    font-size: 14pt; display: block;
   }
   .score-key .val.y { color: #FFD400; }
   .score-key .val.c { color: #4AD9FF; }
   .score-key .val.m { color: #9CA897; }
+
+  /* Rossini tile */
+  .bot {
+    background: #15211A;
+    border: 1.5pt dashed #FF66CC;
+    border-radius: 10pt;
+    padding: 10pt 14pt;
+    margin: 8pt 0;
+    display: table; width: 100%;
+  }
+  .bot .avatar {
+    display: table-cell;
+    width: 42pt; vertical-align: middle;
+    font-size: 26pt; text-align: center;
+    color: #FF66CC;
+  }
+  .bot .body {
+    display: table-cell; vertical-align: middle;
+    padding-left: 10pt;
+  }
+  .bot .body .name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 12pt; color: #FF66CC;
+    margin-bottom: 2pt;
+  }
+  .bot .body p { font-size: 9.5pt; color: #E8F0E9; margin: 0; }
 
   /* Season Card markets table */
   table.markets {
@@ -210,7 +231,6 @@
     width: 20%;
   }
 
-  /* Timeline */
   .flow {
     background: #15211A;
     border: 1px solid #2D4A2F;
@@ -282,7 +302,7 @@
 </div>
 
 <div class="callout">
-  <strong>TL;DR</strong> — Two new season-long games are live in the <span class="kbd">🎯 Predictor</span> tab. <em>Match of the Week</em> lands every Monday morning with one auto-picked fixture and takes 10 seconds to play. <em>Season Card</em> is a one-off form of 7 season-long predictions that locks 1h before the PL opener on <strong>Fri 21 Aug 19:00</strong> — get in early. Free to play, bragging rights only.
+  <strong>TL;DR</strong> — Two new games sitting under the <span class="kbd">🎯 Predictor</span> tab, both free to play, both live now. <em>Match of the Week</em> serves up one random PL / Championship fixture every Monday morning, pick a scoreline before kickoff. <em>Season Card</em> is 7 season-long calls you make once, before the PL opener on <strong>Fri 21 Aug 19:00</strong>. And <strong>Rossini</strong> — our house bot — is playing along in MoW, so the weekly running battle is fella vs machine.
 </div>
 
 <h2>The two games at a glance</h2>
@@ -291,13 +311,13 @@
   <div class="g mow">
     <span class="emoji">🎯</span>
     <div class="name">Match of the Week</div>
-    <p>One PL / Championship fixture per week, <strong>auto-picked</strong> by which teams the group supports. Pick a scoreline before kickoff. Everyone plays.</p>
-    <span class="cap">Weekly · 10 seconds to play</span>
+    <p>One random Premier League or Championship fixture per week. Pick a scoreline before kickoff. Everyone plays, running leaderboard all season.</p>
+    <span class="cap">Weekly · quick pick</span>
   </div>
   <div class="g season">
     <span class="emoji">📋</span>
     <div class="name">Season Card</div>
-    <p>A one-off form of <strong>7 season-long predictions</strong>. Fill it in once before the season, we score it as each market resolves through the year.</p>
+    <p>Seven season-long predictions — Champion, top 4, relegated, Golden Boot, Playmaker, first sacked, and who comes up from the Championship. One form, locks 21 Aug.</p>
     <span class="cap">Once · locks 21 Aug</span>
   </div>
 </div>
@@ -306,18 +326,18 @@
 
 <h2 class="mow">Match of the Week</h2>
 
-<p>Every Monday morning, the app auto-picks a marquee fixture from the coming weekend. It weights the pick by <em>favourite_club</em> affinity — a Millwall fan's derby beats a random 3pm kickoff — with a "recently-picked" penalty so West Ham fixtures don't dominate every week. You pick a scoreline; it locks at kickoff.</p>
+<p>Every Monday morning, the app pulls a random game out of the coming weekend's Premier League + Championship fixture list. No favouritism, no algorithm nudging it towards West Ham fixtures because most of us follow them — just a straight-up random draw. You pick a scoreline before kickoff. The result comes in on Monday, points land in the leaderboard.</p>
 
-<h3>Example — the first two picks</h3>
+<h3>The first two picks</h3>
 
 <div class="fixture">
-  <span class="cap">🎯 Week of 10 Aug · Championship opener</span>
+  <span class="cap">🎯 Week of 10 Aug · The season starts here</span>
   <div class="teams">Burnley <span class="score">v</span> West Ham</div>
-  <span class="ko">Sat 16 Aug · 15:00</span>
+  <span class="ko">Sat 16 Aug · 15:00 · Championship opener</span>
 </div>
 
 <div class="fixture">
-  <span class="cap">🎯 Week of 17 Aug · PL opener weekend</span>
+  <span class="cap">🎯 Week of 17 Aug · PL is back</span>
   <div class="teams">Brentford <span class="score">v</span> Tottenham</div>
   <span class="ko">Sat 22 Aug · 17:30</span>
 </div>
@@ -339,24 +359,34 @@
   </div>
 </div>
 
+<h2 class="rossini">Rossini — the house bot</h2>
+
+<div class="bot">
+  <div class="avatar">🤖</div>
+  <div class="body">
+    <div class="name">ROSSINI</div>
+    <p>New name on the picks list. Rossini is a bot — every week he'll drop his own scoreline in alongside the rest of us. The season-long battle we're really watching: <strong>can any human keep up with the machine over 38 weeks</strong>. Beat him and you get bragging rights that don't need a leaderboard. His first two picks are already in — <strong>0-2 West Ham</strong> and <strong>2-2 Brentford v Spurs</strong>.</p>
+  </div>
+</div>
+
 <h3>Weekly rhythm</h3>
 
 <div class="flow">
   <div class="step">
-    <div class="when">Mon 08:00</div>
-    <div class="what"><strong>Fixture drops.</strong> Push notification to everyone — "🎯 This week's MoW is X v Y, kicks off Sat 17:30. Get your pick in."</div>
+    <div class="when">Mon 08:00 UK</div>
+    <div class="what"><strong>Fixture drops.</strong> Push notification fires — "🎯 This week's MoW is X v Y, kicks off Sat 17:30." Rossini's pick goes in a few minutes later.</div>
   </div>
   <div class="step">
-    <div class="when">Mon – Kickoff</div>
-    <div class="what"><strong>Picks open.</strong> Tap +/− steppers to set both scores, hit Submit. Change your mind any time before kickoff.</div>
+    <div class="when">Mon → kickoff</div>
+    <div class="what"><strong>Picks open.</strong> Tap +/− to set both scores, hit Submit. Change your mind any time before kickoff.</div>
   </div>
   <div class="step">
     <div class="when">Kickoff → FT</div>
-    <div class="what"><strong>Locked.</strong> Panel shows your pick + everyone else's who got in. Awaiting the result.</div>
+    <div class="what"><strong>Locked.</strong> Panel shows every fella's pick (Rossini's included). Awaiting the result.</div>
   </div>
   <div class="step">
     <div class="when">Mon after</div>
-    <div class="what"><strong>Result poll runs</strong> against football-data.org, points cascade automatically, "🎯 Result in — you got X pts" push fires. Season leaderboard updates.</div>
+    <div class="what"><strong>Result poll runs</strong> against football-data.org, points cascade automatically, "🎯 Result in — you got X pts" push fires. Season leaderboard shuffles.</div>
   </div>
 </div>
 
@@ -364,7 +394,7 @@
 
 <h2 class="season">Season Card</h2>
 
-<p>The season-long predictor. <strong>Seven markets, one form, fill it in once.</strong> The card locks 1h before the PL opener on <strong>Fri 21 Aug 19:00 UK</strong>, then reopens for a <strong>2-day edit window on 2-4 Sept</strong> so you can react to the summer transfer window. After that, locked for the year.</p>
+<p>The season-long predictor. <strong>Seven markets, one form, fill it in once.</strong> Locks 1h before the PL opener on <strong>Fri 21 Aug 19:00 UK</strong>, then reopens for a <strong>2-day edit window on 2-4 Sept</strong> so you can rework calls after the summer transfer window slams shut. After that, sealed for the year.</p>
 
 <h3>The seven markets</h3>
 
@@ -378,33 +408,29 @@
   </thead>
   <tbody>
     <tr><td class="k">Premier League Champion</td>       <td style="text-align:center;">1 club</td> <td class="p">10</td></tr>
-    <tr><td class="k">Top 4 — Places 2/3/4</td>          <td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
-    <tr><td class="k">Relegated — 18/19/20</td>          <td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
+    <tr><td class="k">Top 4 — Places 2 / 3 / 4</td>      <td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
+    <tr><td class="k">Relegated — 18 / 19 / 20</td>      <td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
     <tr><td class="k">Golden Boot</td>                    <td style="text-align:center;">1 player</td> <td class="p">10</td></tr>
     <tr><td class="k">Playmaker (most assists)</td>       <td style="text-align:center;">1 player</td> <td class="p">15</td></tr>
     <tr><td class="k">First manager sacked</td>           <td style="text-align:center;">1 manager</td> <td class="p">10</td></tr>
-    <tr><td class="k">Championship promoted (Ch/Ru/PO)</td><td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
+    <tr><td class="k">Championship promoted</td><td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
   </tbody>
 </table>
 
-<p style="margin-top:8pt;font-size:9.5pt;color:#9CA897;">Ordered slots: <strong>3 pts</strong> if the exact team is in the exact slot, <strong>1 pt</strong> if you had the right team in the wrong slot. Max <strong>72 pts</strong> for a clean-sheet season.</p>
+<p style="margin-top:6pt;font-size:9.5pt;color:#9CA897;">Ordered slots: <strong>3 pts</strong> for the right team in the right slot, <strong>1 pt</strong> for the right team in the wrong slot. Season ceiling before the bonus: <strong>72 pts</strong>.</p>
 
 <div class="callout yellow">
-  <strong>🏆 Grand-slam bonus: +25 pts</strong> if you somehow get <em>every</em> market at max points. Silly-hard, but the reward is there. Season ceiling: <strong>97 pts</strong>.
+  <strong>🏆 Grand-slam bonus: +25 pts</strong> if you somehow call every single market at max points. Basically impossible, but the prize is there. Full-season ceiling: <strong>97 pts</strong>.
 </div>
 
-<h3>How you pick</h3>
+<h3>Picking</h3>
 
-<ul>
-  <li>Each market opens a <strong>bottom-sheet picker</strong> — searchable, shows club crests, favourites-first for clubs, alphabetical + type-to-search for the ~500 PL players.</li>
-  <li>Auto-saves as you go. No big Submit button — every pick writes immediately.</li>
-  <li>Header shows a live countdown to lock and a running <strong>N/13 picked</strong> tally so you can see how complete your card is.</li>
-</ul>
+<p>Each market opens a bottom-up picker with a search box and club crests. Clubs are ordered favourites-first; the ~500 PL players are alphabetical — type "hal" for Haaland, "amo" for Amorim. Everything auto-saves as you go — no big Submit button.</p>
 
 <h3>Who picked who?</h3>
 
 <div class="callout cyan">
-  <strong>Private until lock, public after.</strong> Before Fri 21 Aug, only you see your picks — nobody's copying anyone. Once the lock fires, each market shows a <span class="kbd">👥 N picks</span> chip that opens a bottom-sheet with every fella's pick + a consensus strip (🥇🥈🥉 top 3 most-backed options). All season, the debates keep running.
+  <strong>Private until lock, public after.</strong> Before Fri 21 Aug, only you see your picks — nobody's copying anyone. Once the lock fires, each market gets a <span class="kbd">👥 N picks</span> chip that opens up every fella's card + a top-3 consensus strip (🥇🥈🥉). All season, the debates keep running.
 </div>
 
 <h3>Season timeline</h3>
@@ -412,19 +438,19 @@
 <div class="flow">
   <div class="step">
     <div class="when">Now → Fri 21 Aug</div>
-    <div class="what"><strong>Card open.</strong> Pick your 7 markets whenever. Bring your best takes.</div>
+    <div class="what"><strong>Card open.</strong> Fill in your 7 markets whenever. Bring your best takes.</div>
   </div>
   <div class="step">
     <div class="when">Fri 21 Aug 19:00</div>
-    <div class="what"><strong>Card locks.</strong> 1h before the PL opener kicks off. Public visibility flips on — everyone can see everyone's picks.</div>
+    <div class="what"><strong>Card locks</strong> 1h before the PL opener. Public visibility flips on — everyone can see everyone's picks.</div>
   </div>
   <div class="step">
     <div class="when">2–4 Sept</div>
-    <div class="what"><strong>Edit window.</strong> 2 days after the summer transfer window closes — swap Golden Boot picks if their move fell through, rethink first-sacked, etc.</div>
+    <div class="what"><strong>Edit window reopens.</strong> Two days after the summer transfer window closes. Swap the Golden Boot pick if their move fell through, rethink first-sacked, etc.</div>
   </div>
   <div class="step">
     <div class="when">Nov onwards</div>
-    <div class="what"><strong>Markets resolve rolling.</strong> First-sacked usually first (Nov / Dec), Championship promoted in May, Golden Boot / Playmaker / PL Winner in May. Points land in the leaderboard as each one settles.</div>
+    <div class="what"><strong>Markets settle rolling.</strong> First-sacked usually first, then Championship promoted in May, then Golden Boot / Playmaker / PL winner. Points land as each one resolves.</div>
   </div>
 </div>
 
@@ -433,19 +459,19 @@
 <h2>How to play — 30 seconds</h2>
 
 <ol style="font-size:10pt;">
-  <li>Open the Wanstead Fellas app → tap <span class="kbd">🎯 Predictor</span> on the bottom nav.</li>
-  <li>Two tabs at the top: <strong>Match of the Week</strong> (default) and <strong>Season Card</strong>. World Cup archive lives to the right of them.</li>
-  <li><strong>MoW</strong>: tap +/− to set both scores, hit Submit. Done in 10 seconds. Comes back to you next Monday.</li>
-  <li><strong>Season Card</strong>: tap each of the 7 markets, use the searchable pickers. Auto-saves as you go. Bring it back before <strong>Fri 21 Aug 19:00</strong>.</li>
+  <li>Open the app → tap <span class="kbd">🎯 Predictor</span> on the bottom nav.</li>
+  <li>Two tabs at the top: <strong>Match of the Week</strong> (default) and <strong>Season Card</strong>. World Cup archive lives quietly to the right.</li>
+  <li><strong>MoW</strong>: tap +/− to set both scores, Submit. Back to you next Monday.</li>
+  <li><strong>Season Card</strong>: tap each of the 7 markets, use the search-y pickers, done. Bring it back before <strong>Fri 21 Aug 19:00</strong>.</li>
   <li>Notifications opt-in on the Tonight tab if you haven't already — that's how you'll hear when picks open, lock, and settle.</li>
 </ol>
 
 <div class="callout pink">
-  <strong>Free to play.</strong> No stakes, no fines for wrong picks, no admin. Bragging rights only. If it takes off, we'll talk about a stake for 2027-28.
+  <strong>Free to play.</strong> No stakes, no fines for wrong picks. Bragging rights only. If it takes off, we'll talk about a proper stake for 2027-28.
 </div>
 
 <div class="closer">
-  📟 GAMES LIVE · MOW WEEKLY · SEASON CARD LOCKS FRI 21 AUG 19:00 UK · GET STUCK IN
+  📟 GAMES LIVE · MOW DROPS EVERY MONDAY · SEASON CARD LOCKS FRI 21 AUG 19:00 UK · BEAT ROSSINI
 </div>
 
 </body>

@@ -716,8 +716,8 @@ function PreviewCard() {
           Match of the Week
         </h2>
         <p className="text-sm mt-2 mx-auto" style={{ color: 'var(--color-text-muted)', maxWidth: 320 }}>
-          Next fixture drops Monday morning. Auto-picked from the weekend slate,
-          weighted by which club you support.
+          Next fixture drops Monday morning — one random PL or Championship game
+          from the coming weekend. Nobody knows what's coming.
         </p>
       </div>
       <div className="px-4 py-3"

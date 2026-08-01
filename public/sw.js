@@ -1,10 +1,10 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v38 — World Cup tab archived. Predictor tab now defaults to
-// Match of the Week (was WC while the tournament was live), MoW /
-// Season Card / World Cup tab order (was WC first), and the WC tab
-// carries a "DONE" pill + dashed border + dimmed opacity to signal
-// it's the archive.
-const CACHE = 'wf-v38'
+// Bumped to v39 — MoW picker rewritten to pure random selection from
+// PL + Championship (was: affinity-weighted by favourite_club + recency
+// penalty). Simpler, fairer, more surprising — user's call. PreviewCard
+// copy updated to match ("one random PL or Championship game from the
+// coming weekend"). No client build change other than the copy line.
+const CACHE = 'wf-v39'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
