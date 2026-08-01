@@ -1,10 +1,10 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v41 — MoW picker announce shifted to Friday morning as part
-// of the match report drop (was Mon 08:00 UTC → now Fri 08:00 UTC via
-// mig 072). MatchReport body now embeds a "🎯 This weekend's MoW"
-// callout that auto-hides once the fixture kicks off, so the announce
-// lives inside the report the group already reads on Fridays.
-const CACHE = 'wf-v41'
+// Bumped to v42 — MoW picks now hidden from everyone else until kickoff
+// (so nobody can copy the fella who submitted first). PreviewCard + primer
+// copy also updated: "results Monday morning" was misleading with midweek
+// MoWs on the table — settle actually runs after the fixture is played,
+// which is usually Monday but occasionally Tue/Wed.
+const CACHE = 'wf-v42'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

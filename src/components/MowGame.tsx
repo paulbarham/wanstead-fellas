@@ -10,9 +10,10 @@ import ClubBadge from './ClubBadge'
 //
 // State machine:
 //   loading      → skeleton
-//   pre_pick     → no fixture published yet this week ("drops Monday morning")
-//   open         → fixture published, kickoff in future, score picker live
-//   locked       → past kickoff, no result → "awaiting result"
+//   pre_pick     → no fixture published yet this week (picker fires Fri 08:00 UTC)
+//   open         → fixture published, kickoff in future, score picker live,
+//                  everyone's picks stay hidden ("🔒 revealed at kickoff")
+//   locked       → past kickoff, no result → "awaiting result", picks visible
 //   settled      → result in → shows final score, my points, weekly board
 
 const TT_YELLOW = 'var(--tt-yellow)'
@@ -538,9 +539,14 @@ function WeeklyLeaderboard({ rows, meId, phase, homeClub, awayClub }: {
       </div>
     )
   }
+  // Picks stay hidden until kickoff — otherwise a late-picker can copy an
+  // earlier one, or someone just watching the list gets a spoiler on the
+  // group's consensus. Once phase flips to 'locked' everyone's pick is
+  // baked in and safe to reveal.
+  if (phase === 'open') return <OpenPicksList rows={rows} meId={meId} />
   // Order:
   //   Settled → by points desc (already sorted by the view)
-  //   Open/Locked → by name (points don't exist yet, hide the column)
+  //   Locked  → by name (points don't exist yet, hide the column)
   const showPoints = phase === 'settled'
   const sorted = showPoints ? rows : [...rows].sort((a, b) => a.display_name.localeCompare(b.display_name))
 
@@ -636,6 +642,67 @@ function WeeklyLeaderboard({ rows, meId, phase, homeClub, awayClub }: {
                   {pts != null ? `+${pts}` : '—'}
                 </span>
               )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ── Open-phase pick list — names only, no scoreline reveal ─────────────────
+// Pre-kickoff view of who's already locked a pick in. Deliberately does not
+// leak scorelines, winners or even a hint at consensus — reveal happens at
+// kickoff (phase → 'locked') when nobody can copy anyone else's pick.
+function OpenPicksList({ rows, meId }: { rows: WeeklyRow[]; meId: string | undefined }) {
+  const sorted = [...rows].sort((a, b) => a.display_name.localeCompare(b.display_name))
+  return (
+    <div className="rounded-xl"
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        backgroundClip: 'padding-box',
+      }}>
+      <div className="px-4 py-2 flex items-center justify-between gap-3"
+        style={{
+          borderTopLeftRadius: 11, borderTopRightRadius: 11,
+          borderBottom: '1px solid var(--color-border)',
+          background: 'var(--color-surface-2, var(--color-bg))',
+          fontFamily: MONO,
+        }}>
+        <span className="text-[10px] uppercase tracking-wide font-semibold min-w-0 truncate" style={{ color: TT_CYAN }}>
+          {rows.length} pick{rows.length === 1 ? '' : 's'} in
+        </span>
+        <span className="text-[10px] flex-shrink-0 whitespace-nowrap" style={{ color: TT_MAGENTA }}>
+          🔒 REVEALED AT KICKOFF
+        </span>
+      </div>
+      <div style={{
+        maxHeight: 320,
+        overflowY: 'auto',
+        borderBottomLeftRadius: 11,
+        borderBottomRightRadius: 11,
+      }}>
+        {sorted.map((r, i) => {
+          const isMe = r.player_id === meId
+          return (
+            <div key={r.player_id}
+              className="flex items-center justify-between px-5 py-2"
+              style={{
+                borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
+                background: isMe ? 'rgba(125,211,252,0.10)' : 'transparent',
+                fontSize: 13,
+              }}
+            >
+              <span className="truncate min-w-0" style={{
+                color: isMe ? TT_CYAN : 'var(--color-text)', fontWeight: isMe ? 700 : 400,
+              }}>{r.display_name}</span>
+              <span style={{
+                fontFamily: MONO, fontSize: 11, color: 'var(--color-text-muted)',
+                letterSpacing: '0.05em',
+              }}>
+                {isMe ? '✓ IN' : '🔒'}
+              </span>
             </div>
           )
         })}
@@ -740,7 +807,7 @@ function SeasonLeaderboard({ rows, meId }: { rows: SeasonRow[]; meId: string | u
   )
 }
 
-// ── No-fixture-yet preview (holds shape until Monday's picker fires) ──────
+// ── No-fixture-yet preview (holds shape until Friday's picker fires) ──────
 function PreviewCard() {
   return (
     <div className="mt-2 rounded-xl"
@@ -760,8 +827,9 @@ function PreviewCard() {
           Match of the Week
         </h2>
         <p className="text-sm mt-2 mx-auto" style={{ color: 'var(--color-text-muted)', maxWidth: 320 }}>
-          Next fixture drops Monday morning — one random PL or Championship game
-          from the coming weekend. Nobody knows what's coming.
+          Next fixture drops Friday morning with the match report — one random
+          PL or Championship game from the coming weekend. Nobody knows what's
+          coming.
         </p>
       </div>
       <div className="px-4 py-3"
@@ -776,9 +844,10 @@ function PreviewCard() {
         </p>
         <ul className="space-y-1.5">
           {[
-            'One PL / Championship fixture per week, published Monday',
-            'Pick a scoreline before kickoff',
+            'One PL / Championship fixture per week, published Friday',
+            'Pick a scoreline before kickoff — picks stay hidden until then',
             '5 pts exact · 3 pts right result · 0 wrong',
+            'Points settle once the fixture is played',
             'Running season leaderboard — bragging rights only',
           ].map((line, i) => (
             <li key={i} className="text-xs flex items-start gap-2" style={{ color: 'var(--color-text)' }}>
