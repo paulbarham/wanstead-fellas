@@ -13,12 +13,7 @@ name: Monthly stats round-up
 on:
   schedule:
     - cron: '0 6 1 * *'
-  workflow_dispatch:
-    inputs:
-      month:
-        description: 'Month to render (YYYY-MM). Leave empty for previous month.'
-        required: false
-        type: string
+    workflow_dispatch:
 
 permissions:
   contents: write
