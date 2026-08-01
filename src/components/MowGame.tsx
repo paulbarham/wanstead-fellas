@@ -80,19 +80,48 @@ export default function MowGame() {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    // The latest MoW row IS this week's fixture (there's at most one per
-    // week_start). Ordering by week_start desc gets the newest.
-    const { data: mowRow } = await supabase
+    // "Current MoW" = whichever fixture the group is looking at right now.
+    // Two-pass:
+    //   1. Latest MoW whose week_start is on-or-before this Monday
+    //      (i.e. this week's or a recent past one that hasn't rolled over).
+    //   2. If none, the earliest upcoming (e.g. today is 1 Aug and MoWs
+    //      pre-picked for 10 Aug + 17 Aug — show the 10 Aug one).
+    // Sorting purely by week_start DESC surfaces the FURTHEST-future row
+    // when multiple future picks exist, which is wrong for that early-
+    // season case.
+    const today = new Date()
+    const utc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()))
+    const dow = utc.getUTCDay() || 7
+    utc.setUTCDate(utc.getUTCDate() - (dow - 1))
+    const thisMondayIso = utc.toISOString().slice(0, 10)
+
+    const { data: currentOrPast } = await supabase
       .from('mow_fixtures')
       .select('id, week_start, pool_fixture_id, pick_note, published_at')
+      .lte('week_start', thisMondayIso)
       .order('week_start', { ascending: false })
       .limit(1)
       .maybeSingle()
-    const m = mowRow as MowFixture | null
+
+    let mowRow = currentOrPast as MowFixture | null
+    if (!mowRow) {
+      const { data: upcoming } = await supabase
+        .from('mow_fixtures')
+        .select('id, week_start, pool_fixture_id, pick_note, published_at')
+        .gt('week_start', thisMondayIso)
+        .order('week_start', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+      mowRow = upcoming as MowFixture | null
+    }
+    const m = mowRow
     setMow(m)
     if (!m) { setLoading(false); return }
 
-    const [{ data: poolRow }, { data: pickRow }, { data: lbRows }, { data: seasonRows }] = await Promise.all([
+    // Weekly leaderboard: fetch predictions for THIS mow_fixture directly
+    // (the v_mow_weekly_leaderboard view hardcodes "latest week_start" and
+    // wouldn't match when we're showing a pre-picked upcoming fixture).
+    const [{ data: poolRow }, { data: pickRow }, { data: allPicks }, { data: seasonRows }] = await Promise.all([
       supabase.from('mow_pool_fixtures')
         .select('id, competition, home_club, away_club, kickoff_at, home_score, away_score')
         .eq('id', m.pool_fixture_id).maybeSingle(),
@@ -101,14 +130,29 @@ export default function MowGame() {
             .select('id, mow_fixture_id, player_id, home_score, away_score, points_awarded')
             .eq('mow_fixture_id', m.id).eq('player_id', profile.id).maybeSingle()
         : Promise.resolve({ data: null }),
-      supabase.from('v_mow_weekly_leaderboard')
-        .select('player_id, display_name, home_score, away_score, points_awarded'),
+      supabase.from('mow_predictions')
+        .select('player_id, home_score, away_score, points_awarded, player:profiles(name, surname)')
+        .eq('mow_fixture_id', m.id),
       supabase.from('v_mow_season_leaderboard')
         .select('player_id, display_name, picks_settled, total_pts, exact_count, result_only_count, wrong_count'),
     ])
     setPool(poolRow as PoolFixture | null)
     setMyPick(pickRow as MowPrediction | null)
-    setWeekly((lbRows as WeeklyRow[]) ?? [])
+    // Flatten profile join into a display_name to match WeeklyRow shape.
+    const flat: WeeklyRow[] = ((allPicks as unknown as Array<{
+      player_id: string; home_score: number; away_score: number; points_awarded: number | null
+      player: { name: string; surname: string | null } | Array<{ name: string; surname: string | null }> | null
+    }>) ?? []).map(row => {
+      const p = Array.isArray(row.player) ? row.player[0] : row.player
+      return {
+        player_id: row.player_id,
+        display_name: p ? `${p.name} ${p.surname ?? ''}`.trim() : '—',
+        home_score: row.home_score,
+        away_score: row.away_score,
+        points_awarded: row.points_awarded,
+      }
+    }).sort((a, b) => (b.points_awarded ?? -1) - (a.points_awarded ?? -1))
+    setWeekly(flat)
     setSeason((seasonRows as SeasonRow[]) ?? [])
     setLoading(false)
   }, [profile?.id])

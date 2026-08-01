@@ -1,10 +1,13 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v39 — MoW picker rewritten to pure random selection from
-// PL + Championship (was: affinity-weighted by favourite_club + recency
-// penalty). Simpler, fairer, more surprising — user's call. PreviewCard
-// copy updated to match ("one random PL or Championship game from the
-// coming weekend"). No client build change other than the copy line.
-const CACHE = 'wf-v39'
+// Bumped to v40 — MoW client now surfaces the NEXT-UP fixture rather
+// than the furthest-future one. Was: ORDER BY week_start DESC LIMIT 1
+// which showed Aug 17 Brentford v Tottenham while Aug 10 Burnley v West
+// Ham was still to be played. New: two-pass — latest current-or-past
+// week; fall back to earliest upcoming. Weekly picks list also
+// switched from the v_mow_weekly_leaderboard view (which had the same
+// "latest week" hardcode) to a direct query on mow_predictions
+// filtered by the resolved current fixture id.
+const CACHE = 'wf-v40'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
