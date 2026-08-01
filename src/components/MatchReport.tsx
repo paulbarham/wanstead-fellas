@@ -1,6 +1,7 @@
 import type { Result, ReportNoteItem } from '../types'
 import { hasStructuredReport } from '../lib/report'
 import SectionHeader from './SectionHeader'
+import MowCallout from './MowCallout'
 
 // Body sizing for report copy — bumped 13→14px + line-height 1.6→1.65
 // for a universal readability lift (players told us the report was hard
@@ -101,6 +102,12 @@ export default function MatchReport({ result }: { result: Result }) {
           <NoteList items={app_watch} />
         </Section>
       )}
+
+      {/* This weekend's MoW — announced inside the Friday report body per
+          the "align picker cadence with match report" call. Self-hides
+          once the fixture kicks off / settles, so historic reports don't
+          carry a stale chip forwards. */}
+      <MowCallout />
 
       {(result.conclusion || result.closer) && (
         <Section label="Conclusion">

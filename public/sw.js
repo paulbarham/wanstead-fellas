@@ -1,13 +1,10 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v40 — MoW client now surfaces the NEXT-UP fixture rather
-// than the furthest-future one. Was: ORDER BY week_start DESC LIMIT 1
-// which showed Aug 17 Brentford v Tottenham while Aug 10 Burnley v West
-// Ham was still to be played. New: two-pass — latest current-or-past
-// week; fall back to earliest upcoming. Weekly picks list also
-// switched from the v_mow_weekly_leaderboard view (which had the same
-// "latest week" hardcode) to a direct query on mow_predictions
-// filtered by the resolved current fixture id.
-const CACHE = 'wf-v40'
+// Bumped to v41 — MoW picker announce shifted to Friday morning as part
+// of the match report drop (was Mon 08:00 UTC → now Fri 08:00 UTC via
+// mig 072). MatchReport body now embeds a "🎯 This weekend's MoW"
+// callout that auto-hides once the fixture kicks off, so the announce
+// lives inside the report the group already reads on Fridays.
+const CACHE = 'wf-v41'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
