@@ -42,7 +42,7 @@ describe('itinerary data', () => {
   })
 
   it('has the expected checklist counts', () => {
-    expect(bookings.length).toBe(18)
+    expect(bookings.length).toBe(19)
     expect(packing.length).toBe(10)
     expect(costs.length).toBeGreaterThan(0)
   })

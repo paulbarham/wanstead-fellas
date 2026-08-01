@@ -39,19 +39,20 @@ select v.name, v.note, v.sort from (values
   ('ESTA visa waivers ×6', 'One per traveller including the twins. Apply at least 72 hours before flying; print or screenshot the approvals.', 1),
   ('Rental car — 7-seater SUV', '22-day hire, SFO pickup / LAS drop-off (one-way fee applies). Two booster seats for the twins.', 2),
   ('Travel insurance — family policy', 'Full family cover including the theme-park and Grand Canyon activities and US medical.', 3),
-  ('San Francisco hotel — 5 nights', '8–12 Aug. Near the Wharf / Embarcadero for walkability. Family room or two connecting.', 4),
+  ('Hotel Julian — San Francisco', '8–12 Aug (4 nights).', 4),
   ('Alcatraz cruise tickets', 'Day 3. Sells out weeks ahead — book as early as possible. Departs Pier 33.', 5),
   ('Muir Woods parking / shuttle reservation', 'Day 4. Timed reservation mandatory — no turn-ups. Book the parking or the shuttle in advance.', 6),
   ('Monterey Bay Aquarium tickets', 'Day 6. Dated online tickets are cheaper and skip the queue.', 7),
   ('Hearst Castle tour', 'Day 8. Timed tour bus from the visitor centre — must be pre-booked.', 8),
-  ('Big Sur / Cambria hotel — 1 night', '15 Aug in Cambria or San Simeon. Books out early in summer along this stretch.', 9),
-  ('Santa Monica hotel — 4 nights', '16–20 Aug. Walkable to the pier and beach path.', 10),
+  ('Hampton Inn San Simeon, Cambria', '12–13 Aug (1 night).', 9),
+  ('Hampton Inn & Suites Santa Monica', '14–16 Aug (2 nights).', 10),
   ('Universal Studios Hollywood tickets', 'Day 12. Dated tickets; consider the Express pass for August crowds.', 11),
-  ('Los Angeles hotel — 5 nights', '20–25 Aug. Central-ish base with parking and a pool for the down-days.', 12),
+  ('SpringHill Suites LA Burbank/Downtown', '16–23 Aug (7 nights).', 12),
   ('Disneyland tickets + park reservation', 'Day 15. Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before.', 13),
   ('Six Flags Magic Mountain tickets', 'Day 17. Buy online in advance; the teens'' day.', 14),
-  ('Las Vegas hotel — 4 nights', '25–29 Aug. Family-friendly Strip resort with a big pool complex.', 15),
-  ('Grand Canyon West day tour', 'Day 21. Book the Skywalk / West Rim package and confirm the pickup or self-drive parking.', 16),
-  ('Las Vegas Raiders tickets', 'NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (26–29 Aug) and book seats together.', 17)
+  ('W Las Vegas', '23–24 Aug (1 night).', 15),
+  ('Luxor Hotel & Casino', '24–29 Aug (5 nights).', 16),
+  ('Grand Canyon West day tour', 'Day 21. Book the Skywalk / West Rim package and confirm the pickup or self-drive parking.', 17),
+  ('Las Vegas Raiders tickets', 'NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together.', 18)
 ) as v(name, note, sort)
 where not exists (select 1 from public.bookings);
