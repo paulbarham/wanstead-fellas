@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — Predictor Games Live</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · PREDICTOR GAMES · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #FF66CC;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 13pt;
+    margin: 14pt 0 4pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #FF66CC; }
+  h2.mow::before { content: "🎯 "; }
+  h2.season::before { content: "📋 "; }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 4pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul { margin: 4pt 0; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(74,220,122,0.07);
+    border-left: 3pt solid #4ADC7A;
+    padding: 8pt 12pt; border-radius: 4pt;
+    margin: 8pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.pink  { background: rgba(255,102,204,0.08); border-left-color: #FF66CC; }
+  .callout.yellow{ background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
+
+  /* Two-game tile row */
+  .games {
+    display: table; width: 100%;
+    border-spacing: 8pt 0; margin: 6pt 0;
+    table-layout: fixed;
+  }
+  .games .g {
+    display: table-cell;
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 10pt;
+    padding: 12pt 12pt;
+    vertical-align: top;
+  }
+  .games .g.mow    { border-color: #4AD9FF; }
+  .games .g.season { border-color: #FFD400; }
+  .games .emoji {
+    font-size: 20pt; display: block; margin-bottom: 4pt;
+  }
+  .games .name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 12pt; margin: 2pt 0 4pt;
+    text-transform: uppercase;
+  }
+  .games .g.mow .name    { color: #4AD9FF; }
+  .games .g.season .name { color: #FFD400; }
+  .games p { font-size: 9.5pt; color: #E8F0E9; line-height: 1.45; }
+  .games .cap {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #9CA897;
+    margin-top: 6pt; display: block;
+  }
+
+  /* Fixture pill for MoW mock */
+  .fixture {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 10pt;
+    padding: 8pt 12pt;
+    margin: 6pt 0;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+  }
+  .fixture .cap {
+    font-size: 7.5pt; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #4AD9FF;
+    display: block; margin-bottom: 4pt;
+  }
+  .fixture .teams {
+    font-size: 11pt; color: #E8F0E9;
+  }
+  .fixture .score {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 14pt; color: #FFD400;
+    margin: 0 6pt;
+  }
+  .fixture .ko {
+    display: block;
+    font-size: 8pt; color: #9CA897;
+    margin-top: 4pt; letter-spacing: 0.06em;
+  }
+
+  /* Scoring key row */
+  .score-key {
+    display: table; width: 100%;
+    background: #15211A; border: 1px solid #2D4A2F;
+    border-radius: 8pt; padding: 8pt 12pt;
+    margin: 6pt 0;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+  }
+  .score-key .cell {
+    display: table-cell; text-align: center;
+    padding: 0 6pt;
+  }
+  .score-key .val {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 14pt;
+    display: block;
+  }
+  .score-key .val.y { color: #FFD400; }
+  .score-key .val.c { color: #4AD9FF; }
+  .score-key .val.m { color: #9CA897; }
+
+  /* Season Card markets table */
+  table.markets {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6pt 0;
+    font-size: 9.5pt;
+  }
+  table.markets th,
+  table.markets td {
+    padding: 6pt 8pt;
+    text-align: left;
+    border-bottom: 1px dashed rgba(74,220,122,0.15);
+  }
+  table.markets th {
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid #4ADC7A;
+  }
+  table.markets td.k {
+    font-family: 'Courier New', monospace;
+    color: #FFD400;
+    font-weight: 700;
+    width: 45%;
+  }
+  table.markets td.p {
+    font-family: 'Courier New', monospace;
+    color: #4AD9FF;
+    text-align: right;
+    white-space: nowrap;
+    width: 20%;
+  }
+
+  /* Timeline */
+  .flow {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 10pt 12pt;
+  }
+  .flow .step {
+    display: table; width: 100%;
+    padding: 5pt 0;
+    border-bottom: 1px dashed rgba(255,102,204,0.15);
+  }
+  .flow .step:last-child { border-bottom: 0; }
+  .flow .step .when {
+    display: table-cell;
+    width: 30%;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    color: #FF66CC;
+    letter-spacing: 0.06em;
+    vertical-align: top;
+  }
+  .flow .step .what {
+    display: table-cell;
+    font-size: 9.5pt;
+    color: #E8F0E9;
+    vertical-align: top;
+  }
+  .flow .step .what strong { color: #FFD400; }
+
+  hr {
+    border: 0;
+    border-top: 1px dashed rgba(255,102,204,0.3);
+    margin: 12pt 0 8pt;
+  }
+
+  .closer {
+    text-align: center;
+    color: #9CA897;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.1em;
+    margin-top: 12pt;
+    padding: 8pt;
+    border: 1px dashed #2D4A2F;
+    border-radius: 6pt;
+  }
+
+  .kbd {
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #4AD9FF;
+    background: rgba(74,217,255,0.08);
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    border: 1px solid rgba(74,217,255,0.25);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="left">
+    <h1>WANSTEAD FELLAS</h1>
+    <div class="sub">Predictor Games · Live for 2026-27</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P525 · UPDATE</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>TL;DR</strong> — Two new season-long games are live in the <span class="kbd">🎯 Predictor</span> tab. <em>Match of the Week</em> lands every Monday morning with one auto-picked fixture and takes 10 seconds to play. <em>Season Card</em> is a one-off form of 7 season-long predictions that locks 1h before the PL opener on <strong>Fri 21 Aug 19:00</strong> — get in early. Free to play, bragging rights only.
+</div>
+
+<h2>The two games at a glance</h2>
+
+<div class="games">
+  <div class="g mow">
+    <span class="emoji">🎯</span>
+    <div class="name">Match of the Week</div>
+    <p>One PL / Championship fixture per week, <strong>auto-picked</strong> by which teams the group supports. Pick a scoreline before kickoff. Everyone plays.</p>
+    <span class="cap">Weekly · 10 seconds to play</span>
+  </div>
+  <div class="g season">
+    <span class="emoji">📋</span>
+    <div class="name">Season Card</div>
+    <p>A one-off form of <strong>7 season-long predictions</strong>. Fill it in once before the season, we score it as each market resolves through the year.</p>
+    <span class="cap">Once · locks 21 Aug</span>
+  </div>
+</div>
+
+<hr>
+
+<h2 class="mow">Match of the Week</h2>
+
+<p>Every Monday morning, the app auto-picks a marquee fixture from the coming weekend. It weights the pick by <em>favourite_club</em> affinity — a Millwall fan's derby beats a random 3pm kickoff — with a "recently-picked" penalty so West Ham fixtures don't dominate every week. You pick a scoreline; it locks at kickoff.</p>
+
+<h3>Example — the first two picks</h3>
+
+<div class="fixture">
+  <span class="cap">🎯 Week of 10 Aug · Championship opener</span>
+  <div class="teams">Burnley <span class="score">v</span> West Ham</div>
+  <span class="ko">Sat 16 Aug · 15:00</span>
+</div>
+
+<div class="fixture">
+  <span class="cap">🎯 Week of 17 Aug · PL opener weekend</span>
+  <div class="teams">Brentford <span class="score">v</span> Tottenham</div>
+  <span class="ko">Sat 22 Aug · 17:30</span>
+</div>
+
+<h3>Scoring</h3>
+
+<div class="score-key">
+  <div class="cell">
+    <span class="val y">5</span>
+    <span>exact score</span>
+  </div>
+  <div class="cell">
+    <span class="val c">3</span>
+    <span>right result</span>
+  </div>
+  <div class="cell">
+    <span class="val m">0</span>
+    <span>wrong</span>
+  </div>
+</div>
+
+<h3>Weekly rhythm</h3>
+
+<div class="flow">
+  <div class="step">
+    <div class="when">Mon 08:00</div>
+    <div class="what"><strong>Fixture drops.</strong> Push notification to everyone — "🎯 This week's MoW is X v Y, kicks off Sat 17:30. Get your pick in."</div>
+  </div>
+  <div class="step">
+    <div class="when">Mon – Kickoff</div>
+    <div class="what"><strong>Picks open.</strong> Tap +/− steppers to set both scores, hit Submit. Change your mind any time before kickoff.</div>
+  </div>
+  <div class="step">
+    <div class="when">Kickoff → FT</div>
+    <div class="what"><strong>Locked.</strong> Panel shows your pick + everyone else's who got in. Awaiting the result.</div>
+  </div>
+  <div class="step">
+    <div class="when">Mon after</div>
+    <div class="what"><strong>Result poll runs</strong> against football-data.org, points cascade automatically, "🎯 Result in — you got X pts" push fires. Season leaderboard updates.</div>
+  </div>
+</div>
+
+<hr>
+
+<h2 class="season">Season Card</h2>
+
+<p>The season-long predictor. <strong>Seven markets, one form, fill it in once.</strong> The card locks 1h before the PL opener on <strong>Fri 21 Aug 19:00 UK</strong>, then reopens for a <strong>2-day edit window on 2-4 Sept</strong> so you can react to the summer transfer window. After that, locked for the year.</p>
+
+<h3>The seven markets</h3>
+
+<table class="markets">
+  <thead>
+    <tr>
+      <th>Market</th>
+      <th style="text-align:center;">Pick</th>
+      <th style="text-align:right;">Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="k">Premier League Champion</td>       <td style="text-align:center;">1 club</td> <td class="p">10</td></tr>
+    <tr><td class="k">Top 4 — Places 2/3/4</td>          <td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
+    <tr><td class="k">Relegated — 18/19/20</td>          <td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
+    <tr><td class="k">Golden Boot</td>                    <td style="text-align:center;">1 player</td> <td class="p">10</td></tr>
+    <tr><td class="k">Playmaker (most assists)</td>       <td style="text-align:center;">1 player</td> <td class="p">15</td></tr>
+    <tr><td class="k">First manager sacked</td>           <td style="text-align:center;">1 manager</td> <td class="p">10</td></tr>
+    <tr><td class="k">Championship promoted (Ch/Ru/PO)</td><td style="text-align:center;">3 ordered slots</td> <td class="p">3 / 1 per slot</td></tr>
+  </tbody>
+</table>
+
+<p style="margin-top:8pt;font-size:9.5pt;color:#9CA897;">Ordered slots: <strong>3 pts</strong> if the exact team is in the exact slot, <strong>1 pt</strong> if you had the right team in the wrong slot. Max <strong>72 pts</strong> for a clean-sheet season.</p>
+
+<div class="callout yellow">
+  <strong>🏆 Grand-slam bonus: +25 pts</strong> if you somehow get <em>every</em> market at max points. Silly-hard, but the reward is there. Season ceiling: <strong>97 pts</strong>.
+</div>
+
+<h3>How you pick</h3>
+
+<ul>
+  <li>Each market opens a <strong>bottom-sheet picker</strong> — searchable, shows club crests, favourites-first for clubs, alphabetical + type-to-search for the ~500 PL players.</li>
+  <li>Auto-saves as you go. No big Submit button — every pick writes immediately.</li>
+  <li>Header shows a live countdown to lock and a running <strong>N/13 picked</strong> tally so you can see how complete your card is.</li>
+</ul>
+
+<h3>Who picked who?</h3>
+
+<div class="callout cyan">
+  <strong>Private until lock, public after.</strong> Before Fri 21 Aug, only you see your picks — nobody's copying anyone. Once the lock fires, each market shows a <span class="kbd">👥 N picks</span> chip that opens a bottom-sheet with every fella's pick + a consensus strip (🥇🥈🥉 top 3 most-backed options). All season, the debates keep running.
+</div>
+
+<h3>Season timeline</h3>
+
+<div class="flow">
+  <div class="step">
+    <div class="when">Now → Fri 21 Aug</div>
+    <div class="what"><strong>Card open.</strong> Pick your 7 markets whenever. Bring your best takes.</div>
+  </div>
+  <div class="step">
+    <div class="when">Fri 21 Aug 19:00</div>
+    <div class="what"><strong>Card locks.</strong> 1h before the PL opener kicks off. Public visibility flips on — everyone can see everyone's picks.</div>
+  </div>
+  <div class="step">
+    <div class="when">2–4 Sept</div>
+    <div class="what"><strong>Edit window.</strong> 2 days after the summer transfer window closes — swap Golden Boot picks if their move fell through, rethink first-sacked, etc.</div>
+  </div>
+  <div class="step">
+    <div class="when">Nov onwards</div>
+    <div class="what"><strong>Markets resolve rolling.</strong> First-sacked usually first (Nov / Dec), Championship promoted in May, Golden Boot / Playmaker / PL Winner in May. Points land in the leaderboard as each one settles.</div>
+  </div>
+</div>
+
+<hr>
+
+<h2>How to play — 30 seconds</h2>
+
+<ol style="font-size:10pt;">
+  <li>Open the Wanstead Fellas app → tap <span class="kbd">🎯 Predictor</span> on the bottom nav.</li>
+  <li>Two tabs at the top: <strong>Match of the Week</strong> (default) and <strong>Season Card</strong>. World Cup archive lives to the right of them.</li>
+  <li><strong>MoW</strong>: tap +/− to set both scores, hit Submit. Done in 10 seconds. Comes back to you next Monday.</li>
+  <li><strong>Season Card</strong>: tap each of the 7 markets, use the searchable pickers. Auto-saves as you go. Bring it back before <strong>Fri 21 Aug 19:00</strong>.</li>
+  <li>Notifications opt-in on the Tonight tab if you haven't already — that's how you'll hear when picks open, lock, and settle.</li>
+</ol>
+
+<div class="callout pink">
+  <strong>Free to play.</strong> No stakes, no fines for wrong picks, no admin. Bragging rights only. If it takes off, we'll talk about a stake for 2027-28.
+</div>
+
+<div class="closer">
+  📟 GAMES LIVE · MOW WEEKLY · SEASON CARD LOCKS FRI 21 AUG 19:00 UK · GET STUCK IN
+</div>
+
+</body>
+</html>
