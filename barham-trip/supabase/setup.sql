@@ -249,19 +249,21 @@ create trigger on_auth_user_created
 -- ============================================================
 -- supabase/migrations/005_family_seed.sql
 -- ============================================================
--- The Barham family. Editable data, kept in git so the roster is reproducible.
+-- The Barham family roster.
 --
--- The four with an email get their members row auto-created (with these names /
--- colours) the first time they open the app and request a magic link. Tobias &
--- Niyah have no device, so they're inserted directly as managed members under
--- Paul's email — Paul sets their day choices from his own login.
+-- PRIVACY: the real sign-in emails are applied directly to the live database
+-- and are intentionally NOT committed here — the placeholders below just
+-- document the shape. (If you ever re-provision from scratch, swap in the real
+-- emails.) The four with an email get their members row auto-created on first
+-- sign-in; the no-device members are inserted directly as managed members under
+-- a managing adult's email.
 
 -- Sign-in roster (matched to auth.users by email, case-insensitive).
 insert into public.member_seed (email, display_name, age_group, color) values
-  ('pabarham@gmail.com',          'Paul',    'adult', '#0e3a48'),
-  ('nicholaannbarham@gmail.com',  'Nichola', 'adult', '#4a8896'),
-  ('ameliabarham39@gmail.com',    'Amelia',  'teen',  '#e08853'),
-  ('marleyellisbarham@gmail.com', 'Marley',  'teen',  '#c86c3a')
+  ('adult1@example.com',          'Paul',    'adult', '#0e3a48'),
+  ('adult2@example.com',  'Nichola', 'adult', '#4a8896'),
+  ('teen1@example.com',    'Amelia',  'teen',  '#e08853'),
+  ('teen2@example.com', 'Marley',  'teen',  '#c86c3a')
 on conflict (email) do update
   set display_name = excluded.display_name,
       age_group    = excluded.age_group,
@@ -270,12 +272,12 @@ on conflict (email) do update
 -- Managed members (no device) under Paul. Insert once; guarded by name so a
 -- re-run doesn't duplicate them.
 insert into public.members (id, display_name, age_group, color, manager_email)
-select gen_random_uuid(), 'Tobias', 'child', '#7a9e5e', 'pabarham@gmail.com'
-where not exists (select 1 from public.members where display_name = 'Tobias' and manager_email = 'pabarham@gmail.com');
+select gen_random_uuid(), 'Tobias', 'child', '#7a9e5e', 'adult1@example.com'
+where not exists (select 1 from public.members where display_name = 'Tobias' and manager_email = 'adult1@example.com');
 
 insert into public.members (id, display_name, age_group, color, manager_email)
-select gen_random_uuid(), 'Niyah', 'child', '#b5657e', 'pabarham@gmail.com'
-where not exists (select 1 from public.members where display_name = 'Niyah' and manager_email = 'pabarham@gmail.com');
+select gen_random_uuid(), 'Niyah', 'child', '#b5657e', 'adult1@example.com'
+where not exists (select 1 from public.members where display_name = 'Niyah' and manager_email = 'adult1@example.com');
 
 -- ============================================================
 -- supabase/migrations/006_family_gate.sql
