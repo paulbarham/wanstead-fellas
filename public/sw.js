@@ -1,11 +1,10 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v37 — league table header legibility. 12 → 13px, tightened
-// spacing (dropped the 0.06em letter-spacing that stretched short
-// labels like PTS), bumped weight to font-bold, added surface-2
-// background stripe on the header row for stronger separation from
-// the body. Admin Live Table header also switched from the legacy
-// light-theme #F8F9F6 background to the theme-aware surface-2.
-const CACHE = 'wf-v37'
+// Bumped to v38 — World Cup tab archived. Predictor tab now defaults to
+// Match of the Week (was WC while the tournament was live), MoW /
+// Season Card / World Cup tab order (was WC first), and the WC tab
+// carries a "DONE" pill + dashed border + dimmed opacity to signal
+// it's the archive.
+const CACHE = 'wf-v38'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

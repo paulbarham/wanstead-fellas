@@ -46,22 +46,25 @@ type Game = 'wc' | 'mow' | 'season'
 export default function CupPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
-  // Top-level game switcher — Predictor tab houses the World Cup archive
-  // + Match of the Week + Season Card. Interest in each is tracked via
-  // feature_interest_events.
+  // Top-level game switcher — Predictor tab houses Match of the Week
+  // (current), Season Card (current), and the World Cup 2026 archive
+  // (game complete 20 Jul, kept for archive value). Interest in each is
+  // tracked via feature_interest_events.
   //
   // Initial game reads from ?game= so push notification deep-links (e.g.
   // /cup?game=mow from mow-notify) land on the right sub-tab. Changing
-  // games updates the URL so refreshes / shares preserve context.
+  // games updates the URL so refreshes / shares preserve context. Bare
+  // URL defaults to MoW now (WC is archived — was the default while it
+  // was the live tournament).
   const [searchParams, setSearchParams] = useSearchParams()
   const initialGame: Game = (() => {
     const q = searchParams.get('game')
-    return q === 'mow' || q === 'season' || q === 'wc' ? q : 'wc'
+    return q === 'mow' || q === 'season' || q === 'wc' ? q : 'mow'
   })()
   const [game, setGameState] = useState<Game>(initialGame)
   const setGame = (g: Game) => {
     setGameState(g)
-    setSearchParams(g === 'wc' ? {} : { game: g }, { replace: true })
+    setSearchParams(g === 'mow' ? {} : { game: g }, { replace: true })
   }
   useEffect(() => {
     if (!profile?.id) return
@@ -1010,15 +1013,20 @@ function LeaderTable({ rows, meRank, highlightMeId }: { rows: LeaderRow[]; meRan
 // tournament; MoW + Season are coming-soon placeholders while we measure
 // interest via feature_interest_events (mig 061) before committing build.
 function GameTabs({ game, onGame }: { game: Game; onGame: (g: Game) => void }) {
-  const items: { id: Game; label: string; icon: string; soon?: boolean }[] = [
-    { id: 'wc',     label: 'World Cup',       icon: '🏆' },
+  // Ordered by priority: current games first, archived WC last.
+  const items: { id: Game; label: string; icon: string; soon?: boolean; archived?: boolean }[] = [
     { id: 'mow',    label: 'Match of Week',   icon: '🎯' },
     { id: 'season', label: 'Season Card',     icon: '📋' },
+    { id: 'wc',     label: 'World Cup',       icon: '🏆', archived: true },
   ]
   return (
     <div className="flex gap-1.5 mb-4 mt-1" role="tablist" aria-label="Predictor game">
       {items.map(it => {
         const active = it.id === game
+        // Archived tabs read visually quieter when inactive — dashed border
+        // + muted icon opacity — so the current games (MoW / Season) get
+        // the eye first.
+        const isArchived = !!it.archived && !active
         return (
           <button
             key={it.id}
@@ -1028,30 +1036,36 @@ function GameTabs({ game, onGame }: { game: Game; onGame: (g: Game) => void }) {
             className="flex-1 px-2 py-2 rounded-lg text-[11px] font-semibold flex flex-col items-center gap-0.5 transition-colors"
             style={{
               background: active ? 'var(--color-primary)' : 'var(--color-surface)',
-              color: active ? '#FFFFFF' : 'var(--color-text-muted)',
-              border: `1px solid ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
+              color: active ? '#FFFFFF' : isArchived ? 'var(--color-text-muted)' : 'var(--color-text-muted)',
+              border: `1px ${isArchived ? 'dashed' : 'solid'} ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
               fontFamily: 'var(--font-mono)',
               letterSpacing: '0.02em',
               position: 'relative',
+              opacity: isArchived ? 0.85 : 1,
             }}
           >
-            <span style={{ fontSize: 15, lineHeight: 1 }}>{it.icon}</span>
+            <span style={{ fontSize: 15, lineHeight: 1, opacity: isArchived ? 0.7 : 1 }}>{it.icon}</span>
             <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>{it.label}</span>
-            {it.soon && (
+            {(it.soon || it.archived) && (
               <span
                 style={{
                   position: 'absolute',
                   top: 2, right: 3,
-                  background: active ? 'rgba(255,255,255,0.25)' : 'var(--tt-magenta, #FF66CC)',
-                  color: active ? '#FFFFFF' : '#0F1710',
+                  background: active
+                    ? 'rgba(255,255,255,0.25)'
+                    : it.soon ? 'var(--tt-magenta, #FF66CC)' : 'var(--color-surface-2, var(--color-bg))',
+                  color: active
+                    ? '#FFFFFF'
+                    : it.soon ? '#0F1710' : 'var(--color-text-muted)',
                   fontSize: 7,
                   fontWeight: 700,
                   letterSpacing: '0.06em',
                   padding: '1px 4px',
                   borderRadius: 3,
+                  border: it.archived && !active ? '1px solid var(--color-border)' : 'none',
                 }}
               >
-                SOON
+                {it.soon ? 'SOON' : 'DONE'}
               </span>
             )}
           </button>
