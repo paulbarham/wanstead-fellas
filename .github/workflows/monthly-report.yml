@@ -18,7 +18,7 @@ on:
       month:
         description: 'Month to render (YYYY-MM). Leave empty for previous month.'
         required: false
-        default: ''
+        type: string
 
 permissions:
   contents: write
