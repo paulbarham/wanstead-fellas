@@ -575,6 +575,17 @@ function render(monthLabel, s) {
     line-height: 1.4;
   }
 
+  /* ── Print pagination ───────────────────────────────────────
+     Keep each whole section together so page breaks fall cleanly
+     between sections — never mid-card, never a stranded heading.
+     (A section too tall to fit still breaks; avoid is a preference.) */
+  .section-label { break-after: avoid; page-break-after: avoid; }
+  .section, .masthead, .two-col, .stat-card, .honour-card, .shame-card,
+  .boot, .scorers, .fines, .iron-block {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .section + .section { margin-top: 2pt; }
+
   /* ── Masthead ─────────────────────────────────────────────── */
   .masthead {
     background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
@@ -1078,77 +1089,89 @@ function render(monthLabel, s) {
   </div>
 </div>
 
-<div class="section-label">Attack · Goals</div>
-<div class="two-col">
-  <div>
-    ${s.goldenBoot ? `
-    <div class="boot">
-      <div class="inner">
-        <div class="label">Golden Boot${s.goldenBoot.perGame ? ` · ${s.goldenBoot.perGame.toFixed(1)} / game` : ''}</div>
-        <div class="name">${esc(s.goldenBoot.name.toUpperCase())}</div>
-      </div>
-      <div class="count">
-        <span class="n">${s.goldenBoot.goals}</span>
-        <span class="u">Goals</span>
-      </div>
-    </div>` : '<div class="scorers"><p class="empty">No goals scored this month.</p></div>'}
-  </div>
-  <div>
-    <div class="scorers">${scorerRows || '<p class="empty">No other scorers.</p>'}</div>
-  </div>
-</div>
-<div class="two-col stat-row">
-  <div>${haulBlock}</div>
-  <div>${posBarBlock}</div>
-</div>
-
-<div class="section-label">Form · Results</div>
-<div class="two-col">
-  <div>${winRateBlock}</div>
-  <div>${biggestWinBlock}</div>
-</div>
-<div class="two-col stat-row">
-  <div>${highScoreBlock}</div>
-  <div>${shootoutBlock}</div>
-</div>
-
-<div class="section-label">Honours</div>
-<div class="two-col">
-  <div class="honour-card">
-    <div class="honour-label">🏆 MAN OF THE MATCH</div>
-    ${motmBody}
-  </div>
-  <div class="honour-card">
-    <div class="honour-label">🥇 WINNING TEAM</div>
-    ${winnersBody}
-  </div>
-</div>
-
-<div class="section-label">Defence · Distance</div>
-<div class="two-col">
-  <div>${wallBlock}</div>
-  <div>${leakyBlock}</div>
-</div>
-<div class="two-col stat-row">
-  <div>${engineBlock}</div>
-  <div>${fastestBlock}</div>
-</div>
-
-<div class="section-label">Iron Men · Played all ${s.headline.nights}</div>
-<div class="iron-block">${ironBody}</div>
-
-<div class="section-label">The Shame Files</div>
-<div class="two-col">
-  <div>${dotdBlock}</div>
-  <div>${ogBlock}</div>
-</div>
-<div class="stat-row">
-  <div class="fines">
-    <div class="fines-head">
-      <span class="label">💷 FINES POT</span>
-      <span class="totals">£${s.fines.total}<span class="out"> · £${s.fines.paid} paid</span></span>
+<div class="section keep">
+  <div class="section-label">Attack · Goals</div>
+  <div class="two-col">
+    <div>
+      ${s.goldenBoot ? `
+      <div class="boot">
+        <div class="inner">
+          <div class="label">Golden Boot${s.goldenBoot.perGame ? ` · ${s.goldenBoot.perGame.toFixed(1)} / game` : ''}</div>
+          <div class="name">${esc(s.goldenBoot.name.toUpperCase())}</div>
+        </div>
+        <div class="count">
+          <span class="n">${s.goldenBoot.goals}</span>
+          <span class="u">Goals</span>
+        </div>
+      </div>` : '<div class="scorers"><p class="empty">No goals scored this month.</p></div>'}
     </div>
-    ${fineRowsHtml}
+    <div>
+      <div class="scorers">${scorerRows || '<p class="empty">No other scorers.</p>'}</div>
+    </div>
+  </div>
+  <div class="two-col stat-row">
+    <div>${haulBlock}</div>
+    <div>${posBarBlock}</div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Form · Results</div>
+  <div class="two-col">
+    <div>${winRateBlock}</div>
+    <div>${biggestWinBlock}</div>
+  </div>
+  <div class="two-col stat-row">
+    <div>${highScoreBlock}</div>
+    <div>${shootoutBlock}</div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Honours</div>
+  <div class="two-col">
+    <div class="honour-card">
+      <div class="honour-label">🏆 MAN OF THE MATCH</div>
+      ${motmBody}
+    </div>
+    <div class="honour-card">
+      <div class="honour-label">🥇 WINNING TEAM</div>
+      ${winnersBody}
+    </div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Defence · Distance</div>
+  <div class="two-col">
+    <div>${wallBlock}</div>
+    <div>${leakyBlock}</div>
+  </div>
+  <div class="two-col stat-row">
+    <div>${engineBlock}</div>
+    <div>${fastestBlock}</div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Iron Men · Played all ${s.headline.nights}</div>
+  <div class="iron-block">${ironBody}</div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">The Shame Files</div>
+  <div class="two-col">
+    <div>${dotdBlock}</div>
+    <div>${ogBlock}</div>
+  </div>
+  <div class="stat-row">
+    <div class="fines">
+      <div class="fines-head">
+        <span class="label">💷 FINES POT</span>
+        <span class="totals">£${s.fines.total}<span class="out"> · £${s.fines.paid} paid</span></span>
+      </div>
+      ${fineRowsHtml}
+    </div>
   </div>
 </div>
 
