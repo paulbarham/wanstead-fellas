@@ -86,11 +86,11 @@ async function fetchAll() {
 
   // Everything else lives under those match ids
   const { data: teams } = await supabase.from('teams').select('id, match_id, name').in('match_id', matchIds.length ? matchIds : ['00000000-0000-0000-0000-000000000000'])
-  const { data: fixtures } = await supabase.from('fixtures').select('id, match_id, team1_id, team2_id, score1, score2').in('match_id', matchIds.length ? matchIds : ['00000000-0000-0000-0000-000000000000'])
+  const { data: fixtures } = await supabase.from('fixtures').select('id, match_id, team1_id, team2_id, score1, score2, shootout_winner').in('match_id', matchIds.length ? matchIds : ['00000000-0000-0000-0000-000000000000'])
   const { data: teamPlayers } = await supabase.from('team_players').select('team_id, player_id').in('team_id', teams?.map(t => t.id) ?? ['00000000-0000-0000-0000-000000000000'])
   const { data: goals } = await supabase.from('goals').select('player_id, team_id, match_id, goals_count, own_goal').in('match_id', matchIds.length ? matchIds : ['00000000-0000-0000-0000-000000000000'])
   const { data: awards } = await supabase.from('award_results').select('match_id, award_type, player_id, vote_count, is_shared').in('match_id', matchIds.length ? matchIds : ['00000000-0000-0000-0000-000000000000'])
-  const { data: fitness } = await supabase.from('fitness_sessions').select('profile_id, match_date, distance_m').gte('match_date', first).lte('match_date', last)
+  const { data: fitness } = await supabase.from('fitness_sessions').select('profile_id, match_date, distance_m, max_speed_kmh').gte('match_date', first).lte('match_date', last)
   const { data: fines } = await supabase.from('fines').select('player_id, match_date, type, amount, paid').gte('match_date', first).lte('match_date', last)
 
   // Player lookup — pull anyone referenced
@@ -101,7 +101,7 @@ async function fetchAll() {
     ...(fines ?? []).map(f => f.player_id),
     ...(teamPlayers ?? []).map(tp => tp.player_id),
   ].filter(Boolean))
-  const { data: profileRows } = await supabase.from('profiles').select('id, name, surname, auth_user_id').in('id', Array.from(referencedIds).length ? Array.from(referencedIds) : ['00000000-0000-0000-0000-000000000000'])
+  const { data: profileRows } = await supabase.from('profiles').select('id, name, surname, auth_user_id, preferred_position_primary, preferred_foot').in('id', Array.from(referencedIds).length ? Array.from(referencedIds) : ['00000000-0000-0000-0000-000000000000'])
   const profiles = new Map((profileRows ?? []).map(p => [p.id, p]))
 
   const { data: allActive } = await supabase.from('profiles').select('id').not('auth_user_id', 'is', null)
@@ -111,11 +111,12 @@ async function fetchAll() {
     const p = profiles.get(id)
     return p ? `${p.name} ${p.surname}` : '—'
   }
+  const posOf = (id) => profiles.get(id)?.preferred_position_primary ?? null
 
   return {
     matches, teams: teams ?? [], fixtures: fixtures ?? [], teamPlayers: teamPlayers ?? [],
     goals: goals ?? [], awards: awards ?? [], fitness: fitness ?? [], fines: fines ?? [],
-    nights, nameOf, activePoolSize,
+    nights, nameOf, posOf, activePoolSize,
   }
 }
 
@@ -281,10 +282,99 @@ function buildSections(d) {
     return { ...meta, total: bucket.total, players: playersLabel, spotless: false }
   })
 
+  // ── Deeper stats ─────────────────────────────────────────────────────
+  // Appearances per player (nights named on a team sheet)
+  const appearances = new Map()
+  for (const [id, set] of nightAppearances) appearances.set(id, set.size)
+
+  // Golden boot goals-per-game
+  if (goldenBoot) {
+    const apps = appearances.get(goldenBoot.id) || 0
+    goldenBoot.apps = apps
+    goldenBoot.perGame = apps ? goldenBoot.goals / apps : 0
+  }
+
+  // Best single-night haul + hat-tricks (3+ in one night, OGs excluded)
+  const haulMap = new Map()  // `${pid}|${mid}` → goals that night
+  for (const g of d.goals) {
+    if (g.own_goal) continue
+    const k = `${g.player_id}|${g.match_id}`
+    haulMap.set(k, (haulMap.get(k) ?? 0) + Number(g.goals_count))
+  }
+  let bestHaul = null
+  const hatTricks = []
+  for (const [k, v] of haulMap) {
+    const pid = k.split('|')[0]
+    if (!bestHaul || v > bestHaul.goals) bestHaul = { id: pid, name: d.nameOf(pid), goals: v }
+    if (v >= 3) hatTricks.push({ id: pid, name: d.nameOf(pid), goals: v })
+  }
+  hatTricks.sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name))
+
+  // Win-rate king — best win% among players with a meaningful sample
+  const minNights = Math.max(2, Math.ceil(d.nights / 2))
+  const winRateKing = Array.from(appearances.entries())
+    .map(([id, played]) => ({ id, name: d.nameOf(id), played, wins: wins.get(id) ?? 0 }))
+    .filter(x => x.played >= minNights)
+    .map(x => ({ ...x, rate: x.played ? x.wins / x.played : 0 }))
+    .sort((a, b) => b.rate - a.rate || b.wins - a.wins || a.name.localeCompare(b.name))[0] ?? null
+
+  // Match-result extremes across every fixture in the month
+  const teamName = (id) => d.teams.find(t => t.id === id)?.name ?? '—'
+  const dateOf = (mid) => d.matches.find(m => m.id === mid)?.match_date ?? null
+  let biggestWin = null   // largest margin (draws excluded)
+  let highScore = null    // most combined goals
+  let shootouts = 0
+  for (const f of d.fixtures) {
+    const s1 = Number(f.score1), s2 = Number(f.score2)
+    if (f.shootout_winner != null) shootouts++
+    const margin = Math.abs(s1 - s2)
+    const combined = s1 + s2
+    if (margin > 0 && (!biggestWin || margin > biggestWin.margin)) {
+      const winId = s1 > s2 ? f.team1_id : f.team2_id
+      const loseId = s1 > s2 ? f.team2_id : f.team1_id
+      biggestWin = { margin, score: `${Math.max(s1, s2)}–${Math.min(s1, s2)}`, winner: teamName(winId), loser: teamName(loseId), date: dateOf(f.match_id) }
+    }
+    if (!highScore || combined > highScore.combined) {
+      highScore = { combined, score: `${s1}–${s2}`, a: teamName(f.team1_id), b: teamName(f.team2_id), date: dateOf(f.match_id) }
+    }
+  }
+
+  // Leakiest — foil to The Wall (worst avg GA, min 2 nights)
+  const leakiest = Array.from(wallAgg.entries())
+    .map(([id, s]) => ({ id, name: d.nameOf(id), ...s, avgGa: s.nights ? s.totalGa / s.nights : 0 }))
+    .filter(x => x.nights >= 2)
+    .sort((a, b) => b.avgGa - a.avgGa || a.name.localeCompare(b.name))[0] ?? null
+
+  // Fastest — top recorded sprint speed (data may be absent)
+  const fastest = d.fitness
+    .filter(f => f.max_speed_kmh != null && Number(f.max_speed_kmh) > 0)
+    .map(f => ({ id: f.profile_id, name: d.nameOf(f.profile_id), kmh: Number(f.max_speed_kmh) }))
+    .sort((a, b) => b.kmh - a.kmh)[0] ?? null
+
+  // Own goals — the calamity tally
+  const ogMap = new Map()
+  for (const g of d.goals) if (g.own_goal) ogMap.set(g.player_id, (ogMap.get(g.player_id) ?? 0) + Number(g.goals_count))
+  const ogList = Array.from(ogMap.entries()).map(([id, n]) => ({ id, name: d.nameOf(id), n })).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name))
+  const ogTotal = ogList.reduce((s, x) => s + x.n, 0)
+
+  // Goals by position band (open play, OGs excluded)
+  const POS_BANDS = ['ATT', 'MID', 'DEF', 'GK']
+  const posGoals = new Map(POS_BANDS.map(p => [p, 0]))
+  let posKnownGoals = 0
+  for (const g of d.goals) {
+    if (g.own_goal) continue
+    const p = d.posOf(g.player_id)
+    if (p && posGoals.has(p)) { posGoals.set(p, posGoals.get(p) + Number(g.goals_count)); posKnownGoals += Number(g.goals_count) }
+  }
+  const goalsByPosition = POS_BANDS.map(p => ({ band: p, goals: posGoals.get(p), pct: posKnownGoals ? posGoals.get(p) / posKnownGoals : 0 }))
+
   return {
     headline: { nights: d.nights, games, goals: totalGoals, fellas },
     goldenBoot, runnersUp, motmShared, winnersShared,
     wall, engine, ironMen, dotd,
+    bestHaul, hatTricks, winRateKing, biggestWin, highScore, shootouts,
+    leakiest, fastest, ownGoals: { total: ogTotal, list: ogList },
+    goalsByPosition, posKnownGoals,
     fines: { total: fineTotal, paid: finePaid, rows: fineRows },
   }
 }
@@ -359,6 +449,110 @@ function render(monthLabel, s) {
       <span class="fp">${esc(r.players)}</span>
       <span class="fa">£${r.total}</span>
     </div>`).join('')
+
+  // Best Haul + hat-tricks
+  const hatSuffix = s.hatTricks.length
+    ? `<div class="stat-sub">${s.hatTricks.length} hat-trick${s.hatTricks.length === 1 ? '' : 's'}+ this month · ${s.hatTricks.map(h => `${esc(h.name.split(' ')[0])} (${h.goals})`).join(' · ')}</div>`
+    : '<div class="stat-sub">No hat-tricks this month</div>'
+  const haulBlock = s.bestHaul ? `
+    <div class="stat-card">
+      <div class="stat-label">🎯 BEST HAUL</div>
+      <div class="stat-name">${esc(s.bestHaul.name.toUpperCase())}</div>
+      ${hatSuffix}
+      <div class="stat-values">
+        <div class="v"><span class="val">${s.bestHaul.goals}</span><span class="unit">IN ONE NIGHT</span></div>
+      </div>
+    </div>` : ''
+
+  // Goals by position bar
+  const POS_COLOUR = { ATT: '#E8578A', MID: '#FFD400', DEF: '#4FC3E8', GK: '#4ADC7A' }
+  const posBarBlock = s.posKnownGoals ? `
+    <div class="stat-card">
+      <div class="stat-label">📍 GOALS BY POSITION</div>
+      <div class="posbar">${s.goalsByPosition.filter(b => b.goals > 0).map(b => `<span class="seg" style="width:${(b.pct * 100).toFixed(1)}%;background:${POS_COLOUR[b.band]}"></span>`).join('')}</div>
+      <div class="poslegend">${s.goalsByPosition.filter(b => b.goals > 0).map(b => `<span class="lg"><span class="dot" style="background:${POS_COLOUR[b.band]}"></span>${b.band} ${Math.round(b.pct * 100)}%</span>`).join('')}</div>
+    </div>` : `
+    <div class="stat-card muted">
+      <div class="stat-label">📍 GOALS BY POSITION</div>
+      <div class="stat-sub">Not enough position data this month</div>
+    </div>`
+
+  // Form · Results tiles
+  const winRateBlock = s.winRateKing ? `
+    <div class="stat-card">
+      <div class="stat-label">📈 WIN-RATE KING</div>
+      <div class="stat-name">${esc(s.winRateKing.name.toUpperCase())}</div>
+      <div class="stat-sub">Most nights on the winning team, rate-adjusted</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">${Math.round(s.winRateKing.rate * 100)}%</span><span class="unit">WIN RATE</span></div>
+        <div class="v"><span class="val">${s.winRateKing.wins}/${s.winRateKing.played}</span><span class="unit">W / PLAYED</span></div>
+      </div>
+    </div>` : ''
+
+  const biggestWinBlock = s.biggestWin ? `
+    <div class="stat-card">
+      <div class="stat-label">💥 BIGGEST WIN</div>
+      <div class="stat-name">${esc(s.biggestWin.score)}</div>
+      <div class="stat-sub">${esc(s.biggestWin.winner)} over ${esc(s.biggestWin.loser)}${s.biggestWin.date ? ` · ${fmtDay(s.biggestWin.date)}` : ''}</div>
+    </div>` : ''
+
+  const highScoreBlock = s.highScore ? `
+    <div class="stat-card">
+      <div class="stat-label">🔥 HIGHEST-SCORING GAME</div>
+      <div class="stat-name">${esc(s.highScore.score)}</div>
+      <div class="stat-sub">${esc(s.highScore.a)} v ${esc(s.highScore.b)}${s.highScore.date ? ` · ${fmtDay(s.highScore.date)}` : ''} · ${s.highScore.combined} goals</div>
+    </div>` : ''
+
+  const shootoutBlock = s.shootouts > 0 ? `
+    <div class="stat-card">
+      <div class="stat-label">🥅 SHOOTOUTS</div>
+      <div class="stat-name">${s.shootouts}</div>
+      <div class="stat-sub">Drawn game${s.shootouts === 1 ? '' : 's'} settled from the spot (+1 bonus pt)</div>
+    </div>` : `
+    <div class="stat-card muted">
+      <div class="stat-label">🥅 SHOOTOUTS</div>
+      <div class="stat-sub">No shootouts this month</div>
+    </div>`
+
+  const leakyBlock = s.leakiest ? `
+    <div class="stat-card">
+      <div class="stat-label">🕳️ THE SIEVE</div>
+      <div class="stat-name">${esc(s.leakiest.name.toUpperCase())}</div>
+      <div class="stat-sub">Leakiest defence in ${monthLabel.split(' ')[0]}</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">${s.leakiest.avgGa.toFixed(2)}</span><span class="unit">AVG GA</span></div>
+        <div class="v"><span class="val">${s.leakiest.nights}</span><span class="unit">NIGHTS</span></div>
+      </div>
+    </div>` : ''
+
+  const fastestBlock = s.fastest ? `
+    <div class="stat-card">
+      <div class="stat-label">⚡ FASTEST</div>
+      <div class="stat-name">${esc(s.fastest.name.toUpperCase())}</div>
+      <div class="stat-sub">Top recorded sprint</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">${s.fastest.kmh.toFixed(1)}</span><span class="unit">KM/H</span></div>
+      </div>
+    </div>` : `
+    <div class="stat-card muted">
+      <div class="stat-label">⚡ FASTEST</div>
+      <div class="stat-sub">No sprint speeds logged this month</div>
+    </div>`
+
+  const ogBlock = s.ownGoals.total > 0 ? `
+    <div class="shame-card">
+      <div class="textcol">
+        <div class="shame-label">🙈 OWN GOALS</div>
+        <div class="shame-name">${esc(s.ownGoals.list[0].name.toUpperCase())}${s.ownGoals.list.length > 1 ? ' + others' : ''}</div>
+      </div>
+      <div class="shame-count"><span class="n">${s.ownGoals.total}</span><span class="u">OG${s.ownGoals.total === 1 ? '' : 'S'}</span></div>
+    </div>` : `
+    <div class="shame-card muted">
+      <div class="textcol">
+        <div class="shame-label">🙈 OWN GOALS</div>
+        <div class="shame-sub">Nobody scored in their own net — clean month</div>
+      </div>
+    </div>`
 
   return `<!doctype html>
 <html lang="en">
@@ -830,6 +1024,37 @@ function render(monthLabel, s) {
   }
   .footer strong { color: #FFD400; font-weight: 700; }
   .footer .tag { display: block; margin-top: 2pt; color: rgba(255,255,255,0.7); font-size: 7pt; }
+
+  /* ── Goals-by-position bar ──────────────────────────────── */
+  .posbar {
+    display: block;
+    width: 100%;
+    height: 12pt;
+    border-radius: 6pt;
+    overflow: hidden;
+    margin: 6pt 0 5pt;
+    background: rgba(255,255,255,0.05);
+    font-size: 0;
+  }
+  .posbar .seg { display: inline-block; height: 12pt; }
+  .poslegend { display: block; }
+  .poslegend .lg {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.1em;
+    color: #9CA897;
+    margin: 0 8pt 0 0;
+    text-transform: uppercase;
+  }
+  .poslegend .dot {
+    display: inline-block;
+    width: 6pt; height: 6pt;
+    border-radius: 50%;
+    margin-right: 3pt;
+    vertical-align: middle;
+  }
+  .stat-row { margin-top: 6pt; }
 </style>
 </head>
 <body>
@@ -859,7 +1084,7 @@ function render(monthLabel, s) {
     ${s.goldenBoot ? `
     <div class="boot">
       <div class="inner">
-        <div class="label">Golden Boot</div>
+        <div class="label">Golden Boot${s.goldenBoot.perGame ? ` · ${s.goldenBoot.perGame.toFixed(1)} / game` : ''}</div>
         <div class="name">${esc(s.goldenBoot.name.toUpperCase())}</div>
       </div>
       <div class="count">
@@ -871,6 +1096,20 @@ function render(monthLabel, s) {
   <div>
     <div class="scorers">${scorerRows || '<p class="empty">No other scorers.</p>'}</div>
   </div>
+</div>
+<div class="two-col stat-row">
+  <div>${haulBlock}</div>
+  <div>${posBarBlock}</div>
+</div>
+
+<div class="section-label">Form · Results</div>
+<div class="two-col">
+  <div>${winRateBlock}</div>
+  <div>${biggestWinBlock}</div>
+</div>
+<div class="two-col stat-row">
+  <div>${highScoreBlock}</div>
+  <div>${shootoutBlock}</div>
 </div>
 
 <div class="section-label">Honours</div>
@@ -888,7 +1127,11 @@ function render(monthLabel, s) {
 <div class="section-label">Defence · Distance</div>
 <div class="two-col">
   <div>${wallBlock}</div>
+  <div>${leakyBlock}</div>
+</div>
+<div class="two-col stat-row">
   <div>${engineBlock}</div>
+  <div>${fastestBlock}</div>
 </div>
 
 <div class="section-label">Iron Men · Played all ${s.headline.nights}</div>
@@ -897,14 +1140,15 @@ function render(monthLabel, s) {
 <div class="section-label">The Shame Files</div>
 <div class="two-col">
   <div>${dotdBlock}</div>
-  <div>
-    <div class="fines">
-      <div class="fines-head">
-        <span class="label">💷 FINES POT</span>
-        <span class="totals">£${s.fines.total}<span class="out"> · £${s.fines.paid} paid</span></span>
-      </div>
-      ${fineRowsHtml}
+  <div>${ogBlock}</div>
+</div>
+<div class="stat-row">
+  <div class="fines">
+    <div class="fines-head">
+      <span class="label">💷 FINES POT</span>
+      <span class="totals">£${s.fines.total}<span class="out"> · £${s.fines.paid} paid</span></span>
     </div>
+    ${fineRowsHtml}
   </div>
 </div>
 
@@ -915,6 +1159,12 @@ function render(monthLabel, s) {
 
 </body>
 </html>`
+}
+
+function fmtDay(isoDate) {
+  const [, m, dd] = String(isoDate).split('-').map(Number)
+  const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][(m || 1) - 1]
+  return `${dd} ${mon}`
 }
 
 function numWord(n) {
@@ -941,6 +1191,7 @@ if (fixturePath) {
     const p = profiles.get(id)
     return p ? `${p.name} ${p.surname}` : '—'
   }
+  const posOf = (id) => profiles.get(id)?.preferred_position_primary ?? null
   data = {
     matches: raw.matches ?? [],
     teams: raw.teams ?? [],
@@ -952,6 +1203,7 @@ if (fixturePath) {
     fines: raw.fines ?? [],
     nights: (raw.matches ?? []).length,
     nameOf,
+    posOf,
     activePoolSize: raw.activePoolSize ?? 0,
   }
 } else {
