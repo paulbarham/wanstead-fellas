@@ -19,6 +19,17 @@
     line-height: 1.4;
   }
 
+  /* ── Print pagination ───────────────────────────────────────
+     Keep each whole section together so page breaks fall cleanly
+     between sections — never mid-card, never a stranded heading.
+     (A section too tall to fit still breaks; avoid is a preference.) */
+  .section-label { break-after: avoid; page-break-after: avoid; }
+  .section, .masthead, .two-col, .stat-card, .honour-card, .shame-card,
+  .boot, .scorers, .fines, .iron-block {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .section + .section { margin-top: 2pt; }
+
   /* ── Masthead ─────────────────────────────────────────────── */
   .masthead {
     background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
@@ -522,23 +533,24 @@
   </div>
 </div>
 
-<div class="section-label">Attack · Goals</div>
-<div class="two-col">
-  <div>
-    
-    <div class="boot">
-      <div class="inner">
-        <div class="label">Golden Boot · 1.6 / game</div>
-        <div class="name">PAUL BARHAM</div>
-      </div>
-      <div class="count">
-        <span class="n">8</span>
-        <span class="u">Goals</span>
+<div class="section keep">
+  <div class="section-label">Attack · Goals</div>
+  <div class="two-col">
+    <div>
+      
+      <div class="boot">
+        <div class="inner">
+          <div class="label">Golden Boot · 1.6 / game</div>
+          <div class="name">PAUL BARHAM</div>
+        </div>
+        <div class="count">
+          <span class="n">8</span>
+          <span class="u">Goals</span>
+        </div>
       </div>
     </div>
-  </div>
-  <div>
-    <div class="scorers">
+    <div>
+      <div class="scorers">
     <div class="scorer-row">
       <span class="rank">02</span>
       <span class="name">Michael Farley</span>
@@ -564,10 +576,10 @@
       <span class="name">Beau Samuels</span>
       <span class="goals">5</span>
     </div></div>
+    </div>
   </div>
-</div>
-<div class="two-col stat-row">
-  <div>
+  <div class="two-col stat-row">
+    <div>
     <div class="stat-card">
       <div class="stat-label">🎯 BEST HAUL</div>
       <div class="stat-name">MICHAEL FARLEY</div>
@@ -576,17 +588,19 @@
         <div class="v"><span class="val">4</span><span class="unit">IN ONE NIGHT</span></div>
       </div>
     </div></div>
-  <div>
+    <div>
     <div class="stat-card">
       <div class="stat-label">📍 GOALS BY POSITION</div>
       <div class="posbar"><span class="seg" style="width:23.4%;background:#E8578A"></span><span class="seg" style="width:67.5%;background:#FFD400"></span><span class="seg" style="width:7.8%;background:#4FC3E8"></span><span class="seg" style="width:1.3%;background:#4ADC7A"></span></div>
       <div class="poslegend"><span class="lg"><span class="dot" style="background:#E8578A"></span>ATT 23%</span><span class="lg"><span class="dot" style="background:#FFD400"></span>MID 68%</span><span class="lg"><span class="dot" style="background:#4FC3E8"></span>DEF 8%</span><span class="lg"><span class="dot" style="background:#4ADC7A"></span>GK 1%</span></div>
     </div></div>
+  </div>
 </div>
 
-<div class="section-label">Form · Results</div>
-<div class="two-col">
-  <div>
+<div class="section keep">
+  <div class="section-label">Form · Results</div>
+  <div class="two-col">
+    <div>
     <div class="stat-card">
       <div class="stat-label">📈 WIN-RATE KING</div>
       <div class="stat-name">PETER MAY</div>
@@ -596,45 +610,49 @@
         <div class="v"><span class="val">3/4</span><span class="unit">W / PLAYED</span></div>
       </div>
     </div></div>
-  <div>
+    <div>
     <div class="stat-card">
       <div class="stat-label">💥 BIGGEST WIN</div>
       <div class="stat-name">7–1</div>
       <div class="stat-sub">Michael Farley FC over Gary Edwards FC · 23 Jul</div>
     </div></div>
-</div>
-<div class="two-col stat-row">
-  <div>
+  </div>
+  <div class="two-col stat-row">
+    <div>
     <div class="stat-card">
       <div class="stat-label">🔥 HIGHEST-SCORING GAME</div>
       <div class="stat-name">7–1</div>
       <div class="stat-sub">Michael Farley FC v Gary Edwards FC · 23 Jul · 8 goals</div>
     </div></div>
-  <div>
+    <div>
     <div class="stat-card">
       <div class="stat-label">🥅 SHOOTOUTS</div>
       <div class="stat-name">1</div>
       <div class="stat-sub">Drawn game settled from the spot (+1 bonus pt)</div>
     </div></div>
+  </div>
 </div>
 
-<div class="section-label">Honours</div>
-<div class="two-col">
-  <div class="honour-card">
-    <div class="honour-label">🏆 MAN OF THE MATCH</div>
-    <p class="honour-sub">Shared 6 ways this month</p>
+<div class="section keep">
+  <div class="section-label">Honours</div>
+  <div class="two-col">
+    <div class="honour-card">
+      <div class="honour-label">🏆 MAN OF THE MATCH</div>
+      <p class="honour-sub">Shared 6 ways this month</p>
        <div class="honour-grid"><div class="honour-name">Felix Baker</div><div class="honour-name">Geof Aiwerioba</div><div class="honour-name">Martin Lightbody</div><div class="honour-name">Michael Farley</div><div class="honour-name">Paul Barham</div><div class="honour-name">Richard Sharman</div></div>
-  </div>
-  <div class="honour-card">
-    <div class="honour-label">🥇 WINNING TEAM</div>
-    <p class="honour-sub">two fellas tied on 3 wins</p>
+    </div>
+    <div class="honour-card">
+      <div class="honour-label">🥇 WINNING TEAM</div>
+      <p class="honour-sub">two fellas tied on 3 wins</p>
        <div class="honour-grid"><div class="honour-name">Paul Barham</div><div class="honour-name">Peter May</div></div>
+    </div>
   </div>
 </div>
 
-<div class="section-label">Defence · Distance</div>
-<div class="two-col">
-  <div>
+<div class="section keep">
+  <div class="section-label">Defence · Distance</div>
+  <div class="two-col">
+    <div>
     <div class="stat-card">
       <div class="stat-label">🧱 THE WALL</div>
       <div class="stat-name">JOSEPH PENDER</div>
@@ -644,7 +662,7 @@
         <div class="v"><span class="val">0</span><span class="unit">CLEAN SHEETS</span></div>
       </div>
     </div></div>
-  <div>
+    <div>
     <div class="stat-card">
       <div class="stat-label">🕳️ THE SIEVE</div>
       <div class="stat-name">FATHER EMMANUEL</div>
@@ -654,9 +672,9 @@
         <div class="v"><span class="val">3</span><span class="unit">NIGHTS</span></div>
       </div>
     </div></div>
-</div>
-<div class="two-col stat-row">
-  <div>
+  </div>
+  <div class="two-col stat-row">
+    <div>
     <div class="stat-card">
       <div class="stat-label">🏃 THE ENGINE</div>
       <div class="stat-name">PAUL BARHAM</div>
@@ -666,39 +684,43 @@
         <div class="v"><span class="val">6.68</span><span class="unit">KM / GAME</span></div>
       </div>
     </div></div>
-  <div>
+    <div>
     <div class="stat-card muted">
       <div class="stat-label">⚡ FASTEST</div>
       <div class="stat-sub">No sprint speeds logged this month</div>
     </div></div>
+  </div>
 </div>
 
-<div class="section-label">Iron Men · Played all 5</div>
-<div class="iron-block"><div class="pill-row"><span class="pill">Charlie Nicholls-Petrie</span><span class="pill">Paul Barham</span><span class="pill">Peter Schaefer</span><span class="pill">Richard Sharman</span><span class="pill">Ross Marks</span><span class="pill">Scott Duncan</span></div></div>
+<div class="section keep">
+  <div class="section-label">Iron Men · Played all 5</div>
+  <div class="iron-block"><div class="pill-row"><span class="pill">Charlie Nicholls-Petrie</span><span class="pill">Paul Barham</span><span class="pill">Peter Schaefer</span><span class="pill">Richard Sharman</span><span class="pill">Ross Marks</span><span class="pill">Scott Duncan</span></div></div>
+</div>
 
-<div class="section-label">The Shame Files</div>
-<div class="two-col">
-  <div>
+<div class="section keep">
+  <div class="section-label">The Shame Files</div>
+  <div class="two-col">
+    <div>
     <div class="shame-card">
       <div class="shame-label">😐 DICK OF THE DAY</div>
       <div class="shame-name">SCOTT DUNCAN</div>
       <div class="shame-count"><span class="n">1</span><span class="u">NOM</span></div>
     </div></div>
-  <div>
+    <div>
     <div class="shame-card muted">
       <div class="textcol">
         <div class="shame-label">🙈 OWN GOALS</div>
         <div class="shame-sub">Nobody scored in their own net — clean month</div>
       </div>
     </div></div>
-</div>
-<div class="stat-row">
-  <div class="fines">
-    <div class="fines-head">
-      <span class="label">💷 FINES POT</span>
-      <span class="totals">£4<span class="out"> · £2 paid</span></span>
-    </div>
-    
+  </div>
+  <div class="stat-row">
+    <div class="fines">
+      <div class="fines-head">
+        <span class="label">💷 FINES POT</span>
+        <span class="totals">£4<span class="out"> · £2 paid</span></span>
+      </div>
+      
     <div class="fine-row spotless">
       <span class="ft">⚽ Lost ball</span>
       <span class="fp">Nobody · spotless this month</span>
@@ -718,6 +740,7 @@
       <span class="ft">😐 Cuntiness</span>
       <span class="fp">Nobody · spotless this month</span>
       <span class="fa">£0</span>
+    </div>
     </div>
   </div>
 </div>
