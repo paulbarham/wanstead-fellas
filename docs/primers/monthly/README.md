@@ -1,6 +1,6 @@
 # Monthly stats round-ups
 
-Auto-generated one-page stats summaries for each calendar month. New file lands here on the **1st of every month at 07:00 BST** via [`.github/workflows/monthly-report.yml`](../../../.github/workflows/monthly-report.yml).
+Auto-generated one-page stats summaries for each calendar month. New file lands here on the **1st of every month at 07:00 BST** via [`.github/workflows/monthly-roundup.yml`](../../../.github/workflows/monthly-roundup.yml).
 
 Each file uses data **from that month only** — matches, goals, MOTM/DOTD, fitness, fines. The whole squad and full-season stats stay in the app's Stats tab; these are month-in-review snapshots for sharing.
 
