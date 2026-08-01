@@ -816,14 +816,15 @@ function render(monthLabel, s) {
     letter-spacing: 0.02em;
   }
   .honour-grid {
-    display: table;
+    display: block;
     width: 100%;
-    table-layout: fixed;
-    border-spacing: 4pt 3pt;
+    margin-top: 2pt;
   }
   .honour-name {
-    display: table-cell;
-    width: 50%;
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    box-sizing: border-box;
     font-size: 9pt;
     color: #E8F0E9;
     font-weight: 500;
