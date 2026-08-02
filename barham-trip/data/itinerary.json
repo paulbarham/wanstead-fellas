@@ -165,6 +165,34 @@
           "weekday": "Sunday",
           "date": "9 Aug",
           "iso_date": "2026-08-09",
+          "title": "Alcatraz & the waterfront",
+          "subtitle": "The Rock — history the kids will actually remember.",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "ISLAND HISTORY",
+              "title": "Alcatraz cruise & cellhouse tour",
+              "plan": "Ferry out to Alcatraz for the excellent self-guided audio tour narrated by former guards and inmates — genuinely gripping for teens and 9-year-olds alike. Give it a good 2.5 hours on the island, then ferry back. Booked: the 1:05pm City Cruises ferry from Pier 33 (ref GYGX7M9G9XWQ) — arrive 30 mins early.",
+              "food": "Lunch at the Ferry Building on the way back — build-your-own from the stalls."
+            },
+            {
+              "kind": "alternative",
+              "badge": "HANDS-ON",
+              "title": "The Exploratorium",
+              "plan": "If Alcatraz is sold out (book it well ahead), Pier 15's Exploratorium is a giant hands-on science playground — hours of fun and air-conditioned.",
+              "food": "The Seaglass café on-site, or back to the Wharf."
+            }
+          ],
+          "tip": {
+            "label": "Booked — 1:05pm",
+            "body": "Alcatraz is booked for the 1:05pm ferry from Pier 33 (not the Wharf), ref GYGX7M9G9XWQ. Arrive 30 minutes early; mornings are foggy so bring a layer."
+          }
+        },
+        {
+          "n": 3,
+          "weekday": "Monday",
+          "date": "10 Aug",
+          "iso_date": "2026-08-10",
           "title": "Golden Gate & the bay",
           "subtitle": "The postcard day — bridge, bikes and Sausalito.",
           "options": [
@@ -193,34 +221,6 @@
           "tip": {
             "label": "Layers",
             "body": "The bridge is 10°C colder and windier than downtown, even in August. Everyone takes a jumper — no exceptions."
-          }
-        },
-        {
-          "n": 3,
-          "weekday": "Monday",
-          "date": "10 Aug",
-          "iso_date": "2026-08-10",
-          "title": "Alcatraz & the waterfront",
-          "subtitle": "The Rock — history the kids will actually remember.",
-          "options": [
-            {
-              "kind": "recommended",
-              "badge": "ISLAND HISTORY",
-              "title": "Alcatraz cruise & cellhouse tour",
-              "plan": "Ferry out to Alcatraz for the excellent self-guided audio tour narrated by former guards and inmates — genuinely gripping for teens and 9-year-olds alike. Give it a good 2.5 hours on the island, then ferry back.",
-              "food": "Lunch at the Ferry Building on the way back — build-your-own from the stalls."
-            },
-            {
-              "kind": "alternative",
-              "badge": "HANDS-ON",
-              "title": "The Exploratorium",
-              "plan": "If Alcatraz is sold out (book it well ahead), Pier 15's Exploratorium is a giant hands-on science playground — hours of fun and air-conditioned.",
-              "food": "The Seaglass café on-site, or back to the Wharf."
-            }
-          ],
-          "tip": {
-            "label": "Book early",
-            "body": "Alcatraz sells out weeks ahead and the ferry leaves from Pier 33, not the Wharf — check the departure time the night before."
           }
         },
         {
