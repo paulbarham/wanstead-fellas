@@ -14,7 +14,7 @@ interface Props {
  *  remove any the group decides against. Shared and offline-safe. */
 export default function DayPlan({ day }: Props) {
   const { items, addItem, toggleDone, removeItem } = useDayPlan(day.n)
-  const { member, members } = useAuth()
+  const { member, members, isAdmin } = useAuth()
   const leg = getLegForDay(day.n)
   const ideas = leg?.ideas ?? []
 
@@ -100,7 +100,7 @@ export default function DayPlan({ day }: Props) {
                   — {nameFor(item.added_by)}
                 </div>
               </div>
-              {member && (
+              {isAdmin && (
                 <button
                   onClick={() => removeItem(item.id)}
                   className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-navy/40"
@@ -112,6 +112,10 @@ export default function DayPlan({ day }: Props) {
             </li>
           ))}
         </ul>
+      )}
+
+      {items.length > 0 && member && !isAdmin && (
+        <p className="mt-2 text-[12px] italic text-navy/40">Ask Dad to remove anything the group drops.</p>
       )}
 
       {/* Add */}

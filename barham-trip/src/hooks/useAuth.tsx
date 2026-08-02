@@ -19,6 +19,8 @@ interface AuthValue {
   session: Session | null
   /** The current signed-in family member, or null if signed out. */
   member: Member | null
+  /** True if the current member is the admin (Paul) — gates admin-only actions. */
+  isAdmin: boolean
   /** Identity used for the "who do I manage" check: real email in Supabase mode,
    *  seat id in local mode. */
   currentEmail: string | null
@@ -60,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const { data, error } = await supabase
       .from('members')
-      .select('id, display_name, avatar_url, age_group, color, manager_email')
+      .select('id, display_name, avatar_url, age_group, color, manager_email, is_admin')
       .order('display_name')
     if (!error && data && data.length) {
       setMembers(data as Member[])
@@ -163,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ready,
     session,
     member,
+    isAdmin: member?.is_admin === true,
     currentEmail,
     members,
     isLocalMode,

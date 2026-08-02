@@ -14,13 +14,16 @@ export interface Member {
    *  whose identity (email in Supabase mode, seat id in local mode) matches this
    *  value. That adult can set their day RSVPs from their own login. */
   manager_email?: string | null
+  /** The admin (Paul) — can do admin-only actions like removing planned
+   *  activities from a day. */
+  is_admin?: boolean
 }
 
 // Real family: four sign in with their own email (magic link); Tobias & Niyah
 // have no device and sit under Paul. In local preview mode the "identity" used
 // for the managed check is the seat id, so Tobias/Niyah point at 'seat-paul'.
 export const DEFAULT_FAMILY: Member[] = [
-  { id: 'seat-paul', display_name: 'Paul', avatar_url: null, age_group: 'adult', color: '#0e3a48' },
+  { id: 'seat-paul', display_name: 'Paul', avatar_url: null, age_group: 'adult', color: '#0e3a48', is_admin: true },
   { id: 'seat-nichola', display_name: 'Nichola', avatar_url: null, age_group: 'adult', color: '#4a8896' },
   { id: 'seat-amelia', display_name: 'Amelia', avatar_url: null, age_group: 'teen', color: '#e08853' },
   { id: 'seat-marley', display_name: 'Marley', avatar_url: null, age_group: 'teen', color: '#c86c3a' },

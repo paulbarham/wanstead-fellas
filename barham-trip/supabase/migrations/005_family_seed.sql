@@ -8,6 +8,8 @@
 -- a managing adult's email.
 
 -- Sign-in roster (matched to auth.users by email, case-insensitive).
+-- (Paul is flagged as the admin later, in migration 012 — after the is_admin
+-- column exists — so this seed stays column-stable at any point in history.)
 insert into public.member_seed (email, display_name, age_group, color) values
   ('adult1@example.com',          'Paul',    'adult', '#0e3a48'),
   ('adult2@example.com',  'Nichola', 'adult', '#4a8896'),
