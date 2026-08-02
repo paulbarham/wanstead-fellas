@@ -45,14 +45,15 @@ select v.name, v.note, v.sort from (values
   ('Monterey Bay Aquarium tickets', 'Day 6. Dated online tickets are cheaper and skip the queue.', 7),
   ('Hearst Castle tour', 'Day 8. Timed tour bus from the visitor centre — must be pre-booked.', 8),
   ('Hampton Inn San Simeon, Cambria', '12–13 Aug (1 night).', 9),
-  ('Hampton Inn & Suites Santa Monica', '14–16 Aug (2 nights).', 10),
-  ('Universal Studios Hollywood tickets', 'Day 12. Dated tickets; consider the Express pass for August crowds.', 11),
-  ('SpringHill Suites LA Burbank/Downtown', '16–23 Aug (7 nights).', 12),
-  ('Disneyland tickets + park reservation', 'Day 15. Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before.', 13),
-  ('Six Flags Magic Mountain tickets', 'Day 17. Buy online in advance; the teens'' day.', 14),
-  ('W Las Vegas', '23–24 Aug (1 night).', 15),
-  ('Luxor Hotel & Casino', '24–29 Aug (5 nights).', 16),
-  ('Grand Canyon West day tour', 'Day 21. Book the Skywalk / West Rim package and confirm the pickup or self-drive parking.', 17),
-  ('Las Vegas Raiders tickets', 'NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together.', 18)
+  ('Days Inn by Wyndham Santa Monica', '13–14 Aug (1 night).', 10),
+  ('Hampton Inn & Suites Santa Monica', '14–16 Aug (2 nights).', 11),
+  ('Universal Studios Hollywood tickets', 'Day 12. Dated tickets; consider the Express pass for August crowds.', 12),
+  ('SpringHill Suites LA Burbank/Downtown', '16–23 Aug (7 nights).', 13),
+  ('Disneyland tickets + park reservation', 'Day 15. Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before.', 14),
+  ('Six Flags Magic Mountain tickets', 'Day 17. Buy online in advance; the teens'' day.', 15),
+  ('W Las Vegas', '23–24 Aug (1 night).', 16),
+  ('Luxor Hotel & Casino', '24–29 Aug (5 nights).', 17),
+  ('Grand Canyon West day tour', 'Day 21. Book the Skywalk / West Rim package and confirm the pickup or self-drive parking.', 18),
+  ('Las Vegas Raiders tickets', 'NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together.', 19)
 ) as v(name, note, sort)
 where not exists (select 1 from public.bookings);
