@@ -4,6 +4,7 @@ import { recommendedOption, alternativeOptions, getLegForDay } from '../lib/itin
 import DayBadge from './DayBadge'
 import OptionCard from './OptionCard'
 import WeatherChip from './WeatherChip'
+import DayPlan from './DayPlan'
 
 interface Props {
   day: TripDay
@@ -46,8 +47,16 @@ export default function DayView({ day, isToday = false }: Props) {
 
       {leg && <WeatherChip legTitle={leg.title} isoDate={day.iso_date} />}
 
-      {/* Recommended hero */}
-      {rec && <OptionCard option={rec} hero />}
+      {/* The family's editable plan for the day */}
+      <DayPlan day={day} />
+
+      {/* Suggested plan */}
+      <div>
+        <h2 className="mb-2 text-[13px] font-bold uppercase tracking-wide text-navy/45">
+          Suggested plan
+        </h2>
+        {rec && <OptionCard option={rec} hero />}
+      </div>
 
       {/* Alternatives */}
       {alts.length > 0 && (

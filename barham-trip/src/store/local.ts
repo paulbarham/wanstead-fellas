@@ -48,6 +48,18 @@ export interface UserIdea {
   created_at: string
 }
 
+/** A family-curated activity slotted onto a specific day's itinerary. Shared
+ *  and collaborative — anyone can add, tick off, or remove one. */
+export interface DayPlanItem {
+  id: string
+  day_n: number
+  title: string
+  note: string | null
+  done: boolean
+  added_by: string | null
+  created_at: string
+}
+
 interface LocalState {
   // booking_key -> tick
   bookings: Record<string, BookingTick>
@@ -57,6 +69,8 @@ interface LocalState {
   rsvp: Record<string, RsvpChoice>
   // legId -> family-added ideas
   userIdeas: Record<string, UserIdea[]>
+  // dayN -> family-curated activities on that day
+  dayPlans: Record<number, DayPlanItem[]>
   // editable, shared bookings list
   bookingsList: BookingRow[]
 
@@ -68,6 +82,12 @@ interface LocalState {
   removeUserIdea: (legId: string, id: string) => void
   /** Merge a remote snapshot of a leg's ideas into local state (by id). */
   mergeUserIdeas: (legId: string, ideas: UserIdea[]) => void
+
+  addDayPlanItem: (item: DayPlanItem) => void
+  removeDayPlanItem: (dayN: number, id: string) => void
+  setDayPlanDone: (dayN: number, id: string, done: boolean) => void
+  /** Merge a remote snapshot of a day's plan into local state (by id). */
+  mergeDayPlanItems: (dayN: number, items: DayPlanItem[]) => void
 
   setBookingsList: (rows: BookingRow[]) => void
   upsertBookingRow: (row: BookingRow) => void
@@ -89,6 +109,7 @@ export const useLocalStore = create<LocalState>()(
       packing: {},
       rsvp: {},
       userIdeas: {},
+      dayPlans: {},
       bookingsList: initialBookings,
 
       setBooking: (key, tick) =>
@@ -124,6 +145,40 @@ export const useLocalStore = create<LocalState>()(
             a.created_at.localeCompare(b.created_at),
           )
           return { userIdeas: { ...s.userIdeas, [legId]: merged } }
+        }),
+
+      addDayPlanItem: (item) =>
+        set((s) => {
+          const list = s.dayPlans[item.day_n] ?? []
+          if (list.some((i) => i.id === item.id)) return s
+          return { dayPlans: { ...s.dayPlans, [item.day_n]: [...list, item] } }
+        }),
+
+      removeDayPlanItem: (dayN, id) =>
+        set((s) => ({
+          dayPlans: {
+            ...s.dayPlans,
+            [dayN]: (s.dayPlans[dayN] ?? []).filter((i) => i.id !== id),
+          },
+        })),
+
+      setDayPlanDone: (dayN, id, done) =>
+        set((s) => ({
+          dayPlans: {
+            ...s.dayPlans,
+            [dayN]: (s.dayPlans[dayN] ?? []).map((i) => (i.id === id ? { ...i, done } : i)),
+          },
+        })),
+
+      mergeDayPlanItems: (dayN, items) =>
+        set((s) => {
+          const byId = new Map<string, DayPlanItem>()
+          for (const i of s.dayPlans[dayN] ?? []) byId.set(i.id, i)
+          for (const i of items) byId.set(i.id, i)
+          const merged = [...byId.values()].sort((a, b) =>
+            a.created_at.localeCompare(b.created_at),
+          )
+          return { dayPlans: { ...s.dayPlans, [dayN]: merged } }
         }),
 
       setBookingsList: (rows) => set(() => ({ bookingsList: rows })),
