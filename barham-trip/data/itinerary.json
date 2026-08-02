@@ -16,18 +16,120 @@
       "tagline": "Fog, hills and sourdough — easing in on the bay.",
       "notes": "Four nights at Hotel Julian to shake off the jet lag. Mornings are foggy and cool right through August (Karl the Fog is real), so keep a layer in every bag even when it looks sunny. Parking is brutal — lean on cable cars, ferries and walking.",
       "ideas": [
-        { "title": "Alcatraz Island", "note": "Former island prison — the audio tour narrated by ex-guards and inmates is gripping. Pre-book, it sells out." },
-        { "title": "Walk or cycle the Golden Gate Bridge", "note": "Ride over to the harbour town of Sausalito, then ferry back with the bikes." },
-        { "title": "Ride a cable car", "note": "The Powell-Hyde line climbs past the Lombard Street zig-zags — hang off the side." },
-        { "title": "Fisherman's Wharf & Pier 39", "note": "Barking sea lions, sourdough bread bowls, street performers and arcades." },
-        { "title": "Exploratorium", "note": "Enormous hands-on science playground on Pier 15 — hours of fun, air-conditioned." },
-        { "title": "California Academy of Sciences", "note": "Aquarium, planetarium and a four-storey rainforest under one living roof (Golden Gate Park)." },
-        { "title": "Muir Woods", "note": "Cathedral-quiet grove of giant redwoods, 30 min north. Parking/shuttle reservation required." },
-        { "title": "Painted Ladies, Alamo Square", "note": "The postcard row of Victorian houses with the skyline behind." },
-        { "title": "Chinatown", "note": "Oldest in North America — the fortune-cookie factory is a hit with kids." },
-        { "title": "Twin Peaks at sunset", "note": "The best panoramic view over the entire city; bring a layer, it's windy." },
-        { "title": "Mission District", "note": "The city's best burritos plus streets of colourful murals (Balmy Alley)." },
-        { "title": "SF Giants baseball at Oracle Park", "note": "Waterfront ballpark — check whether the Giants are home during our dates." }
+        {
+          "title": "Alcatraz Island",
+          "category": "sights",
+          "suits": "all",
+          "note": "Former island prison — the audio tour narrated by ex-guards and inmates is gripping. Pre-book, it sells out."
+        },
+        {
+          "title": "Ride a cable car",
+          "category": "sights",
+          "suits": "all",
+          "note": "The Powell-Hyde line climbs past the Lombard Street zig-zags — hang off the side."
+        },
+        {
+          "title": "Fisherman's Wharf & Pier 39",
+          "category": "sights",
+          "suits": "all",
+          "note": "The barking sea lions on the docks are a hit with the little ones. Skip the seafood stalls — plenty else to eat here."
+        },
+        {
+          "title": "Painted Ladies, Alamo Square",
+          "category": "sights",
+          "suits": "all",
+          "note": "The Full House row of Victorian houses — a quick photo stop with a park to run around in."
+        },
+        {
+          "title": "Chinatown",
+          "category": "sights",
+          "suits": "all",
+          "note": "The oldest Chinatown in the US. Watch fortune cookies being folded on Ross Alley."
+        },
+        {
+          "title": "Walk or cycle the Golden Gate Bridge",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Ride over to the harbour town of Sausalito, then ferry back with the bikes."
+        },
+        {
+          "title": "Muir Woods",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Towering old-growth redwoods 30 mins north. Cool and shaded — good for a hot day. Book parking ahead."
+        },
+        {
+          "title": "Twin Peaks at sunset",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "The best panorama of the whole city and bay. Bring a layer — it gets windy and cold up top."
+        },
+        {
+          "title": "Exploratorium",
+          "category": "cultural",
+          "suits": "all",
+          "note": "Hands-on science playground on the waterfront — brilliant for the younger ones, and the teens get sucked in too."
+        },
+        {
+          "title": "California Academy of Sciences",
+          "category": "cultural",
+          "suits": "all",
+          "note": "Rainforest dome, planetarium and aquarium under a living roof. A whole rainy-morning in one."
+        },
+        {
+          "title": "Walt Disney Family Museum",
+          "category": "cultural",
+          "suits": "all",
+          "note": "In the Presidio — the story of Walt Disney, with early sketches and models. A nice warm-up for Disneyland later."
+        },
+        {
+          "title": "Mission District murals",
+          "category": "cultural",
+          "suits": "teens",
+          "note": "Balmy and Clarion Alleys are packed with street art — a good wander for the teens with a camera."
+        },
+        {
+          "title": "Koret Children's Quarter, Golden Gate Park",
+          "category": "playgrounds",
+          "suits": "littles",
+          "note": "The oldest public playground in the US, with a restored 1914 carousel. Perfect to burn off the little ones' energy."
+        },
+        {
+          "title": "Yerba Buena Gardens & carousel",
+          "category": "playgrounds",
+          "suits": "littles",
+          "note": "Downtown lawns with a historic carousel and the kid-focused Children’s Creativity Museum next door."
+        },
+        {
+          "title": "SF Giants baseball at Oracle Park",
+          "category": "sports",
+          "suits": "all",
+          "note": "Check if the Giants are home. A waterfront ballpark right on the bay — a proper American night out."
+        },
+        {
+          "title": "In-N-Out Burger, Fisherman’s Wharf",
+          "category": "food",
+          "suits": "all",
+          "note": "The West Coast burger institution. Ask for it \"animal style\". No seafood in sight."
+        },
+        {
+          "title": "Tony's Pizza Napoletana, North Beach",
+          "category": "food",
+          "suits": "all",
+          "note": "Award-winning pizza in the Italian quarter — a crowd-pleaser for all six."
+        },
+        {
+          "title": "Ghirardelli Square sundaes",
+          "category": "food",
+          "suits": "all",
+          "note": "Hot-fudge sundaes at the old chocolate factory — the little ones will not forget it."
+        },
+        {
+          "title": "Mission-style burrito, La Taqueria",
+          "category": "food",
+          "suits": "all",
+          "note": "The definitive giant SF burrito. Cheap, filling and easy for fussy eaters."
+        }
       ],
       "days": [
         {
@@ -53,7 +155,10 @@
               "food": "Tacos or a slice from the Ferry Building food hall, eaten by the water."
             }
           ],
-          "tip": { "label": "Book early", "body": "Have all six passports and the car-hire confirmation ready at the rental desk, and confirm the twins' booster seats before you drive off." }
+          "tip": {
+            "label": "Book early",
+            "body": "Have all six passports and the car-hire confirmation ready at the rental desk, and confirm the twins' booster seats before you drive off."
+          }
         },
         {
           "n": 2,
@@ -85,7 +190,10 @@
               "food": "A hot fudge sundae at Ghirardelli — split a few, they're enormous."
             }
           ],
-          "tip": { "label": "Layers", "body": "The bridge is 10°C colder and windier than downtown, even in August. Everyone takes a jumper — no exceptions." }
+          "tip": {
+            "label": "Layers",
+            "body": "The bridge is 10°C colder and windier than downtown, even in August. Everyone takes a jumper — no exceptions."
+          }
         },
         {
           "n": 3,
@@ -110,7 +218,10 @@
               "food": "The Seaglass café on-site, or back to the Wharf."
             }
           ],
-          "tip": { "label": "Book early", "body": "Alcatraz sells out weeks ahead and the ferry leaves from Pier 33, not the Wharf — check the departure time the night before." }
+          "tip": {
+            "label": "Book early",
+            "body": "Alcatraz sells out weeks ahead and the ferry leaves from Pier 33, not the Wharf — check the departure time the night before."
+          }
         },
         {
           "n": 4,
@@ -135,7 +246,10 @@
               "food": "The Academy café, or picnic by the park bandshell."
             }
           ],
-          "tip": { "label": "Prep the drive", "body": "Pack tonight, fuel up, and download offline maps for Monterey → Big Sur — signal disappears on the coast road tomorrow. This app already works offline." }
+          "tip": {
+            "label": "Prep the drive",
+            "body": "Pack tonight, fuel up, and download offline maps for Monterey → Big Sur — signal disappears on the coast road tomorrow. This app already works offline."
+          }
         }
       ]
     },
@@ -147,17 +261,84 @@
       "tagline": "The drive is the destination — Big Sur, cliffs and Hearst Castle.",
       "notes": "Two days threading Highway 1 south. Night 1 in Cambria (Hampton Inn San Simeon), night 2 in Santa Monica (Days Inn). Phone signal is patchy to non-existent through Big Sur — screenshot anything you need, and trust this app, which runs fully offline. Fill the tank whenever it drops below half.",
       "ideas": [
-        { "title": "17-Mile Drive", "note": "Scenic private toll road past Pebble Beach and the lone cypress." },
-        { "title": "Bixby Creek Bridge", "note": "The iconic Big Sur photo stop — pull off just before it." },
-        { "title": "McWay Falls", "note": "An 80ft waterfall dropping onto a cove beach; short easy walk to the overlook." },
-        { "title": "Pfeiffer Beach", "note": "Purple-tinged sand and a sea arch, down a narrow hidden lane." },
-        { "title": "Point Lobos Reserve", "note": "Gentle cliff trails, tide pools and sea lions — good for the twins." },
-        { "title": "Monterey Bay Aquarium", "note": "World-class; the sea-otter feed and kelp forest are unmissable." },
-        { "title": "Santa Cruz Beach Boardwalk", "note": "Old-school seaside rides — the wooden Giant Dipper coaster is a scream." },
-        { "title": "Hearst Castle", "note": "Opulent hilltop mansion with Roman pools; timed tour bus from the visitor centre." },
-        { "title": "Elephant seal rookery, Piedras Blancas", "note": "Hundreds of enormous seals on the beach a few metres from a free boardwalk." },
-        { "title": "Morro Bay", "note": "Kayak the calm bay beneath the giant 176m Morro Rock." },
-        { "title": "Lunch at Nepenthe", "note": "Cliff-top terrace 800ft above the Pacific — arrive early or book." }
+        {
+          "title": "17-Mile Drive",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Scenic toll road past the Lone Cypress and Pebble Beach. Slow, beautiful, lots of pull-offs."
+        },
+        {
+          "title": "Bixby Creek Bridge",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "The iconic Big Sur arch bridge — pull into the viewpoint just north for the classic shot."
+        },
+        {
+          "title": "McWay Falls",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "An 80ft waterfall dropping onto a hidden beach. Short easy walk from the car park."
+        },
+        {
+          "title": "Pfeiffer Beach",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Purple-tinged sand and a keyhole rock arch. The access lane is narrow and easy to miss."
+        },
+        {
+          "title": "Point Lobos Reserve",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Coves, sea otters and easy cliff trails — the \"crown jewel\" of the state parks."
+        },
+        {
+          "title": "Elephant seal rookery, Piedras Blancas",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Hundreds of elephant seals hauled out yards from a free boardwalk. A guaranteed wildlife win for the kids."
+        },
+        {
+          "title": "Morro Bay",
+          "category": "sights",
+          "suits": "all",
+          "note": "A giant volcanic plug rising out of the bay — a good leg-stretch and ice-cream stop."
+        },
+        {
+          "title": "Cannery Row, Monterey",
+          "category": "sights",
+          "suits": "all",
+          "note": "The Steinbeck-famous waterfront strip — sweet shops, an old carousel and the aquarium at the end."
+        },
+        {
+          "title": "Hearst Castle",
+          "category": "cultural",
+          "suits": "all",
+          "note": "The over-the-top hilltop mansion of a newspaper tycoon. Pre-book the timed tour bus from the visitor centre."
+        },
+        {
+          "title": "Monterey Bay Aquarium",
+          "category": "cultural",
+          "suits": "all",
+          "note": "World-class aquarium — the kelp forest and touch pools are a firm favourite with younger ones. Dated tickets are cheaper."
+        },
+        {
+          "title": "Dennis the Menace Park, Monterey",
+          "category": "playgrounds",
+          "suits": "littles",
+          "note": "A wildly creative playground (real train engine, big slides) designed by the Dennis the Menace cartoonist. A perfect PCH break for the little ones."
+        },
+        {
+          "title": "Santa Cruz Beach Boardwalk",
+          "category": "rides",
+          "suits": "all",
+          "note": "A classic seaside amusement park with a wooden roller coaster — if the route takes you through Santa Cruz."
+        },
+        {
+          "title": "Lunch at Nepenthe",
+          "category": "food",
+          "suits": "all",
+          "note": "Cliff-top Big Sur restaurant with jaw-dropping views. Order the famous Ambrosia burger — no seafood needed."
+        }
       ],
       "days": [
         {
@@ -183,7 +364,10 @@
               "food": "Clam chowder on Old Fisherman's Wharf, Monterey."
             }
           ],
-          "tip": { "label": "No signal", "body": "There is essentially zero reception through Big Sur — screenshot directions and fuel up in Monterey (one very pricey station on the whole stretch). This page works with no connection at all; watch for fog on the cliff bends." }
+          "tip": {
+            "label": "No signal",
+            "body": "There is essentially zero reception through Big Sur — screenshot directions and fuel up in Monterey (one very pricey station on the whole stretch). This page works with no connection at all; watch for fog on the cliff bends."
+          }
         },
         {
           "n": 6,
@@ -208,7 +392,10 @@
               "food": "Fish tacos on the Morro Bay Embarcadero."
             }
           ],
-          "tip": { "label": "Book early", "body": "Hearst Castle tours must be pre-booked and depart on a strict timetable from the visitor centre. Aim to clear Santa Barbara by mid-afternoon so the last stretch into Santa Monica stays sane." }
+          "tip": {
+            "label": "Book early",
+            "body": "Hearst Castle tours must be pre-booked and depart on a strict timetable from the visitor centre. Aim to clear Santa Barbara by mid-afternoon so the last stretch into Santa Monica stays sane."
+          }
         }
       ]
     },
@@ -220,16 +407,84 @@
       "tagline": "Beach base — pier lights, bikes and Pacific sunsets.",
       "notes": "Two nights at the Hampton Inn & Suites, walkable to the beach. The classic beach path runs all the way from Santa Monica to Venice — hire cruiser bikes and use it. The car can mostly stay put.",
       "ideas": [
-        { "title": "Santa Monica Pier & Pacific Park", "note": "Solar-powered Ferris wheel and coaster right over the ocean." },
-        { "title": "Cycle the beach path to Venice", "note": "Flat 3.5km each way; hire cruiser bikes for the whole stay." },
-        { "title": "Venice Beach boardwalk & Muscle Beach", "note": "Skaters, street performers and the famous outdoor gym — peak people-watching." },
-        { "title": "Venice Canals", "note": "A quiet, pretty walk over little bridges — a total contrast to the boardwalk." },
-        { "title": "Abbot Kinney Boulevard", "note": "Trendy boutiques, murals and arguably the best casual food in LA." },
-        { "title": "Beginner surf lesson", "note": "Mellow breaks and instructors used to kids — everyone stands up eventually." },
-        { "title": "Malibu beaches (El Matador)", "note": "Sea caves and arches up the coast; small car park, go early." },
-        { "title": "Third Street Promenade", "note": "Open-air shopping street with buskers, a few minutes from the pier." },
-        { "title": "Getty Villa", "note": "Roman and Greek antiquities in a stunning re-created villa (free, book ahead)." },
-        { "title": "Original Farmers Market & The Grove", "note": "Historic food stalls next to an open-air shopping district." }
+        {
+          "title": "Santa Monica Pier & Pacific Park",
+          "category": "rides",
+          "suits": "all",
+          "note": "The end of Route 66 — a small amusement park with a Ferris wheel and coaster right over the ocean."
+        },
+        {
+          "title": "Cycle the beach path to Venice",
+          "category": "sports",
+          "suits": "all",
+          "note": "Hire cruiser bikes and ride the flat 3-mile path along the sand to Venice and back."
+        },
+        {
+          "title": "Beginner surf lesson",
+          "category": "sports",
+          "suits": "teens",
+          "note": "Gentle Santa Monica breakers and lots of schools — a fun morning for the teens to try."
+        },
+        {
+          "title": "Venice Beach boardwalk & Muscle Beach",
+          "category": "sights",
+          "suits": "all",
+          "note": "Street performers, skate park and the famous outdoor gym. Busy, colourful and free."
+        },
+        {
+          "title": "Venice Canals",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "A quiet, pretty grid of canals and footbridges just off the boardwalk — a lovely stroll."
+        },
+        {
+          "title": "Malibu beaches (El Matador)",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Sea caves and rock arches a short drive up the coast. Steep steps down, so wear proper shoes."
+        },
+        {
+          "title": "Getty Villa",
+          "category": "cultural",
+          "suits": "all",
+          "note": "A recreated Roman villa full of antiquities above the Malibu coast. Free entry, timed ticket needed."
+        },
+        {
+          "title": "Tongva Park playground",
+          "category": "playgrounds",
+          "suits": "littles",
+          "note": "A modern park right by the pier with fountains and climbing frames — easy to let the little ones loose."
+        },
+        {
+          "title": "Abbot Kinney Boulevard",
+          "category": "shopping",
+          "suits": "teens",
+          "note": "Hip Venice street of boutiques, murals and coffee — good for a teen mooch."
+        },
+        {
+          "title": "Third Street Promenade",
+          "category": "shopping",
+          "suits": "all",
+          "note": "Pedestrianised shopping street with street performers — easy walk from the beach."
+        },
+        {
+          "title": "Original Farmers Market & The Grove",
+          "category": "food",
+          "suits": "all",
+          "note": "Historic food stalls (tacos, BBQ, bakeries — no seafood required) next to an open-air shopping street with a trolley."
+        },
+        {
+          "title": "Bay Cities Italian Deli",
+          "category": "food",
+          "suits": "all",
+          "note": "Home of \"the Godmother\" sub — the best sandwich in LA. Grab them for a beach picnic."
+        },
+        {
+          "title": "Salt & Straw ice cream, Abbot Kinney",
+          "category": "food",
+          "suits": "all",
+          "note": "Cult small-batch ice cream with wild flavours. A guaranteed hit with the kids."
+        }
       ],
       "days": [
         {
@@ -255,7 +510,10 @@
               "food": "Poke bowls or tacos on the Venice side."
             }
           ],
-          "tip": { "label": "Beach kit", "body": "Rent beach cruisers for the whole family for the two days — it turns the coast into your back garden." }
+          "tip": {
+            "label": "Beach kit",
+            "body": "Rent beach cruisers for the whole family for the two days — it turns the coast into your back garden."
+          }
         },
         {
           "n": 8,
@@ -280,7 +538,10 @@
               "food": "Well-earned brunch on Main Street, Santa Monica."
             }
           ],
-          "tip": { "label": "Parking", "body": "El Matador's car park is tiny and fills by late morning — go early, and pack water as there are no shops at the beach." }
+          "tip": {
+            "label": "Parking",
+            "body": "El Matador's car park is tiny and fills by late morning — go early, and pack water as there are no shops at the beach."
+          }
         }
       ]
     },
@@ -292,18 +553,108 @@
       "tagline": "Hollywood, theme parks and the big-city stretch.",
       "notes": "Seven nights at the SpringHill Suites (Burbank/Downtown) — your big base for the week. LA is vast and the traffic is real; plan each day around one area and travel outside peak hours. Burbank is handy for Universal, Warner Bros and Griffith. This is the leg where the four kids' tastes pull hardest, so a couple of days split the group.",
       "ideas": [
-        { "title": "Hollywood Walk of Fame & TCL Chinese Theatre", "note": "The stars, the handprints and the tourist buzz of Hollywood Blvd." },
-        { "title": "Griffith Observatory", "note": "Free space museum, telescopes, and the definitive Hollywood Sign view at sunset." },
-        { "title": "Universal Studios Hollywood", "note": "Harry Potter, Super Nintendo World, Jurassic World and the backlot Studio Tour." },
-        { "title": "Disneyland / California Adventure", "note": "The original Disney parks, down in Anaheim — a full magical day." },
-        { "title": "Six Flags Magic Mountain", "note": "One of the biggest roller-coaster line-ups on the planet — the teenagers' day." },
-        { "title": "The Broad", "note": "Modern art incl. Yayoi Kusama's Infinity Mirror Rooms — free, but book timed tickets." },
-        { "title": "La Brea Tar Pits", "note": "Bubbling Ice Age tar pits and a museum of sabre-tooths and mammoths, mid-city." },
-        { "title": "Getty Center", "note": "Art, gardens, architecture and huge city views — free (pay for parking)." },
-        { "title": "Warner Bros. Studio Tour", "note": "Behind real working film and TV sets — brilliant for film-mad teens." },
-        { "title": "Rodeo Drive & Beverly Hills", "note": "Window-shopping and people-watching in the famous zip code." },
-        { "title": "LA Dodgers at Dodger Stadium", "note": "Classic MLB night out — check whether they're home during our dates." },
-        { "title": "Griffith Park & LA Zoo", "note": "Huge park with a zoo and a vintage train museum — space for the twins to roam." }
+        {
+          "title": "Hollywood Walk of Fame & TCL Chinese Theatre",
+          "category": "sights",
+          "suits": "all",
+          "note": "The stars and the hand-prints in the forecourt. Busy and a bit gritty — go early."
+        },
+        {
+          "title": "Griffith Observatory",
+          "category": "sights",
+          "suits": "all",
+          "note": "Free observatory with the best Hollywood Sign view and evening telescopes. Stunning at sunset."
+        },
+        {
+          "title": "Universal Studios Hollywood",
+          "category": "rides",
+          "suits": "all",
+          "note": "Theme park + working studio backlot tram. The Wizarding World and Mario Land are the headliners. Consider Express in August."
+        },
+        {
+          "title": "Disneyland / California Adventure",
+          "category": "rides",
+          "suits": "all",
+          "note": "The original Disneyland. Needs a dated ticket AND a park reservation — sort both ahead and set up Genie+."
+        },
+        {
+          "title": "Six Flags Magic Mountain",
+          "category": "rides",
+          "suits": "teens",
+          "note": "The coaster capital — record-breaking thrill rides. The teens’ day; not for the little ones."
+        },
+        {
+          "title": "Warner Bros. Studio Tour",
+          "category": "cultural",
+          "suits": "teens",
+          "note": "Ride through the backlot and sound stages (Friends, DC). Right by the Burbank hotel. Great for film-mad teens."
+        },
+        {
+          "title": "The Broad",
+          "category": "cultural",
+          "suits": "teens",
+          "note": "Free contemporary art museum downtown — the Infinity Mirror Rooms need a timed reservation."
+        },
+        {
+          "title": "La Brea Tar Pits",
+          "category": "cultural",
+          "suits": "all",
+          "note": "Ice-age fossils bubbling out of tar in the middle of the city. The mammoths are a winner for younger kids."
+        },
+        {
+          "title": "Natural History Museum",
+          "category": "cultural",
+          "suits": "all",
+          "note": "Dinosaurs, gems and a butterfly pavilion — a solid all-ages half-day, and cool indoors when it’s hot."
+        },
+        {
+          "title": "Getty Center",
+          "category": "cultural",
+          "suits": "all",
+          "note": "Hilltop art museum reached by a little tram, with gardens and huge city views. Free entry."
+        },
+        {
+          "title": "Griffith Park & LA Zoo",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "One of the largest urban parks in the US — the zoo, trails and picnic lawns keep all ages happy."
+        },
+        {
+          "title": "Travel Town & pony rides, Griffith Park",
+          "category": "playgrounds",
+          "suits": "littles",
+          "note": "A free outdoor train museum with a miniature railroad to ride, plus nearby pony rides — made for the little ones."
+        },
+        {
+          "title": "Rodeo Drive & Beverly Hills",
+          "category": "shopping",
+          "suits": "teens",
+          "note": "The famous luxury shopping street — fun to window-shop and spot the odd celebrity."
+        },
+        {
+          "title": "LA Dodgers at Dodger Stadium",
+          "category": "sports",
+          "suits": "all",
+          "note": "Check if the Dodgers are home. An iconic ballpark in the hills — grab a Dodger Dog."
+        },
+        {
+          "title": "Porto's Bakery, Burbank",
+          "category": "food",
+          "suits": "all",
+          "note": "Beloved Cuban bakery minutes from the hotel — cheese rolls and potato balls for pennies. Perfect breakfast run."
+        },
+        {
+          "title": "Pink's Hot Dogs, Hollywood",
+          "category": "food",
+          "suits": "all",
+          "note": "An LA institution since 1939 — chilli dogs with a queue to match. Cash-friendly and kid-proof."
+        },
+        {
+          "title": "Grand Central Market, DTLA",
+          "category": "food",
+          "suits": "all",
+          "note": "A buzzing food hall — tacos, burgers, egg sandwiches and more. Something for every fussy eater, no seafood needed."
+        }
       ],
       "days": [
         {
@@ -329,7 +680,10 @@
               "food": "The Getty's restaurant and café, with a view."
             }
           ],
-          "tip": { "label": "Beat the crowds", "body": "Griffith Observatory parking fills fast at sunset — arrive well before golden hour or use the DASH shuttle, and bring a layer for after dark." }
+          "tip": {
+            "label": "Beat the crowds",
+            "body": "Griffith Observatory parking fills fast at sunset — arrive well before golden hour or use the DASH shuttle, and bring a layer for after dark."
+          }
         },
         {
           "n": 10,
@@ -354,7 +708,10 @@
               "food": "Lunch on the studio lot or in Burbank."
             }
           ],
-          "tip": { "label": "Book early", "body": "Buy dated Universal tickets online and consider the Express pass — August queues are long. Rope-drop the Studio Tour first." }
+          "tip": {
+            "label": "Book early",
+            "body": "Buy dated Universal tickets online and consider the Express pass — August queues are long. Rope-drop the Studio Tour first."
+          }
         },
         {
           "n": 11,
@@ -379,7 +736,10 @@
               "food": "Grand Central Market — dozens of food stalls under one roof."
             }
           ],
-          "tip": { "label": "Book early", "body": "The Broad is free but timed-entry tickets go fast, and the Infinity Rooms need a separate reservation — sort it a few days ahead." }
+          "tip": {
+            "label": "Book early",
+            "body": "The Broad is free but timed-entry tickets go fast, and the Infinity Rooms need a separate reservation — sort it a few days ahead."
+          }
         },
         {
           "n": 12,
@@ -404,7 +764,10 @@
               "food": "Pym Test Kitchen in Avengers Campus is a laugh."
             }
           ],
-          "tip": { "label": "Book early", "body": "Disneyland needs a dated ticket AND a park reservation. Download the app and set up Lightning Lane / Genie+ the night before to skip the worst queues." }
+          "tip": {
+            "label": "Book early",
+            "body": "Disneyland needs a dated ticket AND a park reservation. Download the app and set up Lightning Lane / Genie+ the night before to skip the worst queues."
+          }
         },
         {
           "n": 13,
@@ -436,7 +799,10 @@
               "food": "Whatever takes your fancy on the pier or Abbot Kinney."
             }
           ],
-          "tip": { "label": "Split if you like", "body": "A good day to split by energy — quiet zoo/park for the twins, museums or the beach for the older ones." }
+          "tip": {
+            "label": "Split if you like",
+            "body": "A good day to split by energy — quiet zoo/park for the twins, museums or the beach for the older ones."
+          }
         },
         {
           "n": 14,
@@ -461,7 +827,10 @@
               "food": "Family dinner back near Burbank — somewhere everyone's voted for."
             }
           ],
-          "tip": { "label": "Split the group", "body": "Height limits keep the twins off most of Magic Mountain's big rides, so splitting the day is kinder to everyone. Agree a pickup time and place before you separate." }
+          "tip": {
+            "label": "Split the group",
+            "body": "Height limits keep the twins off most of Magic Mountain's big rides, so splitting the day is kinder to everyone. Agree a pickup time and place before you separate."
+          }
         },
         {
           "n": 15,
@@ -486,7 +855,10 @@
               "food": "Take your pick of the Farmers Market stalls."
             }
           ],
-          "tip": { "label": "Desert prep", "body": "Buy a case of water and check the car's air-con works properly before tomorrow — you're driving into serious August heat. Charge everything tonight." }
+          "tip": {
+            "label": "Desert prep",
+            "body": "Buy a case of water and check the car's air-con works properly before tomorrow — you're driving into serious August heat. Charge everything tonight."
+          }
         }
       ]
     },
@@ -498,18 +870,114 @@
       "tagline": "Neon, desert wonders and one last blow-out.",
       "notes": "Seven nights to finish — one at the W Las Vegas (23–24), then the Luxor (24–29). August in Nevada is brutally hot (40°C+): plan outdoor stuff for early and late, hide from the midday sun in the air-conditioned casinos and pools, and hydrate constantly. The Grand Canyon and Death Valley pages work with no signal at all.",
       "ideas": [
-        { "title": "The Strip after dark", "note": "Bellagio fountains, the neon, and free casino spectacles all the way down." },
-        { "title": "High Roller observation wheel", "note": "550ft views over the valley — spectacular by day or night." },
-        { "title": "Gondola ride at The Venetian", "note": "Indoor and outdoor canals with singing gondoliers — kitsch and fun." },
-        { "title": "Adventuredome at Circus Circus", "note": "Indoor theme park — the perfect way to dodge the midday heat." },
-        { "title": "Grand Canyon West / Skywalk", "note": "The big day trip — glass walkway out over the void. Leave at dawn." },
-        { "title": "Hoover Dam", "note": "Walk across the colossal dam and the bypass bridge, 45 min from the Strip." },
-        { "title": "Death Valley", "note": "Otherworldly desert — Badwater Basin and Zabriskie Point. Extreme heat; prep well." },
-        { "title": "Seven Magic Mountains", "note": "Stack of giant neon-painted boulders 20 min south — a quick, fun photo." },
-        { "title": "Fremont Street Experience", "note": "Old-town Vegas: canopy light show, buskers and a zipline overhead." },
-        { "title": "Red Rock Canyon", "note": "Scenic 13-mile loop drive through red sandstone, 30 min from the Strip." },
-        { "title": "A family show", "note": "A Cirque du Soleil production or a big magic show — book ahead." },
-        { "title": "Las Vegas Raiders at Allegiant Stadium", "note": "NFL under the dome — check whether they're home during our dates." }
+        {
+          "title": "The Strip after dark",
+          "category": "sights",
+          "suits": "all",
+          "note": "Walk the neon between the mega-resorts — the Bellagio fountains, the Venetian and the fake landmarks. Free and dazzling."
+        },
+        {
+          "title": "High Roller observation wheel",
+          "category": "sights",
+          "suits": "all",
+          "note": "The giant Ferris wheel at The LINQ — a 30-min ride with the best view over the valley, best at dusk."
+        },
+        {
+          "title": "Seven Magic Mountains",
+          "category": "sights",
+          "suits": "all",
+          "note": "Towers of neon-painted boulders in the desert 20 mins south — a fun, free photo stop."
+        },
+        {
+          "title": "Hoover Dam",
+          "category": "sights",
+          "suits": "all",
+          "note": "An engineering marvel 45 mins out. Walk across into Arizona; the dam tour is worth the ticket."
+        },
+        {
+          "title": "Grand Canyon West / Skywalk",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "The nearest rim to Vegas (2.5 hrs), with the glass Skywalk out over the canyon. Book the West Rim package ahead."
+        },
+        {
+          "title": "Red Rock Canyon",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "A 13-mile scenic loop of red sandstone cliffs 30 mins from the Strip — easy short walks. Go early before the heat."
+        },
+        {
+          "title": "Death Valley",
+          "category": "outdoors",
+          "suits": "adults",
+          "note": "The hottest place on earth, 2 hrs west. Extreme in August — only for a very early, well-prepared day trip."
+        },
+        {
+          "title": "Gondola ride at The Venetian",
+          "category": "rides",
+          "suits": "all",
+          "note": "A singing gondolier poles you round the indoor canals — kitsch, air-conditioned and the little ones love it."
+        },
+        {
+          "title": "Adventuredome at Circus Circus",
+          "category": "rides",
+          "suits": "all",
+          "note": "A huge indoor theme park — roller coasters and rides with no desert heat. Great mid-afternoon escape."
+        },
+        {
+          "title": "Shark Reef Aquarium, Mandalay Bay",
+          "category": "cultural",
+          "suits": "littles",
+          "note": "A walk-through aquarium with a shark tunnel — cool, dark and a sure thing for the younger ones."
+        },
+        {
+          "title": "Discovery Children's Museum",
+          "category": "playgrounds",
+          "suits": "littles",
+          "note": "Three floors of hands-on play downtown — the perfect air-conditioned morning for the little ones."
+        },
+        {
+          "title": "The Mob Museum",
+          "category": "cultural",
+          "suits": "teens",
+          "note": "The story of organised crime in a former courthouse — surprisingly gripping for teens and grown-ups."
+        },
+        {
+          "title": "Fremont Street Experience",
+          "category": "shows",
+          "suits": "all",
+          "note": "Old downtown Vegas under a giant LED canopy — free light shows, buskers and a zipline overhead."
+        },
+        {
+          "title": "A family show",
+          "category": "shows",
+          "suits": "all",
+          "note": "A Cirque du Soleil show (Mystère / \"O\") or a magic act — plenty are all-ages. Book ahead for good seats."
+        },
+        {
+          "title": "Hershey’s & M&M’s World",
+          "category": "food",
+          "suits": "littles",
+          "note": "Multi-floor chocolate megastores on the Strip — a sugar-fuelled treat and free air-con."
+        },
+        {
+          "title": "Bacchanal Buffet, Caesars",
+          "category": "food",
+          "suits": "all",
+          "note": "The blow-out Vegas buffet — carving stations, pizza, dumplings and desserts. Skip the raw bar and there’s no seafood in it."
+        },
+        {
+          "title": "In-N-Out Burger, Las Vegas",
+          "category": "food",
+          "suits": "all",
+          "note": "The reliable, cheap, no-seafood family favourite when you just want a proper burger."
+        },
+        {
+          "title": "Las Vegas Raiders at Allegiant Stadium",
+          "category": "sports",
+          "suits": "all",
+          "note": "Check the August fixtures. The spectacular \"Death Star\" stadium just off the Strip — a bucket-list NFL night."
+        }
       ],
       "days": [
         {
@@ -535,7 +1003,10 @@
               "food": "Stock up before you enter — services inside the park are minimal and far apart."
             }
           ],
-          "tip": { "label": "No signal", "body": "Fuel up and load the car with water before leaving LA. Long stretches have no reception and 45°C+ heat — this page works fully offline. Never leave anyone in a parked car." }
+          "tip": {
+            "label": "No signal",
+            "body": "Fuel up and load the car with water before leaving LA. Long stretches have no reception and 45°C+ heat — this page works fully offline. Never leave anyone in a parked car."
+          }
         },
         {
           "n": 17,
@@ -560,7 +1031,10 @@
               "food": "Poolside snacks, then a proper dinner out once the sun's down."
             }
           ],
-          "tip": { "label": "Heat plan", "body": "Do the outdoor Strip early morning or after sunset; take the middle of the day indoors. Refill water bottles everywhere and slap on the sun cream." }
+          "tip": {
+            "label": "Heat plan",
+            "body": "Do the outdoor Strip early morning or after sunset; take the middle of the day indoors. Refill water bottles everywhere and slap on the sun cream."
+          }
         },
         {
           "n": 18,
@@ -585,7 +1059,10 @@
               "food": "Lunch in Boulder City, the town that built the dam."
             }
           ],
-          "tip": { "label": "Early start", "body": "A long day in the heat — leave before sunrise, take far more water than you think you need, and keep an eye on the kids near the largely unfenced rim edges." }
+          "tip": {
+            "label": "Early start",
+            "body": "A long day in the heat — leave before sunrise, take far more water than you think you need, and keep an eye on the kids near the largely unfenced rim edges."
+          }
         },
         {
           "n": 19,
@@ -610,7 +1087,10 @@
               "food": "Grab a table at one of the themed Strip restaurants."
             }
           ],
-          "tip": { "label": "Heat plan", "body": "Peak desert heat is midday — save everything outdoor for after sunset, and keep the water going." }
+          "tip": {
+            "label": "Heat plan",
+            "body": "Peak desert heat is midday — save everything outdoor for after sunset, and keep the water going."
+          }
         },
         {
           "n": 20,
@@ -635,7 +1115,10 @@
               "food": "Picnic at a Red Rock overlook, or back to the Strip."
             }
           ],
-          "tip": { "label": "Early start", "body": "Go early to beat both the heat and the coach tours; the dam car park fills up fast." }
+          "tip": {
+            "label": "Early start",
+            "body": "Go early to beat both the heat and the coach tours; the dam car park fills up fast."
+          }
         },
         {
           "n": 21,
@@ -660,7 +1143,10 @@
               "food": "Poolside, then dinner on the Strip."
             }
           ],
-          "tip": { "label": "Book ahead", "body": "Popular shows sell out — book earlier in the week. Pack tonight; it's a travel day tomorrow." }
+          "tip": {
+            "label": "Book ahead",
+            "body": "Popular shows sell out — book earlier in the week. Pack tonight; it's a travel day tomorrow."
+          }
         },
         {
           "n": 22,
@@ -685,55 +1171,178 @@
               "food": "Grab-and-go coffee and pastries on the way to the airport."
             }
           ],
-          "tip": { "label": "Don't miss the flight", "body": "Return the hire car with a full tank to avoid the refuelling surcharge, and leave a big buffer — LAS security queues are long. Passports, ESTAs and boarding passes ready before you leave the hotel." }
+          "tip": {
+            "label": "Don't miss the flight",
+            "body": "Return the hire car with a full tank to avoid the refuelling surcharge, and leave a big buffer — LAS security queues are long. Passports, ESTAs and boarding passes ready before you leave the hotel."
+          }
         }
       ]
     }
   ],
   "bookings": [
-    { "name": "Flights — LHR → San Francisco / Las Vegas → LHR", "note": "Six seats. Open-jaw: fly into SFO, home from LAS. Confirm seat allocation for the family together." },
-    { "name": "ESTA visa waivers ×6", "note": "One per traveller including the twins. Apply at least 72 hours before flying; print or screenshot the approvals." },
-    { "name": "Rental car — 7-seater SUV", "note": "22-day hire, SFO pickup / LAS drop-off (one-way fee applies). Two booster seats for the twins." },
-    { "name": "Travel insurance — family policy", "note": "Full family cover including the theme-park and Grand Canyon activities and US medical." },
-    { "name": "Hotel Julian — San Francisco", "note": "8–12 Aug (4 nights)." },
-    { "name": "Alcatraz cruise tickets", "note": "Sells out weeks ahead — book as early as possible. Departs Pier 33." },
-    { "name": "Muir Woods parking / shuttle reservation", "note": "Timed reservation mandatory — no turn-ups. Book the parking or the shuttle in advance." },
-    { "name": "Monterey Bay Aquarium tickets", "note": "Dated online tickets are cheaper and skip the queue." },
-    { "name": "Hearst Castle tour", "note": "Timed tour bus from the visitor centre — must be pre-booked." },
-    { "name": "Hampton Inn San Simeon, Cambria", "note": "12–13 Aug (1 night)." },
-    { "name": "Days Inn by Wyndham Santa Monica", "note": "13–14 Aug (1 night)." },
-    { "name": "Hampton Inn & Suites Santa Monica", "note": "14–16 Aug (2 nights)." },
-    { "name": "Universal Studios Hollywood tickets", "note": "Dated tickets; consider the Express pass for August crowds." },
-    { "name": "SpringHill Suites LA Burbank/Downtown", "note": "16–23 Aug (7 nights)." },
-    { "name": "Disneyland tickets + park reservation", "note": "Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before." },
-    { "name": "Six Flags Magic Mountain tickets", "note": "Buy online in advance; the teens' day." },
-    { "name": "W Las Vegas", "note": "23–24 Aug (1 night)." },
-    { "name": "Luxor Hotel & Casino", "note": "24–29 Aug (5 nights)." },
-    { "name": "Grand Canyon West day tour", "note": "Book the Skywalk / West Rim package and confirm the pickup or self-drive parking." },
-    { "name": "Las Vegas Raiders tickets", "note": "NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together." }
+    {
+      "name": "Flights — LHR → San Francisco / Las Vegas → LHR",
+      "note": "Six seats. Open-jaw: fly into SFO, home from LAS. Confirm seat allocation for the family together."
+    },
+    {
+      "name": "ESTA visa waivers ×6",
+      "note": "One per traveller including the twins. Apply at least 72 hours before flying; print or screenshot the approvals."
+    },
+    {
+      "name": "Rental car — 7-seater SUV",
+      "note": "22-day hire, SFO pickup / LAS drop-off (one-way fee applies). Two booster seats for the twins."
+    },
+    {
+      "name": "Travel insurance — family policy",
+      "note": "Full family cover including the theme-park and Grand Canyon activities and US medical."
+    },
+    {
+      "name": "Hotel Julian — San Francisco",
+      "note": "8–12 Aug (4 nights)."
+    },
+    {
+      "name": "Alcatraz cruise tickets",
+      "note": "Sells out weeks ahead — book as early as possible. Departs Pier 33."
+    },
+    {
+      "name": "Muir Woods parking / shuttle reservation",
+      "note": "Timed reservation mandatory — no turn-ups. Book the parking or the shuttle in advance."
+    },
+    {
+      "name": "Monterey Bay Aquarium tickets",
+      "note": "Dated online tickets are cheaper and skip the queue."
+    },
+    {
+      "name": "Hearst Castle tour",
+      "note": "Timed tour bus from the visitor centre — must be pre-booked."
+    },
+    {
+      "name": "Hampton Inn San Simeon, Cambria",
+      "note": "12–13 Aug (1 night)."
+    },
+    {
+      "name": "Days Inn by Wyndham Santa Monica",
+      "note": "13–14 Aug (1 night)."
+    },
+    {
+      "name": "Hampton Inn & Suites Santa Monica",
+      "note": "14–16 Aug (2 nights)."
+    },
+    {
+      "name": "Universal Studios Hollywood tickets",
+      "note": "Dated tickets; consider the Express pass for August crowds."
+    },
+    {
+      "name": "SpringHill Suites LA Burbank/Downtown",
+      "note": "16–23 Aug (7 nights)."
+    },
+    {
+      "name": "Disneyland tickets + park reservation",
+      "note": "Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before."
+    },
+    {
+      "name": "Six Flags Magic Mountain tickets",
+      "note": "Buy online in advance; the teens' day."
+    },
+    {
+      "name": "W Las Vegas",
+      "note": "23–24 Aug (1 night)."
+    },
+    {
+      "name": "Luxor Hotel & Casino",
+      "note": "24–29 Aug (5 nights)."
+    },
+    {
+      "name": "Grand Canyon West day tour",
+      "note": "Book the Skywalk / West Rim package and confirm the pickup or self-drive parking."
+    },
+    {
+      "name": "Las Vegas Raiders tickets",
+      "note": "NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together."
+    }
   ],
   "packing": [
-    { "name": "Passports & ESTA printouts", "note": "All six, plus the car-hire and hotel confirmations. Keep together in one folder." },
-    { "name": "Sun cream (high SPF) & hats", "note": "Reef-safe, factor 50. The desert and the beach will both catch you out." },
-    { "name": "Layers for the fog", "note": "San Francisco and Big Sur are cold and windy even in August. A fleece and a light waterproof each." },
-    { "name": "Reusable water bottles ×6", "note": "Essential for the desert legs — refill everywhere. One each, labelled." },
-    { "name": "US plug adapters & power bank", "note": "UK→US adapters (a couple of multi-port ones), plus a power bank for the no-signal drives." },
-    { "name": "Phone chargers & car charger", "note": "Everyone's cable, plus a multi-port car charger for the long driving days." },
-    { "name": "Swimwear & beach towels", "note": "Quick-dry towels save space. Goggles for the pools and the sea." },
-    { "name": "Comfortable walking shoes", "note": "Broken-in trainers each — theme parks and canyon rims mean big step counts." },
-    { "name": "Kids' entertainment", "note": "Downloaded films, games and audiobooks for the flights and the long drives — offline, no signal needed." },
-    { "name": "Medications & first-aid kit", "note": "Any prescriptions in hand luggage, plus plasters, antihistamines, ibuprofen and travel-sickness tablets for the coast road." }
+    {
+      "name": "Passports & ESTA printouts",
+      "note": "All six, plus the car-hire and hotel confirmations. Keep together in one folder."
+    },
+    {
+      "name": "Sun cream (high SPF) & hats",
+      "note": "Reef-safe, factor 50. The desert and the beach will both catch you out."
+    },
+    {
+      "name": "Layers for the fog",
+      "note": "San Francisco and Big Sur are cold and windy even in August. A fleece and a light waterproof each."
+    },
+    {
+      "name": "Reusable water bottles ×6",
+      "note": "Essential for the desert legs — refill everywhere. One each, labelled."
+    },
+    {
+      "name": "US plug adapters & power bank",
+      "note": "UK→US adapters (a couple of multi-port ones), plus a power bank for the no-signal drives."
+    },
+    {
+      "name": "Phone chargers & car charger",
+      "note": "Everyone's cable, plus a multi-port car charger for the long driving days."
+    },
+    {
+      "name": "Swimwear & beach towels",
+      "note": "Quick-dry towels save space. Goggles for the pools and the sea."
+    },
+    {
+      "name": "Comfortable walking shoes",
+      "note": "Broken-in trainers each — theme parks and canyon rims mean big step counts."
+    },
+    {
+      "name": "Kids' entertainment",
+      "note": "Downloaded films, games and audiobooks for the flights and the long drives — offline, no signal needed."
+    },
+    {
+      "name": "Medications & first-aid kit",
+      "note": "Any prescriptions in hand luggage, plus plasters, antihistamines, ibuprofen and travel-sickness tablets for the coast road."
+    }
   ],
   "costs": [
-    { "item": "Flights (×6, return, open-jaw)", "amount": "£5,400" },
-    { "item": "Car hire (22 days, 7-seater + one-way fee)", "amount": "£1,900" },
-    { "item": "Hotels (21 nights across 7 hotels)", "amount": "£6,200" },
-    { "item": "Theme parks (Disneyland, Universal, Six Flags)", "amount": "£1,600" },
-    { "item": "Attractions & tours (Alcatraz, Aquarium, Hearst, Grand Canyon)", "amount": "£900" },
-    { "item": "Fuel & tolls", "amount": "£550" },
-    { "item": "Eating out & groceries", "amount": "£3,000" },
-    { "item": "Travel insurance (family)", "amount": "£320" },
-    { "item": "Spending money & contingency", "amount": "£2,000" },
-    { "item": "Estimated total", "amount": "£21,870" }
+    {
+      "item": "Flights (×6, return, open-jaw)",
+      "amount": "£5,400"
+    },
+    {
+      "item": "Car hire (22 days, 7-seater + one-way fee)",
+      "amount": "£1,900"
+    },
+    {
+      "item": "Hotels (21 nights across 7 hotels)",
+      "amount": "£6,200"
+    },
+    {
+      "item": "Theme parks (Disneyland, Universal, Six Flags)",
+      "amount": "£1,600"
+    },
+    {
+      "item": "Attractions & tours (Alcatraz, Aquarium, Hearst, Grand Canyon)",
+      "amount": "£900"
+    },
+    {
+      "item": "Fuel & tolls",
+      "amount": "£550"
+    },
+    {
+      "item": "Eating out & groceries",
+      "amount": "£3,000"
+    },
+    {
+      "item": "Travel insurance (family)",
+      "amount": "£320"
+    },
+    {
+      "item": "Spending money & contingency",
+      "amount": "£2,000"
+    },
+    {
+      "item": "Estimated total",
+      "amount": "£21,870"
+    }
   ]
 }

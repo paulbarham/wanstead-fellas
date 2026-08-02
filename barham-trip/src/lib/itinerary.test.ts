@@ -47,6 +47,32 @@ describe('itinerary data', () => {
     expect(costs.length).toBeGreaterThan(0)
   })
 
+  it('every idea has a known category and age-suitability tag', () => {
+    const cats = new Set([
+      'sights', 'outdoors', 'rides', 'playgrounds', 'cultural',
+      'sports', 'shows', 'food', 'shopping', 'other',
+    ])
+    const suits = new Set(['all', 'littles', 'teens', 'adults'])
+    for (const leg of legs) {
+      for (const idea of leg.ideas ?? []) {
+        expect(cats.has(idea.category ?? '')).toBe(true)
+        expect(suits.has(idea.suits ?? '')).toBe(true)
+      }
+    }
+  })
+
+  it('food ideas never suggest seafood dishes', () => {
+    // Named seafood dishes (the reassurance phrase "no seafood" is fine).
+    const banned = /\b(oysters?|clam chowder|crab|lobster|shrimp|prawns?|sushi|scampi|mussels)\b/i
+    for (const leg of legs) {
+      for (const idea of leg.ideas ?? []) {
+        if (idea.category !== 'food') continue
+        expect(banned.test(idea.title)).toBe(false)
+        expect(banned.test(idea.note ?? '')).toBe(false)
+      }
+    }
+  })
+
   it('slugKey produces stable primary keys', () => {
     expect(slugKey('Muir Woods parking / shuttle reservation')).toBe(
       'muir-woods-parking-shuttle-reservation',

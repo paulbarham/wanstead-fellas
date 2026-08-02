@@ -21,7 +21,7 @@ export function useLegIdeas(legId: string) {
 
     supabase
       .from('trip_ideas')
-      .select('id, leg_id, title, note, added_by, created_at')
+      .select('id, leg_id, title, note, category, added_by, created_at')
       .eq('leg_id', legId)
       .order('created_at')
       .then(({ data }) => {
@@ -51,7 +51,7 @@ export function useLegIdeas(legId: string) {
     }
   }, [legId, merge, removeLocal])
 
-  async function addIdea(title: string, note: string) {
+  async function addIdea(title: string, note: string, category?: string | null) {
     if (!member) return
     const trimmed = title.trim()
     if (!trimmed) return
@@ -60,6 +60,7 @@ export function useLegIdeas(legId: string) {
       leg_id: legId,
       title: trimmed,
       note: note.trim() || null,
+      category: category || null,
       added_by: member.id,
       created_at: new Date().toISOString(),
     }
@@ -70,6 +71,7 @@ export function useLegIdeas(legId: string) {
         leg_id: idea.leg_id,
         title: idea.title,
         note: idea.note,
+        category: idea.category,
         added_by: idea.added_by,
       })
     }

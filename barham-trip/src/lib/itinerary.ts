@@ -18,9 +18,30 @@ export interface Tip {
 }
 
 /** A "things to do here" suggestion for a leg (place). */
+/** Broad category so "things to do" can be grouped (restaurants, playgrounds,
+ *  cultural, sports…). `other` is the fallback bucket for un-categorised
+ *  family-added ideas. */
+export type IdeaCategory =
+  | 'sights'
+  | 'outdoors'
+  | 'rides'
+  | 'playgrounds'
+  | 'cultural'
+  | 'sports'
+  | 'shows'
+  | 'food'
+  | 'shopping'
+  | 'other'
+
+/** Who an idea suits best, so the mixed-age group (grown-ups, teens, and the
+ *  little ones) can see at a glance what's for them. */
+export type IdeaSuits = 'all' | 'littles' | 'teens' | 'adults'
+
 export interface Idea {
   title: string
   note?: string
+  category?: IdeaCategory
+  suits?: IdeaSuits
 }
 
 export interface TripDay {

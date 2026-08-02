@@ -424,3 +424,12 @@ select v.name, v.note, v.sort from (values
 ) as v(name, note, sort)
 where not exists (select 1 from public.bookings);
 
+-- ============================================================
+-- supabase/migrations/010_idea_category.sql
+-- ============================================================
+-- Optional category on family-added "things to do" ideas, so they fold into the
+-- same grouped view as the seed suggestions (sights, food, playgrounds, …).
+-- Nullable — old rows and un-categorised ideas fall into the "More ideas" bucket.
+alter table public.trip_ideas
+  add column if not exists category text;
+

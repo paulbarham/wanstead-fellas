@@ -42,6 +42,8 @@ export interface UserIdea {
   leg_id: string
   title: string
   note: string | null
+  /** One of IdeaCategory (see lib/itinerary). Null/absent → shown under "More ideas". */
+  category: string | null
   added_by: string | null
   created_at: string
 }

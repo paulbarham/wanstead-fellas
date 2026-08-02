@@ -1,24 +1,78 @@
 import { useState, type FormEvent } from 'react'
-import { Lightbulb, Plus, MapPin, X, Sparkles } from 'lucide-react'
-import type { Leg } from '../lib/itinerary'
+import {
+  Lightbulb,
+  Plus,
+  MapPin,
+  X,
+  Landmark,
+  Mountain,
+  FerrisWheel,
+  Blocks,
+  Palette,
+  Trophy,
+  Ticket,
+  UtensilsCrossed,
+  ShoppingBag,
+} from 'lucide-react'
+import type { Leg, Idea, IdeaCategory, IdeaSuits } from '../lib/itinerary'
 import { useLegIdeas } from '../hooks/useLegIdeas'
 import { useAuth } from '../hooks/useAuth'
+import type { UserIdea } from '../store/local'
 
 interface Props {
   leg: Leg
 }
 
-/** "Things to do here" — seed suggestions + family-added ideas people can research. */
+/** A row in the grouped list — either a seed suggestion or a family-added idea. */
+type Row = {
+  key: string
+  title: string
+  note?: string | null
+  category: IdeaCategory
+  suits?: IdeaSuits
+  addedBy?: string | null
+}
+
+const CATEGORY_META: {
+  key: IdeaCategory
+  label: string
+  Icon: typeof Landmark
+}[] = [
+  { key: 'sights', label: 'Sights & landmarks', Icon: Landmark },
+  { key: 'outdoors', label: 'Outdoors & nature', Icon: Mountain },
+  { key: 'rides', label: 'Theme parks & rides', Icon: FerrisWheel },
+  { key: 'playgrounds', label: 'Playgrounds & little ones', Icon: Blocks },
+  { key: 'cultural', label: 'Museums & culture', Icon: Palette },
+  { key: 'sports', label: 'Sports & games', Icon: Trophy },
+  { key: 'shows', label: 'Shows & nightlife', Icon: Ticket },
+  { key: 'food', label: 'Food & treats', Icon: UtensilsCrossed },
+  { key: 'shopping', label: 'Shopping', Icon: ShoppingBag },
+  { key: 'other', label: 'More ideas', Icon: Lightbulb },
+]
+
+const SUITS_META: Record<IdeaSuits, { label: string; bg: string; fg: string }> = {
+  all: { label: 'All ages', bg: 'rgba(14,58,72,0.08)', fg: 'var(--teal, #4a8896)' },
+  littles: { label: 'Little ones', bg: 'rgba(224,136,83,0.16)', fg: 'var(--coral-dark)' },
+  teens: { label: 'Teens', bg: 'rgba(74,136,150,0.16)', fg: 'var(--teal, #4a8896)' },
+  adults: { label: 'Grown-ups', bg: 'rgba(14,58,72,0.1)', fg: 'var(--navy, #0e3a48)' },
+}
+
+// Categories offered when the family adds their own idea (no 'other').
+const PICKABLE = CATEGORY_META.filter((c) => c.key !== 'other')
+
+/** "Things to do here" — seed suggestions + family-added ideas, grouped by
+ *  category (sights, food, playgrounds, …) and tagged by who they suit. */
 export default function LegIdeas({ leg }: Props) {
-  const seed = leg.ideas ?? []
+  const seed: Idea[] = leg.ideas ?? []
   const { userIdeas, addIdea, removeIdea } = useLegIdeas(leg.id)
   const { member, members } = useAuth()
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [note, setNote] = useState('')
+  const [category, setCategory] = useState<IdeaCategory>('sights')
 
-  const nameFor = (id: string | null) =>
+  const nameFor = (id: string | null | undefined) =>
     id ? members.find((m) => m.id === id)?.display_name ?? 'Someone' : 'Someone'
 
   const mapsUrl = (t: string) =>
@@ -27,11 +81,37 @@ export default function LegIdeas({ leg }: Props) {
   async function handleAdd(e: FormEvent) {
     e.preventDefault()
     if (!title.trim()) return
-    await addIdea(title, note)
+    await addIdea(title, note, category)
     setTitle('')
     setNote('')
+    setCategory('sights')
     setOpen(false)
   }
+
+  // Merge seed + family ideas into one categorised list.
+  const rows: Row[] = [
+    ...seed.map((idea, i) => ({
+      key: `seed-${i}`,
+      title: idea.title,
+      note: idea.note,
+      category: (idea.category ?? 'other') as IdeaCategory,
+      suits: idea.suits,
+    })),
+    ...userIdeas.map((idea: UserIdea) => ({
+      key: `user-${idea.id}`,
+      title: idea.title,
+      note: idea.note,
+      category: (idea.category ?? 'other') as IdeaCategory,
+      addedBy: idea.added_by,
+    })),
+  ]
+
+  const groups = CATEGORY_META.map((meta) => ({
+    ...meta,
+    items: rows.filter((r) => r.category === meta.key),
+  })).filter((g) => g.items.length > 0)
+
+  const idOf = (key: string) => key.replace(/^user-/, '')
 
   return (
     <section
@@ -49,7 +129,7 @@ export default function LegIdeas({ leg }: Props) {
         <h3 className="font-display text-lg text-navy">Things to do in {leg.title}</h3>
       </div>
       <p className="mt-1 text-[13px] text-navy/60">
-        Ideas to research — tap the map pin to find it, or add your own for everyone to see.
+        Grouped by type and tagged for who they suit. Tap the map pin to find one, or add your own.
       </p>
 
       {/* Add-your-own */}
@@ -71,6 +151,19 @@ export default function LegIdeas({ leg }: Props) {
               className="mt-2 w-full rounded-lg bg-white px-3 py-2.5 text-[14px] outline-none"
               style={{ border: '1px solid rgba(14,58,72,0.18)' }}
             />
+            <label className="mt-2 block text-[12px] font-semibold text-navy/60">Category</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as IdeaCategory)}
+              className="mt-1 w-full rounded-lg bg-white px-3 py-2.5 text-[14px] outline-none"
+              style={{ border: '1px solid rgba(14,58,72,0.18)' }}
+            >
+              {PICKABLE.map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
             <div className="mt-2 flex gap-2">
               <button type="submit" disabled={!title.trim()} className="btn-coral flex-1 disabled:opacity-50" style={{ minHeight: 44 }}>
                 Add idea
@@ -81,6 +174,7 @@ export default function LegIdeas({ leg }: Props) {
                   setOpen(false)
                   setTitle('')
                   setNote('')
+                  setCategory('sights')
                 }}
                 className="rounded-xl px-4 font-semibold text-navy/70"
                 style={{ border: '1px solid rgba(14,58,72,0.18)', minHeight: 44 }}
@@ -99,79 +193,73 @@ export default function LegIdeas({ leg }: Props) {
           </button>
         ))}
 
-      {/* Family-added ideas */}
-      {userIdeas.length > 0 && (
-        <div className="mt-4">
-          <div className="mb-2 flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wide text-navy/45">
-            <Sparkles size={13} style={{ color: 'var(--coral-dark)' }} /> Added by the family
+      {/* Grouped ideas */}
+      <div className="mt-4 space-y-5">
+        {groups.map((group) => (
+          <div key={group.key}>
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <group.Icon size={15} style={{ color: 'var(--coral-dark)' }} />
+              <span className="text-[12px] font-bold uppercase tracking-wide text-navy/55">
+                {group.label}
+              </span>
+              <span className="text-[12px] font-semibold text-navy/30">{group.items.length}</span>
+            </div>
+            {group.key === 'food' && (
+              <p className="mb-1.5 text-[12px] italic text-navy/45">Picks skip seafood.</p>
+            )}
+            <ul className="divide-y" style={{ borderColor: 'rgba(14,58,72,0.07)' }}>
+              {group.items.map((row) => {
+                const suits = row.suits ? SUITS_META[row.suits] : null
+                const isUser = row.key.startsWith('user-')
+                return (
+                  <li key={row.key} className="flex items-start gap-2 py-2.5">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[15px] font-semibold text-navy">{row.title}</span>
+                        {suits && (
+                          <span
+                            className="rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                            style={{ background: suits.bg, color: suits.fg }}
+                          >
+                            {suits.label}
+                          </span>
+                        )}
+                      </div>
+                      {row.note && (
+                        <div className="mt-0.5 text-[13px] leading-snug text-navy/65">{row.note}</div>
+                      )}
+                      {isUser && (
+                        <div className="mt-0.5 text-[12px] font-medium" style={{ color: 'var(--teal)' }}>
+                          — {nameFor(row.addedBy)}
+                        </div>
+                      )}
+                    </div>
+                    <a
+                      href={mapsUrl(row.title)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
+                      style={{ background: 'var(--sand-2)' }}
+                      aria-label={`Open ${row.title} in Maps`}
+                    >
+                      <MapPin size={15} style={{ color: 'var(--coral-dark)' }} />
+                    </a>
+                    {isUser && member && row.addedBy === member.id && (
+                      <button
+                        onClick={() => removeIdea(idOf(row.key))}
+                        className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-navy/40"
+                        aria-label="Remove idea"
+                      >
+                        <X size={15} />
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
           </div>
-          <ul className="space-y-2">
-            {userIdeas.map((idea) => (
-              <li
-                key={idea.id}
-                className="flex items-start gap-2 rounded-xl p-3"
-                style={{ background: 'var(--sand-2)', border: '1px solid rgba(224,136,83,0.22)' }}
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="text-[15px] font-semibold text-navy">{idea.title}</div>
-                  {idea.note && <div className="mt-0.5 text-[13px] text-navy/65">{idea.note}</div>}
-                  <div className="mt-1 text-[12px] font-medium" style={{ color: 'var(--teal)' }}>
-                    — {nameFor(idea.added_by)}
-                  </div>
-                </div>
-                <a
-                  href={mapsUrl(idea.title)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
-                  style={{ background: 'var(--surface)', border: '1px solid rgba(14,58,72,0.12)' }}
-                  aria-label={`Open ${idea.title} in Maps`}
-                >
-                  <MapPin size={15} style={{ color: 'var(--text)' }} />
-                </a>
-                {member && idea.added_by === member.id && (
-                  <button
-                    onClick={() => removeIdea(idea.id)}
-                    className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-navy/40"
-                    aria-label="Remove idea"
-                  >
-                    <X size={15} />
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Seed suggestions */}
-      {seed.length > 0 && (
-        <div className="mt-4">
-          <div className="mb-2 text-[12px] font-bold uppercase tracking-wide text-navy/45">
-            Suggestions
-          </div>
-          <ul className="divide-y" style={{ borderColor: 'rgba(14,58,72,0.07)' }}>
-            {seed.map((idea, i) => (
-              <li key={i} className="flex items-start gap-2 py-2.5">
-                <div className="min-w-0 flex-1">
-                  <div className="text-[15px] font-semibold text-navy">{idea.title}</div>
-                  {idea.note && <div className="mt-0.5 text-[13px] leading-snug text-navy/65">{idea.note}</div>}
-                </div>
-                <a
-                  href={mapsUrl(idea.title)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
-                  style={{ background: 'var(--sand-2)' }}
-                  aria-label={`Open ${idea.title} in Maps`}
-                >
-                  <MapPin size={15} style={{ color: 'var(--coral-dark)' }} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        ))}
+      </div>
     </section>
   )
 }
