@@ -12,9 +12,9 @@
       "id": "sf",
       "num": "01",
       "title": "San Francisco",
-      "range": "Sat 8 — Wed 12 Aug",
+      "range": "Sat 8 — Tue 11 Aug",
       "tagline": "Fog, hills and sourdough — easing in on the bay.",
-      "notes": "Five nights to shake off the jet lag. Mornings are foggy and cool right through August (Karl the Fog is real), so keep a layer in every bag even when it looks sunny. Parking is brutal — lean on cable cars, ferries and walking.",
+      "notes": "Four nights at Hotel Julian to shake off the jet lag. Mornings are foggy and cool right through August (Karl the Fog is real), so keep a layer in every bag even when it looks sunny. Parking is brutal — lean on cable cars, ferries and walking.",
       "ideas": [
         { "title": "Alcatraz Island", "note": "Former island prison — the audio tour narrated by ex-guards and inmates is gripping. Pre-book, it sells out." },
         { "title": "Walk or cycle the Golden Gate Bridge", "note": "Ride over to the harbour town of Sausalito, then ferry back with the bikes." },
@@ -41,22 +41,19 @@
             {
               "kind": "recommended",
               "badge": "GENTLE EVENING",
-              "title": "Fisherman's Wharf & the sea lions",
-              "plan": "Land at SFO, collect the rental car and check into the hotel. Once everyone's dropped their bags, take a slow stroll down to Pier 39 to see the sea lions barking on the docks — the perfect low-effort way to stay awake until a normal bedtime and beat the jet lag. Early night for everyone.",
-              "food": "Clam chowder in a sourdough bread bowl at Boudin Bakery on the Wharf — a San Francisco rite of passage."
+              "title": "Check in & Fisherman's Wharf",
+              "plan": "Land at SFO, collect the rental car and check in to Hotel Julian. Once bags are dropped, take a slow stroll to Pier 39 to see the sea lions — the perfect low-effort way to stay awake and beat the jet lag. Early night for everyone.",
+              "food": "Clam chowder in a sourdough bread bowl at Boudin Bakery on the Wharf."
             },
             {
               "kind": "alternative",
               "badge": "IF ENERGY'S UP",
               "title": "Ferry Building sunset",
-              "plan": "If the flight's left everyone wired rather than wiped, wander the Embarcadero to the Ferry Building marketplace and watch the light go down over the Bay Bridge.",
-              "food": "Grab tacos or a slice from the Ferry Building food hall and eat by the water."
+              "plan": "If everyone's wired rather than wiped, wander the Embarcadero to the Ferry Building marketplace and watch the light go down over the Bay Bridge.",
+              "food": "Tacos or a slice from the Ferry Building food hall, eaten by the water."
             }
           ],
-          "tip": {
-            "label": "Book early",
-            "body": "Have all six passports and the car-hire confirmation to hand at the rental desk. Ask for the child booster seats you reserved — confirm them before you drive off."
-          }
+          "tip": { "label": "Book early", "body": "Have all six passports and the car-hire confirmation ready at the rental desk, and confirm the twins' booster seats before you drive off." }
         },
         {
           "n": 2,
@@ -70,28 +67,25 @@
               "kind": "recommended",
               "badge": "GOLDEN GATE",
               "title": "Cycle the bridge to Sausalito",
-              "plan": "Hire bikes near the Wharf and ride the waterfront path out across the Golden Gate Bridge to the pretty harbour town of Sausalito (mostly flat, one big hill down into town). Mooch the galleries and waterfront, then let the ferry carry you — and the bikes — back to the city.",
-              "food": "Fish and chips on the deck at Fish or Scoma's in Sausalito, watching the yachts."
+              "plan": "Hire bikes near the Wharf and ride the waterfront path across the Golden Gate Bridge to the pretty harbour town of Sausalito, then let the ferry carry you — and the bikes — back to the city.",
+              "food": "Fish and chips on the deck at Fish or Scoma's in Sausalito."
             },
             {
               "kind": "alternative",
               "badge": "LESS PEDALLING",
               "title": "Presidio & Baker Beach",
-              "plan": "Drive to the Presidio, walk the Batteries-to-Bluffs trail and take the classic bridge photo from Baker Beach. Tunnel Tops park is superb for the twins to run off energy.",
-              "food": "Picnic from the Presidio Tunnel Tops kiosks, or the Sessions food trucks."
+              "plan": "Drive to the Presidio, walk the Batteries-to-Bluffs trail and take the classic bridge photo from Baker Beach. Tunnel Tops park is superb for the twins.",
+              "food": "Picnic from the Presidio Tunnel Tops kiosks or the Sessions food trucks."
             },
             {
               "kind": "alternative",
               "badge": "CITY ICON",
               "title": "Cable car & Lombard Street",
-              "plan": "Ride the Powell-Hyde cable car (hang off the side!) up to Lombard Street's famous zig-zag, then down to Ghirardelli Square.",
+              "plan": "Ride the Powell-Hyde cable car up to Lombard Street's famous zig-zag, then down to Ghirardelli Square.",
               "food": "A hot fudge sundae at Ghirardelli — split a few, they're enormous."
             }
           ],
-          "tip": {
-            "label": "Layers",
-            "body": "The bridge is 10°C colder and windier than downtown, even in August. Everyone takes a jumper — no exceptions."
-          }
+          "tip": { "label": "Layers", "body": "The bridge is 10°C colder and windier than downtown, even in August. Everyone takes a jumper — no exceptions." }
         },
         {
           "n": 3,
@@ -106,76 +100,42 @@
               "badge": "ISLAND HISTORY",
               "title": "Alcatraz cruise & cellhouse tour",
               "plan": "Ferry out to Alcatraz for the excellent self-guided audio tour narrated by former guards and inmates — genuinely gripping for teens and 9-year-olds alike. Give it a good 2.5 hours on the island, then ferry back.",
-              "food": "Lunch at the Ferry Building on the way back — build-your-own from the stalls keeps everyone happy."
+              "food": "Lunch at the Ferry Building on the way back — build-your-own from the stalls."
             },
             {
               "kind": "alternative",
               "badge": "HANDS-ON",
               "title": "The Exploratorium",
-              "plan": "If Alcatraz is sold out (it books weeks ahead), Pier 15's Exploratorium is a giant hands-on science playground — hours of entertainment, and air-conditioned.",
+              "plan": "If Alcatraz is sold out (book it well ahead), Pier 15's Exploratorium is a giant hands-on science playground — hours of fun and air-conditioned.",
               "food": "The Seaglass café on-site, or back to the Wharf."
             }
           ],
-          "tip": {
-            "label": "Book early",
-            "body": "Alcatraz tickets sell out weeks in advance — this must already be booked. Check the ferry departure time the night before; it leaves from Pier 33, not the Wharf."
-          }
+          "tip": { "label": "Book early", "body": "Alcatraz sells out weeks ahead and the ferry leaves from Pier 33, not the Wharf — check the departure time the night before." }
         },
         {
           "n": 4,
           "weekday": "Tuesday",
           "date": "11 Aug",
           "iso_date": "2026-08-11",
-          "title": "Muir Woods & Marin",
-          "subtitle": "Cathedral redwoods just over the bridge.",
+          "title": "Muir Woods & last of the city",
+          "subtitle": "Giant redwoods, then pack for the coast road.",
           "options": [
             {
               "kind": "recommended",
               "badge": "GIANT REDWOODS",
-              "title": "Muir Woods & Muir Beach",
-              "plan": "Drive back over the bridge to Muir Woods and walk the boardwalk loop beneath 1,000-year-old coast redwoods — hushed, cool and jaw-dropping. Afterwards drop down to Muir Beach or the Muir Beach Overlook for the coastal view.",
-              "food": "Pack a picnic (no big café at the woods), or the Pelican Inn at Muir Beach for a cosy English-pub lunch."
+              "title": "Muir Woods, then city classics",
+              "plan": "Drive over the bridge to Muir Woods and walk the boardwalk loop beneath 1,000-year-old redwoods. Back in the city, tick off the Painted Ladies at Alamo Square and a Twin Peaks sunset before repacking for tomorrow's drive.",
+              "food": "Picnic at Muir Beach (or the cosy Pelican Inn), then a Mission burrito for dinner."
             },
             {
               "kind": "alternative",
               "badge": "IN THE CITY",
-              "title": "California Academy of Sciences",
-              "plan": "Prefer to stay in town? The Academy in Golden Gate Park has an aquarium, planetarium and a four-storey indoor rainforest under one living roof. Brilliant for the twins.",
-              "food": "The Academy café, or picnic in the park by the bandshell."
+              "title": "Golden Gate Park & the Academy",
+              "plan": "Stay in town: the California Academy of Sciences (aquarium, planetarium, rainforest) plus the Japanese Tea Garden and Stow Lake pedal-boats.",
+              "food": "The Academy café, or picnic by the park bandshell."
             }
           ],
-          "tip": {
-            "label": "Book early",
-            "body": "Muir Woods requires a parking OR shuttle reservation booked in advance — you cannot just turn up. No reservation, no entry."
-          }
-        },
-        {
-          "n": 5,
-          "weekday": "Wednesday",
-          "date": "12 Aug",
-          "iso_date": "2026-08-12",
-          "title": "City classics & pack-up",
-          "subtitle": "Last of the city before the coast road.",
-          "options": [
-            {
-              "kind": "recommended",
-              "badge": "CITY HIGHLIGHTS",
-              "title": "Golden Gate Park, Painted Ladies & Twin Peaks",
-              "plan": "A greatest-hits day: the Japanese Tea Garden and Stow Lake pedal-boats in Golden Gate Park, a photo at the Painted Ladies on Alamo Square, and a drive up Twin Peaks for the whole-city view at dusk. Repack tonight for the drive south.",
-              "food": "A proper Mission burrito at La Taquería or El Farolito — the best-value dinner in the city."
-            },
-            {
-              "kind": "alternative",
-              "badge": "EAST OF CENTRE",
-              "title": "Chinatown & North Beach",
-              "plan": "Wander the oldest Chinatown in North America — the fortune-cookie factory is a hit — then over into Italian North Beach for cannoli and a rest in Washington Square.",
-              "food": "Dim sum in Chinatown, then a cannoli at Stella Pastry in North Beach."
-            }
-          ],
-          "tip": {
-            "label": "Prep the drive",
-            "body": "Fuel up tonight and download offline maps for Monterey → Big Sur — signal disappears on the coast road. Everything in this app already works offline."
-          }
+          "tip": { "label": "Prep the drive", "body": "Pack tonight, fuel up, and download offline maps for Monterey → Big Sur — signal disappears on the coast road tomorrow. This app already works offline." }
         }
       ]
     },
@@ -183,9 +143,9 @@
       "id": "pch",
       "num": "02",
       "title": "Pacific Coast Highway",
-      "range": "Thu 13 — Sun 16 Aug",
-      "tagline": "The drive is the destination — Big Sur, cliffs and elephant seals.",
-      "notes": "Four days threading Highway 1 down the coast. The road itself is the main event: hairpins, sea cliffs and pull-offs. Phone signal is patchy to non-existent through Big Sur — screenshot anything you need, and trust this app, which runs fully offline. Fill the tank whenever it drops below half.",
+      "range": "Wed 12 — Thu 13 Aug",
+      "tagline": "The drive is the destination — Big Sur, cliffs and Hearst Castle.",
+      "notes": "Two days threading Highway 1 south. Night 1 in Cambria (Hampton Inn San Simeon), night 2 in Santa Monica (Days Inn). Phone signal is patchy to non-existent through Big Sur — screenshot anything you need, and trust this app, which runs fully offline. Fill the tank whenever it drops below half.",
       "ideas": [
         { "title": "17-Mile Drive", "note": "Scenic private toll road past Pebble Beach and the lone cypress." },
         { "title": "Bixby Creek Bridge", "note": "The iconic Big Sur photo stop — pull off just before it." },
@@ -201,116 +161,54 @@
       ],
       "days": [
         {
-          "n": 6,
-          "weekday": "Thursday",
-          "date": "13 Aug",
-          "iso_date": "2026-08-13",
-          "title": "San Francisco → Monterey",
-          "subtitle": "The coast road begins — otters and aquarium.",
-          "options": [
-            {
-              "kind": "recommended",
-              "badge": "AQUARIUM DAY",
-              "title": "Monterey Bay Aquarium & Cannery Row",
-              "plan": "Drive south (roughly 2 hours) to Monterey. Spend the afternoon at the world-class Monterey Bay Aquarium — the kelp forest and sea-otter feeds are unmissable — then stroll the old sardine canneries of Cannery Row.",
-              "food": "Clam chowder and calamari on Old Fisherman's Wharf, Monterey."
-            },
-            {
-              "kind": "alternative",
-              "badge": "THRILLS",
-              "title": "Santa Cruz Beach Boardwalk",
-              "plan": "Break the drive at Santa Cruz for the old-school seaside boardwalk — the wooden Giant Dipper coaster is a scream and the twins can ride all afternoon.",
-              "food": "Corn dogs and funnel cake on the boardwalk — full holiday mode."
-            }
-          ],
-          "tip": {
-            "label": "Fuel up",
-            "body": "Fill the tank in Monterey before you head into Big Sur tomorrow — there's one very pricey petrol station on the whole stretch and long gaps between."
-          }
-        },
-        {
-          "n": 7,
-          "weekday": "Friday",
-          "date": "14 Aug",
-          "iso_date": "2026-08-14",
-          "title": "17-Mile Drive & Big Sur",
+          "n": 5,
+          "weekday": "Wednesday",
+          "date": "12 Aug",
+          "iso_date": "2026-08-12",
+          "title": "San Francisco → Big Sur → Cambria",
           "subtitle": "The big one — cliffs, bridges and hidden beaches.",
           "options": [
             {
               "kind": "recommended",
               "badge": "SCENIC DRIVE",
-              "title": "Bixby Bridge, McWay Falls & Pfeiffer Beach",
-              "plan": "The signature day of the trip. Loop the 17-Mile Drive past the Lone Cypress, then take Highway 1 into Big Sur proper: stop at the iconic Bixby Creek Bridge, walk to the McWay Falls overlook (a waterfall onto the beach), and detour down to purple-sanded Pfeiffer Beach. Drive slowly, stop often.",
-              "food": "Nepenthe for lunch — famous cliff-top terrace with a view a thousand feet above the Pacific. Book or arrive early."
+              "title": "The Big Sur coast road to Cambria",
+              "plan": "Leave the city and drive Highway 1 south — the signature day of the trip. Loop the 17-Mile Drive, stop at Bixby Creek Bridge, walk to the McWay Falls overlook, and detour to purple-sanded Pfeiffer Beach. Drive slowly, stop often; overnight in Cambria (Hampton Inn San Simeon).",
+              "food": "Nepenthe for lunch — famous cliff-top terrace a thousand feet above the Pacific. Book or arrive early."
             },
             {
               "kind": "alternative",
-              "badge": "STRETCH THE LEGS",
-              "title": "Point Lobos walk",
-              "plan": "Swap some driving for the gentle cliff trails of Point Lobos Reserve — tide pools, sea lions and hidden coves, easy enough for the twins.",
-              "food": "Picnic at Point Lobos, or back into Carmel-by-the-Sea for lunch."
+              "badge": "OTTERS & AQUARIUM",
+              "title": "Break at Monterey",
+              "plan": "Split the drive with a couple of hours at the world-class Monterey Bay Aquarium and a stroll along Cannery Row before pushing into Big Sur.",
+              "food": "Clam chowder on Old Fisherman's Wharf, Monterey."
             }
           ],
-          "tip": {
-            "label": "No signal",
-            "body": "There is essentially zero phone reception through Big Sur. This day's page is built to work with no connection at all — screenshot any bookings and go. Watch for fog on the cliff bends."
-          }
+          "tip": { "label": "No signal", "body": "There is essentially zero reception through Big Sur — screenshot directions and fuel up in Monterey (one very pricey station on the whole stretch). This page works with no connection at all; watch for fog on the cliff bends." }
         },
         {
-          "n": 8,
-          "weekday": "Saturday",
-          "date": "15 Aug",
-          "iso_date": "2026-08-15",
-          "title": "Big Sur → Cambria",
-          "subtitle": "Castles on the hill and seals on the sand.",
+          "n": 6,
+          "weekday": "Thursday",
+          "date": "13 Aug",
+          "iso_date": "2026-08-13",
+          "title": "Cambria → Hearst Castle → Santa Monica",
+          "subtitle": "Castles, elephant seals, then down to the beach.",
           "options": [
             {
               "kind": "recommended",
               "badge": "HEARST CASTLE",
-              "title": "Hearst Castle & the elephant seals",
-              "plan": "Continue south to San Simeon. Take the tour bus up to Hearst Castle — the jaw-dropping hilltop mansion with its Roman pools — then stop at the Piedras Blancas rookery just up the road, where hundreds of enormous elephant seals lounge on the beach a few metres away. Overnight in Cambria.",
-              "food": "Dinner on Moonstone Beach in Cambria, or a Main Street bistro in the village."
+              "title": "Hearst Castle & the drive south",
+              "plan": "From San Simeon, take the tour bus up to Hearst Castle — the jaw-dropping hilltop mansion — then stop at the Piedras Blancas rookery where hundreds of elephant seals lounge on the beach. Afterwards, the long, scenic run down via Santa Barbara to Santa Monica (Days Inn tonight).",
+              "food": "Lunch on Stearns Wharf or at the Public Market in Santa Barbara."
             },
             {
               "kind": "alternative",
               "badge": "SEASIDE TOWN",
               "title": "Morro Bay & the Rock",
-              "plan": "Skip the castle tour for the laid-back fishing town of Morro Bay, dominated by its 176m volcanic Morro Rock. Kayak the bay or just watch the otters.",
+              "plan": "Skip the castle tour for laid-back Morro Bay, dominated by its 176m volcanic rock — kayak the bay or just watch the otters — then drive on down.",
               "food": "Fish tacos on the Morro Bay Embarcadero."
             }
           ],
-          "tip": {
-            "label": "Book early",
-            "body": "Hearst Castle tours must be booked in advance and depart on a strict timetable from the visitor centre — you can't just walk up to the house."
-          }
-        },
-        {
-          "n": 9,
-          "weekday": "Sunday",
-          "date": "16 Aug",
-          "iso_date": "2026-08-16",
-          "title": "Cambria → Santa Monica",
-          "subtitle": "The American Riviera, then down to the beach base.",
-          "options": [
-            {
-              "kind": "recommended",
-              "badge": "SANTA BARBARA",
-              "title": "Santa Barbara stop, then push to Santa Monica",
-              "plan": "Break the drive at Santa Barbara — the whitewashed, red-tiled 'American Riviera'. Walk out on Stearns Wharf and mooch State Street, then tackle the final run down to your Santa Monica base for the next four nights.",
-              "food": "Lunch on Stearns Wharf or at the Santa Barbara Public Market."
-            },
-            {
-              "kind": "alternative",
-              "badge": "STORYBOOK DETOUR",
-              "title": "Solvang Danish village",
-              "plan": "Swing inland to Solvang — a slightly surreal Danish-themed village of windmills and bakeries. Kitsch, fun, and great for photos.",
-              "food": "Aebleskiver (Danish pancake balls) at a Solvang bakery."
-            }
-          ],
-          "tip": {
-            "label": "Beat the traffic",
-            "body": "LA traffic builds through Sunday afternoon. Aim to clear Santa Barbara by mid-afternoon so the last stretch into Santa Monica stays sane."
-          }
+          "tip": { "label": "Book early", "body": "Hearst Castle tours must be pre-booked and depart on a strict timetable from the visitor centre. Aim to clear Santa Barbara by mid-afternoon so the last stretch into Santa Monica stays sane." }
         }
       ]
     },
@@ -318,9 +216,9 @@
       "id": "sm",
       "num": "03",
       "title": "Santa Monica",
-      "range": "Mon 17 — Thu 20 Aug",
+      "range": "Fri 14 — Sat 15 Aug",
       "tagline": "Beach base — pier lights, bikes and Pacific sunsets.",
-      "notes": "Four nights parked by the beach. Everything here is walkable or a short cruiser-bike ride, so the car can mostly stay put. The classic beach-path runs all the way from Santa Monica to Venice — use it.",
+      "notes": "Two nights at the Hampton Inn & Suites, walkable to the beach. The classic beach path runs all the way from Santa Monica to Venice — hire cruiser bikes and use it. The car can mostly stay put.",
       "ideas": [
         { "title": "Santa Monica Pier & Pacific Park", "note": "Solar-powered Ferris wheel and coaster right over the ocean." },
         { "title": "Cycle the beach path to Venice", "note": "Flat 3.5km each way; hire cruiser bikes for the whole stay." },
@@ -335,10 +233,10 @@
       ],
       "days": [
         {
-          "n": 10,
-          "weekday": "Monday",
-          "date": "17 Aug",
-          "iso_date": "2026-08-17",
+          "n": 7,
+          "weekday": "Friday",
+          "date": "14 Aug",
+          "iso_date": "2026-08-14",
           "title": "Santa Monica Pier & beach",
           "subtitle": "Roller coaster over the ocean.",
           "options": [
@@ -346,8 +244,8 @@
               "kind": "recommended",
               "badge": "PIER & BEACH",
               "title": "Pacific Park & a proper beach day",
-              "plan": "Ease into LA with a full beach day. Ride the solar-powered Ferris wheel and coaster at Pacific Park on the pier, hire umbrellas and bodyboards, and let the twins loose in the sand. Sunset over the Pacific from the pier is the reward.",
-              "food": "Burgers and shakes at a pier-side spot, or the historic Santa Monica food stalls."
+              "plan": "Move to the Hampton Inn & Suites, then a full beach day. Ride the solar-powered Ferris wheel and coaster at Pacific Park on the pier, hire umbrellas and bodyboards, and let the twins loose in the sand. Sunset over the Pacific from the pier is the reward.",
+              "food": "Burgers and shakes at a pier-side spot."
             },
             {
               "kind": "alternative",
@@ -357,94 +255,32 @@
               "food": "Poke bowls or tacos on the Venice side."
             }
           ],
-          "tip": {
-            "label": "Beach kit",
-            "body": "Rent beach cruisers for the whole family for the four days — cheaper by the day and it turns the whole coast into your back garden."
-          }
+          "tip": { "label": "Beach kit", "body": "Rent beach cruisers for the whole family for the two days — it turns the coast into your back garden." }
         },
         {
-          "n": 11,
-          "weekday": "Tuesday",
-          "date": "18 Aug",
-          "iso_date": "2026-08-18",
-          "title": "Venice & Abbot Kinney",
-          "subtitle": "Skaters, canals and one very odd boardwalk.",
+          "n": 8,
+          "weekday": "Saturday",
+          "date": "15 Aug",
+          "iso_date": "2026-08-15",
+          "title": "Venice & Malibu",
+          "subtitle": "Canals, murals and hidden coves.",
           "options": [
             {
               "kind": "recommended",
-              "badge": "VENICE VIBES",
-              "title": "Canals, skate park & Abbot Kinney",
-              "plan": "Explore the peaceful Venice Canals (yes, real canals with little bridges), watch the pros at the Venice Skate Park, take in the chaos of the boardwalk, then wander the boutiques and murals of hip Abbot Kinney Boulevard.",
-              "food": "Abbot Kinney has the best casual food in LA — take your pick of the trendy spots or the original Venice pizza joints."
+              "badge": "VENICE & MALIBU",
+              "title": "Canals, Abbot Kinney & Malibu beaches",
+              "plan": "Morning at the peaceful Venice Canals and the boutiques and murals of Abbot Kinney, with a look at the boardwalk chaos. In the afternoon, drive up the coast to Malibu's beautiful state beaches — El Matador's sea caves and arches are the showstopper.",
+              "food": "Abbot Kinney for lunch, fish tacos at a Malibu beach shack for later."
             },
             {
               "kind": "alternative",
               "badge": "GET IN THE WATER",
               "title": "Family surf lesson",
               "plan": "Book a group beginner surf lesson on the mellow Santa Monica or Venice breaks — instructors are used to kids and everyone stands up eventually.",
-              "food": "Well-earned brunch back on Main Street, Santa Monica."
+              "food": "Well-earned brunch on Main Street, Santa Monica."
             }
           ],
-          "tip": {
-            "label": "Keep it loose",
-            "body": "Venice Beach gets eccentric — brilliant for people-watching, but keep the twins close on the boardwalk and valuables zipped away."
-          }
-        },
-        {
-          "n": 12,
-          "weekday": "Wednesday",
-          "date": "19 Aug",
-          "iso_date": "2026-08-19",
-          "title": "Universal Studios Hollywood",
-          "subtitle": "Movie-world day trip.",
-          "options": [
-            {
-              "kind": "recommended",
-              "badge": "THEME PARK",
-              "title": "Universal Studios Hollywood",
-              "plan": "A big day out at Universal: the Studio Tour tram through real backlots, the Wizarding World of Harry Potter, Super Nintendo World and Jurassic World. Something for the 9s, the teens and the grown-ups. Get there for opening.",
-              "food": "Eat inside the park — Three Broomsticks in Hogsmeade is the fun choice."
-            },
-            {
-              "kind": "alternative",
-              "badge": "ART & VIEWS",
-              "title": "The Getty Center",
-              "plan": "Not up for a theme park? Ride the tram up to the Getty Center for world-class art, extraordinary architecture and gardens, and one of the best views over LA — and it's free to enter.",
-              "food": "The Getty's restaurant and café, with a view."
-            }
-          ],
-          "tip": {
-            "label": "Book early",
-            "body": "Buy dated Universal tickets online in advance and consider the Universal Express pass — August queues are long. Rope-drop the Studio Tour first."
-          }
-        },
-        {
-          "n": 13,
-          "weekday": "Thursday",
-          "date": "20 Aug",
-          "iso_date": "2026-08-20",
-          "title": "Malibu day",
-          "subtitle": "Hidden coves up the coast.",
-          "options": [
-            {
-              "kind": "recommended",
-              "badge": "MALIBU",
-              "title": "El Matador, Malibu Pier & Point Dume",
-              "plan": "Drive up the coast to Malibu's string of beautiful state beaches. El Matador's sea caves and arches are the showstopper (steep steps down), Point Dume is great for a scramble and whale-spotting, and Malibu Pier is the classic photo stop.",
-              "food": "Fish tacos at a Malibu beach shack, or a bite at the Malibu Country Mart."
-            },
-            {
-              "kind": "alternative",
-              "badge": "STAY LOCAL",
-              "title": "Third Street Promenade & chill",
-              "plan": "A gentler day: shopping and street performers on Santa Monica's Third Street Promenade, then back to the beach. Good if everyone needs a slower gear.",
-              "food": "Take your pick on the Promenade — every cuisine going."
-            }
-          ],
-          "tip": {
-            "label": "Parking",
-            "body": "El Matador's car park is tiny and fills by late morning. Go early, or be ready to wait for a space. Pack water — there are no shops at the beach."
-          }
+          "tip": { "label": "Parking", "body": "El Matador's car park is tiny and fills by late morning — go early, and pack water as there are no shops at the beach." }
         }
       ]
     },
@@ -452,9 +288,9 @@
       "id": "la",
       "num": "04",
       "title": "Los Angeles",
-      "range": "Fri 21 — Tue 25 Aug",
+      "range": "Sun 16 — Sat 22 Aug",
       "tagline": "Hollywood, theme parks and the big-city stretch.",
-      "notes": "Five nights to take on LA proper. It's vast and the traffic is real — plan each day around one area and travel outside peak hours. This is the leg where the four kids' different tastes pull hardest, so a couple of days are built to split the group.",
+      "notes": "Seven nights at the SpringHill Suites (Burbank/Downtown) — your big base for the week. LA is vast and the traffic is real; plan each day around one area and travel outside peak hours. Burbank is handy for Universal, Warner Bros and Griffith. This is the leg where the four kids' tastes pull hardest, so a couple of days split the group.",
       "ideas": [
         { "title": "Hollywood Walk of Fame & TCL Chinese Theatre", "note": "The stars, the handprints and the tourist buzz of Hollywood Blvd." },
         { "title": "Griffith Observatory", "note": "Free space museum, telescopes, and the definitive Hollywood Sign view at sunset." },
@@ -471,38 +307,85 @@
       ],
       "days": [
         {
-          "n": 14,
-          "weekday": "Friday",
-          "date": "21 Aug",
-          "iso_date": "2026-08-21",
+          "n": 9,
+          "weekday": "Sunday",
+          "date": "16 Aug",
+          "iso_date": "2026-08-16",
+          "title": "Santa Monica → LA (Burbank)",
+          "subtitle": "Move to base, then the best view in the city.",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "SETTLE IN",
+              "title": "Move to Burbank & Griffith sunset",
+              "plan": "Drive across to the SpringHill Suites — your base for the week — and settle in. Late afternoon, head up to Griffith Observatory for the best free view in LA, a superb space museum, and the definitive Hollywood Sign photo as the sun drops.",
+              "food": "In-N-Out for the full American road-trip experience, or dinner in Los Feliz below the observatory."
+            },
+            {
+              "kind": "alternative",
+              "badge": "ART & AIR-CON",
+              "title": "The Getty Center",
+              "plan": "Prefer a slower move-in day? Ride the tram up to the Getty for world-class art, gardens and one of the best views over LA — free to enter.",
+              "food": "The Getty's restaurant and café, with a view."
+            }
+          ],
+          "tip": { "label": "Beat the crowds", "body": "Griffith Observatory parking fills fast at sunset — arrive well before golden hour or use the DASH shuttle, and bring a layer for after dark." }
+        },
+        {
+          "n": 10,
+          "weekday": "Monday",
+          "date": "17 Aug",
+          "iso_date": "2026-08-17",
+          "title": "Universal Studios Hollywood",
+          "subtitle": "Movie-world day — and it's right by Burbank.",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "THEME PARK",
+              "title": "Universal Studios Hollywood",
+              "plan": "A big day at Universal: the Studio Tour tram through real backlots, the Wizarding World of Harry Potter, Super Nintendo World and Jurassic World. Something for the 9s, the teens and the grown-ups. Get there for opening.",
+              "food": "Eat inside the park — Three Broomsticks in Hogsmeade is the fun choice."
+            },
+            {
+              "kind": "alternative",
+              "badge": "BEHIND THE SCENES",
+              "title": "Warner Bros. Studio Tour",
+              "plan": "For film-mad teens, the Warner Bros. tour in nearby Burbank goes behind the scenes of real working sets and prop houses.",
+              "food": "Lunch on the studio lot or in Burbank."
+            }
+          ],
+          "tip": { "label": "Book early", "body": "Buy dated Universal tickets online and consider the Express pass — August queues are long. Rope-drop the Studio Tour first." }
+        },
+        {
+          "n": 11,
+          "weekday": "Tuesday",
+          "date": "18 Aug",
+          "iso_date": "2026-08-18",
           "title": "Hollywood",
           "subtitle": "Stars on the pavement, sign on the hill.",
           "options": [
             {
               "kind": "recommended",
               "badge": "HOLLYWOOD",
-              "title": "Walk of Fame & Griffith Observatory sunset",
-              "plan": "Do the Walk of Fame and the handprints at the TCL Chinese Theatre in the morning, then time the afternoon for Griffith Observatory — the best free view in LA, a superb space museum, and the definitive Hollywood Sign photo as the sun drops.",
-              "food": "Dinner in Los Feliz below the observatory, or the classic In-N-Out for the full American road-trip experience."
+              "title": "Walk of Fame & the sights",
+              "plan": "Do the Walk of Fame and the handprints at the TCL Chinese Theatre, mooch Hollywood Boulevard, and take in the Dolby/Ovation complex. An easy, iconic day at a gentle pace after two big park days.",
+              "food": "Dinner in Los Feliz, or the classic In-N-Out."
             },
             {
               "kind": "alternative",
-              "badge": "BEHIND THE SCENES",
-              "title": "Warner Bros. Studio Tour",
-              "plan": "For film-mad teens, the Warner Bros. Studio Tour goes behind the scenes of real working sets and prop houses — Friends, Batman, the lot.",
-              "food": "Lunch on the studio lot or in nearby Burbank."
+              "badge": "MODERN ART",
+              "title": "The Broad & Downtown",
+              "plan": "For the older four, The Broad downtown (Yayoi Kusama's Infinity Mirror Rooms are the draw) plus the striking Walt Disney Concert Hall next door.",
+              "food": "Grand Central Market — dozens of food stalls under one roof."
             }
           ],
-          "tip": {
-            "label": "Beat the crowds",
-            "body": "Griffith Observatory parking fills fast at sunset. Arrive well before golden hour or use the DASH shuttle — and bring a layer for after dark."
-          }
+          "tip": { "label": "Book early", "body": "The Broad is free but timed-entry tickets go fast, and the Infinity Rooms need a separate reservation — sort it a few days ahead." }
         },
         {
-          "n": 15,
-          "weekday": "Saturday",
-          "date": "22 Aug",
-          "iso_date": "2026-08-22",
+          "n": 12,
+          "weekday": "Wednesday",
+          "date": "19 Aug",
+          "iso_date": "2026-08-19",
           "title": "Disneyland",
           "subtitle": "The big one for the twins.",
           "options": [
@@ -510,8 +393,8 @@
               "kind": "recommended",
               "badge": "DISNEYLAND",
               "title": "Disneyland Park, Anaheim",
-              "plan": "A full day at the original Disneyland. Rope-drop the headliners (Rise of the Resistance, Space Mountain, Indiana Jones), pace it with breaks, and stay for the fireworks over the castle. A long but magical day — the twins will talk about it for years.",
-              "food": "Eat in the park; the Galactic Grill in Tomorrowland or a Dole Whip in Adventureland are easy wins."
+              "plan": "A full day at the original Disneyland (about an hour south). Rope-drop the headliners (Rise of the Resistance, Space Mountain, Indiana Jones), pace it with breaks, and stay for the fireworks over the castle.",
+              "food": "Eat in the park; a Dole Whip in Adventureland is an easy win."
             },
             {
               "kind": "alternative",
@@ -521,16 +404,13 @@
               "food": "Pym Test Kitchen in Avengers Campus is a laugh."
             }
           ],
-          "tip": {
-            "label": "Book early",
-            "body": "Disneyland needs dated tickets AND a park reservation. Download the Disneyland app and set up Lightning Lane / Genie+ the night before to skip the worst queues."
-          }
+          "tip": { "label": "Book early", "body": "Disneyland needs a dated ticket AND a park reservation. Download the app and set up Lightning Lane / Genie+ the night before to skip the worst queues." }
         },
         {
-          "n": 16,
-          "weekday": "Sunday",
-          "date": "23 Aug",
-          "iso_date": "2026-08-23",
+          "n": 13,
+          "weekday": "Thursday",
+          "date": "20 Aug",
+          "iso_date": "2026-08-20",
           "title": "Griffith Park & museums",
           "subtitle": "A gentler recovery day after Disney.",
           "options": [
@@ -538,27 +418,31 @@
               "kind": "recommended",
               "badge": "PARK & ANIMALS",
               "title": "LA Zoo & Griffith Park",
-              "plan": "A deliberately easier day after Disneyland. The LA Zoo and the vintage Travel Town train museum in Griffith Park are perfect for tired twins, with plenty of shade and space to roam.",
-              "food": "Picnic in Griffith Park, or a casual lunch in nearby Los Feliz."
+              "plan": "A deliberately easier day. The LA Zoo and the vintage Travel Town train museum in Griffith Park are perfect for tired twins, with plenty of shade and space to roam.",
+              "food": "Picnic in Griffith Park, or a casual lunch in Los Feliz."
             },
             {
               "kind": "alternative",
-              "badge": "MODERN ART",
-              "title": "The Broad & Downtown",
-              "plan": "For the older four, The Broad museum downtown (Yayoi Kusama's Infinity Mirror Rooms are the draw) plus the striking Walt Disney Concert Hall next door.",
-              "food": "Grand Central Market downtown — dozens of food stalls under one roof."
+              "badge": "ICE AGE",
+              "title": "La Brea Tar Pits",
+              "plan": "Bubbling Ice Age tar pits and a museum full of sabre-tooth cats and mammoths, right in the middle of the city — a quirky, kid-friendly winner.",
+              "food": "The Original Farmers Market at 3rd & Fairfax is a short hop."
+            },
+            {
+              "kind": "alternative",
+              "badge": "SEA AIR",
+              "title": "Back to the beach",
+              "plan": "Fancy the coast again? An easy day back at Santa Monica or Venice beach — no driving stress, just sand and the pier.",
+              "food": "Whatever takes your fancy on the pier or Abbot Kinney."
             }
           ],
-          "tip": {
-            "label": "Book early",
-            "body": "The Broad is free but timed-entry tickets go fast, and the Infinity Rooms need a separate reservation. Sort it a few days ahead."
-          }
+          "tip": { "label": "Split if you like", "body": "A good day to split by energy — quiet zoo/park for the twins, museums or the beach for the older ones." }
         },
         {
-          "n": 17,
-          "weekday": "Monday",
-          "date": "24 Aug",
-          "iso_date": "2026-08-24",
+          "n": 14,
+          "weekday": "Friday",
+          "date": "21 Aug",
+          "iso_date": "2026-08-21",
           "title": "Six Flags Magic Mountain",
           "subtitle": "The teenagers' day — serious coasters.",
           "options": [
@@ -566,27 +450,24 @@
               "kind": "recommended",
               "badge": "COASTERS",
               "title": "Six Flags Magic Mountain",
-              "plan": "Aimed squarely at the 15- and 17-year-olds: Magic Mountain has one of the biggest roller-coaster line-ups on the planet. A great day to split the group — thrill-seekers here, twins and a grown-up back at the beach or the hotel pool.",
-              "food": "Park food, or refuel in nearby Valencia on the way back."
+              "plan": "Aimed squarely at the 15- and 17-year-olds: Magic Mountain (up near Valencia) has one of the biggest roller-coaster line-ups on the planet. A great day to split the group — thrill-seekers here, twins and a grown-up to a pool or the beach.",
+              "food": "Park food, or refuel in Valencia on the way back."
             },
             {
               "kind": "alternative",
               "badge": "FOR THE TWINS",
-              "title": "Beach & pool day",
-              "plan": "The other half of the family takes it easy — Santa Monica beach in the morning, hotel pool in the afternoon. Everyone reconvenes for dinner and swaps stories.",
-              "food": "Family dinner back near the hotel — somewhere everyone's voted for."
+              "title": "Pool & beach day",
+              "plan": "The other half takes it easy — hotel pool in the morning, Santa Monica beach in the afternoon. Everyone reconvenes for dinner and swaps stories.",
+              "food": "Family dinner back near Burbank — somewhere everyone's voted for."
             }
           ],
-          "tip": {
-            "label": "Split the group",
-            "body": "Height limits keep the twins off most of Magic Mountain's big rides, so splitting the day is kinder to everyone. Agree a pickup time and place before you separate."
-          }
+          "tip": { "label": "Split the group", "body": "Height limits keep the twins off most of Magic Mountain's big rides, so splitting the day is kinder to everyone. Agree a pickup time and place before you separate." }
         },
         {
-          "n": 18,
-          "weekday": "Tuesday",
-          "date": "25 Aug",
-          "iso_date": "2026-08-25",
+          "n": 15,
+          "weekday": "Saturday",
+          "date": "22 Aug",
+          "iso_date": "2026-08-22",
           "title": "Getty, Beverly Hills & desert prep",
           "subtitle": "Culture, glamour, and stocking up for Nevada.",
           "options": [
@@ -594,21 +475,18 @@
               "kind": "recommended",
               "badge": "ART & AIR-CON",
               "title": "The Getty & a Beverly Hills stroll",
-              "plan": "Ride the tram up to the Getty Center for art, gardens and views, then a stroll down Rodeo Drive for the Beverly Hills people-watching. A cooler, calmer day — and the last chance to stock the car before the desert.",
+              "plan": "Ride the tram up to the Getty Center for art, gardens and views, then a stroll down Rodeo Drive for the Beverly Hills people-watching. A cooler, calmer last LA day — and the chance to stock the car before the desert.",
               "food": "Lunch at the Getty, or a deli in Beverly Hills."
             },
             {
               "kind": "alternative",
-              "badge": "ICE AGE",
-              "title": "La Brea Tar Pits",
-              "plan": "Bubbling Ice Age tar pits right in the middle of the city, with a museum full of sabre-tooth cats and mammoths dug from the asphalt. A quirky, kid-friendly winner.",
-              "food": "The Original Farmers Market at 3rd & Fairfax is a short hop and full of options."
+              "badge": "MARKET DAY",
+              "title": "Farmers Market & The Grove",
+              "plan": "The Original Farmers Market and the open-air Grove for a relaxed food-and-shopping morning before the drive.",
+              "food": "Take your pick of the Farmers Market stalls."
             }
           ],
-          "tip": {
-            "label": "Desert prep",
-            "body": "Buy a case of water and check the car's air-con works properly before tomorrow — you're driving into serious August heat. Charge everything tonight."
-          }
+          "tip": { "label": "Desert prep", "body": "Buy a case of water and check the car's air-con works properly before tomorrow — you're driving into serious August heat. Charge everything tonight." }
         }
       ]
     },
@@ -616,9 +494,9 @@
       "id": "vegas",
       "num": "05",
       "title": "Las Vegas",
-      "range": "Wed 26 — Sat 29 Aug",
+      "range": "Sun 23 — Sat 29 Aug",
       "tagline": "Neon, desert wonders and one last blow-out.",
-      "notes": "Four nights to finish in the desert. August in Nevada is brutally hot (40°C+) — plan outdoor stuff for early and late, and hide from the midday sun in the air-conditioned casinos and pools. Hydrate constantly, especially the kids. The Grand Canyon and Death Valley pages are built to work with no signal at all.",
+      "notes": "Seven nights to finish — one at the W Las Vegas (23–24), then the Luxor (24–29). August in Nevada is brutally hot (40°C+): plan outdoor stuff for early and late, hide from the midday sun in the air-conditioned casinos and pools, and hydrate constantly. The Grand Canyon and Death Valley pages work with no signal at all.",
       "ideas": [
         { "title": "The Strip after dark", "note": "Bellagio fountains, the neon, and free casino spectacles all the way down." },
         { "title": "High Roller observation wheel", "note": "550ft views over the valley — spectacular by day or night." },
@@ -635,10 +513,10 @@
       ],
       "days": [
         {
-          "n": 19,
-          "weekday": "Wednesday",
-          "date": "26 Aug",
-          "iso_date": "2026-08-26",
+          "n": 16,
+          "weekday": "Sunday",
+          "date": "23 Aug",
+          "iso_date": "2026-08-23",
           "title": "Los Angeles → Las Vegas",
           "subtitle": "Across the Mojave into Nevada.",
           "options": [
@@ -646,27 +524,24 @@
               "kind": "recommended",
               "badge": "DESERT DRIVE",
               "title": "Drive to Vegas & the Strip by night",
-              "plan": "The roughly 4.5-hour drive across the Mojave to Las Vegas. Break it at the retro ghost town of Calico or the tiny outpost of Baker (home of the world's tallest thermometer). Check in, cool off, then hit the Strip after dark for the Bellagio fountains and the neon.",
+              "plan": "The roughly 4.5-hour drive across the Mojave to Las Vegas — break it at the tiny outpost of Baker (home of the world's tallest thermometer). Check in to the W Las Vegas, cool off, then hit the Strip after dark for the Bellagio fountains and the neon.",
               "food": "One of the famous Vegas buffets, or an easy Strip diner — the kids will be wide-eyed either way."
             },
             {
               "kind": "alternative",
               "badge": "EXTREME DETOUR",
               "title": "Death Valley crossing",
-              "plan": "For the adventurous: route via Death Valley National Park — Badwater Basin (lowest point in North America), Zabriskie Point and the dunes. Spectacular and utterly alien, but only with a fully fuelled, well-watered car.",
+              "plan": "For the adventurous: route via Death Valley National Park — Badwater Basin (lowest point in North America), Zabriskie Point and the dunes. Spectacular, but only with a fully fuelled, well-watered car.",
               "food": "Stock up before you enter — services inside the park are minimal and far apart."
             }
           ],
-          "tip": {
-            "label": "No signal",
-            "body": "Fuel up and load the car with water before leaving LA. The Death Valley option in particular has long stretches with no reception and 45°C+ heat — this page works fully offline. Never leave anyone in a parked car."
-          }
+          "tip": { "label": "No signal", "body": "Fuel up and load the car with water before leaving LA. Long stretches have no reception and 45°C+ heat — this page works fully offline. Never leave anyone in a parked car." }
         },
         {
-          "n": 20,
-          "weekday": "Thursday",
-          "date": "27 Aug",
-          "iso_date": "2026-08-27",
+          "n": 17,
+          "weekday": "Monday",
+          "date": "24 Aug",
+          "iso_date": "2026-08-24",
           "title": "The Strip",
           "subtitle": "Family-friendly Vegas, believe it or not.",
           "options": [
@@ -674,49 +549,118 @@
               "kind": "recommended",
               "badge": "THE STRIP",
               "title": "High Roller, fountains & Adventuredome",
-              "plan": "There's plenty for kids on the Strip: ride the High Roller observation wheel, gawp at the Bellagio fountains and the Venetian's canals and gondolas, raid M&M's World and the giant sweet shops, and burn off energy at Circus Circus's indoor Adventuredome. Free casino spectacles everywhere you look.",
-              "food": "Grab a table at one of the themed restaurants — the Venetian's food hall or a Strip pizzeria keeps everyone happy."
+              "plan": "Move to the Luxor (your base for the rest of the trip), then a family Strip day: ride the High Roller wheel, gawp at the Bellagio fountains and the Venetian's gondolas, raid M&M's World, and burn off energy at Circus Circus's indoor Adventuredome.",
+              "food": "The Venetian's food hall or a Strip pizzeria keeps everyone happy."
             },
             {
               "kind": "alternative",
               "badge": "BEAT THE HEAT",
               "title": "Pool day",
-              "plan": "It's 40°C+ — sometimes the answer is the hotel pool all day. Most Strip resorts have huge pool complexes with lazy rivers and slides. Save the Strip for the cool of the evening.",
+              "plan": "It's 40°C+ — sometimes the answer is the Luxor pool all day, then the Strip in the cool of the evening.",
               "food": "Poolside snacks, then a proper dinner out once the sun's down."
             }
           ],
-          "tip": {
-            "label": "Heat plan",
-            "body": "Do the outdoor Strip walking early morning or after sunset; take the middle of the day indoors. Refill water bottles everywhere and slap on the sun cream — desert sun is fierce even for a short walk."
-          }
+          "tip": { "label": "Heat plan", "body": "Do the outdoor Strip early morning or after sunset; take the middle of the day indoors. Refill water bottles everywhere and slap on the sun cream." }
         },
         {
-          "n": 21,
-          "weekday": "Friday",
-          "date": "28 Aug",
-          "iso_date": "2026-08-28",
-          "title": "Grand Canyon or Hoover Dam",
+          "n": 18,
+          "weekday": "Tuesday",
+          "date": "25 Aug",
+          "iso_date": "2026-08-25",
+          "title": "Grand Canyon West",
           "subtitle": "One of the great wonders — worth the early start.",
           "options": [
             {
               "kind": "recommended",
               "badge": "GRAND CANYON",
               "title": "Grand Canyon West day trip",
-              "plan": "The big finale excursion. Grand Canyon West (about 2.5 hours from Vegas) is the closest rim, home of the glass Skywalk jutting out over the void, plus Eagle Point and Guano Point viewpoints. Set off at dawn to be back for a last Vegas evening.",
+              "plan": "The big finale excursion. Grand Canyon West (about 2.5 hours out) is the closest rim, home of the glass Skywalk jutting over the void, plus Eagle Point and Guano Point. Set off at dawn to be back for the evening.",
               "food": "Lunch at the Grand Canyon West ranch, or pack a hamper for the drive."
             },
             {
               "kind": "alternative",
               "badge": "SHORTER TRIP",
               "title": "Hoover Dam & Lake Mead",
-              "plan": "Prefer a shorter day? The colossal Hoover Dam is only 45 minutes out — walk across the dam, take the power-plant tour, and cross the bridge for the classic view. Add a Lake Mead viewpoint on the way back.",
-              "food": "Lunch in Boulder City, the sweet little town that built the dam."
+              "plan": "Prefer a shorter day? The colossal Hoover Dam is only 45 minutes out — walk across the dam, cross the bypass bridge, and add a Lake Mead viewpoint.",
+              "food": "Lunch in Boulder City, the town that built the dam."
             }
           ],
-          "tip": {
-            "label": "Early start",
-            "body": "The Grand Canyon is a long day in the heat — leave before sunrise, take far more water than you think you need, and keep an eye on the kids near the (largely unfenced) rim edges."
-          }
+          "tip": { "label": "Early start", "body": "A long day in the heat — leave before sunrise, take far more water than you think you need, and keep an eye on the kids near the largely unfenced rim edges." }
+        },
+        {
+          "n": 19,
+          "weekday": "Wednesday",
+          "date": "26 Aug",
+          "iso_date": "2026-08-26",
+          "title": "Beat the heat & old Vegas",
+          "subtitle": "A lazy day, then the neon of Fremont Street.",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "POOL & FREMONT",
+              "title": "Pool day + Fremont Street by night",
+              "plan": "A well-earned lazy day at the Luxor pool after the canyon, then head to old-town Fremont Street after dark for the canopy light show, buskers and the zipline overhead — the original, gaudy heart of Vegas.",
+              "food": "A classic Fremont Street steakhouse or the food hall."
+            },
+            {
+              "kind": "alternative",
+              "badge": "INDOORS",
+              "title": "Adventuredome & indoor Strip",
+              "plan": "Dodge the peak heat entirely — the indoor Adventuredome theme park, the giant sweet shops, and the air-conditioned casino spectacles.",
+              "food": "Grab a table at one of the themed Strip restaurants."
+            }
+          ],
+          "tip": { "label": "Heat plan", "body": "Peak desert heat is midday — save everything outdoor for after sunset, and keep the water going." }
+        },
+        {
+          "n": 20,
+          "weekday": "Thursday",
+          "date": "27 Aug",
+          "iso_date": "2026-08-27",
+          "title": "Hoover Dam & Lake Mead",
+          "subtitle": "Engineering marvel in the desert.",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "DAM & LAKE",
+              "title": "Hoover Dam & the bypass bridge",
+              "plan": "Drive out to the colossal Hoover Dam (45 min) — walk across the dam, take the power-plant tour, and cross the bridge for the classic view. Add a Lake Mead viewpoint on the way back.",
+              "food": "Lunch in Boulder City, the sweet little town that built the dam."
+            },
+            {
+              "kind": "alternative",
+              "badge": "RED ROCK",
+              "title": "Red Rock Canyon loop",
+              "plan": "Swap the dam for the scenic 13-mile loop drive through the red sandstone of Red Rock Canyon, 30 minutes the other side of the Strip.",
+              "food": "Picnic at a Red Rock overlook, or back to the Strip."
+            }
+          ],
+          "tip": { "label": "Early start", "body": "Go early to beat both the heat and the coach tours; the dam car park fills up fast." }
+        },
+        {
+          "n": 21,
+          "weekday": "Friday",
+          "date": "28 Aug",
+          "iso_date": "2026-08-28",
+          "title": "Last full day",
+          "subtitle": "One more Vegas night to remember.",
+          "options": [
+            {
+              "kind": "recommended",
+              "badge": "BIG FINISH",
+              "title": "A show + Strip favourites",
+              "plan": "Tick off any Strip must-dos you've missed, then a family-friendly Cirque du Soleil production or a big magic show for the final night — a proper send-off.",
+              "food": "A blow-out final dinner somewhere everyone's been eyeing up."
+            },
+            {
+              "kind": "alternative",
+              "badge": "ONE MORE PHOTO",
+              "title": "Seven Magic Mountains + pool",
+              "plan": "A quieter last day: the giant neon Seven Magic Mountains boulders (20 min south) for photos, then the pool and packing.",
+              "food": "Poolside, then dinner on the Strip."
+            }
+          ],
+          "tip": { "label": "Book ahead", "body": "Popular shows sell out — book earlier in the week. Pack tonight; it's a travel day tomorrow." }
         },
         {
           "n": 22,
@@ -724,7 +668,7 @@
           "date": "29 Aug",
           "iso_date": "2026-08-29",
           "title": "Departure — flying home",
-          "subtitle": "Three weeks done. Wheels up.",
+          "subtitle": "Three weeks done. Wheels up from Las Vegas.",
           "options": [
             {
               "kind": "recommended",
@@ -737,14 +681,11 @@
               "kind": "alternative",
               "badge": "ONE LAST STOP",
               "title": "Seven Magic Mountains photo",
-              "plan": "If the flight's later, the Seven Magic Mountains — a stack of giant neon-painted boulders 20 minutes south of the Strip — make a fun, quick final photo before the airport.",
+              "plan": "If the flight's later, the Seven Magic Mountains — a stack of giant neon-painted boulders 20 minutes south — make a fun, quick final photo before the airport.",
               "food": "Grab-and-go coffee and pastries on the way to the airport."
             }
           ],
-          "tip": {
-            "label": "Don't miss the flight",
-            "body": "Return the hire car with a full tank to avoid the refuelling surcharge, and leave a big buffer — LAS security queues are long. Passports, ESTAs and boarding passes ready before you leave the hotel."
-          }
+          "tip": { "label": "Don't miss the flight", "body": "Return the hire car with a full tank to avoid the refuelling surcharge, and leave a big buffer — LAS security queues are long. Passports, ESTAs and boarding passes ready before you leave the hotel." }
         }
       ]
     }
@@ -755,20 +696,20 @@
     { "name": "Rental car — 7-seater SUV", "note": "22-day hire, SFO pickup / LAS drop-off (one-way fee applies). Two booster seats for the twins." },
     { "name": "Travel insurance — family policy", "note": "Full family cover including the theme-park and Grand Canyon activities and US medical." },
     { "name": "Hotel Julian — San Francisco", "note": "8–12 Aug (4 nights)." },
-    { "name": "Alcatraz cruise tickets", "note": "Day 3. Sells out weeks ahead — book as early as possible. Departs Pier 33." },
-    { "name": "Muir Woods parking / shuttle reservation", "note": "Day 4. Timed reservation mandatory — no turn-ups. Book the parking or the shuttle in advance." },
-    { "name": "Monterey Bay Aquarium tickets", "note": "Day 6. Dated online tickets are cheaper and skip the queue." },
-    { "name": "Hearst Castle tour", "note": "Day 8. Timed tour bus from the visitor centre — must be pre-booked." },
+    { "name": "Alcatraz cruise tickets", "note": "Sells out weeks ahead — book as early as possible. Departs Pier 33." },
+    { "name": "Muir Woods parking / shuttle reservation", "note": "Timed reservation mandatory — no turn-ups. Book the parking or the shuttle in advance." },
+    { "name": "Monterey Bay Aquarium tickets", "note": "Dated online tickets are cheaper and skip the queue." },
+    { "name": "Hearst Castle tour", "note": "Timed tour bus from the visitor centre — must be pre-booked." },
     { "name": "Hampton Inn San Simeon, Cambria", "note": "12–13 Aug (1 night)." },
     { "name": "Days Inn by Wyndham Santa Monica", "note": "13–14 Aug (1 night)." },
     { "name": "Hampton Inn & Suites Santa Monica", "note": "14–16 Aug (2 nights)." },
-    { "name": "Universal Studios Hollywood tickets", "note": "Day 12. Dated tickets; consider the Express pass for August crowds." },
+    { "name": "Universal Studios Hollywood tickets", "note": "Dated tickets; consider the Express pass for August crowds." },
     { "name": "SpringHill Suites LA Burbank/Downtown", "note": "16–23 Aug (7 nights)." },
-    { "name": "Disneyland tickets + park reservation", "note": "Day 15. Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before." },
-    { "name": "Six Flags Magic Mountain tickets", "note": "Day 17. Buy online in advance; the teens' day." },
+    { "name": "Disneyland tickets + park reservation", "note": "Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before." },
+    { "name": "Six Flags Magic Mountain tickets", "note": "Buy online in advance; the teens' day." },
     { "name": "W Las Vegas", "note": "23–24 Aug (1 night)." },
     { "name": "Luxor Hotel & Casino", "note": "24–29 Aug (5 nights)." },
-    { "name": "Grand Canyon West day tour", "note": "Day 21. Book the Skywalk / West Rim package and confirm the pickup or self-drive parking." },
+    { "name": "Grand Canyon West day tour", "note": "Book the Skywalk / West Rim package and confirm the pickup or self-drive parking." },
     { "name": "Las Vegas Raiders tickets", "note": "NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together." }
   ],
   "packing": [
@@ -786,7 +727,7 @@
   "costs": [
     { "item": "Flights (×6, return, open-jaw)", "amount": "£5,400" },
     { "item": "Car hire (22 days, 7-seater + one-way fee)", "amount": "£1,900" },
-    { "item": "Hotels (19 nights across 5 bases)", "amount": "£6,200" },
+    { "item": "Hotels (21 nights across 7 hotels)", "amount": "£6,200" },
     { "item": "Theme parks (Disneyland, Universal, Six Flags)", "amount": "£1,600" },
     { "item": "Attractions & tours (Alcatraz, Aquarium, Hearst, Grand Canyon)", "amount": "£900" },
     { "item": "Fuel & tolls", "amount": "£550" },
