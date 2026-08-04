@@ -4,9 +4,10 @@ import { Camera, LogOut, Mail, ShieldCheck, WifiOff } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, hasSupabase } from '../lib/supabase'
 import Avatar from '../components/Avatar'
+import AdminAccess from '../components/AdminAccess'
 
 export default function Me() {
-  const { member, session, isLocalMode, signOut, refreshMembers } = useAuth()
+  const { member, session, isLocalMode, isAdmin, signOut, refreshMembers } = useAuth()
   const navigate = useNavigate()
   const fileRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
@@ -113,6 +114,9 @@ export default function Me() {
           </>
         )}
       </div>
+
+      {/* Admin-only: who has access and who has signed in */}
+      {isAdmin && <AdminAccess />}
 
       <button onClick={handleSignOut} className="btn-ghost w-full" style={{ color: 'var(--coral-dark)' }}>
         <LogOut size={18} />
