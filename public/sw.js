@@ -1,10 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v42 — MoW picks now hidden from everyone else until kickoff
-// (so nobody can copy the fella who submitted first). PreviewCard + primer
-// copy also updated: "results Monday morning" was misleading with midweek
-// MoWs on the table — settle actually runs after the fixture is played,
-// which is usually Monday but occasionally Tue/Wed.
-const CACHE = 'wf-v42'
+// Bumped to v43 — Admin tab blank-screen fix. The Rossini bot profile
+// shipped with surname=null on 1 Aug and AdminCsvImport crashed on
+// `null.trim()`, taking the whole Admin route (and its bottom nav) down
+// for every admin. Fixes: Rossini surname backfilled to '', norm() now
+// null-tolerant, mig 073 puts NOT NULL on name/surname so it can't
+// recur. Layout also gains a RouteErrorBoundary so any future page
+// crash renders an in-tab error card instead of a blank screen.
+const CACHE = 'wf-v43'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

@@ -17,7 +17,10 @@ const EXPORT_COLS = [
 ]
 
 const POSITIONS = new Set<PlayerPosition>(['GK', 'DF', 'MF', 'ST'])
-const norm = (s: string) => s.trim().toLowerCase()
+// Tolerant of null/undefined — a single stub profile with a missing surname
+// (as happened with the Rossini bot on 1 Aug 2026) used to throw here and
+// take the whole Admin tab down. Coerce first, trim second.
+const norm = (s: string | null | undefined) => (s ?? '').trim().toLowerCase()
 const clamp = (n: number) => Math.max(1, Math.min(10, n))
 
 interface Summary {

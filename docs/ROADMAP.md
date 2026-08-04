@@ -276,6 +276,7 @@ The 18 primer PDFs are great for WhatsApp shares but bad for "I'm mid-tap and st
 | Item | Notes |
 |---|---|
 | ~~`MotmVotingCard` context-mismatch~~ | ✅ FIXED (commit pending). Card now takes an optional `expectedMatchId` prop and refuses to render if the latest voting window's `match_id` doesn't match. `MatchPage` passes the currently-displayed match on both slots so a stale ballot can no longer wedge itself into last week's context. Pre-result placeholder branch anchors to `weekMatch.id` — still surfaces the current-week ballot when the result hasn't been entered yet. |
+| ~~Admin tab blank-screen crash (2 Aug 2026)~~ | ✅ FIXED (commit pending · mig `073`). Root cause: the Rossini bot profile got seeded on 1 Aug with `surname=null`, and `AdminCsvImport.tsx:37` called `null.trim()` while building its name→profile lookup. React 19 propagated the throw up past `Layout` (no error boundary) so the entire shell, bottom nav included, unmounted — admins saw a blank screen with no way to navigate off it. Three-part fix: (a) Rossini surname backfilled to `''`, (b) `norm()` in AdminCsvImport now null-tolerant so future stubs don't kill the tab, (c) new migration `073` puts NOT NULL + `''` default on `profiles.name`/`.surname` so it can't recur. Bonus: new `RouteErrorBoundary` wraps `<Outlet />` in Layout — future page crashes surface an in-tab error card with the actual error message, and nav stays alive so the user can leave the broken tab. SW bumped to v43. |
 
 ---
 

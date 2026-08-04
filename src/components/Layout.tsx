@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
 import { supabase } from '../lib/supabase'
 import PlayerAvatar from './PlayerAvatar'
+import RouteErrorBoundary from './RouteErrorBoundary'
 
 function InstagramIcon() {
   return (
@@ -158,9 +159,13 @@ export default function Layout() {
         </div>
       </header>
 
-      {/* Main content */}
+      {/* Main content — wrapped in a route error boundary so a single
+          throwing page shows an in-tab diagnostic card instead of
+          taking the whole shell (nav bar included) down with it. */}
       <main className="flex-1 overflow-y-auto" style={{ maxWidth: 430, width: '100%', margin: '0 auto', overflowX: 'hidden' }}>
-        <Outlet />
+        <RouteErrorBoundary>
+          <Outlet />
+        </RouteErrorBoundary>
       </main>
 
       {/* Bottom nav */}
