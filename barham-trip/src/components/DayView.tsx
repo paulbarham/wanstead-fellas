@@ -22,7 +22,7 @@ export default function DayView({ day, isToday = false }: Props) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <DayBadge n={day.n} />
+        <DayBadge iso={day.iso_date} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[13px] font-semibold uppercase tracking-wide" style={{ color: 'var(--coral-dark)' }}>

@@ -54,7 +54,7 @@ export default function Leg() {
                 className="flex items-center gap-3 rounded-card bg-white p-3 shadow-card active:opacity-90"
                 style={{ border: '1px solid rgba(14,58,72,0.08)' }}
               >
-                <DayBadge n={day.n} size="sm" />
+                <DayBadge iso={day.iso_date} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="text-[12px] font-semibold uppercase tracking-wide text-navy/45">
                     {day.weekday} · {day.date}
