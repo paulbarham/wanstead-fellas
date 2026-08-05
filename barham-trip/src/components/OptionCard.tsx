@@ -1,10 +1,12 @@
-import { Star, Utensils } from 'lucide-react'
+import { Star, Utensils, X } from 'lucide-react'
 import type { TripOption } from '../lib/itinerary'
 
 interface Props {
   option: TripOption
   /** Recommended renders as the full-width hero; alternatives are smaller. */
   hero?: boolean
+  /** If provided (admin only), shows a remove control that hides this option. */
+  onRemove?: () => void
 }
 
 /**
@@ -13,7 +15,7 @@ interface Props {
  * have negative left sidebearings and get clipped. We use backgroundClip
  * padding-box instead (see project UI conventions).
  */
-export default function OptionCard({ option, hero = false }: Props) {
+export default function OptionCard({ option, hero = false, onRemove }: Props) {
   const isRec = option.kind === 'recommended'
 
   return (
@@ -48,6 +50,16 @@ export default function OptionCard({ option, hero = false }: Props) {
         >
           {option.badge}
         </span>
+        {onRemove && (
+          <button
+            onClick={onRemove}
+            className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-navy/40"
+            style={{ border: '1px solid rgba(14,58,72,0.12)' }}
+            aria-label={`Remove "${option.title}" from the plan`}
+          >
+            <X size={15} />
+          </button>
+        )}
       </div>
 
       <h3

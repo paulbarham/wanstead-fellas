@@ -1,6 +1,8 @@
-import { Lightbulb } from 'lucide-react'
+import { Lightbulb, EyeOff, RotateCcw } from 'lucide-react'
 import type { TripDay } from '../lib/itinerary'
-import { recommendedOption, alternativeOptions, getLegForDay } from '../lib/itinerary'
+import { getLegForDay, optionKey } from '../lib/itinerary'
+import { useAuth } from '../hooks/useAuth'
+import { useDismissedOptions } from '../hooks/useDismissedOptions'
 import DayBadge from './DayBadge'
 import OptionCard from './OptionCard'
 import WeatherChip from './WeatherChip'
@@ -13,11 +15,18 @@ interface Props {
   isToday?: boolean
 }
 
-/** Full day page body — badge, title, recommended hero, alternatives, tip, family. */
+/** Full day page body — badge, title, suggested plan, alternatives, tip. */
 export default function DayView({ day, isToday = false }: Props) {
-  const rec = recommendedOption(day)
-  const alts = alternativeOptions(day)
   const leg = getLegForDay(day.n)
+  const { isAdmin } = useAuth()
+  const { dismissed, dismiss, restore } = useDismissedOptions(day.n)
+
+  const dismissedSet = new Set(dismissed)
+  const withKeys = day.options.map((o) => ({ o, key: optionKey(day.n, o) }))
+  const visible = withKeys.filter((x) => !dismissedSet.has(x.key))
+  const removed = withKeys.filter((x) => dismissedSet.has(x.key))
+  const hero = visible[0]
+  const rest = visible.slice(1)
 
   return (
     <div className="space-y-4">
@@ -59,20 +68,63 @@ export default function DayView({ day, isToday = false }: Props) {
         <h2 className="mb-2 text-[13px] font-bold uppercase tracking-wide text-navy/45">
           Suggested plan
         </h2>
-        {rec && <OptionCard option={rec} hero />}
+        {hero ? (
+          <OptionCard
+            option={hero.o}
+            hero
+            onRemove={isAdmin ? () => dismiss(hero.key) : undefined}
+          />
+        ) : (
+          <p
+            className="rounded-card p-4 text-[14px] text-navy/60"
+            style={{ background: 'var(--sand-2)', border: '1px dashed rgba(14,58,72,0.2)' }}
+          >
+            No suggestions for this day — build your own in the plan above.
+          </p>
+        )}
       </div>
 
       {/* Alternatives */}
-      {alts.length > 0 && (
+      {rest.length > 0 && (
         <div>
           <h2 className="mb-2 mt-1 text-[13px] font-bold uppercase tracking-wide text-navy/45">
             Other ideas
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {alts.map((alt, i) => (
-              <OptionCard key={i} option={alt} />
+            {rest.map((x) => (
+              <OptionCard
+                key={x.key}
+                option={x.o}
+                onRemove={isAdmin ? () => dismiss(x.key) : undefined}
+              />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Admin-only: restore removed suggestions */}
+      {isAdmin && removed.length > 0 && (
+        <div
+          className="rounded-card p-3"
+          style={{ background: 'var(--sand-2)', border: '1px dashed rgba(14,58,72,0.2)' }}
+        >
+          <div className="mb-1.5 flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wide text-navy/45">
+            <EyeOff size={13} /> Removed from the plan ({removed.length})
+          </div>
+          <ul className="space-y-1.5">
+            {removed.map((x) => (
+              <li key={x.key} className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 truncate text-[13px] text-navy/60">{x.o.title}</span>
+                <button
+                  onClick={() => restore(x.key)}
+                  className="inline-flex flex-shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-semibold"
+                  style={{ border: '1px solid rgba(14,58,72,0.18)', color: 'var(--teal)' }}
+                >
+                  <RotateCcw size={12} /> Restore
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -91,7 +143,6 @@ export default function DayView({ day, isToday = false }: Props) {
           <p className="mt-1.5 text-[14px] leading-relaxed text-white/90">{day.tip.body}</p>
         </div>
       )}
-
     </div>
   )
 }

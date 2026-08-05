@@ -71,6 +71,8 @@ interface LocalState {
   userIdeas: Record<string, UserIdea[]>
   // dayN -> family-curated activities on that day
   dayPlans: Record<number, DayPlanItem[]>
+  // dayN -> option_keys the admin has removed from the suggested plan
+  dismissedOptions: Record<number, string[]>
   // editable, shared bookings list
   bookingsList: BookingRow[]
 
@@ -88,6 +90,11 @@ interface LocalState {
   setDayPlanDone: (dayN: number, id: string, done: boolean) => void
   /** Merge a remote snapshot of a day's plan into local state (by id). */
   mergeDayPlanItems: (dayN: number, items: DayPlanItem[]) => void
+
+  addDismissedOption: (dayN: number, optionKey: string) => void
+  removeDismissedOption: (dayN: number, optionKey: string) => void
+  /** Replace the dismissed-option keys for a day from a remote snapshot. */
+  setDismissedOptions: (dayN: number, keys: string[]) => void
 
   setBookingsList: (rows: BookingRow[]) => void
   upsertBookingRow: (row: BookingRow) => void
@@ -110,6 +117,7 @@ export const useLocalStore = create<LocalState>()(
       rsvp: {},
       userIdeas: {},
       dayPlans: {},
+      dismissedOptions: {},
       bookingsList: initialBookings,
 
       setBooking: (key, tick) =>
@@ -180,6 +188,24 @@ export const useLocalStore = create<LocalState>()(
           )
           return { dayPlans: { ...s.dayPlans, [dayN]: merged } }
         }),
+
+      addDismissedOption: (dayN, optionKey) =>
+        set((s) => {
+          const list = s.dismissedOptions[dayN] ?? []
+          if (list.includes(optionKey)) return s
+          return { dismissedOptions: { ...s.dismissedOptions, [dayN]: [...list, optionKey] } }
+        }),
+
+      removeDismissedOption: (dayN, optionKey) =>
+        set((s) => ({
+          dismissedOptions: {
+            ...s.dismissedOptions,
+            [dayN]: (s.dismissedOptions[dayN] ?? []).filter((k) => k !== optionKey),
+          },
+        })),
+
+      setDismissedOptions: (dayN, keys) =>
+        set((s) => ({ dismissedOptions: { ...s.dismissedOptions, [dayN]: keys } })),
 
       setBookingsList: (rows) => set(() => ({ bookingsList: rows })),
 

@@ -170,6 +170,11 @@ export function choiceLabel(day: TripDay, choice: RsvpChoice): string {
   return 'Recommended'
 }
 
+/** Stable key for a day's suggested option (used to record admin removals). */
+export function optionKey(dayN: number, option: TripOption): string {
+  return `${dayN}:${slugKey(option.title)}`
+}
+
 /** Slugify a booking/packing name into a stable key for the DB primary key. */
 export function slugKey(name: string): string {
   return name
