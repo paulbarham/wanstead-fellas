@@ -131,6 +131,14 @@
           "note": "The definitive giant SF burrito. Cheap, filling and easy for fussy eaters."
         }
       ],
+      "stays": [
+        {
+          "name": "Hotel Julian",
+          "address": "940 Sutter St, San Francisco, CA 94109",
+          "check_in": "2026-08-08",
+          "check_out": "2026-08-12"
+        }
+      ],
       "days": [
         {
           "n": 1,
@@ -145,7 +153,7 @@
               "badge": "GENTLE EVENING",
               "title": "Check in & Fisherman's Wharf",
               "plan": "Land at SFO, collect the rental car and check in to Hotel Julian. Once bags are dropped, take a slow stroll to Pier 39 to see the sea lions — the perfect low-effort way to stay awake and beat the jet lag. Early night for everyone.",
-              "food": "Clam chowder in a sourdough bread bowl at Boudin Bakery on the Wharf."
+              "food": "A hearty sourdough bread bowl (chilli or broccoli-cheddar — skip the chowder) at Boudin Bakery on the Wharf."
             },
             {
               "kind": "alternative",
@@ -201,7 +209,7 @@
               "badge": "GOLDEN GATE",
               "title": "Cycle the bridge to Sausalito",
               "plan": "Hire bikes near the Wharf and ride the waterfront path across the Golden Gate Bridge to the pretty harbour town of Sausalito, then let the ferry carry you — and the bikes — back to the city.",
-              "food": "Fish and chips on the deck at Fish or Scoma's in Sausalito."
+              "food": "Burgers and wood-fired pizza with a marina view at Barrel House Tavern, Sausalito."
             },
             {
               "kind": "alternative",
@@ -340,6 +348,20 @@
           "note": "Cliff-top Big Sur restaurant with jaw-dropping views. Order the famous Ambrosia burger — no seafood needed."
         }
       ],
+      "stays": [
+        {
+          "name": "Hampton Inn San Simeon, Cambria",
+          "address": "9070 Castillo Dr, San Simeon, CA 93452",
+          "check_in": "2026-08-12",
+          "check_out": "2026-08-13"
+        },
+        {
+          "name": "Days Inn by Wyndham Santa Monica",
+          "address": "3007 Santa Monica Blvd, Santa Monica, CA 90404",
+          "check_in": "2026-08-13",
+          "check_out": "2026-08-14"
+        }
+      ],
       "days": [
         {
           "n": 5,
@@ -361,7 +383,7 @@
               "badge": "OTTERS & AQUARIUM",
               "title": "Break at Monterey",
               "plan": "Split the drive with a couple of hours at the world-class Monterey Bay Aquarium and a stroll along Cannery Row before pushing into Big Sur.",
-              "food": "Clam chowder on Old Fisherman's Wharf, Monterey."
+              "food": "Wood-fired pizza or burgers in Monterey — try Alvarado Street Brewery."
             }
           ],
           "tip": {
@@ -484,6 +506,14 @@
           "category": "food",
           "suits": "all",
           "note": "Cult small-batch ice cream with wild flavours. A guaranteed hit with the kids."
+        }
+      ],
+      "stays": [
+        {
+          "name": "Hampton Inn & Suites Santa Monica",
+          "address": "501 Colorado Ave, Santa Monica, CA 90401",
+          "check_in": "2026-08-14",
+          "check_out": "2026-08-16"
         }
       ],
       "days": [
@@ -654,6 +684,14 @@
           "category": "food",
           "suits": "all",
           "note": "A buzzing food hall — tacos, burgers, egg sandwiches and more. Something for every fussy eater, no seafood needed."
+        }
+      ],
+      "stays": [
+        {
+          "name": "SpringHill Suites LA Burbank/Downtown",
+          "address": "549 S San Fernando Blvd, Burbank, CA 91502",
+          "check_in": "2026-08-16",
+          "check_out": "2026-08-23"
         }
       ],
       "days": [
@@ -977,6 +1015,20 @@
           "category": "sports",
           "suits": "all",
           "note": "Check the August fixtures. The spectacular \"Death Star\" stadium just off the Strip — a bucket-list NFL night."
+        }
+      ],
+      "stays": [
+        {
+          "name": "W Las Vegas",
+          "address": "3940 S Las Vegas Blvd, Las Vegas, NV 89119",
+          "check_in": "2026-08-23",
+          "check_out": "2026-08-24"
+        },
+        {
+          "name": "Luxor Hotel & Casino",
+          "address": "3900 S Las Vegas Blvd, Las Vegas, NV 89119",
+          "check_in": "2026-08-24",
+          "check_out": "2026-08-29"
         }
       ],
       "days": [

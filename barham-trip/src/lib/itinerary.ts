@@ -55,6 +55,16 @@ export interface TripDay {
   tip: Tip | null
 }
 
+/** A hotel stay covering one or more nights. `check_in`/`check_out` are ISO
+ *  dates; the stay covers the nights from check_in up to (not including)
+ *  check_out — i.e. you sleep there on any day D where check_in ≤ D < check_out. */
+export interface Stay {
+  name: string
+  address: string
+  check_in: string
+  check_out: string
+}
+
 export interface Leg {
   id: string
   num: string
@@ -63,6 +73,8 @@ export interface Leg {
   tagline: string
   notes: string
   ideas?: Idea[]
+  /** Where the family sleeps during this leg (some legs switch hotels mid-way). */
+  stays?: Stay[]
   days: TripDay[]
 }
 
@@ -124,6 +136,15 @@ export function getDay(n: number): TripDay | undefined {
 /** The leg a given day number belongs to. */
 export function getLegForDay(n: number): Leg | undefined {
   return legs.find((leg) => leg.days.some((day) => day.n === n))
+}
+
+/** Every hotel stay across the trip, in order. */
+export const stays: Stay[] = legs.flatMap((leg) => leg.stays ?? [])
+
+/** Where the family sleeps on the night of a given day (undefined on the final
+ *  departure day, when there's no overnight stay). */
+export function hotelForDay(day: TripDay): Stay | undefined {
+  return stays.find((s) => day.iso_date >= s.check_in && day.iso_date < s.check_out)
 }
 
 /** Recommended option for a day (falls back to the first option). */

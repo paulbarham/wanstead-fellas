@@ -5,6 +5,7 @@ import DayBadge from './DayBadge'
 import OptionCard from './OptionCard'
 import WeatherChip from './WeatherChip'
 import DayPlan from './DayPlan'
+import StayCard from './StayCard'
 
 interface Props {
   day: TripDay
@@ -46,6 +47,9 @@ export default function DayView({ day, isToday = false }: Props) {
       </div>
 
       {leg && <WeatherChip legTitle={leg.title} isoDate={day.iso_date} />}
+
+      {/* Where we're staying tonight — hotel, address, directions */}
+      <StayCard day={day} />
 
       {/* The family's editable plan for the day */}
       <DayPlan day={day} />

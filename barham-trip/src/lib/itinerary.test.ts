@@ -10,6 +10,8 @@ import {
   recommendedOption,
   alternativeOptions,
   slugKey,
+  stays,
+  hotelForDay,
   TOTAL_DAYS,
 } from './itinerary'
 
@@ -70,6 +72,25 @@ describe('itinerary data', () => {
         expect(banned.test(idea.title)).toBe(false)
         expect(banned.test(idea.note ?? '')).toBe(false)
       }
+    }
+  })
+
+  it('maps each day to the hotel booked for that night', () => {
+    // First night, mid-stay, hotel-switch day, and the final departure day.
+    expect(hotelForDay(getDay(1)!)?.name).toBe('Hotel Julian')
+    expect(hotelForDay(getDay(5)!)?.name).toContain('Cambria')
+    expect(hotelForDay(getDay(6)!)?.name).toContain('Days Inn')
+    expect(hotelForDay(getDay(16)!)?.name).toBe('W Las Vegas')
+    expect(hotelForDay(getDay(17)!)?.name).toContain('Luxor')
+    expect(hotelForDay(getDay(22)!)).toBeUndefined() // departure day, no stay
+  })
+
+  it('every stay has a name, address and a valid date range', () => {
+    for (const s of stays) {
+      expect(s.name.length).toBeGreaterThan(0)
+      expect(s.address).toMatch(/,/) // "street, city ST zip"
+      expect(s.check_in).toMatch(/^2026-08-\d{2}$/)
+      expect(s.check_out > s.check_in).toBe(true)
     }
   })
 
