@@ -375,9 +375,9 @@ function PickForm({ mowFixtureId, playerId, existing, onSaved }: {
       </div>
       <div className="px-4 pb-3 text-[10px] text-center flex items-center justify-center gap-3 flex-wrap"
         style={{ color: 'var(--color-text-muted)', fontFamily: MONO }}>
-        <span><b style={{ color: TT_YELLOW, fontWeight: 700 }}>5 pts</b> exact score</span>
+        <span><b style={{ color: TT_YELLOW, fontWeight: 700 }}>3 pts</b> exact score</span>
         <span style={{ color: 'var(--color-border)' }}>·</span>
-        <span><b style={{ color: TT_CYAN, fontWeight: 700 }}>3 pts</b> right result</span>
+        <span><b style={{ color: TT_CYAN, fontWeight: 700 }}>1 pt</b> right result</span>
       </div>
       {err && (
         <div className="px-4 pb-2 text-[11px]" style={{ color: TT_RED }}>{err}</div>
@@ -484,8 +484,8 @@ function LockedCard({ myPick }: { myPick: MowPrediction | null }) {
 // ── Settled (final score in, points computed) ──────────────────────────────
 function SettledCard({ pool, myPick }: { pool: PoolFixture; myPick: MowPrediction | null }) {
   const pts = myPick?.points_awarded ?? 0
-  const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : 'var(--color-text-muted)'
-  const label = pts === 5 ? '🎯 Exact score! +5 pts' : pts === 3 ? '✓ Right result · +3 pts' : 'No points this week'
+  const tone = pts === 3 ? TT_YELLOW : pts === 1 ? TT_CYAN : 'var(--color-text-muted)'
+  const label = pts === 3 ? '🎯 Exact score! +3 pts' : pts === 1 ? '✓ Right result · +1 pt' : 'No points this week'
   return (
     <div className="rounded-xl px-4 py-3 text-center"
       style={{
@@ -588,7 +588,7 @@ function WeeklyLeaderboard({ rows, meId, phase, homeClub, awayClub }: {
         {sorted.map((r, i) => {
           const isMe = r.player_id === meId
           const pts = r.points_awarded
-          const tone = pts === 5 ? TT_YELLOW : pts === 3 ? TT_CYAN : 'var(--color-text-muted)'
+          const tone = pts === 3 ? TT_YELLOW : pts === 1 ? TT_CYAN : 'var(--color-text-muted)'
           // Their pick maps to a winner: home > away, home < away, or draw.
           // Uses the space between name and score to communicate WHO they
           // backed, not just the raw scoreline.
@@ -846,7 +846,7 @@ function PreviewCard() {
           {[
             'One PL / Championship fixture per week, published Friday',
             'Pick a scoreline before kickoff — picks stay hidden until then',
-            '5 pts exact · 3 pts right result · 0 wrong',
+            '3 pts exact · 1 pt right result · 0 wrong',
             'Points settle once the fixture is played',
             'Running season leaderboard — bragging rights only',
           ].map((line, i) => (

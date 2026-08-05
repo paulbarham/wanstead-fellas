@@ -1,12 +1,11 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v43 — Admin tab blank-screen fix. The Rossini bot profile
-// shipped with surname=null on 1 Aug and AdminCsvImport crashed on
-// `null.trim()`, taking the whole Admin route (and its bottom nav) down
-// for every admin. Fixes: Rossini surname backfilled to '', norm() now
-// null-tolerant, mig 073 puts NOT NULL on name/surname so it can't
-// recur. Layout also gains a RouteErrorBoundary so any future page
-// crash renders an in-tab error card instead of a blank screen.
-const CACHE = 'wf-v43'
+// Bumped to v44 — MoW scoring rescaled 5/3/0 → 3/1/0 (mig 074). Admin
+// call: 5-vs-3 was too tight, exact score wasn't worth the risk vs a
+// safer H/D/A call. New 3x-vs-1x gap makes calling the scoreline
+// genuinely worth it while a right-result call still isn't wasted.
+// Migration also rescores every already-settled prediction so no
+// half-and-half state, and the season leaderboard reshuffles cleanly.
+const CACHE = 'wf-v44'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
