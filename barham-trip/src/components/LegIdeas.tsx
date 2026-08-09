@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
-import { Lightbulb, Plus, MapPin, X, Star, ExternalLink } from 'lucide-react'
+import { Lightbulb, Plus, MapPin, X, Star, ExternalLink, CalendarPlus } from 'lucide-react'
 import type { Leg, Idea, IdeaCategory, IdeaSuits } from '../lib/itinerary'
 import { CATEGORY_META, PICKABLE_CATEGORIES } from '../lib/ideaCategories'
 import { useLegIdeas } from '../hooks/useLegIdeas'
 import { useAuth } from '../hooks/useAuth'
 import type { UserIdea } from '../store/local'
+import AddToItinerary from './AddToItinerary'
 
 interface Props {
   leg: Leg
@@ -40,6 +41,26 @@ export default function LegIdeas({ leg }: Props) {
   const [title, setTitle] = useState('')
   const [note, setNote] = useState('')
   const [category, setCategory] = useState<IdeaCategory>('sights')
+  const [adding, setAdding] = useState<Idea | null>(null)
+  const [flash, setFlash] = useState<string | null>(null)
+
+  const ideaFromRow = (row: Row): Idea => ({
+    title: row.title,
+    note: row.note ?? undefined,
+    category: row.category,
+    suits: row.suits,
+    recommended: row.recommended,
+    url: row.url,
+  })
+
+  function handleAddClose(addedDayN?: number) {
+    setAdding(null)
+    if (addedDayN != null) {
+      const d = leg.days.find((x) => x.n === addedDayN)
+      setFlash(d ? `Added to ${d.weekday} ${d.date}` : 'Added to the itinerary')
+      window.setTimeout(() => setFlash(null), 2600)
+    }
+  }
 
   const nameFor = (id: string | null | undefined) =>
     id ? members.find((m) => m.id === id)?.display_name ?? 'Someone' : 'Someone'
@@ -100,8 +121,17 @@ export default function LegIdeas({ leg }: Props) {
         <h3 className="font-display text-lg text-navy">Things to do in {leg.title}</h3>
       </div>
       <p className="mt-1 text-[13px] text-navy/60">
-        Grouped by type and tagged for who they suit. Tap the map pin to find one, or add your own.
+        Grouped by type and tagged for who they suit. Tap the calendar to add one to a day, the map pin to find it, or add your own.
       </p>
+
+      {flash && (
+        <div
+          className="mt-2 rounded-lg px-3 py-2 text-[13px] font-semibold"
+          style={{ background: 'var(--sand)', color: 'var(--coral-dark)' }}
+        >
+          ✓ {flash}
+        </div>
+      )}
 
       {/* Add-your-own */}
       {member &&
@@ -213,6 +243,16 @@ export default function LegIdeas({ leg }: Props) {
                         </div>
                       )}
                     </div>
+                    {member && (
+                      <button
+                        onClick={() => setAdding(ideaFromRow(row))}
+                        className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
+                        style={{ background: 'var(--sand-2)' }}
+                        aria-label={`Add ${row.title} to a day`}
+                      >
+                        <CalendarPlus size={15} style={{ color: 'var(--teal)' }} />
+                      </button>
+                    )}
                     {row.url && (
                       <a
                         href={row.url}
@@ -251,6 +291,8 @@ export default function LegIdeas({ leg }: Props) {
           </div>
         ))}
       </div>
+
+      {adding && <AddToItinerary idea={adding} leg={leg} onClose={handleAddClose} />}
     </section>
   )
 }

@@ -3,6 +3,34 @@ import { supabase } from '../lib/supabase'
 import { useLocalStore, type DayPlanItem } from '../store/local'
 import { useAuth } from './useAuth'
 
+/** Add an activity to any day's plan (optimistic local write + Supabase insert).
+ *  Standalone so it can be used outside a per-day hook, e.g. when adding an idea
+ *  from the ideas board to a suggested day. */
+export async function addToDay(dayN: number, title: string, note: string, memberId: string) {
+  const trimmed = title.trim()
+  if (!trimmed) return
+  const item: DayPlanItem = {
+    id: crypto.randomUUID(),
+    day_n: dayN,
+    title: trimmed,
+    note: note.trim() || null,
+    done: false,
+    added_by: memberId,
+    created_at: new Date().toISOString(),
+  }
+  useLocalStore.getState().addDayPlanItem(item) // optimistic
+  if (supabase) {
+    await supabase.from('day_plans').insert({
+      id: item.id,
+      day_n: item.day_n,
+      title: item.title,
+      note: item.note,
+      done: item.done,
+      added_by: item.added_by,
+    })
+  }
+}
+
 /**
  * The family-curated plan for a single day (day number `n`).
  * Reads from the local store (offline-safe); when Supabase is configured it
@@ -11,7 +39,6 @@ import { useAuth } from './useAuth'
  */
 export function useDayPlan(dayN: number) {
   const items = useLocalStore((s) => s.dayPlans[dayN] ?? [])
-  const addLocal = useLocalStore((s) => s.addDayPlanItem)
   const removeLocal = useLocalStore((s) => s.removeDayPlanItem)
   const setDoneLocal = useLocalStore((s) => s.setDayPlanDone)
   const merge = useLocalStore((s) => s.mergeDayPlanItems)
@@ -55,28 +82,7 @@ export function useDayPlan(dayN: number) {
 
   async function addItem(title: string, note: string) {
     if (!member) return
-    const trimmed = title.trim()
-    if (!trimmed) return
-    const item: DayPlanItem = {
-      id: crypto.randomUUID(),
-      day_n: dayN,
-      title: trimmed,
-      note: note.trim() || null,
-      done: false,
-      added_by: member.id,
-      created_at: new Date().toISOString(),
-    }
-    addLocal(item) // optimistic
-    if (supabase) {
-      await supabase.from('day_plans').insert({
-        id: item.id,
-        day_n: item.day_n,
-        title: item.title,
-        note: item.note,
-        done: item.done,
-        added_by: item.added_by,
-      })
-    }
+    await addToDay(dayN, title, note, member.id)
   }
 
   async function toggleDone(id: string, done: boolean) {
