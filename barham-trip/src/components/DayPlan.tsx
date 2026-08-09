@@ -23,10 +23,15 @@ export default function DayPlan({ day }: Props) {
   const leg = getLegForDay(day.n)
   const ideas = useMemo(() => leg?.ideas ?? [], [leg])
 
-  // Drag-to-reorder state. `dragOrder` holds the live order while dragging.
+  // Drag-to-reorder. Uses window-level pointer listeners (far more reliable on
+  // touch than pointer capture) with a ref for live drag state so the listeners
+  // never read stale values.
   const [dragOrder, setDragOrder] = useState<string[] | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const rowRefs = useRef<Map<string, HTMLLIElement>>(new Map())
+  const dragRef = useRef<{ id: string; order: string[] } | null>(null)
+  const reorderRef = useRef(reorder)
+  reorderRef.current = reorder
 
   const displayItems = dragOrder
     ? (dragOrder.map((id) => items.find((i) => i.id === id)).filter(Boolean) as typeof items)
@@ -34,33 +39,45 @@ export default function DayPlan({ day }: Props) {
 
   function beginDrag(e: ReactPointerEvent, id: string) {
     e.preventDefault()
-    e.currentTarget.setPointerCapture(e.pointerId)
+    const order = items.map((i) => i.id)
+    dragRef.current = { id, order }
     setDragId(id)
-    setDragOrder(items.map((i) => i.id))
-  }
+    setDragOrder(order)
 
-  function onDragMove(e: ReactPointerEvent) {
-    if (!dragId || !dragOrder) return
-    const ids = dragOrder
-    const y = e.clientY
-    let target = ids.length - 1
-    for (let k = 0; k < ids.length; k++) {
-      const el = rowRefs.current.get(ids[k])
-      if (!el) continue
-      const r = el.getBoundingClientRect()
-      if (y < r.top + r.height / 2) {
-        target = k
-        break
+    const move = (ev: PointerEvent) => {
+      const st = dragRef.current
+      if (!st) return
+      ev.preventDefault()
+      const y = ev.clientY
+      let target = st.order.length - 1
+      for (let k = 0; k < st.order.length; k++) {
+        const el = rowRefs.current.get(st.order[k])
+        if (!el) continue
+        const r = el.getBoundingClientRect()
+        if (y < r.top + r.height / 2) {
+          target = k
+          break
+        }
+      }
+      const from = st.order.indexOf(st.id)
+      if (from !== -1 && from !== target) {
+        st.order = arrayMove(st.order, from, target)
+        setDragOrder([...st.order])
       }
     }
-    const from = ids.indexOf(dragId)
-    if (from !== -1 && from !== target) setDragOrder(arrayMove(ids, from, target))
-  }
-
-  function endDrag() {
-    if (dragOrder && dragId) reorder(dragOrder)
-    setDragId(null)
-    setDragOrder(null)
+    const end = () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', end)
+      window.removeEventListener('pointercancel', end)
+      const st = dragRef.current
+      if (st) reorderRef.current(st.order)
+      dragRef.current = null
+      setDragId(null)
+      setDragOrder(null)
+    }
+    window.addEventListener('pointermove', move, { passive: false })
+    window.addEventListener('pointerup', end)
+    window.addEventListener('pointercancel', end)
   }
 
   const [open, setOpen] = useState(false)
@@ -226,14 +243,11 @@ export default function DayPlan({ day }: Props) {
                 {member && displayItems.length > 1 && (
                   <button
                     onPointerDown={(e) => beginDrag(e, item.id)}
-                    onPointerMove={onDragMove}
-                    onPointerUp={endDrag}
-                    onPointerCancel={endDrag}
-                    className="grid h-8 w-8 flex-shrink-0 cursor-grab touch-none place-items-center rounded-lg text-navy/30 active:cursor-grabbing"
+                    className="grid h-9 w-9 flex-shrink-0 cursor-grab touch-none place-items-center rounded-lg text-navy/40 active:cursor-grabbing"
                     style={{ touchAction: 'none' }}
                     aria-label={`Drag to reorder ${item.title}`}
                   >
-                    <GripVertical size={16} />
+                    <GripVertical size={18} />
                   </button>
                 )}
               </li>
