@@ -46,6 +46,9 @@ export interface Idea {
   url?: string
   /** A "must-do" — the headline things worth prioritising in this place. */
   recommended?: boolean
+  /** Rough neighbourhood/zone, so the planner can cluster nearby things on the
+   *  same day (e.g. everything on the SF waterfront). */
+  area?: string
 }
 
 export interface TripDay {

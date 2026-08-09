@@ -47,4 +47,28 @@ describe('suggestDay', () => {
     const arrival = sf.days.find((d) => d.title.includes('Arrival'))!
     expect(thematicFit(arrival, alcatraz)).toBe(false)
   })
+
+  it('tags every idea with an area', () => {
+    for (const leg of [sf]) {
+      for (const idea of leg.ideas ?? []) {
+        expect(typeof idea.area).toBe('string')
+        expect(idea.area!.length).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('clusters an idea onto a day already in the same neighbourhood', () => {
+    // Musée Mécanique is on the Wharf; Ghirardelli (also Wharf) is planned on day 3.
+    const musee = sf.ideas!.find((i) => i.title === 'Musée Mécanique')!
+    const scores = scoreDays(sf, musee, { 3: [{ title: 'Ghirardelli Square sundaes' }] })
+    const best = bestDay(scores)!
+    expect(best.day.n).toBe(3)
+    expect(best.nearby).toBe(true)
+  })
+
+  it('ranks a nearby idea ahead in complements', () => {
+    // Alcatraz's top complement should be on the Wharf too.
+    const comps = complements(sf, alcatraz, new Set<string>(), 3)
+    expect(comps[0].area).toBe(alcatraz.area)
+  })
 })

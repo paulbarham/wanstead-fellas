@@ -154,6 +154,11 @@ export default function AddToItinerary({ idea, leg, onClose }: Props) {
               )}
             </div>
             {idea.note && <p className="mt-0.5 text-[13px] text-navy/65">{idea.note}</p>}
+            {idea.area && (
+              <p className="mt-1 text-[12px] font-medium" style={{ color: 'var(--teal)' }}>
+                📍 {idea.area}
+              </p>
+            )}
           </div>
 
           {/* Suggested day */}
@@ -193,7 +198,7 @@ export default function AddToItinerary({ idea, leg, onClose }: Props) {
                     </div>
                     <div className="mt-0.5 text-[11px]" style={{ opacity: active ? 0.85 : 0.5 }}>
                       {s.count === 0 ? 'nothing planned' : `${s.count} planned`}
-                      {s.fits ? ' · fits' : s.anchor ? ' · busy day' : ''}
+                      {s.fits ? ' · fits' : s.nearby ? ' · nearby' : s.anchor ? ' · busy day' : ''}
                     </div>
                   </button>
                 )

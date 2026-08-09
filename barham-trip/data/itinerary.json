@@ -21,127 +21,147 @@
           "category": "sights",
           "suits": "all",
           "note": "Former island prison — the audio tour narrated by ex-guards and inmates is gripping. Pre-book, it sells out.",
-          "recommended": true
+          "recommended": true,
+          "area": "Fisherman’s Wharf & waterfront"
         },
         {
           "title": "Ride a cable car",
           "category": "sights",
           "suits": "all",
           "note": "The Powell-Hyde line climbs past the Lombard Street zig-zags — hang off the side.",
-          "recommended": true
+          "recommended": true,
+          "area": "Downtown & SoMa"
         },
         {
           "title": "Fisherman's Wharf & Pier 39",
           "category": "sights",
           "suits": "all",
           "note": "The barking sea lions on the docks are a hit with the little ones. Skip the seafood stalls — plenty else to eat here.",
-          "recommended": true
+          "recommended": true,
+          "area": "Fisherman’s Wharf & waterfront"
         },
         {
           "title": "Musée Mécanique",
           "category": "cultural",
           "suits": "all",
           "url": "https://museemecanique.com/visit",
-          "note": "A free museum of working antique arcade machines at Fisherman’s Wharf — bring a pocket of quarters and let the kids play. One of the largest collections of its kind in the world."
+          "note": "A free museum of working antique arcade machines at Fisherman’s Wharf — bring a pocket of quarters and let the kids play. One of the largest collections of its kind in the world.",
+          "area": "Fisherman’s Wharf & waterfront"
         },
         {
           "title": "Painted Ladies, Alamo Square",
           "category": "sights",
           "suits": "all",
-          "note": "The Full House row of Victorian houses — a quick photo stop with a park to run around in."
+          "note": "The Full House row of Victorian houses — a quick photo stop with a park to run around in.",
+          "area": "Mission & Alamo Square"
         },
         {
           "title": "Chinatown",
           "category": "sights",
           "suits": "all",
-          "note": "The oldest Chinatown in the US. Watch fortune cookies being folded on Ross Alley."
+          "note": "The oldest Chinatown in the US. Watch fortune cookies being folded on Ross Alley.",
+          "area": "Downtown & SoMa"
         },
         {
           "title": "Walk or cycle the Golden Gate Bridge",
           "category": "outdoors",
           "suits": "all",
           "note": "Ride over to the harbour town of Sausalito, then ferry back with the bikes.",
-          "recommended": true
+          "recommended": true,
+          "area": "Golden Gate & Presidio"
         },
         {
           "title": "Muir Woods",
           "category": "outdoors",
           "suits": "all",
           "note": "Towering old-growth redwoods 30 mins north. Cool and shaded — good for a hot day. Book parking ahead.",
-          "recommended": true
+          "recommended": true,
+          "area": "Marin (over the bridge)"
         },
         {
           "title": "Twin Peaks at sunset",
           "category": "outdoors",
           "suits": "all",
-          "note": "The best panorama of the whole city and bay. Bring a layer — it gets windy and cold up top."
+          "note": "The best panorama of the whole city and bay. Bring a layer — it gets windy and cold up top.",
+          "area": "Mission & Alamo Square"
         },
         {
           "title": "Exploratorium",
           "category": "cultural",
           "suits": "all",
           "note": "Hands-on science playground on the waterfront — brilliant for the younger ones, and the teens get sucked in too.",
-          "recommended": true
+          "recommended": true,
+          "area": "Fisherman’s Wharf & waterfront"
         },
         {
           "title": "California Academy of Sciences",
           "category": "cultural",
           "suits": "all",
-          "note": "Rainforest dome, planetarium and aquarium under a living roof. A whole rainy-morning in one."
+          "note": "Rainforest dome, planetarium and aquarium under a living roof. A whole rainy-morning in one.",
+          "area": "Golden Gate Park"
         },
         {
           "title": "Walt Disney Family Museum",
           "category": "cultural",
           "suits": "all",
-          "note": "In the Presidio — the story of Walt Disney, with early sketches and models. A nice warm-up for Disneyland later."
+          "note": "In the Presidio — the story of Walt Disney, with early sketches and models. A nice warm-up for Disneyland later.",
+          "area": "Golden Gate & Presidio"
         },
         {
           "title": "Mission District murals",
           "category": "cultural",
           "suits": "teens",
-          "note": "Balmy and Clarion Alleys are packed with street art — a good wander for the teens with a camera."
+          "note": "Balmy and Clarion Alleys are packed with street art — a good wander for the teens with a camera.",
+          "area": "Mission & Alamo Square"
         },
         {
           "title": "Koret Children's Quarter, Golden Gate Park",
           "category": "playgrounds",
           "suits": "littles",
-          "note": "The oldest public playground in the US, with a restored 1914 carousel. Perfect to burn off the little ones' energy."
+          "note": "The oldest public playground in the US, with a restored 1914 carousel. Perfect to burn off the little ones' energy.",
+          "area": "Golden Gate Park"
         },
         {
           "title": "Yerba Buena Gardens & carousel",
           "category": "playgrounds",
           "suits": "littles",
-          "note": "Downtown lawns with a historic carousel and the kid-focused Children’s Creativity Museum next door."
+          "note": "Downtown lawns with a historic carousel and the kid-focused Children’s Creativity Museum next door.",
+          "area": "Downtown & SoMa"
         },
         {
           "title": "SF Giants baseball at Oracle Park",
           "category": "sports",
           "suits": "all",
-          "note": "Check if the Giants are home. A waterfront ballpark right on the bay — a proper American night out."
+          "note": "Check if the Giants are home. A waterfront ballpark right on the bay — a proper American night out.",
+          "area": "Downtown & SoMa"
         },
         {
           "title": "In-N-Out Burger, Fisherman’s Wharf",
           "category": "food",
           "suits": "all",
-          "note": "The West Coast burger institution. Ask for it \"animal style\". No seafood in sight."
+          "note": "The West Coast burger institution. Ask for it \"animal style\". No seafood in sight.",
+          "area": "Fisherman’s Wharf & waterfront"
         },
         {
           "title": "Tony's Pizza Napoletana, North Beach",
           "category": "food",
           "suits": "all",
-          "note": "Award-winning pizza in the Italian quarter — a crowd-pleaser for all six."
+          "note": "Award-winning pizza in the Italian quarter — a crowd-pleaser for all six.",
+          "area": "Fisherman’s Wharf & waterfront"
         },
         {
           "title": "Ghirardelli Square sundaes",
           "category": "food",
           "suits": "all",
-          "note": "Hot-fudge sundaes at the old chocolate factory — the little ones will not forget it."
+          "note": "Hot-fudge sundaes at the old chocolate factory — the little ones will not forget it.",
+          "area": "Fisherman’s Wharf & waterfront"
         },
         {
           "title": "Mission-style burrito, La Taqueria",
           "category": "food",
           "suits": "all",
-          "note": "The definitive giant SF burrito. Cheap, filling and easy for fussy eaters."
+          "note": "The definitive giant SF burrito. Cheap, filling and easy for fussy eaters.",
+          "area": "Mission & Alamo Square"
         }
       ],
       "stays": [
@@ -287,84 +307,97 @@
           "category": "outdoors",
           "suits": "all",
           "note": "Scenic toll road past the Lone Cypress and Pebble Beach. Slow, beautiful, lots of pull-offs.",
-          "recommended": true
+          "recommended": true,
+          "area": "Monterey & Carmel"
         },
         {
           "title": "Bixby Creek Bridge",
           "category": "outdoors",
           "suits": "all",
           "note": "The iconic Big Sur arch bridge — pull into the viewpoint just north for the classic shot.",
-          "recommended": true
+          "recommended": true,
+          "area": "Big Sur"
         },
         {
           "title": "McWay Falls",
           "category": "outdoors",
           "suits": "all",
           "note": "An 80ft waterfall dropping onto a hidden beach. Short easy walk from the car park.",
-          "recommended": true
+          "recommended": true,
+          "area": "Big Sur"
         },
         {
           "title": "Pfeiffer Beach",
           "category": "outdoors",
           "suits": "all",
-          "note": "Purple-tinged sand and a keyhole rock arch. The access lane is narrow and easy to miss."
+          "note": "Purple-tinged sand and a keyhole rock arch. The access lane is narrow and easy to miss.",
+          "area": "Big Sur"
         },
         {
           "title": "Point Lobos Reserve",
           "category": "outdoors",
           "suits": "all",
-          "note": "Coves, sea otters and easy cliff trails — the \"crown jewel\" of the state parks."
+          "note": "Coves, sea otters and easy cliff trails — the \"crown jewel\" of the state parks.",
+          "area": "Monterey & Carmel"
         },
         {
           "title": "Elephant seal rookery, Piedras Blancas",
           "category": "outdoors",
           "suits": "all",
           "note": "Hundreds of elephant seals hauled out yards from a free boardwalk. A guaranteed wildlife win for the kids.",
-          "recommended": true
+          "recommended": true,
+          "area": "San Simeon & Cambria"
         },
         {
           "title": "Morro Bay",
           "category": "sights",
           "suits": "all",
-          "note": "A giant volcanic plug rising out of the bay — a good leg-stretch and ice-cream stop."
+          "note": "A giant volcanic plug rising out of the bay — a good leg-stretch and ice-cream stop.",
+          "area": "San Simeon & Cambria"
         },
         {
           "title": "Cannery Row, Monterey",
           "category": "sights",
           "suits": "all",
-          "note": "The Steinbeck-famous waterfront strip — sweet shops, an old carousel and the aquarium at the end."
+          "note": "The Steinbeck-famous waterfront strip — sweet shops, an old carousel and the aquarium at the end.",
+          "area": "Monterey & Carmel"
         },
         {
           "title": "Hearst Castle",
           "category": "cultural",
           "suits": "all",
           "note": "The over-the-top hilltop mansion of a newspaper tycoon. Pre-book the timed tour bus from the visitor centre.",
-          "recommended": true
+          "recommended": true,
+          "area": "San Simeon & Cambria"
         },
         {
           "title": "Monterey Bay Aquarium",
           "category": "cultural",
           "suits": "all",
           "note": "World-class aquarium — the kelp forest and touch pools are a firm favourite with younger ones. Dated tickets are cheaper.",
-          "recommended": true
+          "recommended": true,
+          "area": "Monterey & Carmel"
         },
         {
           "title": "Dennis the Menace Park, Monterey",
           "category": "playgrounds",
           "suits": "littles",
-          "note": "A wildly creative playground (real train engine, big slides) designed by the Dennis the Menace cartoonist. A perfect PCH break for the little ones."
+          "note": "A wildly creative playground (real train engine, big slides) designed by the Dennis the Menace cartoonist. A perfect PCH break for the little ones.",
+          "area": "Monterey & Carmel"
         },
         {
           "title": "Santa Cruz Beach Boardwalk",
           "category": "rides",
           "suits": "all",
-          "note": "A classic seaside amusement park with a wooden roller coaster — if the route takes you through Santa Cruz."
+          "note": "A classic seaside amusement park with a wooden roller coaster — if the route takes you through Santa Cruz.",
+          "area": "Santa Cruz"
         },
         {
           "title": "Lunch at Nepenthe",
           "category": "food",
           "suits": "all",
-          "note": "Cliff-top Big Sur restaurant with jaw-dropping views. Order the famous Ambrosia burger — no seafood needed."
+          "note": "Cliff-top Big Sur restaurant with jaw-dropping views. Order the famous Ambrosia burger — no seafood needed.",
+          "area": "Big Sur"
         }
       ],
       "stays": [
@@ -453,83 +486,96 @@
           "category": "rides",
           "suits": "all",
           "note": "The end of Route 66 — a small amusement park with a Ferris wheel and coaster right over the ocean.",
-          "recommended": true
+          "recommended": true,
+          "area": "Santa Monica"
         },
         {
           "title": "Cycle the beach path to Venice",
           "category": "sports",
           "suits": "all",
           "note": "Hire cruiser bikes and ride the flat 3-mile path along the sand to Venice and back.",
-          "recommended": true
+          "recommended": true,
+          "area": "Santa Monica"
         },
         {
           "title": "Beginner surf lesson",
           "category": "sports",
           "suits": "teens",
-          "note": "Gentle Santa Monica breakers and lots of schools — a fun morning for the teens to try."
+          "note": "Gentle Santa Monica breakers and lots of schools — a fun morning for the teens to try.",
+          "area": "Santa Monica"
         },
         {
           "title": "Venice Beach boardwalk & Muscle Beach",
           "category": "sights",
           "suits": "all",
           "note": "Street performers, skate park and the famous outdoor gym. Busy, colourful and free.",
-          "recommended": true
+          "recommended": true,
+          "area": "Venice"
         },
         {
           "title": "Venice Canals",
           "category": "outdoors",
           "suits": "all",
-          "note": "A quiet, pretty grid of canals and footbridges just off the boardwalk — a lovely stroll."
+          "note": "A quiet, pretty grid of canals and footbridges just off the boardwalk — a lovely stroll.",
+          "area": "Venice"
         },
         {
           "title": "Malibu beaches (El Matador)",
           "category": "outdoors",
           "suits": "all",
           "note": "Sea caves and rock arches a short drive up the coast. Steep steps down, so wear proper shoes.",
-          "recommended": true
+          "recommended": true,
+          "area": "Malibu"
         },
         {
           "title": "Getty Villa",
           "category": "cultural",
           "suits": "all",
           "note": "A recreated Roman villa full of antiquities above the Malibu coast. Free entry, timed ticket needed.",
-          "recommended": true
+          "recommended": true,
+          "area": "Malibu"
         },
         {
           "title": "Tongva Park playground",
           "category": "playgrounds",
           "suits": "littles",
-          "note": "A modern park right by the pier with fountains and climbing frames — easy to let the little ones loose."
+          "note": "A modern park right by the pier with fountains and climbing frames — easy to let the little ones loose.",
+          "area": "Santa Monica"
         },
         {
           "title": "Abbot Kinney Boulevard",
           "category": "shopping",
           "suits": "teens",
-          "note": "Hip Venice street of boutiques, murals and coffee — good for a teen mooch."
+          "note": "Hip Venice street of boutiques, murals and coffee — good for a teen mooch.",
+          "area": "Venice"
         },
         {
           "title": "Third Street Promenade",
           "category": "shopping",
           "suits": "all",
-          "note": "Pedestrianised shopping street with street performers — easy walk from the beach."
+          "note": "Pedestrianised shopping street with street performers — easy walk from the beach.",
+          "area": "Santa Monica"
         },
         {
           "title": "Original Farmers Market & The Grove",
           "category": "food",
           "suits": "all",
-          "note": "Historic food stalls (tacos, BBQ, bakeries — no seafood required) next to an open-air shopping street with a trolley."
+          "note": "Historic food stalls (tacos, BBQ, bakeries — no seafood required) next to an open-air shopping street with a trolley.",
+          "area": "Mid-City"
         },
         {
           "title": "Bay Cities Italian Deli",
           "category": "food",
           "suits": "all",
-          "note": "Home of \"the Godmother\" sub — the best sandwich in LA. Grab them for a beach picnic."
+          "note": "Home of \"the Godmother\" sub — the best sandwich in LA. Grab them for a beach picnic.",
+          "area": "Santa Monica"
         },
         {
           "title": "Salt & Straw ice cream, Abbot Kinney",
           "category": "food",
           "suits": "all",
-          "note": "Cult small-batch ice cream with wild flavours. A guaranteed hit with the kids."
+          "note": "Cult small-batch ice cream with wild flavours. A guaranteed hit with the kids.",
+          "area": "Venice"
         }
       ],
       "stays": [
@@ -612,108 +658,125 @@
           "category": "sights",
           "suits": "all",
           "note": "The stars and the hand-prints in the forecourt. Busy and a bit gritty — go early.",
-          "recommended": true
+          "recommended": true,
+          "area": "Hollywood"
         },
         {
           "title": "Griffith Observatory",
           "category": "sights",
           "suits": "all",
           "note": "Free observatory with the best Hollywood Sign view and evening telescopes. Stunning at sunset.",
-          "recommended": true
+          "recommended": true,
+          "area": "Griffith & Burbank"
         },
         {
           "title": "Universal Studios Hollywood",
           "category": "rides",
           "suits": "all",
           "note": "Theme park + working studio backlot tram. The Wizarding World and Mario Land are the headliners. Consider Express in August.",
-          "recommended": true
+          "recommended": true,
+          "area": "Griffith & Burbank"
         },
         {
           "title": "Disneyland / California Adventure",
           "category": "rides",
           "suits": "all",
           "note": "The original Disneyland. Needs a dated ticket AND a park reservation — sort both ahead and set up Genie+.",
-          "recommended": true
+          "recommended": true,
+          "area": "Anaheim"
         },
         {
           "title": "Six Flags Magic Mountain",
           "category": "rides",
           "suits": "teens",
           "note": "The coaster capital — record-breaking thrill rides. The teens’ day; not for the little ones.",
-          "recommended": true
+          "recommended": true,
+          "area": "Valencia"
         },
         {
           "title": "Warner Bros. Studio Tour",
           "category": "cultural",
           "suits": "teens",
-          "note": "Ride through the backlot and sound stages (Friends, DC). Right by the Burbank hotel. Great for film-mad teens."
+          "note": "Ride through the backlot and sound stages (Friends, DC). Right by the Burbank hotel. Great for film-mad teens.",
+          "area": "Griffith & Burbank"
         },
         {
           "title": "The Broad",
           "category": "cultural",
           "suits": "teens",
-          "note": "Free contemporary art museum downtown — the Infinity Mirror Rooms need a timed reservation."
+          "note": "Free contemporary art museum downtown — the Infinity Mirror Rooms need a timed reservation.",
+          "area": "Downtown & Exposition"
         },
         {
           "title": "La Brea Tar Pits",
           "category": "cultural",
           "suits": "all",
-          "note": "Ice-age fossils bubbling out of tar in the middle of the city. The mammoths are a winner for younger kids."
+          "note": "Ice-age fossils bubbling out of tar in the middle of the city. The mammoths are a winner for younger kids.",
+          "area": "Mid-City & Westside"
         },
         {
           "title": "Natural History Museum",
           "category": "cultural",
           "suits": "all",
-          "note": "Dinosaurs, gems and a butterfly pavilion — a solid all-ages half-day, and cool indoors when it’s hot."
+          "note": "Dinosaurs, gems and a butterfly pavilion — a solid all-ages half-day, and cool indoors when it’s hot.",
+          "area": "Downtown & Exposition"
         },
         {
           "title": "Getty Center",
           "category": "cultural",
           "suits": "all",
           "note": "Hilltop art museum reached by a little tram, with gardens and huge city views. Free entry.",
-          "recommended": true
+          "recommended": true,
+          "area": "Mid-City & Westside"
         },
         {
           "title": "Griffith Park & LA Zoo",
           "category": "outdoors",
           "suits": "all",
-          "note": "One of the largest urban parks in the US — the zoo, trails and picnic lawns keep all ages happy."
+          "note": "One of the largest urban parks in the US — the zoo, trails and picnic lawns keep all ages happy.",
+          "area": "Griffith & Burbank"
         },
         {
           "title": "Travel Town & pony rides, Griffith Park",
           "category": "playgrounds",
           "suits": "littles",
-          "note": "A free outdoor train museum with a miniature railroad to ride, plus nearby pony rides — made for the little ones."
+          "note": "A free outdoor train museum with a miniature railroad to ride, plus nearby pony rides — made for the little ones.",
+          "area": "Griffith & Burbank"
         },
         {
           "title": "Rodeo Drive & Beverly Hills",
           "category": "shopping",
           "suits": "teens",
-          "note": "The famous luxury shopping street — fun to window-shop and spot the odd celebrity."
+          "note": "The famous luxury shopping street — fun to window-shop and spot the odd celebrity.",
+          "area": "Mid-City & Westside"
         },
         {
           "title": "LA Dodgers at Dodger Stadium",
           "category": "sports",
           "suits": "all",
-          "note": "Check if the Dodgers are home. An iconic ballpark in the hills — grab a Dodger Dog."
+          "note": "Check if the Dodgers are home. An iconic ballpark in the hills — grab a Dodger Dog.",
+          "area": "Downtown & Exposition"
         },
         {
           "title": "Porto's Bakery, Burbank",
           "category": "food",
           "suits": "all",
-          "note": "Beloved Cuban bakery minutes from the hotel — cheese rolls and potato balls for pennies. Perfect breakfast run."
+          "note": "Beloved Cuban bakery minutes from the hotel — cheese rolls and potato balls for pennies. Perfect breakfast run.",
+          "area": "Griffith & Burbank"
         },
         {
           "title": "Pink's Hot Dogs, Hollywood",
           "category": "food",
           "suits": "all",
-          "note": "An LA institution since 1939 — chilli dogs with a queue to match. Cash-friendly and kid-proof."
+          "note": "An LA institution since 1939 — chilli dogs with a queue to match. Cash-friendly and kid-proof.",
+          "area": "Hollywood"
         },
         {
           "title": "Grand Central Market, DTLA",
           "category": "food",
           "suits": "all",
-          "note": "A buzzing food hall — tacos, burgers, egg sandwiches and more. Something for every fussy eater, no seafood needed."
+          "note": "A buzzing food hall — tacos, burgers, egg sandwiches and more. Something for every fussy eater, no seafood needed.",
+          "area": "Downtown & Exposition"
         }
       ],
       "stays": [
@@ -943,113 +1006,131 @@
           "category": "sights",
           "suits": "all",
           "note": "Walk the neon between the mega-resorts — the Bellagio fountains, the Venetian and the fake landmarks. Free and dazzling.",
-          "recommended": true
+          "recommended": true,
+          "area": "The Strip"
         },
         {
           "title": "High Roller observation wheel",
           "category": "sights",
           "suits": "all",
           "note": "The giant Ferris wheel at The LINQ — a 30-min ride with the best view over the valley, best at dusk.",
-          "recommended": true
+          "recommended": true,
+          "area": "The Strip"
         },
         {
           "title": "Seven Magic Mountains",
           "category": "sights",
           "suits": "all",
-          "note": "Towers of neon-painted boulders in the desert 20 mins south — a fun, free photo stop."
+          "note": "Towers of neon-painted boulders in the desert 20 mins south — a fun, free photo stop.",
+          "area": "Desert day trips"
         },
         {
           "title": "Hoover Dam",
           "category": "sights",
           "suits": "all",
           "note": "An engineering marvel 45 mins out. Walk across into Arizona; the dam tour is worth the ticket.",
-          "recommended": true
+          "recommended": true,
+          "area": "Desert day trips"
         },
         {
           "title": "Grand Canyon West / Skywalk",
           "category": "outdoors",
           "suits": "all",
           "note": "The nearest rim to Vegas (2.5 hrs), with the glass Skywalk out over the canyon. Book the West Rim package ahead.",
-          "recommended": true
+          "recommended": true,
+          "area": "Desert day trips"
         },
         {
           "title": "Red Rock Canyon",
           "category": "outdoors",
           "suits": "all",
-          "note": "A 13-mile scenic loop of red sandstone cliffs 30 mins from the Strip — easy short walks. Go early before the heat."
+          "note": "A 13-mile scenic loop of red sandstone cliffs 30 mins from the Strip — easy short walks. Go early before the heat.",
+          "area": "Desert day trips"
         },
         {
           "title": "Death Valley",
           "category": "outdoors",
           "suits": "adults",
-          "note": "The hottest place on earth, 2 hrs west. Extreme in August — only for a very early, well-prepared day trip."
+          "note": "The hottest place on earth, 2 hrs west. Extreme in August — only for a very early, well-prepared day trip.",
+          "area": "Desert day trips"
         },
         {
           "title": "Gondola ride at The Venetian",
           "category": "rides",
           "suits": "all",
-          "note": "A singing gondolier poles you round the indoor canals — kitsch, air-conditioned and the little ones love it."
+          "note": "A singing gondolier poles you round the indoor canals — kitsch, air-conditioned and the little ones love it.",
+          "area": "The Strip"
         },
         {
           "title": "Adventuredome at Circus Circus",
           "category": "rides",
           "suits": "all",
-          "note": "A huge indoor theme park — roller coasters and rides with no desert heat. Great mid-afternoon escape."
+          "note": "A huge indoor theme park — roller coasters and rides with no desert heat. Great mid-afternoon escape.",
+          "area": "The Strip"
         },
         {
           "title": "Shark Reef Aquarium, Mandalay Bay",
           "category": "cultural",
           "suits": "littles",
-          "note": "A walk-through aquarium with a shark tunnel — cool, dark and a sure thing for the younger ones."
+          "note": "A walk-through aquarium with a shark tunnel — cool, dark and a sure thing for the younger ones.",
+          "area": "The Strip"
         },
         {
           "title": "Discovery Children's Museum",
           "category": "playgrounds",
           "suits": "littles",
-          "note": "Three floors of hands-on play downtown — the perfect air-conditioned morning for the little ones."
+          "note": "Three floors of hands-on play downtown — the perfect air-conditioned morning for the little ones.",
+          "area": "Downtown Las Vegas"
         },
         {
           "title": "The Mob Museum",
           "category": "cultural",
           "suits": "teens",
-          "note": "The story of organised crime in a former courthouse — surprisingly gripping for teens and grown-ups."
+          "note": "The story of organised crime in a former courthouse — surprisingly gripping for teens and grown-ups.",
+          "area": "Downtown Las Vegas"
         },
         {
           "title": "Fremont Street Experience",
           "category": "shows",
           "suits": "all",
           "note": "Old downtown Vegas under a giant LED canopy — free light shows, buskers and a zipline overhead.",
-          "recommended": true
+          "recommended": true,
+          "area": "Downtown Las Vegas"
         },
         {
           "title": "A family show",
           "category": "shows",
           "suits": "all",
-          "note": "A Cirque du Soleil show (Mystère / \"O\") or a magic act — plenty are all-ages. Book ahead for good seats."
+          "note": "A Cirque du Soleil show (Mystère / \"O\") or a magic act — plenty are all-ages. Book ahead for good seats.",
+          "area": "The Strip"
         },
         {
           "title": "Hershey’s & M&M’s World",
           "category": "food",
           "suits": "littles",
-          "note": "Multi-floor chocolate megastores on the Strip — a sugar-fuelled treat and free air-con."
+          "note": "Multi-floor chocolate megastores on the Strip — a sugar-fuelled treat and free air-con.",
+          "area": "The Strip"
         },
         {
           "title": "Bacchanal Buffet, Caesars",
           "category": "food",
           "suits": "all",
-          "note": "The blow-out Vegas buffet — carving stations, pizza, dumplings and desserts. Skip the raw bar and there’s no seafood in it."
+          "note": "The blow-out Vegas buffet — carving stations, pizza, dumplings and desserts. Skip the raw bar and there’s no seafood in it.",
+          "area": "The Strip"
         },
         {
           "title": "In-N-Out Burger, Las Vegas",
           "category": "food",
           "suits": "all",
-          "note": "The reliable, cheap, no-seafood family favourite when you just want a proper burger."
+          "note": "The reliable, cheap, no-seafood family favourite when you just want a proper burger.",
+          "area": "The Strip"
         },
         {
           "title": "Las Vegas Raiders at Allegiant Stadium",
           "category": "sports",
           "suits": "all",
-          "note": "Check the August fixtures. The spectacular \"Death Star\" stadium just off the Strip — a bucket-list NFL night."
+          "note": "Check the August fixtures. The spectacular \"Death Star\" stadium just off the Strip — a bucket-list NFL night.",
+          "area": "The Strip"
         }
       ],
       "stays": [

@@ -8,6 +8,8 @@ export interface DayScore {
   reason: string
   anchor: boolean
   fits: boolean
+  /** True when the idea's neighbourhood already has something planned that day. */
+  nearby: boolean
 }
 
 // All-day anchors — days built around one of these are best left as they are.
@@ -43,29 +45,41 @@ function isAnchorDay(day: TripDay, plannedTitles: string[]): boolean {
   return ANCHOR_RE.test(hay)
 }
 
-/** Score every day in a leg as a slot for `idea`, given what's already planned. */
+/** Map an idea title to its area (for resolving what's planned where). */
+function areaByTitle(leg: Leg): Map<string, string | undefined> {
+  return new Map((leg.ideas ?? []).map((i) => [i.title, i.area]))
+}
+
+/** Score every day in a leg as a slot for `idea`, given what's already planned.
+ *  Considers day load, all-day anchors, thematic fit, and neighbourhood
+ *  proximity — a day already doing something in the idea's area scores higher. */
 export function scoreDays(
   leg: Leg,
   idea: Idea,
   plansByDay: Record<number, { title: string }[]>,
 ): DayScore[] {
+  const areaOf = areaByTitle(leg)
   return leg.days.map((day) => {
     const planned = plansByDay[day.n] ?? []
     const count = planned.length
     const anchor = isAnchorDay(day, planned.map((p) => p.title))
     const fits = thematicFit(day, idea)
+    const plannedAreas = new Set(planned.map((p) => areaOf.get(p.title)).filter(Boolean))
+    const nearby = !!idea.area && plannedAreas.has(idea.area)
 
     let score = 100 - count * 12
     if (anchor) score -= 40
     if (fits) score += 25
+    if (nearby) score += 22
 
     let reason: string
     if (fits) reason = `Fits the “${day.title}” plan`
+    else if (nearby) reason = `Close to your ${idea.area} plans`
     else if (anchor) reason = 'Big day already — best kept light'
     else if (count === 0) reason = 'Nothing planned yet'
     else reason = `${count} thing${count > 1 ? 's' : ''} planned so far`
 
-    return { day, count, score, reason, anchor, fits }
+    return { day, count, score, reason, anchor, fits, nearby }
   })
 }
 
@@ -74,9 +88,9 @@ export function bestDay(scores: DayScore[]): DayScore | undefined {
   return [...scores].sort((a, b) => b.score - a.score || a.day.n - b.day.n)[0]
 }
 
-/** Ideas from the same leg that pair well with `idea` — same category first
- *  (must-dos ahead), then a food stop, then anything else. Excludes the idea
- *  itself and anything already planned on the chosen day. */
+/** Ideas from the same leg that pair well with `idea` — nearby things first
+ *  (same neighbourhood), then same category, with must-dos and a food stop
+ *  nudged up. Excludes the idea itself and anything already planned that day. */
 export function complements(
   leg: Leg,
   idea: Idea,
@@ -87,22 +101,18 @@ export function complements(
   const others = all.filter((i) => i.title !== idea.title && !plannedTitles.has(i.title))
   const cat = idea.category ?? 'other'
 
-  const rank = (arr: Idea[]) =>
-    [...arr].sort((a, b) => (b.recommended ? 1 : 0) - (a.recommended ? 1 : 0))
-
-  const sameCat = rank(others.filter((i) => (i.category ?? 'other') === cat))
-  const food = cat === 'food' ? [] : rank(others.filter((i) => i.category === 'food'))
-  const rest = rank(
-    others.filter((i) => (i.category ?? 'other') !== cat && i.category !== 'food'),
-  )
-
-  const seen = new Set<string>()
-  const out: Idea[] = []
-  for (const i of [...sameCat, ...food, ...rest]) {
-    if (seen.has(i.title)) continue
-    seen.add(i.title)
-    out.push(i)
-    if (out.length >= limit) break
+  const weight = (i: Idea) => {
+    let w = 0
+    if (idea.area && i.area === idea.area) w += 4 // physically close
+    if ((i.category ?? 'other') === cat) w += 2 // similar kind of thing
+    if (i.recommended) w += 1 // a must-do
+    if (i.category === 'food' && cat !== 'food') w += 0.5 // a meal pairs with anything
+    return w
   }
-  return out
+
+  return [...others]
+    .map((i, idx) => ({ i, idx, w: weight(i) }))
+    .sort((a, b) => b.w - a.w || a.idx - b.idx)
+    .slice(0, limit)
+    .map((x) => x.i)
 }
