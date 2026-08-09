@@ -9,12 +9,15 @@ import { useAuth } from './useAuth'
 export async function addToDay(dayN: number, title: string, note: string, memberId: string) {
   const trimmed = title.trim()
   if (!trimmed) return
+  // New items land at the bottom of the day's list.
+  const sort = (useLocalStore.getState().dayPlans[dayN] ?? []).length
   const item: DayPlanItem = {
     id: crypto.randomUUID(),
     day_n: dayN,
     title: trimmed,
     note: note.trim() || null,
     done: false,
+    sort,
     added_by: memberId,
     created_at: new Date().toISOString(),
   }
@@ -26,6 +29,7 @@ export async function addToDay(dayN: number, title: string, note: string, member
       title: item.title,
       note: item.note,
       done: item.done,
+      sort: item.sort,
       added_by: item.added_by,
     })
   }
@@ -41,6 +45,7 @@ export function useDayPlan(dayN: number) {
   const items = useLocalStore((s) => s.dayPlans[dayN] ?? [])
   const removeLocal = useLocalStore((s) => s.removeDayPlanItem)
   const setDoneLocal = useLocalStore((s) => s.setDayPlanDone)
+  const setOrderLocal = useLocalStore((s) => s.setDayPlanOrder)
   const merge = useLocalStore((s) => s.mergeDayPlanItems)
   const { member } = useAuth()
 
@@ -50,9 +55,9 @@ export function useDayPlan(dayN: number) {
 
     supabase
       .from('day_plans')
-      .select('id, day_n, title, note, done, added_by, created_at')
+      .select('id, day_n, title, note, done, sort, added_by, created_at')
       .eq('day_n', dayN)
-      .order('created_at')
+      .order('sort')
       .then(({ data }) => {
         if (active && data) merge(dayN, data as DayPlanItem[])
       })
@@ -95,5 +100,15 @@ export function useDayPlan(dayN: number) {
     if (supabase) await supabase.from('day_plans').delete().eq('id', id)
   }
 
-  return { items, addItem, toggleDone, removeItem }
+  /** Persist a new manual order (list of item ids, top → bottom). */
+  async function reorder(orderedIds: string[]) {
+    setOrderLocal(dayN, orderedIds) // optimistic
+    if (supabase) {
+      await Promise.all(
+        orderedIds.map((id, idx) => supabase!.from('day_plans').update({ sort: idx }).eq('id', id)),
+      )
+    }
+  }
+
+  return { items, addItem, toggleDone, removeItem, reorder }
 }

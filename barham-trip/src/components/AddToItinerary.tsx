@@ -28,7 +28,7 @@ export default function AddToItinerary({ idea, leg, onClose }: Props) {
     const nums = leg.days.map((d) => d.n)
     supabase
       .from('day_plans')
-      .select('id, day_n, title, note, done, added_by, created_at')
+      .select('id, day_n, title, note, done, sort, added_by, created_at')
       .in('day_n', nums)
       .then(({ data }) => {
         if (!data) return

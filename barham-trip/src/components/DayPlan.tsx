@@ -1,8 +1,9 @@
-import { useMemo, useState, type FormEvent } from 'react'
-import { ListChecks, Plus, X, Check, Star, Search } from 'lucide-react'
+import { useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
+import { ListChecks, Plus, X, Check, Star, Search, GripVertical } from 'lucide-react'
 import type { TripDay, Idea, IdeaCategory } from '../lib/itinerary'
 import { getLegForDay } from '../lib/itinerary'
 import { CATEGORY_META } from '../lib/ideaCategories'
+import { arrayMove } from '../lib/arrayMove'
 import { useDayPlan } from '../hooks/useDayPlan'
 import { useAuth } from '../hooks/useAuth'
 
@@ -17,10 +18,50 @@ const categoryLabel = (cat?: IdeaCategory) =>
  *  Search the place's things-to-do (must-dos first, grouped by category) or
  *  type your own, tick them off, and remove any the group decides against. */
 export default function DayPlan({ day }: Props) {
-  const { items, addItem, toggleDone, removeItem } = useDayPlan(day.n)
+  const { items, addItem, toggleDone, removeItem, reorder } = useDayPlan(day.n)
   const { member, members, isAdmin } = useAuth()
   const leg = getLegForDay(day.n)
   const ideas = useMemo(() => leg?.ideas ?? [], [leg])
+
+  // Drag-to-reorder state. `dragOrder` holds the live order while dragging.
+  const [dragOrder, setDragOrder] = useState<string[] | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const rowRefs = useRef<Map<string, HTMLLIElement>>(new Map())
+
+  const displayItems = dragOrder
+    ? (dragOrder.map((id) => items.find((i) => i.id === id)).filter(Boolean) as typeof items)
+    : items
+
+  function beginDrag(e: ReactPointerEvent, id: string) {
+    e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setDragId(id)
+    setDragOrder(items.map((i) => i.id))
+  }
+
+  function onDragMove(e: ReactPointerEvent) {
+    if (!dragId || !dragOrder) return
+    const ids = dragOrder
+    const y = e.clientY
+    let target = ids.length - 1
+    for (let k = 0; k < ids.length; k++) {
+      const el = rowRefs.current.get(ids[k])
+      if (!el) continue
+      const r = el.getBoundingClientRect()
+      if (y < r.top + r.height / 2) {
+        target = k
+        break
+      }
+    }
+    const from = ids.indexOf(dragId)
+    if (from !== -1 && from !== target) setDragOrder(arrayMove(ids, from, target))
+  }
+
+  function endDrag() {
+    if (dragOrder && dragId) reorder(dragOrder)
+    setDragId(null)
+    setDragOrder(null)
+  }
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
@@ -130,54 +171,82 @@ export default function DayPlan({ day }: Props) {
         </p>
       ) : (
         <ul className="mt-3 space-y-2">
-          {items.map((item) => (
-            <li
-              key={item.id}
-              className="flex items-start gap-2.5 rounded-xl p-3"
-              style={{ background: 'var(--sand-2)', border: '1px solid rgba(14,58,72,0.08)' }}
-            >
-              <button
-                onClick={() => toggleDone(item.id, !item.done)}
-                className="mt-0.5 grid h-6 w-6 flex-shrink-0 place-items-center rounded-md"
-                style={{
-                  background: item.done ? 'var(--coral)' : 'var(--surface)',
-                  border: item.done ? 'none' : '1px solid rgba(14,58,72,0.25)',
+          {displayItems.map((item) => {
+            const dragging = dragId === item.id
+            return (
+              <li
+                key={item.id}
+                ref={(el) => {
+                  if (el) rowRefs.current.set(item.id, el)
+                  else rowRefs.current.delete(item.id)
                 }}
-                aria-label={item.done ? 'Mark not done' : 'Mark done'}
+                className="flex items-start gap-2 rounded-xl p-3"
+                style={{
+                  background: 'var(--sand-2)',
+                  border: `1px solid ${dragging ? 'rgba(224,136,83,0.5)' : 'rgba(14,58,72,0.08)'}`,
+                  boxShadow: dragging ? '0 8px 24px rgba(0,0,0,0.18)' : 'none',
+                  opacity: dragOrder && !dragging ? 0.85 : 1,
+                }}
               >
-                {item.done && <Check size={15} className="text-white" />}
-              </button>
-              <div className="min-w-0 flex-1">
-                <div
-                  className={`text-[15px] font-semibold text-navy ${item.done ? 'line-through opacity-55' : ''}`}
-                >
-                  {item.title}
-                </div>
-                {item.note && (
-                  <div className={`mt-0.5 text-[13px] leading-snug text-navy/65 ${item.done ? 'opacity-55' : ''}`}>
-                    {item.note}
-                  </div>
-                )}
-                <div className="mt-1 text-[12px] font-medium" style={{ color: 'var(--teal)' }}>
-                  — {nameFor(item.added_by)}
-                </div>
-              </div>
-              {isAdmin && (
                 <button
-                  onClick={() => removeItem(item.id)}
-                  className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-navy/40"
-                  aria-label={`Remove ${item.title}`}
+                  onClick={() => toggleDone(item.id, !item.done)}
+                  className="mt-0.5 grid h-6 w-6 flex-shrink-0 place-items-center rounded-md"
+                  style={{
+                    background: item.done ? 'var(--coral)' : 'var(--surface)',
+                    border: item.done ? 'none' : '1px solid rgba(14,58,72,0.25)',
+                  }}
+                  aria-label={item.done ? 'Mark not done' : 'Mark done'}
                 >
-                  <X size={15} />
+                  {item.done && <Check size={15} className="text-white" />}
                 </button>
-              )}
-            </li>
-          ))}
+                <div className="min-w-0 flex-1">
+                  <div
+                    className={`text-[15px] font-semibold text-navy ${item.done ? 'line-through opacity-55' : ''}`}
+                  >
+                    {item.title}
+                  </div>
+                  {item.note && (
+                    <div className={`mt-0.5 text-[13px] leading-snug text-navy/65 ${item.done ? 'opacity-55' : ''}`}>
+                      {item.note}
+                    </div>
+                  )}
+                  <div className="mt-1 text-[12px] font-medium" style={{ color: 'var(--teal)' }}>
+                    — {nameFor(item.added_by)}
+                  </div>
+                </div>
+                {isAdmin && (
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-navy/40"
+                    aria-label={`Remove ${item.title}`}
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+                {member && displayItems.length > 1 && (
+                  <button
+                    onPointerDown={(e) => beginDrag(e, item.id)}
+                    onPointerMove={onDragMove}
+                    onPointerUp={endDrag}
+                    onPointerCancel={endDrag}
+                    className="grid h-8 w-8 flex-shrink-0 cursor-grab touch-none place-items-center rounded-lg text-navy/30 active:cursor-grabbing"
+                    style={{ touchAction: 'none' }}
+                    aria-label={`Drag to reorder ${item.title}`}
+                  >
+                    <GripVertical size={16} />
+                  </button>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
 
+      {items.length > 1 && member && (
+        <p className="mt-2 text-[12px] italic text-navy/40">Drag the ⠿ handle to put activities in order.</p>
+      )}
       {items.length > 0 && member && !isAdmin && (
-        <p className="mt-2 text-[12px] italic text-navy/40">Ask Dad to remove anything the group drops.</p>
+        <p className="mt-1 text-[12px] italic text-navy/40">Ask Dad to remove anything the group drops.</p>
       )}
 
       {/* Add */}

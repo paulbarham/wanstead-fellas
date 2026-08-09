@@ -56,8 +56,15 @@ export interface DayPlanItem {
   title: string
   note: string | null
   done: boolean
+  /** Manual display order within the day (drag-to-reorder). */
+  sort: number
   added_by: string | null
   created_at: string
+}
+
+/** Order day-plan items by manual sort, then creation as a stable tiebreak. */
+export function sortDayPlan(a: DayPlanItem, b: DayPlanItem): number {
+  return (a.sort ?? 0) - (b.sort ?? 0) || a.created_at.localeCompare(b.created_at)
 }
 
 interface LocalState {
@@ -88,6 +95,8 @@ interface LocalState {
   addDayPlanItem: (item: DayPlanItem) => void
   removeDayPlanItem: (dayN: number, id: string) => void
   setDayPlanDone: (dayN: number, id: string, done: boolean) => void
+  /** Apply a manual order (list of ids) — sets each item's sort to its index. */
+  setDayPlanOrder: (dayN: number, orderedIds: string[]) => void
   /** Merge a remote snapshot of a day's plan into local state (by id). */
   mergeDayPlanItems: (dayN: number, items: DayPlanItem[]) => void
 
@@ -159,7 +168,7 @@ export const useLocalStore = create<LocalState>()(
         set((s) => {
           const list = s.dayPlans[item.day_n] ?? []
           if (list.some((i) => i.id === item.id)) return s
-          return { dayPlans: { ...s.dayPlans, [item.day_n]: [...list, item] } }
+          return { dayPlans: { ...s.dayPlans, [item.day_n]: [...list, item].sort(sortDayPlan) } }
         }),
 
       removeDayPlanItem: (dayN, id) =>
@@ -178,14 +187,24 @@ export const useLocalStore = create<LocalState>()(
           },
         })),
 
+      setDayPlanOrder: (dayN, orderedIds) =>
+        set((s) => {
+          const byId = new Map((s.dayPlans[dayN] ?? []).map((i) => [i.id, i]))
+          const next = orderedIds
+            .map((id, idx) => {
+              const it = byId.get(id)
+              return it ? { ...it, sort: idx } : null
+            })
+            .filter((i): i is DayPlanItem => i !== null)
+          return { dayPlans: { ...s.dayPlans, [dayN]: next } }
+        }),
+
       mergeDayPlanItems: (dayN, items) =>
         set((s) => {
           const byId = new Map<string, DayPlanItem>()
           for (const i of s.dayPlans[dayN] ?? []) byId.set(i.id, i)
           for (const i of items) byId.set(i.id, i)
-          const merged = [...byId.values()].sort((a, b) =>
-            a.created_at.localeCompare(b.created_at),
-          )
+          const merged = [...byId.values()].sort(sortDayPlan)
           return { dayPlans: { ...s.dayPlans, [dayN]: merged } }
         }),
 
