@@ -1,20 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import {
-  Lightbulb,
-  Plus,
-  MapPin,
-  X,
-  Landmark,
-  Mountain,
-  FerrisWheel,
-  Blocks,
-  Palette,
-  Trophy,
-  Ticket,
-  UtensilsCrossed,
-  ShoppingBag,
-} from 'lucide-react'
+import { Lightbulb, Plus, MapPin, X, Star, ExternalLink } from 'lucide-react'
 import type { Leg, Idea, IdeaCategory, IdeaSuits } from '../lib/itinerary'
+import { CATEGORY_META, PICKABLE_CATEGORIES } from '../lib/ideaCategories'
 import { useLegIdeas } from '../hooks/useLegIdeas'
 import { useAuth } from '../hooks/useAuth'
 import type { UserIdea } from '../store/local'
@@ -30,25 +17,10 @@ type Row = {
   note?: string | null
   category: IdeaCategory
   suits?: IdeaSuits
+  recommended?: boolean
+  url?: string
   addedBy?: string | null
 }
-
-const CATEGORY_META: {
-  key: IdeaCategory
-  label: string
-  Icon: typeof Landmark
-}[] = [
-  { key: 'sights', label: 'Sights & landmarks', Icon: Landmark },
-  { key: 'outdoors', label: 'Outdoors & nature', Icon: Mountain },
-  { key: 'rides', label: 'Theme parks & rides', Icon: FerrisWheel },
-  { key: 'playgrounds', label: 'Playgrounds & little ones', Icon: Blocks },
-  { key: 'cultural', label: 'Museums & culture', Icon: Palette },
-  { key: 'sports', label: 'Sports & games', Icon: Trophy },
-  { key: 'shows', label: 'Shows & nightlife', Icon: Ticket },
-  { key: 'food', label: 'Food & treats', Icon: UtensilsCrossed },
-  { key: 'shopping', label: 'Shopping', Icon: ShoppingBag },
-  { key: 'other', label: 'More ideas', Icon: Lightbulb },
-]
 
 const SUITS_META: Record<IdeaSuits, { label: string; bg: string; fg: string }> = {
   all: { label: 'All ages', bg: 'rgba(14,58,72,0.08)', fg: 'var(--teal, #4a8896)' },
@@ -56,9 +28,6 @@ const SUITS_META: Record<IdeaSuits, { label: string; bg: string; fg: string }> =
   teens: { label: 'Teens', bg: 'rgba(74,136,150,0.16)', fg: 'var(--teal, #4a8896)' },
   adults: { label: 'Grown-ups', bg: 'rgba(14,58,72,0.1)', fg: 'var(--navy, #0e3a48)' },
 }
-
-// Categories offered when the family adds their own idea (no 'other').
-const PICKABLE = CATEGORY_META.filter((c) => c.key !== 'other')
 
 /** "Things to do here" — seed suggestions + family-added ideas, grouped by
  *  category (sights, food, playgrounds, …) and tagged by who they suit. */
@@ -96,6 +65,8 @@ export default function LegIdeas({ leg }: Props) {
       note: idea.note,
       category: (idea.category ?? 'other') as IdeaCategory,
       suits: idea.suits,
+      recommended: idea.recommended,
+      url: idea.url,
     })),
     ...userIdeas.map((idea: UserIdea) => ({
       key: `user-${idea.id}`,
@@ -158,7 +129,7 @@ export default function LegIdeas({ leg }: Props) {
               className="mt-1 w-full rounded-lg bg-white px-3 py-2.5 text-[14px] outline-none"
               style={{ border: '1px solid rgba(14,58,72,0.18)' }}
             >
-              {PICKABLE.map((c) => (
+              {PICKABLE_CATEGORIES.map((c) => (
                 <option key={c.key} value={c.key}>
                   {c.label}
                 </option>
@@ -216,6 +187,14 @@ export default function LegIdeas({ leg }: Props) {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="text-[15px] font-semibold text-navy">{row.title}</span>
+                        {row.recommended && (
+                          <span
+                            className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+                            style={{ background: 'var(--coral)' }}
+                          >
+                            <Star size={9} fill="currentColor" strokeWidth={0} /> Must-do
+                          </span>
+                        )}
                         {suits && (
                           <span
                             className="rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
@@ -234,6 +213,18 @@ export default function LegIdeas({ leg }: Props) {
                         </div>
                       )}
                     </div>
+                    {row.url && (
+                      <a
+                        href={row.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg"
+                        style={{ background: 'var(--sand-2)' }}
+                        aria-label={`Open the ${row.title} website`}
+                      >
+                        <ExternalLink size={14} style={{ color: 'var(--teal)' }} />
+                      </a>
+                    )}
                     <a
                       href={mapsUrl(row.title)}
                       target="_blank"

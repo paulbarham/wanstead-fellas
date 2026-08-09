@@ -94,6 +94,20 @@ describe('itinerary data', () => {
     }
   })
 
+  it('includes Musée Mécanique in the SF ideas with its link', () => {
+    const musee = getLeg('sf')?.ideas?.find((i) => i.title === 'Musée Mécanique')
+    expect(musee).toBeTruthy()
+    expect(musee?.url).toBe('https://museemecanique.com/visit')
+  })
+
+  it('flags a handful of must-do ideas in every leg', () => {
+    for (const leg of legs) {
+      const recs = (leg.ideas ?? []).filter((i) => i.recommended)
+      expect(recs.length).toBeGreaterThanOrEqual(5)
+      expect(recs.length).toBeLessThanOrEqual(10)
+    }
+  })
+
   it('slugKey produces stable primary keys', () => {
     expect(slugKey('Muir Woods parking / shuttle reservation')).toBe(
       'muir-woods-parking-shuttle-reservation',

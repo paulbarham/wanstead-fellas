@@ -42,6 +42,10 @@ export interface Idea {
   note?: string
   category?: IdeaCategory
   suits?: IdeaSuits
+  /** Optional external link for research (official site, tickets…). */
+  url?: string
+  /** A "must-do" — the headline things worth prioritising in this place. */
+  recommended?: boolean
 }
 
 export interface TripDay {

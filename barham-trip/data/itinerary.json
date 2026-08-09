@@ -20,19 +20,29 @@
           "title": "Alcatraz Island",
           "category": "sights",
           "suits": "all",
-          "note": "Former island prison — the audio tour narrated by ex-guards and inmates is gripping. Pre-book, it sells out."
+          "note": "Former island prison — the audio tour narrated by ex-guards and inmates is gripping. Pre-book, it sells out.",
+          "recommended": true
         },
         {
           "title": "Ride a cable car",
           "category": "sights",
           "suits": "all",
-          "note": "The Powell-Hyde line climbs past the Lombard Street zig-zags — hang off the side."
+          "note": "The Powell-Hyde line climbs past the Lombard Street zig-zags — hang off the side.",
+          "recommended": true
         },
         {
           "title": "Fisherman's Wharf & Pier 39",
           "category": "sights",
           "suits": "all",
-          "note": "The barking sea lions on the docks are a hit with the little ones. Skip the seafood stalls — plenty else to eat here."
+          "note": "The barking sea lions on the docks are a hit with the little ones. Skip the seafood stalls — plenty else to eat here.",
+          "recommended": true
+        },
+        {
+          "title": "Musée Mécanique",
+          "category": "cultural",
+          "suits": "all",
+          "url": "https://museemecanique.com/visit",
+          "note": "A free museum of working antique arcade machines at Fisherman’s Wharf — bring a pocket of quarters and let the kids play. One of the largest collections of its kind in the world."
         },
         {
           "title": "Painted Ladies, Alamo Square",
@@ -50,13 +60,15 @@
           "title": "Walk or cycle the Golden Gate Bridge",
           "category": "outdoors",
           "suits": "all",
-          "note": "Ride over to the harbour town of Sausalito, then ferry back with the bikes."
+          "note": "Ride over to the harbour town of Sausalito, then ferry back with the bikes.",
+          "recommended": true
         },
         {
           "title": "Muir Woods",
           "category": "outdoors",
           "suits": "all",
-          "note": "Towering old-growth redwoods 30 mins north. Cool and shaded — good for a hot day. Book parking ahead."
+          "note": "Towering old-growth redwoods 30 mins north. Cool and shaded — good for a hot day. Book parking ahead.",
+          "recommended": true
         },
         {
           "title": "Twin Peaks at sunset",
@@ -68,7 +80,8 @@
           "title": "Exploratorium",
           "category": "cultural",
           "suits": "all",
-          "note": "Hands-on science playground on the waterfront — brilliant for the younger ones, and the teens get sucked in too."
+          "note": "Hands-on science playground on the waterfront — brilliant for the younger ones, and the teens get sucked in too.",
+          "recommended": true
         },
         {
           "title": "California Academy of Sciences",
@@ -273,19 +286,22 @@
           "title": "17-Mile Drive",
           "category": "outdoors",
           "suits": "all",
-          "note": "Scenic toll road past the Lone Cypress and Pebble Beach. Slow, beautiful, lots of pull-offs."
+          "note": "Scenic toll road past the Lone Cypress and Pebble Beach. Slow, beautiful, lots of pull-offs.",
+          "recommended": true
         },
         {
           "title": "Bixby Creek Bridge",
           "category": "outdoors",
           "suits": "all",
-          "note": "The iconic Big Sur arch bridge — pull into the viewpoint just north for the classic shot."
+          "note": "The iconic Big Sur arch bridge — pull into the viewpoint just north for the classic shot.",
+          "recommended": true
         },
         {
           "title": "McWay Falls",
           "category": "outdoors",
           "suits": "all",
-          "note": "An 80ft waterfall dropping onto a hidden beach. Short easy walk from the car park."
+          "note": "An 80ft waterfall dropping onto a hidden beach. Short easy walk from the car park.",
+          "recommended": true
         },
         {
           "title": "Pfeiffer Beach",
@@ -303,7 +319,8 @@
           "title": "Elephant seal rookery, Piedras Blancas",
           "category": "outdoors",
           "suits": "all",
-          "note": "Hundreds of elephant seals hauled out yards from a free boardwalk. A guaranteed wildlife win for the kids."
+          "note": "Hundreds of elephant seals hauled out yards from a free boardwalk. A guaranteed wildlife win for the kids.",
+          "recommended": true
         },
         {
           "title": "Morro Bay",
@@ -321,13 +338,15 @@
           "title": "Hearst Castle",
           "category": "cultural",
           "suits": "all",
-          "note": "The over-the-top hilltop mansion of a newspaper tycoon. Pre-book the timed tour bus from the visitor centre."
+          "note": "The over-the-top hilltop mansion of a newspaper tycoon. Pre-book the timed tour bus from the visitor centre.",
+          "recommended": true
         },
         {
           "title": "Monterey Bay Aquarium",
           "category": "cultural",
           "suits": "all",
-          "note": "World-class aquarium — the kelp forest and touch pools are a firm favourite with younger ones. Dated tickets are cheaper."
+          "note": "World-class aquarium — the kelp forest and touch pools are a firm favourite with younger ones. Dated tickets are cheaper.",
+          "recommended": true
         },
         {
           "title": "Dennis the Menace Park, Monterey",
@@ -433,13 +452,15 @@
           "title": "Santa Monica Pier & Pacific Park",
           "category": "rides",
           "suits": "all",
-          "note": "The end of Route 66 — a small amusement park with a Ferris wheel and coaster right over the ocean."
+          "note": "The end of Route 66 — a small amusement park with a Ferris wheel and coaster right over the ocean.",
+          "recommended": true
         },
         {
           "title": "Cycle the beach path to Venice",
           "category": "sports",
           "suits": "all",
-          "note": "Hire cruiser bikes and ride the flat 3-mile path along the sand to Venice and back."
+          "note": "Hire cruiser bikes and ride the flat 3-mile path along the sand to Venice and back.",
+          "recommended": true
         },
         {
           "title": "Beginner surf lesson",
@@ -451,7 +472,8 @@
           "title": "Venice Beach boardwalk & Muscle Beach",
           "category": "sights",
           "suits": "all",
-          "note": "Street performers, skate park and the famous outdoor gym. Busy, colourful and free."
+          "note": "Street performers, skate park and the famous outdoor gym. Busy, colourful and free.",
+          "recommended": true
         },
         {
           "title": "Venice Canals",
@@ -463,13 +485,15 @@
           "title": "Malibu beaches (El Matador)",
           "category": "outdoors",
           "suits": "all",
-          "note": "Sea caves and rock arches a short drive up the coast. Steep steps down, so wear proper shoes."
+          "note": "Sea caves and rock arches a short drive up the coast. Steep steps down, so wear proper shoes.",
+          "recommended": true
         },
         {
           "title": "Getty Villa",
           "category": "cultural",
           "suits": "all",
-          "note": "A recreated Roman villa full of antiquities above the Malibu coast. Free entry, timed ticket needed."
+          "note": "A recreated Roman villa full of antiquities above the Malibu coast. Free entry, timed ticket needed.",
+          "recommended": true
         },
         {
           "title": "Tongva Park playground",
@@ -587,31 +611,36 @@
           "title": "Hollywood Walk of Fame & TCL Chinese Theatre",
           "category": "sights",
           "suits": "all",
-          "note": "The stars and the hand-prints in the forecourt. Busy and a bit gritty — go early."
+          "note": "The stars and the hand-prints in the forecourt. Busy and a bit gritty — go early.",
+          "recommended": true
         },
         {
           "title": "Griffith Observatory",
           "category": "sights",
           "suits": "all",
-          "note": "Free observatory with the best Hollywood Sign view and evening telescopes. Stunning at sunset."
+          "note": "Free observatory with the best Hollywood Sign view and evening telescopes. Stunning at sunset.",
+          "recommended": true
         },
         {
           "title": "Universal Studios Hollywood",
           "category": "rides",
           "suits": "all",
-          "note": "Theme park + working studio backlot tram. The Wizarding World and Mario Land are the headliners. Consider Express in August."
+          "note": "Theme park + working studio backlot tram. The Wizarding World and Mario Land are the headliners. Consider Express in August.",
+          "recommended": true
         },
         {
           "title": "Disneyland / California Adventure",
           "category": "rides",
           "suits": "all",
-          "note": "The original Disneyland. Needs a dated ticket AND a park reservation — sort both ahead and set up Genie+."
+          "note": "The original Disneyland. Needs a dated ticket AND a park reservation — sort both ahead and set up Genie+.",
+          "recommended": true
         },
         {
           "title": "Six Flags Magic Mountain",
           "category": "rides",
           "suits": "teens",
-          "note": "The coaster capital — record-breaking thrill rides. The teens’ day; not for the little ones."
+          "note": "The coaster capital — record-breaking thrill rides. The teens’ day; not for the little ones.",
+          "recommended": true
         },
         {
           "title": "Warner Bros. Studio Tour",
@@ -641,7 +670,8 @@
           "title": "Getty Center",
           "category": "cultural",
           "suits": "all",
-          "note": "Hilltop art museum reached by a little tram, with gardens and huge city views. Free entry."
+          "note": "Hilltop art museum reached by a little tram, with gardens and huge city views. Free entry.",
+          "recommended": true
         },
         {
           "title": "Griffith Park & LA Zoo",
@@ -912,13 +942,15 @@
           "title": "The Strip after dark",
           "category": "sights",
           "suits": "all",
-          "note": "Walk the neon between the mega-resorts — the Bellagio fountains, the Venetian and the fake landmarks. Free and dazzling."
+          "note": "Walk the neon between the mega-resorts — the Bellagio fountains, the Venetian and the fake landmarks. Free and dazzling.",
+          "recommended": true
         },
         {
           "title": "High Roller observation wheel",
           "category": "sights",
           "suits": "all",
-          "note": "The giant Ferris wheel at The LINQ — a 30-min ride with the best view over the valley, best at dusk."
+          "note": "The giant Ferris wheel at The LINQ — a 30-min ride with the best view over the valley, best at dusk.",
+          "recommended": true
         },
         {
           "title": "Seven Magic Mountains",
@@ -930,13 +962,15 @@
           "title": "Hoover Dam",
           "category": "sights",
           "suits": "all",
-          "note": "An engineering marvel 45 mins out. Walk across into Arizona; the dam tour is worth the ticket."
+          "note": "An engineering marvel 45 mins out. Walk across into Arizona; the dam tour is worth the ticket.",
+          "recommended": true
         },
         {
           "title": "Grand Canyon West / Skywalk",
           "category": "outdoors",
           "suits": "all",
-          "note": "The nearest rim to Vegas (2.5 hrs), with the glass Skywalk out over the canyon. Book the West Rim package ahead."
+          "note": "The nearest rim to Vegas (2.5 hrs), with the glass Skywalk out over the canyon. Book the West Rim package ahead.",
+          "recommended": true
         },
         {
           "title": "Red Rock Canyon",
@@ -984,7 +1018,8 @@
           "title": "Fremont Street Experience",
           "category": "shows",
           "suits": "all",
-          "note": "Old downtown Vegas under a giant LED canopy — free light shows, buskers and a zipline overhead."
+          "note": "Old downtown Vegas under a giant LED canopy — free light shows, buskers and a zipline overhead.",
+          "recommended": true
         },
         {
           "title": "A family show",

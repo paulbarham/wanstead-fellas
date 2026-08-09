@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react'
-import { ListChecks, Plus, X, Check } from 'lucide-react'
-import type { TripDay } from '../lib/itinerary'
+import { useMemo, useState, type FormEvent } from 'react'
+import { ListChecks, Plus, X, Check, Star, Search } from 'lucide-react'
+import type { TripDay, Idea, IdeaCategory } from '../lib/itinerary'
 import { getLegForDay } from '../lib/itinerary'
+import { CATEGORY_META } from '../lib/ideaCategories'
 import { useDayPlan } from '../hooks/useDayPlan'
 import { useAuth } from '../hooks/useAuth'
 
@@ -9,14 +10,17 @@ interface Props {
   day: TripDay
 }
 
+const categoryLabel = (cat?: IdeaCategory) =>
+  CATEGORY_META.find((c) => c.key === (cat ?? 'other'))?.label ?? 'More ideas'
+
 /** "Plan for the day" — the family-curated list of activities for this day.
- *  Add from the place's things-to-do (or type your own), tick them off, and
- *  remove any the group decides against. Shared and offline-safe. */
+ *  Search the place's things-to-do (must-dos first, grouped by category) or
+ *  type your own, tick them off, and remove any the group decides against. */
 export default function DayPlan({ day }: Props) {
   const { items, addItem, toggleDone, removeItem } = useDayPlan(day.n)
   const { member, members, isAdmin } = useAuth()
   const leg = getLegForDay(day.n)
-  const ideas = leg?.ideas ?? []
+  const ideas = useMemo(() => leg?.ideas ?? [], [leg])
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
@@ -25,9 +29,31 @@ export default function DayPlan({ day }: Props) {
   const nameFor = (id: string | null | undefined) =>
     id ? members.find((m) => m.id === id)?.display_name ?? 'Someone' : 'Someone'
 
-  function pickIdea(value: string) {
-    const idea = ideas.find((i) => i.title === value)
-    if (!idea) return
+  const q = title.trim().toLowerCase()
+
+  // Suggestions matching what's typed (title or note). Empty query → everything.
+  const matches = useMemo(
+    () =>
+      ideas.filter(
+        (i) =>
+          !q ||
+          i.title.toLowerCase().includes(q) ||
+          (i.note ?? '').toLowerCase().includes(q),
+      ),
+    [ideas, q],
+  )
+  const mustDo = matches.filter((i) => i.recommended)
+  const searchResults = [
+    ...matches.filter((i) => i.recommended),
+    ...matches.filter((i) => !i.recommended),
+  ]
+  // When browsing (no query), group the non-must-do items by category.
+  const groups = CATEGORY_META.map((meta) => ({
+    ...meta,
+    items: matches.filter((i) => (i.category ?? 'other') === meta.key && !i.recommended),
+  })).filter((g) => g.items.length > 0)
+
+  function pick(idea: Idea) {
     setTitle(idea.title)
     setNote(idea.note ?? '')
   }
@@ -41,7 +67,43 @@ export default function DayPlan({ day }: Props) {
     setOpen(false)
   }
 
+  function cancel() {
+    setOpen(false)
+    setTitle('')
+    setNote('')
+  }
+
   const done = items.filter((i) => i.done).length
+
+  function Suggestion({ idea, showCategory }: { idea: Idea; showCategory?: boolean }) {
+    const selected = idea.title === title
+    return (
+      <button
+        type="button"
+        onClick={() => pick(idea)}
+        className="flex w-full items-start gap-2 px-3 py-2 text-left active:opacity-70"
+        style={{ background: selected ? 'var(--sand-2)' : 'transparent' }}
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="truncate text-[14px] font-semibold text-navy">{idea.title}</span>
+            {idea.recommended && (
+              <Star size={12} fill="var(--coral)" strokeWidth={0} />
+            )}
+            {showCategory && (
+              <span className="text-[11px] font-medium text-navy/40">{categoryLabel(idea.category)}</span>
+            )}
+          </div>
+          {idea.note && <div className="mt-0.5 truncate text-[12px] text-navy/55">{idea.note}</div>}
+        </div>
+        {selected ? (
+          <Check size={16} className="mt-0.5 flex-shrink-0" style={{ color: 'var(--teal)' }} />
+        ) : (
+          <Plus size={16} className="mt-0.5 flex-shrink-0 text-navy/35" />
+        )}
+      </button>
+    )
+  }
 
   return (
     <section
@@ -64,7 +126,7 @@ export default function DayPlan({ day }: Props) {
 
       {items.length === 0 ? (
         <p className="mt-1 text-[13px] text-navy/60">
-          Nothing planned yet. Add activities from the ideas below — or your own — and tick them off as you go.
+          Nothing planned yet. Add activities from the ideas here — or your own — and tick them off as you go.
         </p>
       ) : (
         <ul className="mt-3 space-y-2">
@@ -122,35 +184,63 @@ export default function DayPlan({ day }: Props) {
       {member &&
         (open ? (
           <form onSubmit={handleAdd} className="mt-3 rounded-xl p-3" style={{ background: 'var(--sand-2)' }}>
+            {/* Type-to-search over the place's things to do (or type your own). */}
+            <div className="relative">
+              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-navy/35" />
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Search activities or type your own"
+                autoFocus
+                className="w-full rounded-lg bg-white py-2.5 pl-9 pr-3 text-[15px] outline-none"
+                style={{ border: '1px solid rgba(14,58,72,0.18)' }}
+              />
+            </div>
+
             {ideas.length > 0 && (
-              <>
-                <label className="block text-[12px] font-semibold text-navy/60">
-                  Pick from things to do here
-                </label>
-                <select
-                  value=""
-                  onChange={(e) => pickIdea(e.target.value)}
-                  className="mt-1 w-full rounded-lg bg-white px-3 py-2.5 text-[14px] outline-none"
-                  style={{ border: '1px solid rgba(14,58,72,0.18)' }}
-                >
-                  <option value="">Choose an activity…</option>
-                  {ideas.map((idea) => (
-                    <option key={idea.title} value={idea.title}>
-                      {idea.title}
-                    </option>
-                  ))}
-                </select>
-                <div className="my-2 text-center text-[12px] font-medium text-navy/40">or add your own</div>
-              </>
+              <div
+                className="mt-2 max-h-64 overflow-y-auto rounded-lg bg-white"
+                style={{ border: '1px solid rgba(14,58,72,0.14)' }}
+              >
+                {q !== '' ? (
+                  searchResults.length > 0 ? (
+                    <div className="divide-y" style={{ borderColor: 'rgba(14,58,72,0.06)' }}>
+                      {searchResults.map((idea) => (
+                        <Suggestion key={idea.title} idea={idea} showCategory />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="px-3 py-3 text-[13px] text-navy/55">
+                      No matches — tap “Add to the day” to create “{title.trim()}”.
+                    </div>
+                  )
+                ) : (
+                  <>
+                    {mustDo.length > 0 && (
+                      <div>
+                        <GroupHeader Icon={Star} label="Must-do" count={mustDo.length} />
+                        <div className="divide-y" style={{ borderColor: 'rgba(14,58,72,0.06)' }}>
+                          {mustDo.map((idea) => (
+                            <Suggestion key={idea.title} idea={idea} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {groups.map((g) => (
+                      <div key={g.key}>
+                        <GroupHeader Icon={g.Icon} label={g.label} count={g.items.length} />
+                        <div className="divide-y" style={{ borderColor: 'rgba(14,58,72,0.06)' }}>
+                          {g.items.map((idea) => (
+                            <Suggestion key={idea.title} idea={idea} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
             )}
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Activity (e.g. Breakfast at Porto's)"
-              autoFocus
-              className="w-full rounded-lg bg-white px-3 py-2.5 text-[15px] outline-none"
-              style={{ border: '1px solid rgba(14,58,72,0.18)' }}
-            />
+
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -164,11 +254,7 @@ export default function DayPlan({ day }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setOpen(false)
-                  setTitle('')
-                  setNote('')
-                }}
+                onClick={cancel}
                 className="rounded-xl px-4 font-semibold text-navy/70"
                 style={{ border: '1px solid rgba(14,58,72,0.18)', minHeight: 44 }}
               >
@@ -186,5 +272,26 @@ export default function DayPlan({ day }: Props) {
           </button>
         ))}
     </section>
+  )
+}
+
+function GroupHeader({
+  Icon,
+  label,
+  count,
+}: {
+  Icon: typeof Star
+  label: string
+  count: number
+}) {
+  return (
+    <div
+      className="flex items-center gap-1.5 px-3 py-1.5"
+      style={{ background: 'var(--sand-2)' }}
+    >
+      <Icon size={13} style={{ color: 'var(--coral-dark)' }} />
+      <span className="text-[11px] font-bold uppercase tracking-wide text-navy/55">{label}</span>
+      <span className="text-[11px] font-semibold text-navy/30">{count}</span>
+    </div>
   )
 }
