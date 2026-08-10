@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { ListChecks, Plus, X, Check, Star, Search, GripVertical, CalendarArrowUp } from 'lucide-react'
 import type { TripDay, Idea, IdeaCategory } from '../lib/itinerary'
 import { getLegForDay, getDay } from '../lib/itinerary'
@@ -48,9 +48,22 @@ export default function DayPlan({ day }: Props) {
   const reorderRef = useRef(reorder)
   reorderRef.current = reorder
 
-  const displayItems = dragOrder
-    ? (dragOrder.map((id) => items.find((i) => i.id === id)).filter(Boolean) as typeof items)
-    : items
+  // Order by the live drag snapshot when dragging, but ALWAYS append any items
+  // not in that snapshot so nothing can ever be hidden by stale drag state.
+  const displayItems = useMemo(() => {
+    if (!dragOrder) return items
+    const ordered = dragOrder
+      .map((id) => items.find((i) => i.id === id))
+      .filter((i): i is (typeof items)[number] => Boolean(i))
+    const missing = items.filter((i) => !dragOrder.includes(i.id))
+    return [...ordered, ...missing]
+  }, [dragOrder, items])
+
+  // Safety net: if a drag ever fails to end cleanly, never let the leftover
+  // order hide items — clear it whenever we're not actively dragging.
+  useEffect(() => {
+    if (dragOrder && !dragRef.current) setDragOrder(null)
+  }, [items, dragOrder])
 
   function beginDrag(e: ReactPointerEvent, id: string) {
     e.preventDefault()
