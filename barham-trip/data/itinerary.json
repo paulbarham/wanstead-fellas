@@ -162,6 +162,55 @@
           "suits": "all",
           "note": "The definitive giant SF burrito. Cheap, filling and easy for fussy eaters.",
           "area": "Mission & Alamo Square"
+        },
+        {
+          "title": "Presidio Tunnel Tops",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Free clifftop park looking straight at the Golden Gate, with the Outpost playground for the twins. Open 9.30am-6pm. Exposed and windy - take layers.",
+          "area": "Golden Gate & Presidio"
+        },
+        {
+          "title": "Hyde Street Pier historic ships",
+          "category": "cultural",
+          "suits": "all",
+          "note": "Six historic vessels you can board, including the square-rigger Balclutha. Right where the Powell-Hyde cable car ends. Open 10-4, $15 adults, under-16s free.",
+          "area": "Fisherman’s Wharf & waterfront"
+        },
+        {
+          "title": "The Wave Organ",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "A wave-powered sound sculpture at the end of the yacht harbour jetty - it gurgles and booms with the swell. Free, best at higher tide, 10 mins out and back from Marina Green.",
+          "area": "Golden Gate & Presidio"
+        },
+        {
+          "title": "Palace of Fine Arts",
+          "category": "sights",
+          "suits": "all",
+          "note": "Greco-Roman rotunda and a duck lagoon left over from the 1915 world's fair. Free, always open, two blocks from Lucca Deli.",
+          "area": "Golden Gate & Presidio"
+        },
+        {
+          "title": "Fort Point",
+          "category": "cultural",
+          "suits": "all",
+          "note": "1850s brick fort tucked directly under the bridge's southern anchorage. Free. Open Mon, Thu-Sun 10-5 - shut Tuesday and Wednesday.",
+          "area": "Golden Gate & Presidio"
+        },
+        {
+          "title": "Crissy Field",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Flat waterfront path and beach between the Marina and the bridge, with the Warming Hut cafe at the far end. Easiest spot to pick up a taxi near the Presidio.",
+          "area": "Golden Gate & Presidio"
+        },
+        {
+          "title": "Lucca Delicatessen, Marina",
+          "category": "food",
+          "suits": "all",
+          "note": "Old-school Italian deli at 2120 Chestnut St - sandwiches $12-15 plus cheese and crackers. The picnic stop for Tunnel Tops. Open 9-6; order ahead at luccadeli.com, it gets packed at lunch.",
+          "area": "Golden Gate & Presidio"
         }
       ],
       "stays": [
@@ -239,7 +288,14 @@
           "options": [
             {
               "kind": "recommended",
-              "badge": "GOLDEN GATE",
+              "badge": "ON FOOT",
+              "title": "Cable car, the bay walk & a Tunnel Tops picnic",
+              "plan": "No car needed. Queue at Powell/Market by 9am for the Powell-Hyde cable car; off at Lombard Street for the zig-zag, then on to the end. Hyde Street Pier historic ships (opens 10), Ghirardelli sundaes, then the flat waterfront walk west - Fort Mason, the Wave Organ, Palace of Fine Arts - picking up the picnic at Lucca Deli on Chestnut St. Picnic at Presidio Tunnel Tops from about 1pm once the fog has burned off, then on to Fort Point and out onto the bridge itself. Taxi any leg that's too far.",
+              "food": "Picnic from Lucca Delicatessen, 2120 Chestnut St - order ahead. Ghirardelli sundaes mid-morning."
+            },
+            {
+              "kind": "alternative",
+              "badge": "IF YOU HIRE BIKES",
               "title": "Cycle the bridge to Sausalito",
               "plan": "Hire bikes near the Wharf and ride the waterfront path across the Golden Gate Bridge to the pretty harbour town of Sausalito, then let the ferry carry you — and the bikes — back to the city.",
               "food": "Burgers and wood-fired pizza with a marina view at Barrel House Tavern, Sausalito."
@@ -260,8 +316,8 @@
             }
           ],
           "tip": {
-            "label": "Layers",
-            "body": "The bridge is 10°C colder and windier than downtown, even in August. Everyone takes a jumper — no exceptions."
+            "label": "Layers & taxis",
+            "body": "The bridge is 10C colder and windier than downtown even in August, and the fog usually doesn't clear till midday - hence the afternoon picnic. Jumpers for all six. Taxis are scarce inside the Presidio: book the ride back before you finish eating, or walk down to Crissy Field."
           }
         },
         {
@@ -636,6 +692,13 @@
               "title": "Family surf lesson",
               "plan": "Book a group beginner surf lesson on the mellow Santa Monica or Venice breaks — instructors are used to kids and everyone stands up eventually.",
               "food": "Well-earned brunch on Main Street, Santa Monica."
+            },
+            {
+              "kind": "alternative",
+              "badge": "EVENING FIXTURE",
+              "title": "LAFC vs San Diego FC (Son Heung-min)",
+              "plan": "Wrap the beach day early and head to BMO Stadium for a 7:30 PM MLS derby — Son Heung-min's LAFC host newly-formed San Diego FC. ~25-30 min drive from Santa Monica; use Uber, parking around the stadium is a nightmare. Book via Ticketmaster (official) or TickPick (resale) — Son fixtures are moving fast, and tickets start ~$52 pp.",
+              "food": "Loaded fries and beer at the BMO Stadium concessions, or a proper dinner in Downtown LA on the way home."
             }
           ],
           "tip": {
@@ -1281,6 +1344,13 @@
               "title": "Red Rock Canyon loop",
               "plan": "Swap the dam for the scenic 13-mile loop drive through the red sandstone of Red Rock Canyon, 30 minutes the other side of the Strip.",
               "food": "Picnic at a Red Rock overlook, or back to the Strip."
+            },
+            {
+              "kind": "alternative",
+              "badge": "NFL EVENING",
+              "title": "Raiders vs 49ers (preseason, Paul + Amelia)",
+              "plan": "5:00 PM kickoff at Allegiant Stadium — Raiders' final preseason game vs the San Francisco 49ers. Just for Paul + Amelia; the rest of the family stay at the Luxor / by the pool. Uber from the Strip; doors open 3 PM. Preseason resale prices tend to fall in the last week — cheap seats from ~$8, decent pair together $150-300.",
+              "food": "Stadium food is fine; grab dinner properly back on the Strip after."
             }
           ],
           "tip": {
@@ -1425,8 +1495,12 @@
       "note": "Book the Skywalk / West Rim package and confirm the pickup or self-drive parking."
     },
     {
-      "name": "Las Vegas Raiders tickets",
-      "note": "NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together."
+      "name": "LAFC vs San Diego FC tickets ×6",
+      "note": "MLS regular season: Sat 15 Aug 2026, 7:30 PM PT, BMO Stadium (Los Angeles). Son Heung-min's LAFC host San Diego FC. Book asap — Son fixtures are selling fast. Starts ~$52 pp on TickPick; officially via Ticketmaster. Uber from Santa Monica (~25-30 min)."
+    },
+    {
+      "name": "Las Vegas Raiders vs 49ers tickets ×2",
+      "note": "NFL preseason Week 3: Thu 27 Aug 2026, 5:00 PM PT, Allegiant Stadium. Paul + Amelia only. On sale via Ticketmaster (official) — resale on StubHub / TickPick / Gametime usually cheaper for preseason. Budget $150–300 for 2 lower-bowl seats; can wait ~1 week out for prices to drop."
     }
   ],
   "packing": [

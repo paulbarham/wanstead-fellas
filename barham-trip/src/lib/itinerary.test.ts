@@ -31,9 +31,11 @@ describe('itinerary data', () => {
     }
   })
 
-  it('alternatives never exceed two (alt1 / alt2 slots)', () => {
+  it('keeps the alternatives list to a sane length', () => {
+    // (Voting's alt1/alt2 slots are retired; the day page renders all
+    //  alternatives in a grid, so a few is fine — just not unbounded.)
     for (const day of allDays) {
-      expect(alternativeOptions(day).length).toBeLessThanOrEqual(2)
+      expect(alternativeOptions(day).length).toBeLessThanOrEqual(4)
     }
   })
 
@@ -44,7 +46,7 @@ describe('itinerary data', () => {
   })
 
   it('has the expected checklist counts', () => {
-    expect(bookings.length).toBe(20)
+    expect(bookings.length).toBe(21)
     expect(packing.length).toBe(10)
     expect(costs.length).toBeGreaterThan(0)
   })

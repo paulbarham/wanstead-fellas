@@ -422,7 +422,8 @@ select v.name, v.note, v.sort from (values
   ('W Las Vegas', '23–24 Aug (1 night).', 16),
   ('Luxor Hotel & Casino', '24–29 Aug (5 nights).', 17),
   ('Grand Canyon West day tour', 'Book the Skywalk / West Rim package and confirm the pickup or self-drive parking.', 18),
-  ('Las Vegas Raiders tickets', 'NFL game at Allegiant Stadium, Las Vegas — check the August fixtures fall within our Vegas dates (23–29 Aug) and book seats together.', 19)
+  ('LAFC vs San Diego FC tickets ×6', 'MLS regular season: Sat 15 Aug 2026, 7:30 PM PT, BMO Stadium (Los Angeles). Son Heung-min''s LAFC host San Diego FC. Book asap — Son fixtures are selling fast. Starts ~$52 pp on TickPick; officially via Ticketmaster. Uber from Santa Monica (~25-30 min).', 19),
+  ('Las Vegas Raiders vs 49ers tickets ×2', 'NFL preseason Week 3: Thu 27 Aug 2026, 5:00 PM PT, Allegiant Stadium. Paul + Amelia only. On sale via Ticketmaster (official) — resale on StubHub / TickPick / Gametime usually cheaper for preseason. Budget $150–300 for 2 lower-bowl seats; can wait ~1 week out for prices to drop.', 20)
 ) as v(name, note, sort)
 where not exists (select 1 from public.bookings);
 
