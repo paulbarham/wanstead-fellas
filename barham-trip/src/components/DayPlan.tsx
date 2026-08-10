@@ -1,11 +1,13 @@
 import { useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
-import { ListChecks, Plus, X, Check, Star, Search, GripVertical } from 'lucide-react'
+import { ListChecks, Plus, X, Check, Star, Search, GripVertical, CalendarArrowUp } from 'lucide-react'
 import type { TripDay, Idea, IdeaCategory } from '../lib/itinerary'
-import { getLegForDay } from '../lib/itinerary'
+import { getLegForDay, getDay } from '../lib/itinerary'
 import { CATEGORY_META } from '../lib/ideaCategories'
 import { arrayMove } from '../lib/arrayMove'
 import { useDayPlan } from '../hooks/useDayPlan'
 import { useAuth } from '../hooks/useAuth'
+import type { DayPlanItem } from '../store/local'
+import MoveDaySheet from './MoveDaySheet'
 
 interface Props {
   day: TripDay
@@ -18,8 +20,21 @@ const categoryLabel = (cat?: IdeaCategory) =>
  *  Search the place's things-to-do (must-dos first, grouped by category) or
  *  type your own, tick them off, and remove any the group decides against. */
 export default function DayPlan({ day }: Props) {
-  const { items, addItem, toggleDone, removeItem, reorder } = useDayPlan(day.n)
+  const { items, addItem, toggleDone, removeItem, reorder, moveItem } = useDayPlan(day.n)
   const { member, members, isAdmin } = useAuth()
+
+  const [movingItem, setMovingItem] = useState<DayPlanItem | null>(null)
+  const [flash, setFlash] = useState<string | null>(null)
+
+  async function handleMove(toDay: number) {
+    const item = movingItem
+    setMovingItem(null)
+    if (!item) return
+    await moveItem(item.id, toDay)
+    const d = getDay(toDay)
+    setFlash(d ? `Moved “${item.title}” to ${d.weekday} ${d.date}` : 'Moved')
+    window.setTimeout(() => setFlash(null), 2600)
+  }
   const leg = getLegForDay(day.n)
   const ideas = useMemo(() => leg?.ideas ?? [], [leg])
 
@@ -182,6 +197,15 @@ export default function DayPlan({ day }: Props) {
         )}
       </div>
 
+      {flash && (
+        <div
+          className="mt-2 rounded-lg px-3 py-2 text-[13px] font-semibold"
+          style={{ background: 'var(--sand)', color: 'var(--coral-dark)' }}
+        >
+          ✓ {flash}
+        </div>
+      )}
+
       {items.length === 0 ? (
         <p className="mt-1 text-[13px] text-navy/60">
           Nothing planned yet. Add activities from the ideas here — or your own — and tick them off as you go.
@@ -231,6 +255,15 @@ export default function DayPlan({ day }: Props) {
                     — {nameFor(item.added_by)}
                   </div>
                 </div>
+                {member && (
+                  <button
+                    onClick={() => setMovingItem(item)}
+                    className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-navy/40"
+                    aria-label={`Move ${item.title} to another day`}
+                  >
+                    <CalendarArrowUp size={15} />
+                  </button>
+                )}
                 {isAdmin && (
                   <button
                     onClick={() => removeItem(item.id)}
@@ -354,6 +387,15 @@ export default function DayPlan({ day }: Props) {
             <Plus size={16} /> Add an activity
           </button>
         ))}
+
+      {movingItem && (
+        <MoveDaySheet
+          title={movingItem.title}
+          currentDay={day.n}
+          onPick={handleMove}
+          onClose={() => setMovingItem(null)}
+        />
+      )}
     </section>
   )
 }

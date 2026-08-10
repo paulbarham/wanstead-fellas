@@ -44,6 +44,7 @@ export async function addToDay(dayN: number, title: string, note: string, member
 export function useDayPlan(dayN: number) {
   const items = useLocalStore((s) => s.dayPlans[dayN] ?? [])
   const removeLocal = useLocalStore((s) => s.removeDayPlanItem)
+  const moveLocal = useLocalStore((s) => s.moveDayPlanItem)
   const setDoneLocal = useLocalStore((s) => s.setDayPlanDone)
   const setOrderLocal = useLocalStore((s) => s.setDayPlanOrder)
   const merge = useLocalStore((s) => s.mergeDayPlanItems)
@@ -100,6 +101,14 @@ export function useDayPlan(dayN: number) {
     if (supabase) await supabase.from('day_plans').delete().eq('id', id)
   }
 
+  /** Move an activity to another day (appends to the bottom of that day). */
+  async function moveItem(id: string, toDay: number) {
+    if (toDay === dayN) return
+    const sort = (useLocalStore.getState().dayPlans[toDay] ?? []).length
+    moveLocal(id, dayN, toDay) // optimistic
+    if (supabase) await supabase.from('day_plans').update({ day_n: toDay, sort }).eq('id', id)
+  }
+
   /** Persist a new manual order (list of item ids, top → bottom). */
   async function reorder(orderedIds: string[]) {
     setOrderLocal(dayN, orderedIds) // optimistic
@@ -110,5 +119,5 @@ export function useDayPlan(dayN: number) {
     }
   }
 
-  return { items, addItem, toggleDone, removeItem, reorder }
+  return { items, addItem, toggleDone, removeItem, reorder, moveItem }
 }

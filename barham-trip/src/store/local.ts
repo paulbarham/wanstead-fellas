@@ -94,6 +94,8 @@ interface LocalState {
 
   addDayPlanItem: (item: DayPlanItem) => void
   removeDayPlanItem: (dayN: number, id: string) => void
+  /** Move an item to another day, appending it to the destination's plan. */
+  moveDayPlanItem: (id: string, fromDay: number, toDay: number) => void
   setDayPlanDone: (dayN: number, id: string, done: boolean) => void
   /** Apply a manual order (list of ids) — sets each item's sort to its index. */
   setDayPlanOrder: (dayN: number, orderedIds: string[]) => void
@@ -178,6 +180,23 @@ export const useLocalStore = create<LocalState>()(
             [dayN]: (s.dayPlans[dayN] ?? []).filter((i) => i.id !== id),
           },
         })),
+
+      moveDayPlanItem: (id, fromDay, toDay) =>
+        set((s) => {
+          if (fromDay === toDay) return s
+          const src = s.dayPlans[fromDay] ?? []
+          const item = src.find((i) => i.id === id)
+          if (!item) return s
+          const dest = s.dayPlans[toDay] ?? []
+          const moved = { ...item, day_n: toDay, sort: dest.length }
+          return {
+            dayPlans: {
+              ...s.dayPlans,
+              [fromDay]: src.filter((i) => i.id !== id),
+              [toDay]: [...dest, moved].sort(sortDayPlan),
+            },
+          }
+        }),
 
       setDayPlanDone: (dayN, id, done) =>
         set((s) => ({
