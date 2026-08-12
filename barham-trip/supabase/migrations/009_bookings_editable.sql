@@ -42,7 +42,6 @@ select v.name, v.note, v.sort from (values
   ('Hotel Julian — San Francisco', '8–12 Aug (4 nights).', 4),
   ('Alcatraz cruise tickets', 'Sells out weeks ahead — book as early as possible. Departs Pier 33.', 5),
   ('Muir Woods parking / shuttle reservation', 'Timed reservation mandatory — no turn-ups. Book the parking or the shuttle in advance.', 6),
-  ('Monterey Bay Aquarium tickets', 'Dated online tickets are cheaper and skip the queue.', 7),
   ('Hearst Castle tour', 'Timed tour bus from the visitor centre — must be pre-booked.', 8),
   ('Hampton Inn San Simeon, Cambria', '12–13 Aug (1 night).', 9),
   ('Days Inn by Wyndham Santa Monica', '13–14 Aug (1 night).', 10),
