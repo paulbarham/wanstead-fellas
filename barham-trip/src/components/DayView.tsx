@@ -3,11 +3,13 @@ import type { TripDay } from '../lib/itinerary'
 import { getLegForDay, optionKey } from '../lib/itinerary'
 import { useAuth } from '../hooks/useAuth'
 import { useDismissedOptions } from '../hooks/useDismissedOptions'
+import { routeForDay } from '../lib/routes'
 import DayBadge from './DayBadge'
 import OptionCard from './OptionCard'
 import WeatherChip from './WeatherChip'
 import DayPlan from './DayPlan'
 import StayCard from './StayCard'
+import RouteMap from './RouteMap'
 
 interface Props {
   day: TripDay
@@ -18,6 +20,7 @@ interface Props {
 /** Full day page body — badge, title, suggested plan, alternatives, tip. */
 export default function DayView({ day, isToday = false }: Props) {
   const leg = getLegForDay(day.n)
+  const route = routeForDay(day.n)
   const { isAdmin } = useAuth()
   const { dismissed, dismiss, restore } = useDismissedOptions(day.n)
 
@@ -59,6 +62,9 @@ export default function DayView({ day, isToday = false }: Props) {
 
       {/* Where we're staying tonight — hotel, address, directions */}
       <StayCard day={day} />
+
+      {/* Offline drive map on transfer days */}
+      {route && <RouteMap route={route} />}
 
       {/* The family's editable plan for the day */}
       <DayPlan day={day} />
