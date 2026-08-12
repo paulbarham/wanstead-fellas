@@ -356,53 +356,81 @@
       "title": "Pacific Coast Highway",
       "range": "Wed 12 — Thu 13 Aug",
       "tagline": "The drive is the destination — Big Sur, cliffs and Hearst Castle.",
-      "notes": "Two days threading Highway 1 south. Night 1 in Cambria (Hampton Inn San Simeon), night 2 in Santa Monica (Days Inn). Phone signal is patchy to non-existent through Big Sur — screenshot anything you need, and trust this app, which runs fully offline. Fill the tank whenever it drops below half.",
+      "notes": "Two days south to Santa Monica. NOTE: the Timber Fire has closed Highway 1 through Big Sur (Fernwood Resort down to Julia Pfeiffer Burns Vista Point), and Nepenthe plus all four Big Sur state parks are shut. Day 5 now routes Santa Cruz → 17-Mile Drive → Salinas → US-101 → Highway 46 into Cambria. Check roads.dot.ca.gov the morning you leave — 1 and 101 don't split until Prunedale, so you can still decide en route. Night 1 in Cambria (Hampton Inn San Simeon), night 2 in Santa Monica (Days Inn). Thursday is unaffected: Hearst Castle and the elephant seals are well south of the closure. Signal drops on the 46 over the hills — this app runs fully offline. Fill up in Paso Robles.",
       "ideas": [
+        {
+          "title": "Santa Cruz Beach Boardwalk",
+          "category": "rides",
+          "suits": "all",
+          "note": "Free entry, rides $5-8 each or wristbands ~$45 online. The 1924 Giant Dipper coaster and 1911 Looff carousel are both National Historic Landmarks. Rides from 11am. Wide beach right there — swimming for the twins, coasters for the teens.",
+          "area": "Santa Cruz",
+          "recommended": true
+        },
         {
           "title": "17-Mile Drive",
           "category": "outdoors",
           "suits": "all",
-          "note": "Scenic toll road past the Lone Cypress and Pebble Beach. Slow, beautiful, lots of pull-offs.",
-          "recommended": true,
-          "area": "Monterey & Carmel"
+          "note": "Scenic toll road past the Lone Cypress and Pebble Beach, $12.50 per car. Slow and beautiful, lots of pull-offs. CLOSED to non-Concours traffic 13-16 Aug for Monterey Car Week — Wed 12th is the last day.",
+          "area": "Monterey & Carmel",
+          "recommended": true
+        },
+        {
+          "title": "Carmel-by-the-Sea",
+          "category": "sights",
+          "suits": "all",
+          "note": "Ocean Avenue is a pretty half-mile of galleries and cafés running down to a white-sand beach. Sits right at the 17-Mile Drive's southern gate — a natural 30-minute leg-stretch.",
+          "area": "Monterey & Carmel",
+          "recommended": true
+        },
+        {
+          "title": "Paso Robles town square",
+          "category": "sights",
+          "suits": "all",
+          "note": "Lawned plaza ringed with cafés and ice cream — the natural halfway break on the 101 run. Fuel up here; it's the last easy stop before the 46 over the hills.",
+          "area": "San Simeon & Cambria"
+        },
+        {
+          "title": "Moonstone Beach, Cambria",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Pebbly beach with a wooden boardwalk along the bluff. A 30-minute stroll rather than an evening — good for stretching out after the drive.",
+          "area": "San Simeon & Cambria"
         },
         {
           "title": "Bixby Creek Bridge",
           "category": "outdoors",
           "suits": "all",
-          "note": "The iconic Big Sur arch bridge — pull into the viewpoint just north for the classic shot.",
-          "recommended": true,
+          "note": "The iconic Big Sur arch bridge. CLOSED OFF for 2026 — inside the Timber Fire closure zone. Note there's also now a parking ban at the bridge itself.",
           "area": "Big Sur"
         },
         {
           "title": "McWay Falls",
           "category": "outdoors",
           "suits": "all",
-          "note": "An 80ft waterfall dropping onto a hidden beach. Short easy walk from the car park.",
-          "recommended": true,
+          "note": "An 80ft waterfall dropping onto a hidden beach. CLOSED — Julia Pfeiffer Burns State Park is shut for the Timber Fire.",
           "area": "Big Sur"
         },
         {
           "title": "Pfeiffer Beach",
           "category": "outdoors",
           "suits": "all",
-          "note": "Purple-tinged sand and a keyhole rock arch. The access lane is narrow and easy to miss.",
+          "note": "Purple-tinged sand and a keyhole rock arch. CLOSED — Pfeiffer Big Sur State Park is shut for the Timber Fire.",
           "area": "Big Sur"
         },
         {
           "title": "Point Lobos Reserve",
           "category": "outdoors",
           "suits": "all",
-          "note": "Coves, sea otters and easy cliff trails — the \"crown jewel\" of the state parks.",
+          "note": "Coves, sea otters and easy cliff trails — the \"crown jewel\" of the state parks. Just south of Carmel, outside the fire closure.",
           "area": "Monterey & Carmel"
         },
         {
           "title": "Elephant seal rookery, Piedras Blancas",
           "category": "outdoors",
           "suits": "all",
-          "note": "Hundreds of elephant seals hauled out yards from a free boardwalk. A guaranteed wildlife win for the kids.",
-          "recommended": true,
-          "area": "San Simeon & Cambria"
+          "note": "Hundreds of elephant seals hauled out yards from a free boardwalk. A guaranteed wildlife win for the kids. Thursday, unaffected by the fire.",
+          "area": "San Simeon & Cambria",
+          "recommended": true
         },
         {
           "title": "Morro Bay",
@@ -415,44 +443,36 @@
           "title": "Cannery Row, Monterey",
           "category": "sights",
           "suits": "all",
-          "note": "The Steinbeck-famous waterfront strip — sweet shops, an old carousel and the aquarium at the end.",
+          "note": "The Steinbeck-famous waterfront strip — sweet shops, an old carousel and the aquarium at the end. Doesn't fit Wednesday's timings, and Car Week traffic makes it worse.",
           "area": "Monterey & Carmel"
         },
         {
           "title": "Hearst Castle",
           "category": "cultural",
           "suits": "all",
-          "note": "The over-the-top hilltop mansion of a newspaper tycoon. Pre-book the timed tour bus from the visitor centre.",
-          "recommended": true,
-          "area": "San Simeon & Cambria"
+          "note": "The over-the-top hilltop mansion of a newspaper tycoon. Pre-book the timed tour bus from the visitor centre — aim for a 10.30 or 11am slot Thursday.",
+          "area": "San Simeon & Cambria",
+          "recommended": true
         },
         {
           "title": "Monterey Bay Aquarium",
           "category": "cultural",
           "suits": "all",
-          "note": "World-class aquarium — the kelp forest and touch pools are a firm favourite with younger ones. Dated tickets are cheaper.",
-          "recommended": true,
+          "note": "World-class aquarium — kelp forest and touch pools. Two hours minimum and ~$60pp, so it doesn't fit the revised Wednesday. One for another trip.",
           "area": "Monterey & Carmel"
         },
         {
           "title": "Dennis the Menace Park, Monterey",
           "category": "playgrounds",
           "suits": "littles",
-          "note": "A wildly creative playground (real train engine, big slides) designed by the Dennis the Menace cartoonist. A perfect PCH break for the little ones.",
+          "note": "A wildly creative playground (real train engine, big slides) designed by the Dennis the Menace cartoonist.",
           "area": "Monterey & Carmel"
-        },
-        {
-          "title": "Santa Cruz Beach Boardwalk",
-          "category": "rides",
-          "suits": "all",
-          "note": "A classic seaside amusement park with a wooden roller coaster — if the route takes you through Santa Cruz.",
-          "area": "Santa Cruz"
         },
         {
           "title": "Lunch at Nepenthe",
           "category": "food",
           "suits": "all",
-          "note": "Cliff-top Big Sur restaurant with jaw-dropping views. Order the famous Ambrosia burger — no seafood needed.",
+          "note": "Cliff-top Big Sur restaurant with jaw-dropping views. CLOSED — evacuated for the Timber Fire.",
           "area": "Big Sur"
         }
       ],
@@ -476,27 +496,34 @@
           "weekday": "Wednesday",
           "date": "12 Aug",
           "iso_date": "2026-08-12",
-          "title": "San Francisco → Big Sur → Cambria",
-          "subtitle": "The big one — cliffs, bridges and hidden beaches.",
+          "title": "San Francisco → Santa Cruz → 17-Mile Drive → Cambria",
+          "subtitle": "Big Sur is shut — a boardwalk, a scenic loop and the inland run south.",
           "options": [
             {
               "kind": "recommended",
-              "badge": "SCENIC DRIVE",
-              "title": "The Big Sur coast road to Cambria",
-              "plan": "Leave the city and drive Highway 1 south — the signature day of the trip. Loop the 17-Mile Drive, stop at Bixby Creek Bridge, walk to the McWay Falls overlook, and detour to purple-sanded Pfeiffer Beach. Drive slowly, stop often; overnight in Cambria (Hampton Inn San Simeon).",
-              "food": "Nepenthe for lunch — famous cliff-top terrace a thousand feet above the Pacific. Book or arrive early."
+              "badge": "BOARDWALK & 17-MILE",
+              "title": "Santa Cruz, the 17-Mile Drive, then US-101 to Cambria",
+              "plan": "Car at 9am, loaded and away by 10. Highway 17 over the mountains to Santa Cruz (1hr 15). Santa Cruz Beach Boardwalk 11.30–2.00 — free entry, rides $5–8 each or wristbands ~$45 online; the 1924 Giant Dipper and 1911 Looff carousel are both National Historic Landmarks, and it's a proper wide beach so the twins can swim while the teens ride. Lunch there. Away by 2, round the bay to Monterey (45 mins). Enter the 17-Mile Drive at the Pacific Grove gate about 2.45, $12.50 per car — Spanish Bay, Bird Rock, the Lone Cypress — and exit at the Carmel gate around 4. Half an hour on Ocean Avenue in Carmel-by-the-Sea to stretch legs, then north to Salinas, onto 101 south, fuel and a break at Paso Robles, and Highway 46 west over the hills. Cambria by about 7.30 — dinner and bed.",
+              "food": "Boardwalk food for lunch (corn dogs, funnel cake, no seafood needed). Ice cream on Ocean Avenue in Carmel. Dinner in Cambria's West Village — kitchens close around 8.30, so book or head straight out."
             },
             {
               "kind": "alternative",
-              "badge": "OTTERS & AQUARIUM",
-              "title": "Break at Monterey",
-              "plan": "Split the drive with a couple of hours at the world-class Monterey Bay Aquarium and a stroll along Cannery Row before pushing into Big Sur.",
-              "food": "Wood-fired pizza or burgers in Monterey — try Alvarado Street Brewery."
+              "badge": "SLOWER, PRETTIER",
+              "title": "Coast road to Santa Cruz",
+              "plan": "Same day but reach Santa Cruz on Highway 1 down the coast instead of Highway 17 — about 2 hours rather than 1hr 15. Half Moon Bay, Pigeon Point Lighthouse and empty beaches on the way. Gives back some of the coastal driving lost to the fire, but you'd need to drop either the Boardwalk time or the 17-Mile Drive.",
+              "food": "Bakery stop in Half Moon Bay, then Boardwalk food later."
+            },
+            {
+              "kind": "alternative",
+              "badge": "ONLY IF HWY 1 REOPENS",
+              "title": "The Big Sur coast road to Cambria",
+              "plan": "If the Timber Fire is contained and Highway 1 reopens with the parks back — check roads.dot.ca.gov before leaving. Bixby Creek Bridge, McWay Falls overlook, Pfeiffer Beach. Note that Nepenthe and the Big Sur state parks were all evacuated and may stay closed after the road itself reopens.",
+              "food": "Nepenthe for lunch if open — no bookings, so arrive early."
             }
           ],
           "tip": {
-            "label": "No signal",
-            "body": "There is essentially zero reception through Big Sur — screenshot directions and fuel up in Monterey (one very pricey station on the whole stretch). This page works with no connection at all; watch for fog on the cliff bends."
+            "label": "Check the road, and the calendar",
+            "body": "Highway 1 through Big Sur is closed for the Timber Fire (Fernwood to Julia Pfeiffer Burns) — from Carmel you cannot continue south, so the route doubles back to Salinas for 101. Wednesday is the LAST day the 17-Mile Drive is open: it shuts to non-Concours traffic 13–16 Aug for Monterey Car Week. Expect Peninsula traffic to be building already — if you're running late, cut the Boardwalk rather than the Drive. Water in the car; it's 30°C+ around Paso Robles."
           }
         },
         {
@@ -511,7 +538,7 @@
               "kind": "recommended",
               "badge": "HEARST CASTLE",
               "title": "Hearst Castle & the drive south",
-              "plan": "From San Simeon, take the tour bus up to Hearst Castle — the jaw-dropping hilltop mansion — then stop at the Piedras Blancas rookery where hundreds of elephant seals lounge on the beach. Afterwards, the long, scenic run down via Santa Barbara to Santa Monica (Days Inn tonight).",
+              "plan": "From San Simeon, take the tour bus up to Hearst Castle — the jaw-dropping hilltop mansion — then stop at the Piedras Blancas rookery where hundreds of elephant seals lounge on the beach. Afterwards, the long, scenic run down via Santa Barbara to Santa Monica (Days Inn tonight). Book a 10.30 or 11am castle slot so nobody's up at dawn after Wednesday's drive.",
               "food": "Lunch on Stearns Wharf or at the Public Market in Santa Barbara."
             },
             {
@@ -519,7 +546,7 @@
               "badge": "SEASIDE TOWN",
               "title": "Morro Bay & the Rock",
               "plan": "Skip the castle tour for laid-back Morro Bay, dominated by its 176m volcanic rock — kayak the bay or just watch the otters — then drive on down.",
-              "food": "Fish tacos on the Morro Bay Embarcadero."
+              "food": "Street tacos and ice cream on the Morro Bay Embarcadero."
             }
           ],
           "tip": {
