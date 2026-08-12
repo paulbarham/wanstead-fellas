@@ -54,6 +54,18 @@ export const routes: DriveRoute[] = [
     ],
   },
   {
+    dayN: 9,
+    title: 'Santa Monica → Burbank',
+    via: 'I-405 · Sepulveda Pass · US-101',
+    distance: '~25 mi · 45–60 mins in traffic',
+    offlineArea: 'Santa Monica → Burbank (West LA)',
+    waypoints: [
+      { name: 'Santa Monica', lat: 34.0195, lng: -118.4912 },
+      { name: 'Sepulveda Pass (I-405)', lat: 34.096, lng: -118.47, note: 'the Getty above you' },
+      { name: 'Burbank (SpringHill)', lat: 34.1808, lng: -118.309, note: 'week base' },
+    ],
+  },
+  {
     dayN: 16,
     title: 'Los Angeles → Las Vegas',
     via: 'I-15 north · Mojave Desert · Baker',
@@ -64,6 +76,32 @@ export const routes: DriveRoute[] = [
       { name: 'Barstow', lat: 34.8958, lng: -117.0173, note: 'last big services' },
       { name: 'Baker', lat: 35.2649, lng: -116.0764, note: "world's tallest thermometer" },
       { name: 'Las Vegas', lat: 36.1147, lng: -115.1728, note: 'the Strip' },
+    ],
+  },
+  {
+    dayN: 18,
+    title: 'Las Vegas → Grand Canyon West',
+    via: 'US-93 · Hoover Dam bypass · Pierce Ferry Rd',
+    distance: '~125 mi each way · 2.5 hrs · leave at dawn',
+    offlineArea: 'Las Vegas → Hoover Dam → Grand Canyon West',
+    waypoints: [
+      { name: 'Las Vegas (Luxor)', lat: 36.0955, lng: -115.1761 },
+      { name: 'Hoover Dam bypass', lat: 36.0157, lng: -114.737, note: 'into Arizona' },
+      { name: 'Dolan Springs', lat: 35.5936, lng: -114.2683, note: 'Pierce Ferry Rd turnoff' },
+      { name: 'Grand Canyon West / Skywalk', lat: 35.9853, lng: -113.8103, note: 'Eagle Point' },
+    ],
+  },
+  {
+    dayN: 20,
+    title: 'Las Vegas → Hoover Dam & Lake Mead',
+    via: 'US-93 · Boulder City',
+    distance: '~40 mi each way · 45 mins',
+    offlineArea: 'Las Vegas → Boulder City → Hoover Dam',
+    waypoints: [
+      { name: 'Las Vegas (Luxor)', lat: 36.0955, lng: -115.1761 },
+      { name: 'Boulder City', lat: 35.9786, lng: -114.8319, note: 'built the dam' },
+      { name: 'Hoover Dam', lat: 36.0161, lng: -114.7377, note: 'walk across' },
+      { name: 'Lake Mead (Boulder Beach)', lat: 36.045, lng: -114.79, note: 'viewpoint' },
     ],
   },
 ]

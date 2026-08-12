@@ -14,8 +14,8 @@ describe('routes', () => {
       for (const w of r.waypoints) {
         expect(w.lat).toBeGreaterThan(30)
         expect(w.lat).toBeLessThan(42)
-        expect(w.lng).toBeLessThan(-114)
-        expect(w.lng).toBeGreaterThan(-124)
+        expect(w.lng).toBeLessThan(-113) // west of Arizona's Grand Canyon West
+        expect(w.lng).toBeGreaterThan(-124) // east of the Pacific
       }
     }
   })
