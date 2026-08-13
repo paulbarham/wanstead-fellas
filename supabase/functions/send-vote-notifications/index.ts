@@ -1,12 +1,16 @@
 // Fans out web push notifications for a given match. Four topics:
 //   * 'teams_ready' — teams for the next match have just been published
 //     (voting_windows INSERT where opens_at is > 15 min in the future).
-//     Recipients: rostered players only (they're the ones who need to
-//     see their line-up).
+//     Recipients: EVERY active push subscription — the line-up going up
+//     is club-wide news, and the previous roster-only cut missed anyone
+//     who cares who's playing tonight but hasn't signed up themselves
+//     (partners, older players, the admin on off-weeks). 13 Aug 2026.
 //   * 'vote_open'   — voting window has just opened, players still need to
 //     cast their MOTM/DOTD picks (voting_windows INSERT where opens_at is
 //     imminent OR the Stage 2 cron firing when opens_at is reached).
-//     Recipients: rostered players only (only they can vote).
+//     Recipients: rostered players (only they can vote) PLUS admins even
+//     when not rostered — the admin publishes results and needs the same
+//     confirmation ping as the players.
 //   * 'results'     — awards + match report have been published for the
 //     round. If a match report has been written (results.summary NOT NULL)
 //     the push is framed as "Match report is live". Otherwise falls back
@@ -71,14 +75,16 @@ Deno.serve(async (req) => {
     }
 
     // Recipients:
-    //  * 'results' → EVERY active push subscription. The match report is
-    //    club-wide news; historically we filtered to rostered players and
-    //    left ~half the group without the ping despite them being active
-    //    members who care about the write-up.
-    //  * 'teams_ready' / 'vote_open' → still roster-only. Only rostered
-    //    players need their team line-up or can vote MOTM/DOTD.
+    //  * 'results' AND 'teams_ready' → EVERY active push subscription.
+    //    Both are club-wide news: the report + the "who's playing tonight"
+    //    line-up. Historically teams_ready was roster-only which meant
+    //    partners, older players, and admins on off-weeks got nothing —
+    //    widened 13 Aug 2026.
+    //  * 'vote_open' → rostered players (only they can vote MOTM/DOTD)
+    //    PLUS admins even when not rostered, so the publisher gets the
+    //    same confirmation ping as the players.
     let subList: Array<{ id: string; endpoint: string; p256dh: string; auth: string }> = []
-    if (topic === 'results') {
+    if (topic === 'results' || topic === 'teams_ready') {
       const { data: subs } = await supabase
         .from('push_subscriptions')
         .select('id, endpoint, p256dh, auth')
@@ -86,16 +92,22 @@ Deno.serve(async (req) => {
     } else {
       const { data: teams } = await supabase.from('teams').select('id').eq('match_id', matchId)
       const teamIds = (teams || []).map((t: any) => t.id)
-      if (teamIds.length === 0) return json({ sent: 0, total: 0, reason: 'no teams' })
+      const { data: tp } = teamIds.length
+        ? await supabase.from('team_players').select('player_id').in('team_id', teamIds)
+        : { data: [] as { player_id: string }[] }
+      const rosterIds = new Set(((tp || []) as { player_id: string }[]).map(r => r.player_id))
 
-      const { data: tp } = await supabase.from('team_players').select('player_id').in('team_id', teamIds)
-      const playerIds = [...new Set((tp || []).map((r: any) => r.player_id as string))]
-      if (playerIds.length === 0) return json({ sent: 0, total: 0, reason: 'no players' })
+      // Include admins even when they aren't rostered — the publisher
+      // needs the same "vote open" confirmation as the players.
+      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
+      for (const a of (admins || []) as { id: string }[]) rosterIds.add(a.id)
+
+      if (rosterIds.size === 0) return json({ sent: 0, total: 0, reason: 'no players or admins' })
 
       const { data: subs } = await supabase
         .from('push_subscriptions')
         .select('id, endpoint, p256dh, auth')
-        .in('player_id', playerIds)
+        .in('player_id', Array.from(rosterIds))
       subList = (subs || []) as typeof subList
     }
 
