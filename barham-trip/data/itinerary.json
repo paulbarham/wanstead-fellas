@@ -532,33 +532,33 @@
           "date": "13 Aug",
           "iso_date": "2026-08-13",
           "title": "Cambria → elephant seals → Santa Barbara → Santa Monica",
-          "subtitle": "A slow morning on the coast, then red tiles and the run into LA.",
+          "subtitle": "Seals at dawn, an afternoon on East Beach, then the run into LA.",
           "options": [
             {
               "kind": "recommended",
               "badge": "SEALS & SANTA BARBARA",
-              "title": "Piedras Blancas, Moonstone Beach & Santa Barbara",
-              "plan": "A deliberately gentle morning before the long haul south. 08:45 — drive 10 minutes north to the Piedras Blancas rookery: a free, flat boardwalk with hundreds of elephant seals hauled out yards away, and volunteers in blue jackets who are brilliant with kids. 10:15 — back south to Moonstone Beach for a mile of clifftop boardwalk and moonstone-hunting in the pebbles. 11:30 — early lunch in Cambria village. 12:15 — on the road: Hwy 1 to Morro Bay then US-101 south, roughly 3 hours to Santa Barbara with one 20-minute stop at Pismo Beach. 15:15 — arrive Santa Barbara. Courthouse clock tower first (it shuts at 4pm), then wander down State Street to Chase Palm Park's carousel and playground and out along Stearns Wharf. Early dinner, then the last 1.5–2 hours down to Santa Monica for around 20:45.",
-              "food": "Linn's on Main Street, Cambria for an early lunch (olallieberry pie for the road). Dinner at La Super-Rica on Milpas Street in Santa Barbara — Julia Child's local taqueria, cash only, expect a queue — or the Public Market on Victoria Street if you want a dozen stalls and no arguments."
+              "title": "Piedras Blancas, then most of the day in Santa Barbara",
+              "plan": "08:45 — drive 10 minutes north to the Piedras Blancas rookery: a free, flat boardwalk with hundreds of elephant seals hauled out yards away, and volunteers in blue jackets who are brilliant with the kids. 10:00 — on the road south, Hwy 1 to Morro Bay then US-101, with a 15-minute leg-stretch at Pismo Beach around 11:30. 13:15 — arrive Santa Barbara and park downtown near Anacapa Street. Lunch, then the Courthouse clock tower before it shuts at 4pm. From mid-afternoon the day is East Beach: wide sand, warm water, and the flat Cabrillo Boulevard path for surrey bikes. The teens can peel off to the Funk Zone murals a few blocks back. Stearns Wharf as the light goes, dinner, then the last 1.5–2 hours down to Santa Monica for around 21:00.",
+              "food": "Santa Barbara Public Market on Victoria Street for lunch — a dozen stalls, everyone picks their own. Dinner at La Super-Rica on Milpas Street: Julia Child's local taqueria, cash only, expect a queue, and right by the 101 on-ramp south."
             },
             {
               "kind": "alternative",
-              "badge": "SEASIDE TOWN",
-              "title": "Morro Bay & the Rock",
-              "plan": "Swap the Santa Barbara stop for a longer, slower break at Morro Bay, dominated by its 176m volcanic plug — the Embarcadero, the otters and an easy leg-stretch — then push straight through to Santa Monica.",
-              "food": "Tacos or burgers on the Morro Bay Embarcadero."
+              "badge": "IF IT'S GREY",
+              "title": "Santa Barbara Zoo instead of the beach",
+              "plan": "If the marine layer hasn't burned off, swap East Beach for the zoo — small, hilltop, ocean views, a walk-through kangaroo enclosure and a little train. Open until 7pm on Thursdays; two hours does it properly. Paid entry, and the teens may find it thin.",
+              "food": "Café on site, or hold out for dinner in town."
             },
             {
               "kind": "alternative",
               "badge": "STRAIGHT THROUGH",
               "title": "Beat the traffic, arrive early",
-              "plan": "If everyone's flagging, skip Santa Barbara entirely, leave Cambria by 11:30 and run the 101 straight down. You'd be in Santa Monica by mid-afternoon with the whole evening on the beach instead.",
+              "plan": "If everyone's flagging, skip Santa Barbara entirely, leave Cambria by 10:00 and run the 101 straight down. You'd be in Santa Monica by mid-afternoon with the whole evening on the beach instead.",
               "food": "Grab-and-go from Cambria, then dinner in Santa Monica."
             }
           ],
           "tip": {
             "label": "One hard deadline",
-            "body": "The Santa Barbara Courthouse shuts at 4pm on weekdays and all day at weekends — go straight there before anything else, it's free and the tower view is the best in town. La Super-Rica is closed Tuesdays and Wednesdays and takes cash only. Stearns Wharf gives you 90 minutes free parking if you drive onto the pier."
+            "body": "The Santa Barbara Courthouse shuts at 4pm on weekdays and all day at weekends — do it before the beach, not after. It's free and the tower view is the best in town. La Super-Rica is closed Tuesdays and Wednesdays and takes cash only. Stearns Wharf gives you 90 minutes free parking if you drive onto the pier. Swimming kit and towels want to be somewhere reachable, not buried in the boot."
           }
         }
       ]
