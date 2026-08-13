@@ -451,8 +451,7 @@
           "category": "cultural",
           "suits": "all",
           "note": "The over-the-top hilltop mansion of a newspaper tycoon. Pre-book the timed tour bus from the visitor centre — aim for a 10.30 or 11am slot Thursday.",
-          "area": "San Simeon & Cambria",
-          "recommended": true
+          "area": "San Simeon & Cambria"
         },
         {
           "title": "Monterey Bay Aquarium",
@@ -474,6 +473,56 @@
           "suits": "all",
           "note": "Cliff-top Big Sur restaurant with jaw-dropping views. CLOSED — evacuated for the Timber Fire.",
           "area": "Big Sur"
+        },
+        {
+          "title": "East Beach, Santa Barbara",
+          "category": "outdoors",
+          "suits": "all",
+          "note": "Wide sand, warmer water than anywhere up north, and the flat Cabrillo Boulevard path alongside for surrey bike hire. Free, and it suits all four ages at once.",
+          "area": "Santa Barbara",
+          "recommended": true
+        },
+        {
+          "title": "Santa Barbara Courthouse clock tower",
+          "category": "sights",
+          "suits": "all",
+          "note": "Walk in free, ride the lift up El Mirador for a 360° view over the red-tiled roofs to the sea. Twenty minutes, no tickets. Closes 4pm weekdays, shut at weekends.",
+          "area": "Santa Barbara"
+        },
+        {
+          "title": "Stearns Wharf & Ty Warner Sea Center",
+          "category": "sights",
+          "suits": "all",
+          "note": "Drive onto the pier for 90 minutes' free parking. Touch tanks at the Sea Center for the younger ones, fudge and ice cream for everyone else.",
+          "area": "Santa Barbara"
+        },
+        {
+          "title": "Chase Palm Park, Santa Barbara",
+          "category": "playgrounds",
+          "suits": "littles",
+          "note": "Vintage carousel and a shipwreck-themed playground on Cabrillo Boulevard, a few minutes' walk west of East Beach.",
+          "area": "Santa Barbara"
+        },
+        {
+          "title": "State Street & the Funk Zone",
+          "category": "shopping",
+          "suits": "teens",
+          "note": "Pedestrianised blocks of Spanish-colonial arcades, then a few streets of murals and old warehouses behind the beach. Somewhere for the teens to peel off to.",
+          "area": "Santa Barbara"
+        },
+        {
+          "title": "Santa Barbara Zoo",
+          "category": "cultural",
+          "suits": "all",
+          "note": "Small, hilltop, ocean views, walk-through kangaroo enclosure and a little train. Open late on Thursdays — the wet-weather swap for East Beach.",
+          "area": "Santa Barbara"
+        },
+        {
+          "title": "La Super-Rica Taqueria, Santa Barbara",
+          "category": "food",
+          "suits": "all",
+          "note": "Julia Child's local taqueria on Milpas Street. Cash only, always a queue, closed Tues/Wed — and right by the 101 on-ramp south.",
+          "area": "Santa Barbara"
         }
       ],
       "stays": [
