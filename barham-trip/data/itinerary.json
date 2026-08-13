@@ -531,27 +531,34 @@
           "weekday": "Thursday",
           "date": "13 Aug",
           "iso_date": "2026-08-13",
-          "title": "Cambria → Hearst Castle → Santa Monica",
-          "subtitle": "Castles, elephant seals, then down to the beach.",
+          "title": "Cambria → elephant seals → Santa Barbara → Santa Monica",
+          "subtitle": "A slow morning on the coast, then red tiles and the run into LA.",
           "options": [
             {
               "kind": "recommended",
-              "badge": "HEARST CASTLE",
-              "title": "Hearst Castle & the drive south",
-              "plan": "From San Simeon, take the tour bus up to Hearst Castle — the jaw-dropping hilltop mansion — then stop at the Piedras Blancas rookery where hundreds of elephant seals lounge on the beach. Afterwards, the long, scenic run down via Santa Barbara to Santa Monica (Days Inn tonight). Book a 10.30 or 11am castle slot so nobody's up at dawn after Wednesday's drive.",
-              "food": "Lunch on Stearns Wharf or at the Public Market in Santa Barbara."
+              "badge": "SEALS & SANTA BARBARA",
+              "title": "Piedras Blancas, Moonstone Beach & Santa Barbara",
+              "plan": "A deliberately gentle morning before the long haul south. 08:45 — drive 10 minutes north to the Piedras Blancas rookery: a free, flat boardwalk with hundreds of elephant seals hauled out yards away, and volunteers in blue jackets who are brilliant with kids. 10:15 — back south to Moonstone Beach for a mile of clifftop boardwalk and moonstone-hunting in the pebbles. 11:30 — early lunch in Cambria village. 12:15 — on the road: Hwy 1 to Morro Bay then US-101 south, roughly 3 hours to Santa Barbara with one 20-minute stop at Pismo Beach. 15:15 — arrive Santa Barbara. Courthouse clock tower first (it shuts at 4pm), then wander down State Street to Chase Palm Park's carousel and playground and out along Stearns Wharf. Early dinner, then the last 1.5–2 hours down to Santa Monica for around 20:45.",
+              "food": "Linn's on Main Street, Cambria for an early lunch (olallieberry pie for the road). Dinner at La Super-Rica on Milpas Street in Santa Barbara — Julia Child's local taqueria, cash only, expect a queue — or the Public Market on Victoria Street if you want a dozen stalls and no arguments."
             },
             {
               "kind": "alternative",
               "badge": "SEASIDE TOWN",
               "title": "Morro Bay & the Rock",
-              "plan": "Skip the castle tour for laid-back Morro Bay, dominated by its 176m volcanic rock — kayak the bay or just watch the otters — then drive on down.",
-              "food": "Street tacos and ice cream on the Morro Bay Embarcadero."
+              "plan": "Swap the Santa Barbara stop for a longer, slower break at Morro Bay, dominated by its 176m volcanic plug — the Embarcadero, the otters and an easy leg-stretch — then push straight through to Santa Monica.",
+              "food": "Tacos or burgers on the Morro Bay Embarcadero."
+            },
+            {
+              "kind": "alternative",
+              "badge": "STRAIGHT THROUGH",
+              "title": "Beat the traffic, arrive early",
+              "plan": "If everyone's flagging, skip Santa Barbara entirely, leave Cambria by 11:30 and run the 101 straight down. You'd be in Santa Monica by mid-afternoon with the whole evening on the beach instead.",
+              "food": "Grab-and-go from Cambria, then dinner in Santa Monica."
             }
           ],
           "tip": {
-            "label": "Book early",
-            "body": "Hearst Castle tours must be pre-booked and depart on a strict timetable from the visitor centre. Aim to clear Santa Barbara by mid-afternoon so the last stretch into Santa Monica stays sane."
+            "label": "One hard deadline",
+            "body": "The Santa Barbara Courthouse shuts at 4pm on weekdays and all day at weekends — go straight there before anything else, it's free and the tower view is the best in town. La Super-Rica is closed Tuesdays and Wednesdays and takes cash only. Stearns Wharf gives you 90 minutes free parking if you drive onto the pier."
           }
         }
       ]
