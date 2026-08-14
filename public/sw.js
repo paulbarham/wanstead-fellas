@@ -1,11 +1,12 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v44 — MoW scoring rescaled 5/3/0 → 3/1/0 (mig 074). Admin
-// call: 5-vs-3 was too tight, exact score wasn't worth the risk vs a
-// safer H/D/A call. New 3x-vs-1x gap makes calling the scoreline
-// genuinely worth it while a right-result call still isn't wasted.
-// Migration also rescores every already-settled prediction so no
-// half-and-half state, and the season leaderboard reshuffles cleanly.
-const CACHE = 'wf-v44'
+// Bumped to v45 — balancer v2 (14 Aug 2026). Post-draft fix-up pass in
+// AdminTeamBuilder.autoBalance enforces two new constraints that Jun-Aug
+// data showed the snake draft alone was missing: max 2 × OVR≥9 stars per
+// team (kills "obvious best team collapse"), and over-40 count within
+// ±1 across teams (kills "old-in-places" nights). Admin also gets a
+// 4-chip strip on every draft team card — RTG · GK · 40+ · ★ — coloured
+// green/amber/red so violations are one-glance obvious pre-Publish.
+const CACHE = 'wf-v45'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

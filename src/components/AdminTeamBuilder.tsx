@@ -154,6 +154,138 @@ function pickCaptain(players: Profile[]): Profile {
   return top3[Math.floor(Math.random() * top3.length)]
 }
 
+// ── Post-draft balance constraints (14 Aug 2026) ──────────────────────────
+// Data over Jun-Aug 2026 showed the snake draft nailed the aggregate rating
+// sum (median 3-pt spread across 4 teams) but the highest-rated team came
+// LAST 3 times in 10 nights — because two failure modes leaked through:
+//   * STAR STACKING (three OVR≥9 players landing on one team)
+//   * AGE STACKING (all the over-40s on one team, the youth on another)
+//
+// This pass sits between the snake draft and the returned teams. It runs
+// a small greedy fix-up loop, swapping players between teams within the
+// same position bucket (so positional balance is preserved) until both
+// constraints are satisfied or the loop bails out.
+//
+//   Star cap:  max 2 × OVR≥9 per team
+//   Age cap:   over-40 count within ±1 across teams
+//
+// Swaps are position-preserving — a MID only ever swaps with a MID, a
+// DEF with a DEF, etc. Position balance from the snake draft is untouched.
+
+const STAR_THRESHOLD = 9
+const MAX_STARS_PER_TEAM = 2
+const AGE_SPREAD_TOLERANCE = 1
+
+function isStar(p: Profile): boolean {
+  return (p.overall_rating ?? 0) >= STAR_THRESHOLD
+}
+
+function isOver40(p: Profile): boolean {
+  const g = p.age_group
+  return g === '40–49' || g === '50+' || g === '40+'
+}
+
+function posBucket(p: Profile): string {
+  return p.preferred_position_primary ?? p.position ?? 'REST'
+}
+
+function enforceBalanceConstraints(teams: Profile[][]): Profile[][] {
+  const MAX_ITER = 200
+  const working = teams.map(t => [...t])
+
+  const starCounts = () => working.map(t => t.filter(isStar).length)
+  const oldCounts = () => working.map(t => t.filter(isOver40).length)
+
+  // Try to swap `player` (currently on `fromIdx`) with any position-matching
+  // player on any team from `candidates`. Returns true if a swap happened.
+  function trySwapOutOf(
+    fromIdx: number,
+    player: Profile,
+    candidateIdxs: number[],
+    swapPartnerFilter: (p: Profile) => boolean,
+  ): boolean {
+    const bucket = posBucket(player)
+    for (const toIdx of candidateIdxs) {
+      if (toIdx === fromIdx) continue
+      const partner = working[toIdx].find(
+        p => posBucket(p) === bucket && swapPartnerFilter(p),
+      )
+      if (!partner) continue
+      working[fromIdx] = working[fromIdx].filter(p => p.id !== player.id).concat(partner)
+      working[toIdx] = working[toIdx].filter(p => p.id !== partner.id).concat(player)
+      return true
+    }
+    return false
+  }
+
+  for (let i = 0; i < MAX_ITER; i++) {
+    // Star violations first — they matter more (three stars on one team is
+    // the classic "obvious best team gets beaten" failure).
+    const stars = starCounts()
+    const overStarIdx = stars.findIndex(n => n > MAX_STARS_PER_TEAM)
+    if (overStarIdx !== -1) {
+      const targets = stars
+        .map((n, i) => [n, i] as [number, number])
+        .filter(([n, i]) => n < MAX_STARS_PER_TEAM && i !== overStarIdx)
+        .sort((a, b) => a[0] - b[0])
+        .map(([, i]) => i)
+      const surplusStar = working[overStarIdx].find(isStar)
+      if (surplusStar && trySwapOutOf(overStarIdx, surplusStar, targets, p => !isStar(p))) {
+        continue
+      }
+      // Couldn't relocate this star (no position-matching non-star on the
+      // target teams). Break — greedy pass has done what it can.
+      break
+    }
+
+    // Age spread next.
+    const olds = oldCounts()
+    const maxOld = Math.max(...olds)
+    const minOld = Math.min(...olds)
+    if (maxOld - minOld > AGE_SPREAD_TOLERANCE) {
+      const highIdx = olds.indexOf(maxOld)
+      const lowIdx = olds.indexOf(minOld)
+      const surplusOld = working[highIdx].find(isOver40)
+      if (surplusOld && trySwapOutOf(highIdx, surplusOld, [lowIdx], p => !isOver40(p))) {
+        continue
+      }
+      break
+    }
+
+    // No violations → we're done.
+    break
+  }
+
+  return working
+}
+
+// Balance stats used by the admin-preview chips (D). Kept out of render
+// so both the chip row and any future publish-time guard can share it.
+interface TeamBalanceStats {
+  ratingSum: number
+  gkCount: number
+  over40Count: number
+  starCount: number
+  starOver: boolean          // > MAX_STARS_PER_TEAM
+  ageOutOfBand: boolean      // this team's over-40 count is > min + AGE_SPREAD_TOLERANCE
+}
+
+function computeBalanceStats(teams: TeamDraft[]): TeamBalanceStats[] {
+  const oldCounts = teams.map(t => t.players.filter(isOver40).length)
+  const minOld = Math.min(...oldCounts)
+  return teams.map((t, i) => {
+    const starCount = t.players.filter(isStar).length
+    return {
+      ratingSum: t.players.reduce((s, p) => s + (p.overall_rating ?? 0), 0),
+      gkCount: t.players.filter(p => posBucket(p) === 'GK').length,
+      over40Count: oldCounts[i],
+      starCount,
+      starOver: starCount > MAX_STARS_PER_TEAM,
+      ageOutOfBand: oldCounts[i] - minOld > AGE_SPREAD_TOLERANCE,
+    }
+  })
+}
+
 const byName = (a: Profile, b: Profile) =>
   `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`, undefined, { sensitivity: 'base' })
 
@@ -448,7 +580,11 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
     const candidates = availablePlayers.map(p => ({ player: p, createdAt: signupTimes[p.id] ?? '' }))
     const { playing } = splitPlayingAndReserves(candidates, cfg.total)
     const playingProfiles = playing.map(c => c.player)
-    const groups = snakeDraft(playingProfiles, cfg.numTeams, weights)
+    // Two-pass: snake draft for position balance + rating balance, then a
+    // greedy fix-up pass to enforce the star cap and age spread. See
+    // enforceBalanceConstraints for the failure modes it addresses.
+    const initialGroups = snakeDraft(playingProfiles, cfg.numTeams, weights)
+    const groups = enforceBalanceConstraints(initialGroups)
     const bibsPattern = cfg.numTeams === 2 ? [true, false] : [true, false, true, false]
     const teams: TeamDraft[] = groups.map((players, i) => {
       const captain = pickCaptain(players)
@@ -723,10 +859,18 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
             </div>
           )}
 
+          {/* Per-team balance stats — 4 chips per card so the admin can
+              eyeball rating/shape/age/star distribution before publish.
+              Colour code: green = within band, amber = borderline, red =
+              constraint violated. Rating chip is info-only (no colour
+              since raw sum has no red/green interpretation). */}
           <div className="space-y-3 mb-4">
-            {teamsToShow.map((team, teamIdx) => {
-              const color = TEAM_COLORS[teamIdx % TEAM_COLORS.length]
-              return (
+            {(() => {
+              const stats = computeBalanceStats(teamsToShow as TeamDraft[])
+              return teamsToShow.map((team, teamIdx) => {
+                const color = TEAM_COLORS[teamIdx % TEAM_COLORS.length]
+                const s = stats[teamIdx]
+                return (
                 <div key={team.id ?? teamIdx}
                   style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${color}55` }}>
 
@@ -774,6 +918,46 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                     </span>
                   </div>
 
+                  {/* Balance chips (mig 077 follow-up · 14 Aug 2026) —
+                      RTG is info-only, GK/40+/★ tint amber/red when the
+                      constraints from enforceBalanceConstraints are being
+                      violated so admin can eyeball before Publish. */}
+                  <div style={{
+                    background: 'var(--color-surface)',
+                    padding: '6px 12px',
+                    display: 'flex', gap: 6, flexWrap: 'wrap',
+                    borderBottom: '1px solid var(--color-border)',
+                    fontFamily: 'var(--font-mono)', fontSize: 10, lineHeight: 1,
+                  }}>
+                    {[
+                      { label: 'RTG', value: s.ratingSum, tone: 'neutral' as const },
+                      { label: 'GK',  value: s.gkCount,   tone: (s.gkCount === 1 ? 'ok' : 'warn') as 'ok'|'warn' },
+                      { label: '40+', value: s.over40Count, tone: (s.ageOutOfBand ? 'warn' : 'ok') as 'ok'|'warn' },
+                      { label: '★',   value: s.starCount, tone: (s.starOver ? 'bad' : 'ok') as 'ok'|'bad' },
+                    ].map(chip => {
+                      const bg = chip.tone === 'bad' ? 'var(--color-error-bg)'
+                        : chip.tone === 'warn' ? 'var(--color-warning-bg)'
+                        : chip.tone === 'ok' ? 'var(--color-success-bg)'
+                        : 'var(--color-surface-2, var(--color-bg))'
+                      const fg = chip.tone === 'bad' ? 'var(--color-error-text)'
+                        : chip.tone === 'warn' ? 'var(--color-warning-text)'
+                        : chip.tone === 'ok' ? 'var(--color-primary)'
+                        : 'var(--color-text-muted)'
+                      return (
+                        <span key={chip.label}
+                          style={{
+                            background: bg, color: fg,
+                            padding: '3px 7px', borderRadius: 4,
+                            border: '1px solid var(--color-border)',
+                            letterSpacing: '0.04em',
+                          }}>
+                          <span style={{ opacity: 0.7, marginRight: 4 }}>{chip.label}</span>
+                          <b style={{ fontWeight: 700 }}>{chip.value}</b>
+                        </span>
+                      )
+                    })}
+                  </div>
+
                   <div style={{ background: 'var(--color-surface-2)' }}>
                     {[...team.players].sort(byName).map((p, idx) => (
                       <button
@@ -792,8 +976,9 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
                     ))}
                   </div>
                 </div>
-              )
-            })}
+                )
+              })
+            })()}
           </div>
 
           {publishError && (
