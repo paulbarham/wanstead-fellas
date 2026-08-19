@@ -47,8 +47,6 @@ select v.name, v.note, v.sort from (values
   ('Hampton Inn & Suites Santa Monica', '14–16 Aug (2 nights).', 11),
   ('Universal Studios Hollywood tickets', 'Dated tickets; consider the Express pass for August crowds.', 12),
   ('SpringHill Suites LA Burbank/Downtown', '16–23 Aug (7 nights).', 13),
-  ('Disneyland tickets + park reservation', 'Needs BOTH a dated ticket and a park reservation. Set up Genie+ the night before.', 14),
-  ('Six Flags Magic Mountain tickets', 'Buy online in advance; the teens'' day.', 15),
   ('W Las Vegas', '23–24 Aug (1 night).', 16),
   ('Luxor Hotel & Casino', '24–29 Aug (5 nights).', 17),
   ('Grand Canyon West day tour', 'Book the Skywalk / West Rim package and confirm the pickup or self-drive parking.', 18),
