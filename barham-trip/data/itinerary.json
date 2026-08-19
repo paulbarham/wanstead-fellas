@@ -931,6 +931,20 @@
           "url": "https://2seewhales.com/long-beach-whale-watching/",
           "area": "Long Beach & the coast",
           "note": "2.5-hr cruise from Rainbow Harbor (~40 mins from Burbank). August is blue whale season — the biggest animal that has ever lived — plus big dolphin pods. From ~$35 adult, kids less; several departures daily, so you can book same-day. The Aquarium of the Pacific is right at the dock."
+        },
+        {
+          "title": "Academy Museum of Motion Pictures",
+          "category": "cultural",
+          "suits": "all",
+          "area": "Mid-City & Westside",
+          "note": "The film-lovers museum at Wilshire & Fairfax — Oscars gallery, animation, film history and a rooftop Dolby terrace. Closed Tuesdays; book timed tickets. Next door to the Tar Pits."
+        },
+        {
+          "title": "Aquarium of the Pacific, Long Beach",
+          "category": "cultural",
+          "suits": "all",
+          "area": "Long Beach & the coast",
+          "note": "Right at Rainbow Harbor where the whale boats leave — sea otters, a shark lagoon and touch tanks. Pairs perfectly with a morning whale watch."
         }
       ],
       "stays": [
@@ -1031,27 +1045,27 @@
           "weekday": "Wednesday",
           "date": "19 Aug",
           "iso_date": "2026-08-19",
-          "title": "Disneyland",
-          "subtitle": "The big one for the twins.",
+          "title": "LA Zoo & the studio tour",
+          "subtitle": "Animals for the young ones, the backlot for the older three.",
           "options": [
             {
               "kind": "recommended",
-              "badge": "DISNEYLAND",
-              "title": "Disneyland Park, Anaheim",
-              "plan": "A full day at the original Disneyland (about an hour south). Rope-drop the headliners (Rise of the Resistance, Space Mountain, Indiana Jones), pace it with breaks, and stay for the fireworks over the castle.",
-              "food": "Eat in the park; a Dole Whip in Adventureland is an easy win."
+              "badge": "SPLIT THE GROUP",
+              "title": "LA Zoo + Warner Bros Studio Tour",
+              "plan": "A split day, no car needed. The older three take the Warner Bros Studio Tour, right on the doorstep in Burbank — a ~3-hour ride and walk through real backlots and sound stages (Friends, DC, Harry Potter props). The younger ones head to the LA Zoo in Griffith Park (a ~10-minute rideshare) — shady, walkable and easy, with the carousel and reptile house. Everyone reconvenes back in Burbank for dinner.",
+              "food": "Porto's Bakery for the breakfast run; dinner in Downtown Burbank where everyone swaps stories."
             },
             {
               "kind": "alternative",
-              "badge": "NEXT DOOR",
-              "title": "Disney California Adventure",
-              "plan": "The sister park across the plaza — Avengers Campus, Cars Land and the Guardians drop tower skew a bit older, so it can suit the teens better.",
-              "food": "Pym Test Kitchen in Avengers Campus is a laugh."
+              "badge": "ALL TOGETHER",
+              "title": "Travel Town & Griffith Park",
+              "plan": "Rather stay as one group? Travel Town — a free outdoor train museum with a miniature railroad to ride — plus the nearby pony rides suit all four ages, right by the Zoo.",
+              "food": "Picnic in Griffith Park, or a casual lunch in Los Feliz."
             }
           ],
           "tip": {
-            "label": "Book early",
-            "body": "Disneyland needs a dated ticket AND a park reservation. Download the app and set up Lightning Lane / Genie+ the night before to skip the worst queues."
+            "label": "No car, no problem",
+            "body": "Everything today is a short Uber/Lyft from Burbank — the Zoo and Travel Town are ~10 mins, Warner Bros is on the doorstep. Book an XL if you're moving as six. Do the Zoo early, before the afternoon heat."
           }
         },
         {
@@ -1059,41 +1073,34 @@
           "weekday": "Thursday",
           "date": "20 Aug",
           "iso_date": "2026-08-20",
-          "title": "Griffith Park & museums",
-          "subtitle": "A gentler recovery day after Disney.",
+          "title": "Movie museum & the tar pits",
+          "subtitle": "Mid-city film, fossils and a food-hall lunch — all on foot.",
           "options": [
             {
               "kind": "recommended",
-              "badge": "PARK & ANIMALS",
-              "title": "LA Zoo & Griffith Park",
-              "plan": "A deliberately easier day. The LA Zoo and the vintage Travel Town train museum in Griffith Park are perfect for tired twins, with plenty of shade and space to roam.",
-              "food": "Picnic in Griffith Park, or a casual lunch in Los Feliz."
+              "badge": "FILM & FOSSILS",
+              "title": "Academy Museum, La Brea Tar Pits & The Grove",
+              "plan": "One rideshare to Wilshire & Fairfax and the rest is walking. Start at the Academy Museum of Motion Pictures — the Oscars gallery, animation, film history and the rooftop Dolby terrace, perfect after two days at Universal. Next door, the La Brea Tar Pits: bubbling ice-age tar with mammoths and sabre-tooths for the twins. Then lunch and the afternoon at the Original Farmers Market and The Grove, a short walk away — dozens of food stalls, the little trolley, and shops for the teens to peel off to.",
+              "food": "The Original Farmers Market at 3rd & Fairfax — a dozen stalls, everyone picks their own (no seafood required)."
             },
             {
               "kind": "alternative",
-              "badge": "ICE AGE",
-              "title": "La Brea Tar Pits",
-              "plan": "Bubbling Ice Age tar pits and a museum full of sabre-tooth cats and mammoths, right in the middle of the city — a quirky, kid-friendly winner.",
-              "food": "The Original Farmers Market at 3rd & Fairfax is a short hop."
+              "badge": "ICONS BY METRO",
+              "title": "Hollywood & Downtown by train",
+              "plan": "All by Metro, no rideshare: the Walk of Fame and the TCL Chinese Theatre handprints in Hollywood, then the B Line down to The Broad (free contemporary art, the Infinity Mirror Rooms) and Grand Central Market.",
+              "food": "Grand Central Market, DTLA — tacos, burgers and egg sandwiches under one roof."
             },
             {
               "kind": "alternative",
-              "badge": "SEA AIR",
-              "title": "Back to the beach",
-              "plan": "Fancy the coast again? An easy day back at Santa Monica or Venice beach — no driving stress, just sand and the pier.",
-              "food": "Whatever takes your fancy on the pier or Abbot Kinney."
-            },
-            {
-              "kind": "alternative",
-              "badge": "OUT TO SEA",
-              "title": "Whale watching from Long Beach",
-              "plan": "Trade the recovery day for the water: a 2.5-hour whale-watching cruise from Rainbow Harbor in Long Beach (~40 mins from Burbank). August is blue whale season — the biggest animal on earth — plus big pods of common dolphins. Shorter and calmer than the Monterey trip, so kinder on the twins. The Aquarium of the Pacific is right at the dock if you want to make a half-day of it.",
-              "food": "Lunch at the harbourside stalls or the Aquarium of the Pacific café."
+              "badge": "COOL & QUIET",
+              "title": "Natural History Museum",
+              "plan": "Want a single air-conditioned building? The Natural History Museum in Exposition Park (Metro E Line) has the dinosaurs, gems and a butterfly pavilion.",
+              "food": "The museum café, or the food trucks in Exposition Park."
             }
           ],
           "tip": {
-            "label": "Split if you like",
-            "body": "A good day to split by energy — quiet zoo/park for the twins, museums or the beach for the older ones."
+            "label": "Check the day & tickets",
+            "body": "The Academy Museum is closed Tuesdays (Thursday's fine) — grab timed tickets online first. One Uber out to Fairfax, one back, and everything in between is a short walk. The Grove stays open late if you want to linger."
           }
         },
         {
@@ -1101,27 +1108,27 @@
           "weekday": "Friday",
           "date": "21 Aug",
           "iso_date": "2026-08-21",
-          "title": "Six Flags Magic Mountain",
-          "subtitle": "The teenagers' day — serious coasters.",
+          "title": "Universal Studios — day two",
+          "subtitle": "Back on the second-day pass, no car needed.",
           "options": [
             {
               "kind": "recommended",
-              "badge": "COASTERS",
-              "title": "Six Flags Magic Mountain",
-              "plan": "Aimed squarely at the 15- and 17-year-olds: Magic Mountain (up near Valencia) has one of the biggest roller-coaster line-ups on the planet. A great day to split the group — thrill-seekers here, twins and a grown-up to a pool or the beach.",
-              "food": "Park food, or refuel in Valencia on the way back."
+              "badge": "THEME PARK",
+              "title": "Universal Studios Hollywood (day two)",
+              "plan": "Straight back in on the second-day pass — and this time you can take it slower: the bits you missed, re-ride the favourites, and do the Studio Tour tram if you skipped it. Get the Metro B Line to Universal City station and hop the free shuttle up the hill — no car, no parking.",
+              "food": "Eat in the park — Three Broomsticks in Hogsmeade, or the Springfield/Simpsons stalls for a laugh."
             },
             {
               "kind": "alternative",
-              "badge": "FOR THE TWINS",
-              "title": "Pool & beach day",
-              "plan": "The other half takes it easy — hotel pool in the morning, Santa Monica beach in the afternoon. Everyone reconvenes for dinner and swaps stories.",
-              "food": "Family dinner back near Burbank — somewhere everyone's voted for."
+              "badge": "HAD ENOUGH RIDES?",
+              "title": "CityWalk & a slower morning",
+              "plan": "If the park's run its course, Universal CityWalk (free to wander, same Metro stop) has the shops, the cinema and restaurants without a ticket — pair it with a lazy morning at the hotel pool.",
+              "food": "Anything on CityWalk — Voodoo Doughnut for the sugar hit."
             }
           ],
           "tip": {
-            "label": "Split the group",
-            "body": "Height limits keep the twins off most of Magic Mountain's big rides, so splitting the day is kinder to everyone. Agree a pickup time and place before you separate."
+            "label": "Beat the queues",
+            "body": "Rope-drop the headliners again before the crowds build, and use the Single Rider lines where the group's happy to split. The Metro + free shuttle drops you right at the gates — no parking faff on day two."
           }
         },
         {
@@ -1129,27 +1136,27 @@
           "weekday": "Saturday",
           "date": "22 Aug",
           "iso_date": "2026-08-22",
-          "title": "Getty, Beverly Hills & desert prep",
-          "subtitle": "Culture, glamour, and stocking up for Nevada.",
+          "title": "Long Beach — whales & the aquarium",
+          "subtitle": "Car day: blue whales in the morning, aquarium at the dock.",
           "options": [
             {
               "kind": "recommended",
-              "badge": "ART & AIR-CON",
-              "title": "The Getty & a Beverly Hills stroll",
-              "plan": "Ride the tram up to the Getty Center for art, gardens and views, then a stroll down Rodeo Drive for the Beverly Hills people-watching. A cooler, calmer last LA day — and the chance to stock the car before the desert.",
-              "food": "Lunch at the Getty, or a deli in Beverly Hills."
+              "badge": "OUT TO SEA",
+              "title": "Whale watching + Aquarium of the Pacific",
+              "plan": "With the car back, drive down to Long Beach's Rainbow Harbor (~40 mins). A morning whale-watching cruise (~2.5 hrs) — August is blue whale season, the biggest animal on earth, plus big pods of common dolphins. Then the Aquarium of the Pacific is right at the dock: sea otters, a shark lagoon and touch tanks for a cool-off afternoon. Back to Burbank in good time to pack for the desert.",
+              "food": "Lunch at the harbourside stalls or the Aquarium café; an early dinner back near Burbank."
             },
             {
               "kind": "alternative",
-              "badge": "MARKET DAY",
-              "title": "Farmers Market & The Grove",
-              "plan": "The Original Farmers Market and the open-air Grove for a relaxed food-and-shopping morning before the drive.",
-              "food": "Take your pick of the Farmers Market stalls."
+              "badge": "CULTURE & GLAMOUR",
+              "title": "The Getty & Beverly Hills",
+              "plan": "Prefer to stay on the Westside? The Getty Center — art, gardens, huge views, free to enter — then a stroll down Rodeo Drive for the Beverly Hills people-watching. A cooler, calmer last LA day.",
+              "food": "Lunch at the Getty, or a deli in Beverly Hills."
             }
           ],
           "tip": {
-            "label": "Desert prep",
-            "body": "Buy a case of water and check the car's air-con works properly before tomorrow — you're driving into serious August heat. Charge everything tonight."
+            "label": "Book the boat & desert prep",
+            "body": "Book a morning whale-watch slot the night before — several sailings a day from Rainbow Harbor. And before tomorrow's drive into 40°C+ heat: buy a case of water, check the car's air-con, and charge everything tonight."
           }
         }
       ]
