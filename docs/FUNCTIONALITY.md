@@ -1,144 +1,165 @@
-# Wanstead Fellas — App Functionality
+# Wanstead Fellas — App Functionality Overview
 
-> A living reference for the Wanstead Fellas app: what it does for players, what it gives admins, and how it's built. **Keep this document updated whenever functionality changes.**
+> Single source of truth for what the app does, how it's built, and where the data lives.
+> Audience: the developer (Paul) + Claude Code. **Regenerated from the live Supabase schema — 18 Aug 2026.**
+> Do not hand-edit stale sections from memory — regenerate from `public.roadmap` + live schema.
 
-_Last updated: 2026-06-19 (single-pass MOTM/DOTD ballot + pinned-open placement + 10am voting close; finished-match block ordering: Predicted vs. Actual between table and results)_
-
----
-
-## 1. Overview (for everyone)
-
-Wanstead Fellas is a mobile-first web app (installable as a PWA) that runs a weekly Thursday-night football group. It handles the full match cycle — who's playing, building balanced teams, recording scores and scorers, voting for awards, tracking fines and stats — plus seasonal extras like a World Cup predictor and sweepstake.
-
-- **Platform:** React + Vite single-page app, deployed on Vercel (the `main` branch is production).
-- **Backend:** Supabase — authentication, Postgres database with row-level security, file storage for photos, realtime updates, and scheduled edge functions.
-- **Look & feel:** A retro Ceefax/teletext theme, optimised for phones (max 430px content width).
-- **Admin:** A single admin account (`pabarham@gmail.com`) has elevated permissions throughout.
-
-### The weekly rhythm
-
-The app revolves around the **next Thursday** match. A match moves through four phases, all calculated in Europe/London time:
-
-| Phase | Window | What happens |
-|-------|--------|--------------|
-| **Signup open** | Thu 10pm → Wed 10pm | Players mark themselves In / Out |
-| **Signup locked** | Wed 10pm → Thu 9pm | Lineup fixed; admin can still adjust; teams get built |
-| **Match live** | Thu 9pm → Thu 10pm | Kick-off; scores entered |
-| **Post-match** | Thu 10pm onward | Voting opens, results & reports published |
-
-Team generation is allowed from Wed 10pm up to 30 minutes before kick-off (Thu 8:30pm). Award voting runs Thu 10pm → 9am Friday. The match date rolls over to the following Thursday at Thu 10pm.
+**Live URL:** https://wanstead-fellas.vercel.app
+**Instagram:** @wanstead_football_fellas
 
 ---
 
-## 2. Player-facing features
+## 1. What this is
 
-### Signing up (Next Game / Tonight page)
-- **In / Out toggle**, gated by match phase (admins can change it anytime).
-- **Player tiers:** `subscribed`, `wtp_priority` (want-to-play priority), `wtp` (want-to-play). Subscribers and priority players bump the newest plain `wtp` signups when the match is over capacity (cap = 32).
-- **Waiting list / auto-promotion:** if a playing player drops out, the next reserve is promoted automatically.
-- **Reserves & deferrals:** once signups lock, the lineup splits into playing vs reserves. Deferral order pushes plain `wtp` out first and protects subscribers; within a tier the latest signup is deferred first.
-- **Drop-out confirmation** modal to prevent accidental withdrawals.
-- **My Squad:** parents can manage linked children and sign them up too.
-- **Live availability:** the list updates in realtime as others sign up.
-- **Last result card** and a countdown label ("TONIGHT", "Tomorrow", "Thursday · 3 days away").
-- **Weather:** Open-Meteo forecast for the Wanstead Flats 9pm slot.
+A custom PWA for managing **Wanstead Fellas** — a Thursday-night grassroots football group in Wanstead, east London. Typically 8v8 four-team format, ~25–32 players a week, ~84 registered profiles (including linked family members and stubs).
+
+The app has grown from a sign-up/teams/results tool into a full club-management platform: player cards, cuntiness tiers, awards voting, a World Cup 2026 predictor + sweepstake, a Match of the Week predictor, a Premier League Season Predictor Card, club finance tracking, and push notifications.
+
+Longer-term vision: generalise the platform for other groups (multi-tenant), plus Polar/kit partnerships.
+
+---
+
+## 2. Tech stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js + TypeScript |
+| Backend / DB | Supabase (Postgres) — project ID `qvvlxjftrteyrsscqidc` |
+| Hosting | Vercel |
+| Dev workflow | Claude (spec/prompt) → Claude Code (autonomous file creation + deploy) |
+| PDF generation | WeasyPrint (Archivo/Inter fonts, WF green branding) |
+| Match-report rendering | Playwright Chromium (CEEFAX-style images, VT323 font, 1344×896) |
+| Weather | Open-Meteo API (free, no key) — Wanstead lat 51.5772, lon 0.0288 |
+| Fitness data | Strava API (Apple Watch records); HR from Polar H10 (opt-in, parked) |
+| Push | Web Push (`push_subscriptions` table) |
+
+**Workflow note:** spec/prompt work happens in chat with Claude, then the Claude Code prompt is pasted into Claude Code for autonomous file creation and deployment.
+
+---
+
+## 3. Tabs (bottom navigation)
+
+### Tonight
+Next Thursday date + live countdown; availability button (sign up before **Wednesday 10pm**); who's-in list + likely format; "My Squad" for linked family members; final count after lock; "Last Result" card. Availability now supports statuses beyond a flat `confirmed` (see §9 roadmap — richer statuses in progress).
 
 ### Teams
-- Published teams with names, players, and captain.
-- Team sizing auto-picks a valid configuration based on headcount (e.g. 32→4 teams of 8, down to 10→2 teams of 5; below 10 no auto-config).
+Published after the Wednesday deadline. Own team highlighted; team name (captain), bibs / no bibs, teammates. Teams can now also carry a **formation** (`team_formations`: shape + slot assignments, e.g. 2-3-1) editable by admins. **Reads from `team_drafts.draft` JSONB** (see §7 sync rule) but eligibility/appearances are driven by `team_players`.
 
-### Match (live scoring)
-- Round-robin fixtures between the published teams.
-- Score steppers and a live league table (3 pts win / 1 pt draw / 0 loss, sorted by pts then goal difference).
-- Per-fixture scorer entry feeding the goals table.
-- **Penalty shootouts (drawn fixtures):** any fixture that finishes level — including a genuine 0-0 — goes to a shootout. The admin picks the winning team (`fixtures.shootout_winner`), who takes a **+1 bonus point** in the standings (draw winner finishes on 2, loser 1; a regulation win is still 3). Because the score steppers can't express a 0-0 (walking both to zero = "not played"), there's an explicit **"mark 0-0 draw"** affordance. Submit is blocked until every drawn fixture has a recorded shootout winner. The bonus flows through all three standings calcs — the live table, the read-only `MatchResultView` group table, and the Stats "champion team" crown. Shootout penalties are **not** goals: no per-player shootout data is captured, so top-scorer stats are untouched; they may inform MOTM/DOTD voting, which stays free-form. Result cards show e.g. "▶ DRAW · TEAM A WIN ON PENS" / "TEAM A WON ON PENS (+1)".
-- Results report view (shared `MatchResultView`).
-- **Finished-match ordering (identical on the Match and History tabs):** Group Table → Predicted vs. Actual → Results → Match Awards (MOTM/DOTD) → Match Report. `MatchResultView` renders the table, the `PredictedVsActual` card, and the results; the awards block and `MatchReport` are placed by the page. Predicted vs. Actual sits between the table and the results — it is no longer the first section of the written report.
-
-### Awards & voting
-- **MOTM** (Man of the Match) and **DOTD** (Dick of the Day) voting after the match.
-- **Voting window:** opens 22:00 match night (full time), closes 10:00 the next day (`getVotingWindow`, stamped at team generation).
-- **Single-pass ballot:** one row per player with a 🏆 (MOTM) and 🤡 (DOTD) button, so both awards are cast in one scroll. That night's goalscorers sort to the top with a ⚽ tag, and a search box filters the roster.
-- **Placement:** while the window is open the ballot is pinned to the top of the Match tab; once closed the results sit in the mid-slot (between result and report), matching the History tab.
-- Only rostered players are eligible; votes upsert with read-back confirmation.
-
-### Stats
-Seven leaderboards, each with a month / all-time toggle:
-- Top Scorers, Fines, MOTM, DOTD, Appearances, Distance per Game, Total Distance.
+### Match
+Most recent result. 4-team nights: group table + all fixture scores, with optional penalty-shootout resolution on draws (`fixtures.shootout_winner`, `matches.shootout_enabled`). 11v11 nights: final score + report. Scorers, match report, player of the tournament/match, and — when set — a **Theme of the Night** award (`matches.theme_prompt`, `award_type = 'theme'`).
 
 ### History
-- Collapsible list of completed matches, each following the same ordering as the Match tab: result view (table → Predicted vs. Actual → results), then Match Awards, then the match report.
+All past results; tap to expand the full report; scorers by team.
 
-### Match fitness
-- Players can add their own fitness per match — manually or by importing a **TCX/GPX** file from a watch/app.
-- Fitness data can suggest stat tweaks (speed, stamina, work-rate) and powers the distance leaderboards.
+### Cards
+FIFA / Top Trumps-style player cards, tiered **Gold / Silver / Bronze / Standard** by `overall_rating`. Tap for the full stat breakdown (§8). Tap your own card to change photo / age group / preferred position / preferred foot. Badges show on the profile. Ratings set by the organiser (Phase 4 dynamic ratings still to come — see §9).
 
-### Player cards & profile
-- **Profile:** edit your own details, upload a photo, reset password, sign out, manage linked children.
-- **Cards (Top Trumps gallery):** FIFA-style player cards with stats and badges (e.g. Super Sharp Shooter, Legend, Captain). Tiers from overall rating: ≥9 gold, ≥8 silver, ≥7 bronze, else standard.
-- **Fines:** admin can issue quick fines (Late £2, Lost Ball £3, Cuntiness £5, Drop-out £2).
+### World Cup
+World Cup 2026 group-stage-through-final predictor (`cup_matches`, `cup_predictions` — 1,859 predictions across 104 fixtures) plus a **sweepstake** (`cup_sweepstake_entries`, `cup_sweepstake_team_status`) tracking each entrant's drawn team through elimination stages.
 
-### Seasonal extras
-- **World Cup Predictor (`/cup`):** open to all players during the tournament window. Group-stage 1X2 picks and knockout 6-way picks (90/ET/pens), locking 5 minutes before kick-off. Leaderboard scored across all settled matches; the header shows your own standing as a "MY RANK" position (rank / total players) with your points.
-- **Sweepstake:** read-only card for players; prize structure £60/£30/£20/£10 plus £120 to charity.
-- **Pods:** static car-share / group info.
-- **Feedback:** players submit feedback through a form.
+### Match of the Week
+Weekly PL/Championship/League One/League Two fixture pick (`mow_pool_fixtures` — 932-fixture season pool, `mow_fixtures` — one published pick per week) with scorepredictions (`mow_predictions`, scored 3/1/0) and season + weekly leaderboard views.
 
----
+### Season Predictor
+Premier League **Season Prediction Card** (`season_cards`, `season_card_markets`, `season_card_options`, `season_card_predictions`) — 7 markets per season (PL winner, top-4 others, relegated, top scorer, most assists, first manager sacked, Championship promoted), singles and ordered triples, with a grand-slam bonus for a perfect card.
 
-## 3. Admin features
+### Feedback
+Categories: Bug Report, Feature Request, Design Feedback, General → straight to the organiser (`feedback` table).
 
-The admin account unlocks an **Admin page** with four tabs:
-
-- **Players:** edit any player's stats, card, goalkeeper attributes, position, club, age, player type, badges, and photos. CSV import (matches existing players by name|surname — does not create new profiles) and CSV export.
-- **Finance:** fines plus want-to-play game charges (£5/game), mark paid, delete, CSV export.
-- **Families:** manage linked parent/child profiles.
-- **Feedback:** review submitted feedback.
-
-Admins also drive the match cycle:
-- **Team building:** snake-draft builder over weighted attributes, random top-3 captain pick, autosaved drafts, and publish (writes matches/teams/players/voting windows and £5 game charges). WhatsApp export of teams.
-- **Match results:** enter fixtures, scores, scorers, and results reports.
-- **Voting:** override votes, view breakdowns, DOTD-streak warnings.
-- **Cup admin:** add fixtures and set outcomes (which settle predictions).
-- **Sweepstake admin:** manage entry/team status, with manual overrides.
+### Admin (organisers, or delegated via `profiles.can_enter_results`)
+Manage players, teams, formations, fines, ratings, match data, club finances. `can_enter_results` grants a scoped delegate permission (fixtures/goals/results/match status only) without full admin rights.
 
 ---
 
-## 4. Technical reference
+## 4. Player types & sign-up priority
 
-### Stack
-- React 19, TypeScript ~6, Vite 8, Tailwind CSS v4, react-router-dom v7, date-fns / date-fns-tz.
-- Vitest 4 for unit tests (`npm test`). Build: `npm run build` (`tsc -b && vite build`). Lint: `npm run lint`.
-- PWA service worker (`public/sw.js`, cache `wf-v4`): network-first for navigation, cache-first for assets. Note: stale-page gotcha — bump the cache version on releases.
-- Code-splitting: Cup and Pods pages are lazy-loaded to keep the main bundle lean.
+- **SUB** — Subscribed, full season paid, guaranteed spot.
+- **WTP★** (`wtp_priority`) — long-standing Wait To Play players with priority status.
+- **WTP** — pay £5/game, fills remaining spots. Max 32 players/night; oversubscribed WTP players dropped last-in-first-out.
 
-### Supabase
-- **Auth:** email/password. `ADMIN_EMAIL` (`pabarham@gmail.com`) is auto-promoted; profiles self-heal on login.
-- **Storage:** `avatars` bucket (`{id}/profile.jpg`), uploaded with `cacheControl: 3600` and a `?t=` cache-buster on the URL.
-- **Realtime:** `postgres_changes` for live availability.
-- **Edge function:** `cup-results-sync` runs on a 30-minute cron (URL stored in Vault as `cup_sync_url`), backed by pg_cron + pg_net. It polls football-data.org to insert/score `cup_matches` once a fixture is marked FINISHED (admin-entered results are never overwritten), and optionally pulls red cards from api-football.com (its free tier excludes WC 2026, so that pass currently no-ops; reds stay manual). Every external fetch and the whole handler are wrapped so a transient API failure degrades gracefully (retries next run) instead of crashing the sync — finished results land within ~30 min. Results can also be entered manually on the Cup Admin page, which settles predictions immediately.
-- **RLS helpers:** `is_admin()` and `my_profile_id()`.
-
-### Database tables
-`profiles`, `availability`, `matches`, `teams`, `team_players`, `fixtures`, `results`, `feedback`, `goals`, `fines`, `wtp_games`, `linked_profiles`, `votes`, `award_results`, `voting_windows`, `team_drafts`, `fitness_sessions`, `player_fitness_suggestions` (view), `cup_matches`, `cup_predictions`, `cup_sweepstake_entries`, `cup_sweepstake_team_status`.
-
-### Key logic modules
-- **`src/lib/time.ts`** — match phases, team-gen window, voting window, countdown labels (London timezone).
-- **`src/lib/format.ts`** — `stripFC`, `pickConfig` (team-size selection), `formatLabelFor`, `splitPlayingAndReserves` (deferral ordering).
-- **`src/lib/report.ts`** — structured match-report helpers. The written report (`MatchReport`) covers summary → Key Highlights → Team Awards → Player of the Tournament → Fines & Admin → Banter → App Watch → Conclusion; Predicted vs. Actual is rendered separately by `PredictedVsActual` inside `MatchResultView`.
-- **`src/lib/fitnessImport.ts`** — TCX/GPX parsing.
-
-### Player stat model
-- Base stats (1–10): shooting, skill, stamina, tackling, passing, agility, physical, composure, work-rate, cuntiness, plus `overall_rating`.
-- Derived: strength = (physical+agility)/2, team-player = (passing+work-rate+composure)/3, technical = (skill+passing+composure)/3.
-- Nullable card/goalkeeper attribute sets.
-
-### Deployment
-- Push to `main` → Vercel deploys to production.
-- Workflow rule: reconcile local `main` with `origin/main` (fetch + fast-forward) before building/committing.
+Season subscriptions are now tracked in `club_subscriptions` (per player, per season, amount/paid/paid_at).
 
 ---
 
-## 5. Maintenance note
+## 5. Fines & club finance
 
-**This document must be updated whenever app functionality changes** — new features, changed flows, schema changes, or removed behaviour. Treat it as part of the definition of done for any feature work.
+- **Fines** (`fines`): Late £2, Lost Ball £3, Cuntiness £5, Drop Out £2 — keyed by `match_date` directly (not joined through `matches`).
+- **WTP game fees** (`wtp_games`): £5/game, paid flag, keyed by `match_date`.
+- **Club income** (`club_income`): carry-over, spreadsheet-era fines, donations, deposits, prizes.
+- **Club expenses** (`club_expenses`): pitch hire, equipment, food, tournament costs — optionally linked to a `match_id`.
+- **Credits** (`credits`): positive adjustments to a player's balance.
+
+Payment collection itself (Stripe wallet/ledger) is still on the roadmap — currently tracked, not collected in-app.
+
+---
+
+## 6. Awards & voting
+
+Generic voting system keyed by `award_type`, currently `motm` (Man of the Match), `dotd` (Dickhead of the Day), and `theme` (Theme of the Night, only when `matches.theme_prompt` is set). `voting_windows` controls open/close timing and push notification of window opening; `votes` are raw ballots, `award_results` are the published, tallied outcome (supports shared wins and admin overrides).
+
+---
+
+## 7. Data model highlights & sync rules
+
+- **Two roster stores must stay in sync:** `team_players` (relational, drives MOTM/DOTD eligibility + appearances) and `team_drafts.draft` (JSONB, what the Teams tab reads). This is an active `in_flight` roadmap item to automate.
+- **`team_drafts` keys on `match_date`**, not `match_id`.
+- **`profiles.player_type`** valid values: `subscribed`, `wtp`, `wtp_priority` only.
+- **`profiles.badges`** is a Postgres `text[]` — use `unnest()`, not JSONB operators.
+- **`cup_predictions.player_id`** (not `profile_id`).
+- **Fines queried by `match_date` directly**, not via a `matches` join.
+- **`roadmap.updated_at`** must be set manually on UPDATE — no auto-trigger.
+- Always verify against the **live** schema before writing SQL — this doc can lag.
+
+### Key views
+- `appearances`, `top_scorers` — season leaderboards.
+- `player_fitness_suggestions` — derives suggested card-stat nudges from `fitness_sessions`, with a confidence score.
+- `v_player_match_history`, `v_position_adoption`, `v_blocked_players` — player/team analytics.
+- `v_cup_leaderboard`, `v_mow_season_leaderboard`, `v_mow_weekly_leaderboard`, `v_season_card_leaderboard` — predictor leaderboards.
+
+---
+
+## 8. Player card stats
+
+Card stats derive from the 17-column Scoring DB, rounded to whole numbers (.5 rounds up):
+
+| Card stat | Source |
+|---|---|
+| PACE | Speed |
+| SHOOTING | Goals |
+| PASSING | Passing |
+| DRIBBLING | Skill |
+| DEFENCE | avg(Tackling, Aggression) |
+| PHYSICALITY | avg(Physicality, Stamina) |
+
+GK alternates (`gk_pace`, `gk_reflexes`, `gk_handling`, `gk_distribution`, `gk_positioning`, `gk_physicality`) follow the equivalent mapping documented in memory. `overall_rating` is a stored DB value, not recalculated from the six card stats. `cunt_tier` is a **generated column**, auto-computed from `cunt` (1–2 Saint, 3–4 Gentleman, 5–6 Scamp, 7–8 Nuisance, 9–10 Cunt) — it is not a card stat, it's a badge tier.
+
+Profiles also carry `preferred_position_primary/secondary` (GK/DEF/MID/ATT), `preferred_foot`, and `debut_at` (manual override for pre-app veterans whose history predates the app).
+
+---
+
+## 9. Roadmap snapshot (live from `public.roadmap`, 33 open items)
+
+**In flight (data hygiene):**
+Fines backfill · CSV import for new card stats · card-stat sweep for not-yet-scored players · match-report saving to `results.report_text` · History-tab date-cutoff fix · team_players/team_drafts sync · matching stub profiles to real accounts.
+
+**Next:**
+Phase 4 — results-driven dynamic ratings · auto-recording weekly rosters into `team_players` · push notifications · banter vote categories (Sitter of the Week, Goal of the Night, Cunt of the Week — reusing the generic voting infra).
+
+**Then (parked):**
+Opt-in Polar H10 fitness tracking · dual-source (Strava + Polar) fitness merge.
+
+**Idea (not yet started):**
+AI-assisted match report drafting via the Claude API · richer availability statuses · match shirts/numbered kit (data capture angle) · PL Season Prediction Card extensions · attendance streaks & milestones · Player of the Month · head-to-head records · "On this day" · season awards night · PL Match of the Week extensions · Thursday predictions league · season records/leaderboards hub · PL Last Man Standing · Stripe wallet + ledger payment collection.
+
+**Vision (long horizon):**
+Numbered squad kit + brand refresh · Veo match camera + stats pipeline · local sponsorship · merch range · multi-tenant multi-group platform · Polar/kit partnerships.
+
+---
+
+## 10. Known accepted gaps
+
+7 profiles have NULL card stats (not yet in the master scoring spreadsheet) — leave until added, not a bug. 8 stub profiles await real sign-ups (match to existing stub row, don't duplicate) — tracked as an in-flight roadmap item.
+
+---
+
+*Regenerate this file from `public.roadmap` and a live `list_tables`/`execute_sql` schema pull — never rebuild from memory or an old copy of this doc.*
