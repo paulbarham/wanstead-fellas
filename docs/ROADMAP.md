@@ -157,6 +157,14 @@ Granular permissions so admin can hand off narrow tasks (scoring, fines, etc.) t
 | Indicator on Admin profile page showing who holds each delegate | 🟢 | chat | "Score entry: Ross Marks" — easy audit |
 | Additional delegate roles as needed (e.g. `can_manage_fines`, `can_publish_teams`) | 🟢 | chat | Same pattern — helper fn + replace policy condition |
 
+## 🩹 Availability — injury list
+
+Self-service injury reporting so admin doesn't chase, and the group knows why a regular's missing.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| Injury list — v1 self-service | ✅ | chat 20 Aug 2026 · commit pending · migration `078` | New `injuries` table (player_id / injury_type / notes / reported_at / return_date / cleared_at / cleared_by) with a CHECK constraint forcing `return_date` onto a Thursday. Read policy public, write policy self-or-admin, delete admin-only. Player self-serves from Profile → Injury status card: pick from quick-chip types (Hamstring / Calf / Knee / Ankle / Back / Shoulder / Illness / Other) or type free-text, pick a return-Thursday from the next 8 available, and hit report. Later they clear via "I'm fit" or push their return date out with "+1 week". Tonight tab surfaces `v_active_injuries` under a "🩹 On the injury list" strip (public — everyone sees who's out and until when); auto-hides when the list is empty. Sign-up shows a warn-only banner if the fella has an active injury for that Thursday — admin call: some fellas play through niggles, don't block them. Admin → Injury tab lists currently-out fellas with a "Clear on behalf" button (useful for stubs / forgetful players) + the last 90 days of history. SW bumped to v46. |
+
 ## ⚽ Team tactics
 
 Tools that turn a published team from "here's who's playing" into "here's how we're playing" — pre-match talking points, formation debate, hopefully some kickabout banter.

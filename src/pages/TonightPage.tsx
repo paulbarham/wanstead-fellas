@@ -12,6 +12,7 @@ import NotificationsBanner from '../components/NotificationsBanner'
 import WeatherCard from '../components/WeatherCard'
 import CeefaxHeader from '../components/CeefaxHeader'
 import ProfileCompletionCard from '../components/ProfileCompletionCard'
+import InjuryList from '../components/InjuryList'
 import { pickConfig, formatLabelFor, splitPlayingAndReserves } from '../lib/format'
 
 interface LastResultSummary {
@@ -98,6 +99,10 @@ export default function TonightPage() {
   // Set when the toggle attempt is rejected by the DB trigger so we can show
   // the message inline instead of an opaque error.
   const [signupError, setSignupError] = useState<string | null>(null)
+  // Player's own active injury row (mig 078). Used to WARN — not block — on
+  // sign-up if their return date is after nextThursday. Admin-set policy
+  // 20 Aug 2026: some fellas play through niggles, don't block them.
+  const [myInjury, setMyInjury] = useState<{ injury_type: string; return_date: string } | null>(null)
   // Theme of the Night Award prompt (mig 060) — surfaced early on Tonight
   // so the group gets banter before match day. Null = no theme this week.
   const [themePrompt, setThemePrompt] = useState<string | null>(null)
@@ -126,6 +131,28 @@ export default function TonightPage() {
   }, [nextThursday])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  // Load my own active injury (mig 078) — powers the sign-up warn banner
+  // when the fella tries to sign up while marked injured for that date.
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      if (!profile?.id) { setMyInjury(null); return }
+      const today = new Date().toISOString().slice(0, 10)
+      const { data } = await supabase
+        .from('injuries')
+        .select('injury_type, return_date')
+        .eq('player_id', profile.id)
+        .is('cleared_at', null)
+        .gte('return_date', today)
+        .order('reported_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (!cancelled) setMyInjury((data as { injury_type: string; return_date: string } | null) ?? null)
+    }
+    load()
+    return () => { cancelled = true }
+  }, [profile?.id])
 
   // Keep the who's-in list live — most useful right on the deadline when
   // spots are filling. Any insert/update/delete on this week's availability
@@ -572,12 +599,30 @@ export default function TonightPage() {
             ⚠ {signupError}
           </p>
         )}
+        {/* Injury warn banner (mig 078). Warn-only per admin spec — some
+            fellas play through niggles. Doesn't block toggleAvailability. */}
+        {myInjury && !myEntry && myInjury.return_date > nextThursday && (
+          <p className="text-xs mt-2 text-center px-3 py-1.5 rounded-lg"
+            style={{
+              background: 'var(--color-warning-bg)',
+              color: 'var(--color-warning-text)',
+              border: '1px solid #C9A227',
+              lineHeight: 1.5,
+            }}>
+            🩹 You're marked injured ({myInjury.injury_type}) until {new Date(myInjury.return_date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}. Sign up anyway if you're fit — or clear it on your Profile.
+          </p>
+        )}
         {iAmDeferred && (
           <p className="text-xs mt-2 text-center" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
             The game's full, so you've been moved to the reserves. You'll be first in if someone drops out — keep an eye on the list.
           </p>
         )}
       </div>
+
+      {/* Group-visible injury list (mig 078). Public per admin spec —
+          renders nothing when nobody's injured, so the page stays clean
+          on a healthy week. */}
+      <InjuryList />
 
       {/* My squad - linked children. Compact pill rows so kid toggles don't
           visually compete with the main I'm In CTA above. */}

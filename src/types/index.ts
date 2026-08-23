@@ -351,3 +351,30 @@ export function calcTeamPlayer(p: Profile): number {
 export function calcTechnical(p: Profile): number {
   return Math.round((p.sk + p.ps + p.cp) / 3)
 }
+
+// Injury list (mig 078). One row per reported injury; a row is "active"
+// while cleared_at is NULL and return_date >= today (see v_active_injuries).
+// Return dates are constrained to Thursdays at the DB level.
+export interface Injury {
+  id: string
+  player_id: string
+  injury_type: string
+  notes: string | null
+  reported_at: string
+  return_date: string   // ISO date, always a Thursday
+  cleared_at: string | null
+  cleared_by: string | null
+}
+
+export interface ActiveInjuryRow {
+  id: string
+  player_id: string
+  player_name: string
+  player_surname: string
+  display_name: string
+  player_photo_url: string | null
+  injury_type: string
+  notes: string | null
+  reported_at: string
+  return_date: string
+}

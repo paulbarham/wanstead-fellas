@@ -7,6 +7,7 @@ import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
 import PushOptInCard from '../components/PushOptInCard'
+import InjuryCard from '../components/InjuryCard'
 import TextSizeToggle from '../components/TextSizeToggle'
 import PositionPicker from '../components/PositionPicker'
 import FootPicker from '../components/FootPicker'
@@ -572,6 +573,11 @@ export default function ProfilePage() {
           {saving ? 'Saving...' : saveDone ? '✓ Saved' : 'Save Changes'}
         </button>
       </form>
+
+      {/* Injury status — self-service report + clear */}
+      <div className="mb-6">
+        <InjuryCard />
+      </div>
 
       {/* Match-night push notifications */}
       <div className="mb-6">

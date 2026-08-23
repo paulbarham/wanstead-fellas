@@ -1,12 +1,11 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v45 — balancer v2 (14 Aug 2026). Post-draft fix-up pass in
-// AdminTeamBuilder.autoBalance enforces two new constraints that Jun-Aug
-// data showed the snake draft alone was missing: max 2 × OVR≥9 stars per
-// team (kills "obvious best team collapse"), and over-40 count within
-// ±1 across teams (kills "old-in-places" nights). Admin also gets a
-// 4-chip strip on every draft team card — RTG · GK · 40+ · ★ — coloured
-// green/amber/red so violations are one-glance obvious pre-Publish.
-const CACHE = 'wf-v45'
+// Bumped to v46 — injury list (20 Aug 2026 · mig 078). Self-service
+// "mark yourself injured" card on Profile with a Thursday-only return
+// picker, public "🩹 On the injury list" section on Tonight, warn-only
+// (not blocking) banner if an injured fella tries to sign up before
+// their return date, and a new Admin → Injury tab for clearing on
+// behalf of stub profiles / forgetful players.
+const CACHE = 'wf-v46'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

@@ -13,6 +13,7 @@ import AdminProfileAudit from '../components/AdminProfileAudit'
 import ClubFinancesPanel from '../components/ClubFinancesPanel'
 import PositionAdoptionTracker from '../components/PositionAdoptionTracker'
 import AdminCsvImport from '../components/AdminCsvImport'
+import AdminInjuriesPanel from '../components/AdminInjuriesPanel'
 
 interface LinkedProfileRow {
   id: string
@@ -65,7 +66,7 @@ interface FeedbackWithPlayer extends Feedback {
 export default function AdminPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'players' | 'finance' | 'club' | 'feedback' | 'families' | 'audit'>('players')
+  const [tab, setTab] = useState<'players' | 'finance' | 'club' | 'families' | 'injuries' | 'feedback' | 'audit'>('players')
 
   useEffect(() => {
     if (profile && !profile.is_admin) navigate('/', { replace: true })
@@ -82,17 +83,23 @@ export default function AdminPage() {
 
       {/* Tab toggle */}
       <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        {(['players', 'finance', 'club', 'families', 'feedback', 'audit'] as const).map(t => (
+        {(['players', 'finance', 'club', 'families', 'injuries', 'feedback', 'audit'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all"
+            className="flex-1 py-2 rounded-lg text-[11px] font-semibold capitalize transition-all"
             style={{
               background: tab === t ? '#0D6B52' : 'transparent',
               color: tab === t ? 'white' : '#666',
             }}
           >
-            {t === 'players' ? 'Players' : t === 'finance' ? 'Finance' : t === 'club' ? 'Club' : t === 'families' ? 'Families' : t === 'feedback' ? 'Feedback' : 'Audit'}
+            {t === 'players' ? 'Players'
+              : t === 'finance' ? 'Finance'
+              : t === 'club' ? 'Club'
+              : t === 'families' ? 'Family'
+              : t === 'injuries' ? 'Injury'
+              : t === 'feedback' ? 'Feedback'
+              : 'Audit'}
           </button>
         ))}
       </div>
@@ -101,6 +108,7 @@ export default function AdminPage() {
         : tab === 'finance' ? <AdminFinancePanel />
         : tab === 'club' ? <ClubFinancesPanel />
         : tab === 'families' ? <FamiliesPanel />
+        : tab === 'injuries' ? <AdminInjuriesPanel />
         : tab === 'feedback' ? <FeedbackPanel />
         : <AdminProfileAudit />}
     </div>
