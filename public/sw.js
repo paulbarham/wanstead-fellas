@@ -1,11 +1,9 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v46 — injury list (20 Aug 2026 · mig 078). Self-service
-// "mark yourself injured" card on Profile with a Thursday-only return
-// picker, public "🩹 On the injury list" section on Tonight, warn-only
-// (not blocking) banner if an injured fella tries to sign up before
-// their return date, and a new Admin → Injury tab for clearing on
-// behalf of stub profiles / forgetful players.
-const CACHE = 'wf-v46'
+// Bumped to v47 — feature-announcement broadcasts (20 Aug 2026 · mig 079).
+// Admin (top of Admin page) can post a "what's new" push — title, body,
+// deep link — scheduled for the next 9am UK. 15-min pg_cron fires them,
+// send-feature-announcement edge fn fans out to every push_subscription.
+const CACHE = 'wf-v47'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

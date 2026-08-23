@@ -14,6 +14,7 @@ import ClubFinancesPanel from '../components/ClubFinancesPanel'
 import PositionAdoptionTracker from '../components/PositionAdoptionTracker'
 import AdminCsvImport from '../components/AdminCsvImport'
 import AdminInjuriesPanel from '../components/AdminInjuriesPanel'
+import AdminAnnouncementsBar from '../components/AdminAnnouncementsBar'
 
 interface LinkedProfileRow {
   id: string
@@ -80,6 +81,11 @@ export default function AdminPage() {
         Admin
       </p>
       <h1 className="font-display text-2xl text-[var(--color-text)] tracking-wide mb-3">DASHBOARD</h1>
+
+      {/* Feature-announcement composer — admin broadcasts a "what's new"
+          push, scheduled to fire at the next 9am UK. Always visible above
+          the tab strip so it's one tap after shipping. */}
+      <AdminAnnouncementsBar />
 
       {/* Tab toggle */}
       <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>

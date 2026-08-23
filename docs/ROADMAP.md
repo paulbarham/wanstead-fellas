@@ -157,6 +157,14 @@ Granular permissions so admin can hand off narrow tasks (scoring, fines, etc.) t
 | Indicator on Admin profile page showing who holds each delegate | 🟢 | chat | "Score entry: Ross Marks" — easy audit |
 | Additional delegate roles as needed (e.g. `can_manage_fines`, `can_publish_teams`) | 🟢 | chat | Same pattern — helper fn + replace policy condition |
 
+## 📣 Feature announcements
+
+Broadcast a "what's new" push to the whole group when a feature ships, on a schedule that respects group sleep.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| Feature-announcement broadcasts — v1 | ✅ | chat 20 Aug 2026 · commit pending · migration `079` · edge fn `send-feature-announcement` (deploy pending admin approval) | New `feature_announcements` table (title / body / url / scheduled_for / sent_at / sent_count / total_subs), admin-only RLS writes, public read. `AdminAnnouncementsBar` at the top of the Admin page (always visible, above the tab strip) — one-tap "+ New" opens a bottom-sheet composer with title / body / deep-link fields and a live "Will send at [Wed 24 Sep, 9am UK]" preview. Preview computed by `nextNineAmUk()` (`date-fns-tz`, handles BST/GMT). Scheduled_for is stored absolute (timestamptz). 15-min pg_cron (`0,15,30,45 * * * *`) runs `dispatch_pending_feature_announcements()` which claims each pending row (sets sent_at optimistically to guarantee at-most-once), then calls the edge fn. Edge fn fans out to every push_subscription (same audience as the `results` topic) and writes sent_count + total_subs for admin diagnostics. Bar surfaces "N pending · next fires [when]" or "Last sent [when] · X/Y delivered". SW bumped to v47. Vault secret `feature_announce_url` set to the edge-fn URL. |
+
 ## 🩹 Availability — injury list
 
 Self-service injury reporting so admin doesn't chase, and the group knows why a regular's missing.
