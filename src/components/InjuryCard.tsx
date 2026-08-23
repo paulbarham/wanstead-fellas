@@ -61,7 +61,10 @@ export default function InjuryCard() {
   const [returnDate, setReturnDate] = useState<string>('')
 
   const load = useCallback(async () => {
-    if (!profile?.id) return
+    // Guard against auth still hydrating — but always flip loading off
+    // regardless so the card renders (the "not injured" CTA) rather than
+    // sitting invisible forever on a slow auth path.
+    if (!profile?.id) { setLoading(false); return }
     const { data } = await supabase
       .from('injuries')
       .select('*')
