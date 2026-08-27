@@ -99,25 +99,48 @@
   .callout.yellow{ background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
   .callout.red   { background: rgba(220,38,38,0.08); border-left-color: #DC2626; }
 
-  /* Stack of two-column tiles for tab summaries */
-  .grid2 { display: table; width: 100%; border-spacing: 6pt 4pt; }
-  .grid2 .cell {
-    display: table-cell; width: 50%;
+  /* Tab reference — icon | name | description columns, scannable */
+  .tab-ref {
     background: rgba(255,255,255,0.03);
     border: 1pt solid rgba(255,255,255,0.10);
-    border-radius: 6pt;
-    padding: 8pt 10pt;
-    vertical-align: top;
+    border-radius: 8pt;
+    padding: 0;
+    margin: 6pt 0;
+    overflow: hidden;
   }
-  .grid2 .cell .name {
+  .tab-ref .row {
+    display: table;
+    width: 100%;
+    padding: 6pt 10pt;
+    border-top: 1pt dashed rgba(255,255,255,0.10);
+  }
+  .tab-ref .row:first-child { border-top: 0; }
+  .tab-ref .row .icon {
+    display: table-cell;
+    width: 26pt;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14pt;
+    color: #4AD9FF;
+  }
+  .tab-ref .row .name {
+    display: table-cell;
+    width: 62pt;
+    vertical-align: middle;
     font-family: 'Arial Black', 'Helvetica', sans-serif;
-    color: #FFD400; font-size: 10pt;
-    margin-bottom: 2pt;
+    color: #FFD400;
+    font-size: 10pt;
+    padding-right: 6pt;
+    letter-spacing: 0.02em;
   }
-  .grid2 .cell .desc {
-    font-size: 9pt; line-height: 1.4;
+  .tab-ref .row .desc {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 9pt;
     color: #E8F0E9;
+    line-height: 1.4;
   }
+  .tab-ref .row .desc strong { color: #4ADC7A; }
 
   /* Player-tier tiles */
   .tiers { display: table; width: 100%; border-spacing: 6pt 0; margin: 6pt 0; }
@@ -387,7 +410,7 @@
 <ul>
   <li><strong>Play through niggles when you can</strong> — but log real injuries in the app so admin can plan (see p3).</li>
   <li><strong>Don't be a cunt (and mean it).</strong> There's literally a fine for it — see the Fine System on p3.</li>
-  <li><strong>Buy your round.</strong> On pitch and off it.</li>
+  <li><strong>Buy your round.</strong> Clubhouse after the game — the culture stays healthy when nobody has to chase you.</li>
   <li><strong>Bibs go home, get washed, come back.</strong> If you played in bibs, take yours home and wash it — don't chuck it damp into the kit bag. Nobody wants to pull on last week's.</li>
 </ul>
 
@@ -422,31 +445,37 @@
   </div>
 </div>
 
-<h3>The tabs, in one line each</h3>
-<div class="grid2">
-  <div class="cell">
-    <div class="name">⚽ Tonight</div>
-    <div class="desc">Sign up. See who else is in. Countdown to kick-off. Weather. The injury list.</div>
+<h3>The tabs at a glance</h3>
+<div class="tab-ref">
+  <div class="row">
+    <div class="icon">⚽</div>
+    <div class="name">Tonight</div>
+    <div class="desc">Sign up. Who's in. Countdown, weather, injury list.</div>
   </div>
-  <div class="cell">
-    <div class="name">👥 Teams</div>
-    <div class="desc">Published after Wednesday 10pm. Your team is highlighted; captains and bibs shown.</div>
+  <div class="row">
+    <div class="icon">👥</div>
+    <div class="name">Teams</div>
+    <div class="desc">Line-ups published after Wed 10pm. Your team highlighted; captains and bibs shown.</div>
   </div>
-  <div class="cell">
-    <div class="name">📊 Match</div>
+  <div class="row">
+    <div class="icon">📊</div>
+    <div class="name">Match</div>
     <div class="desc">Latest result, group table, scorers, match report, awards ballot.</div>
   </div>
-  <div class="cell">
-    <div class="name">📈 Stats</div>
+  <div class="row">
+    <div class="icon">📈</div>
+    <div class="name">Stats</div>
     <div class="desc">Season leaderboards — top scorers, MOTM count, appearances, clean sheets.</div>
   </div>
-  <div class="cell">
-    <div class="name">🎯 Predictor</div>
-    <div class="desc"><strong>Free-to-play</strong> — pick the score of a weekly PL/Championship game (Match of the Week) or fill in a full-season prediction card. Bragging rights only.</div>
+  <div class="row">
+    <div class="icon">🎯</div>
+    <div class="name">Predictor</div>
+    <div class="desc"><strong>Free to play.</strong> Match of the Week (weekly PL/Championship pick) + a full Season Prediction Card. Bragging rights only.</div>
   </div>
-  <div class="cell">
-    <div class="name">⋯ More · then Cards, History, Help, Feedback</div>
-    <div class="desc">Your player card is under Cards. Past match reports under History. Stuck? Help articles + a Feedback tab straight to admin.</div>
+  <div class="row">
+    <div class="icon">⋯</div>
+    <div class="name">More</div>
+    <div class="desc">Cards · History · Help · Feedback · Profile. Anything not on the bottom nav lives here.</div>
   </div>
 </div>
 
