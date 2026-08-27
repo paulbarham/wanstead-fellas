@@ -30,8 +30,31 @@ If the structure of the snapshot template needs to change significantly, treat i
 | [`docs/FUNCTIONALITY.md`](docs/FUNCTIONALITY.md) | Living reference of what the app actually does today (player + admin + tech). Keep updated whenever functionality changes. |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | What's coming next, grouped by theme. See "Always keep the roadmap fresh" above. |
 | [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Plain-English user guide (markdown). The PDF version lives in primers as the latest `0N-user-guide-vM.pdf`. |
+| **[`docs/primers/src/26-new-joiner-induction.html`](docs/primers/src/26-new-joiner-induction.html)** | **Wanstead Fellas Induction Pack** — the 3-page welcome pack handed to new joiners. **LIVING DOCUMENT** — see "Keep the induction pack current" below. PDF at [`docs/primers/pdf/26-new-joiner-induction.pdf`](docs/primers/pdf/26-new-joiner-induction.pdf). |
 | [`docs/MOTM_DOTD_ENGAGEMENT_REVIEW.md`](docs/MOTM_DOTD_ENGAGEMENT_REVIEW.md) | One-off analysis doc — the diagnosis behind the June 2026 voting rework. |
 | [`docs/primers/`](docs/primers/) | Wanstead-Fellas-branded PDFs (primers post-launch, proposals pre-build). See `docs/primers/README.md` for the index and conventions. |
+
+### Keep the induction pack current
+
+The **Wanstead Fellas Induction Pack** ([`docs/primers/src/26-new-joiner-induction.html`](docs/primers/src/26-new-joiner-induction.html)) is a **living document** — it must always reflect the app's current functionality and the group's current rules. It's the first thing a new joiner reads, so a stale pack directly costs adoption.
+
+**Update it in the same commit as any change that affects:**
+
+- **Player-facing tabs, features or terminology** — new tab in the nav, existing tab renamed, new setting on Profile, new predictor game, new award category, new push notification type
+- **Sign-up flow / deadlines** — change to the Wed 10pm cutoff, cap change from 32, tier priority change (SUB / WTP★ / WTP), reserve auto-promotion rules
+- **Match format** — new format (e.g. move from 11v11 / 4-team round-robin baseline), timing change (kick-off, ballot close, match report drop)
+- **The Fine System** — new fine type, amount change, wording change, enforcement mechanism change (grace period, ban rule)
+- **Under-the-radar rules** — anything the admin newly considers a "house rule" worth surfacing
+- **Venue, roster people or leadership** — venue move, the "who to introduce yourself to" welcomers list, primary admin change
+
+**How to update:**
+
+1. Edit [`docs/primers/src/26-new-joiner-induction.html`](docs/primers/src/26-new-joiner-induction.html) inline (do NOT re-derive from memory).
+2. Re-render: `python3.12 /usr/bin/weasyprint docs/primers/src/26-new-joiner-induction.html docs/primers/pdf/26-new-joiner-induction.pdf` (or `weasyprint …` if `python3` resolves to 3.12).
+3. Verify page count stays at 3 — `pdfinfo docs/primers/pdf/26-new-joiner-induction.pdf | grep Pages`. If it spills to 4, tighten before shipping; the whole-pack shape and vibe are the point, not stuffing more in.
+4. Commit both the `.html` and the `.pdf`.
+
+**Don't** re-name the file or version-bump — the induction pack overwrites in place at `26-new-joiner-induction.{html,pdf}`. The git history is the audit trail.
 
 ## Primers vs proposals
 
