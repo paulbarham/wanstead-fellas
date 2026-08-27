@@ -197,21 +197,36 @@
     line-height: 1.3;
   }
 
-  /* Under-the-radar 2×2 grid — compact house-rules tiles on p1 */
-  .under-radar {
-    display: table; width: 100%; border-spacing: 6pt 6pt; margin: 4pt 0;
-  }
-  .under-radar .r {
-    display: table-cell; width: 50%;
+  /* House-rules strip — 4 icon-tiles in one row, saves vertical space
+     and gives the section proper visual weight */
+  .house-rules { display: table; width: 100%; border-spacing: 5pt 0; margin: 3pt 0; }
+  .house-rules .r {
+    display: table-cell; width: 25%;
     background: rgba(255,102,204,0.05);
-    border-left: 3pt solid #FF66CC;
-    border-radius: 4pt;
-    padding: 6pt 10pt;
-    font-size: 9pt;
-    line-height: 1.4;
+    border: 1pt solid rgba(255,102,204,0.20);
+    border-top: 3pt solid #FF66CC;
+    border-radius: 6pt;
+    padding: 7pt 6pt;
+    text-align: center;
     vertical-align: top;
   }
-  .under-radar .r strong { color: #FFD400; }
+  .house-rules .r .ico {
+    font-size: 18pt; line-height: 1;
+    display: block; margin-bottom: 4pt;
+  }
+  .house-rules .r .rule {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400;
+    font-size: 8.8pt;
+    letter-spacing: 0.02em;
+    margin-bottom: 2pt;
+    line-height: 1.2;
+  }
+  .house-rules .r .note {
+    font-size: 7.8pt;
+    line-height: 1.3;
+    color: #9CA897;
+  }
 
   /* Compact 3-tile strip — used for the p3 awards/injury/whatsapp row */
   .trio { display: table; width: 100%; border-spacing: 6pt 0; margin: 6pt 0; }
@@ -453,7 +468,7 @@
   </div>
   <div class="step">
     <div class="when">🍺 22:15+</div>
-    <div class="what"><strong>Drinks in the clubhouse.</strong> Optional but recommended — where the group properly gets to know each other.</div>
+    <div class="what"><strong>Drinks in the clubhouse.</strong> Optional but recommended — where the group gets to know each other, and most of the banter for next week's match report gets minted.</div>
   </div>
   <div class="step">
     <div class="when">🗳️ Fri 10am</div>
@@ -471,11 +486,27 @@
 </div>
 
 <h2 class="don">Under-the-radar rules</h2>
-<div class="under-radar">
-  <div class="r"><strong>Play through niggles</strong> when you can — but log real injuries in-app so admin can plan.</div>
-  <div class="r"><strong>Don't be a cunt (and mean it).</strong> Literally a fine — see p3.</div>
-  <div class="r"><strong>Buy your round.</strong> Clubhouse after the game.</div>
-  <div class="r"><strong>Bibs go home, get washed, come back.</strong> Never damp into the kit bag.</div>
+<div class="house-rules">
+  <div class="r">
+    <span class="ico">🩹</span>
+    <div class="rule">Play through niggles</div>
+    <div class="note">Log real injuries in-app so admin can plan.</div>
+  </div>
+  <div class="r">
+    <span class="ico">🚫</span>
+    <div class="rule">Don't be a cunt</div>
+    <div class="note">(And mean it.) Literally a fine — see p3.</div>
+  </div>
+  <div class="r">
+    <span class="ico">🍺</span>
+    <div class="rule">Buy your round</div>
+    <div class="note">Clubhouse after the game.</div>
+  </div>
+  <div class="r">
+    <span class="ico">🧺</span>
+    <div class="rule">Bib home, wash it</div>
+    <div class="note">Never damp into the kit bag.</div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════ PAGE 2 ═══════════════════════════════════ -->
