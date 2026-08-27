@@ -167,16 +167,106 @@
   }
 
   /* First-5-minutes checklist */
+  /* Info strip — 4 mini-tiles for venue/when/format/bring on P1 */
+  .info-strip { display: table; width: 100%; border-spacing: 6pt 0; margin: 6pt 0 10pt; }
+  .info-strip .info {
+    display: table-cell; width: 25%;
+    background: rgba(255,255,255,0.03);
+    border: 1pt solid rgba(255,255,255,0.10);
+    border-left: 3pt solid #4AD9FF;
+    border-radius: 6pt;
+    padding: 6pt 8pt;
+    vertical-align: top;
+  }
+  .info-strip .info .label {
+    font-family: 'Courier New', monospace;
+    color: #FF66CC;
+    font-size: 8pt;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    margin-bottom: 2pt;
+  }
+  .info-strip .info .val {
+    font-size: 9pt;
+    line-height: 1.35;
+    color: #E8F0E9;
+  }
+  .info-strip .info .val strong { color: #FFD400; }
+
+  /* Timeline flow — used for "what a typical night looks like" */
+  .flow {
+    background: #15211A;
+    border: 1pt solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 6pt 12pt;
+    margin: 6pt 0;
+  }
+  .flow .step {
+    display: table; width: 100%;
+    padding: 6pt 0;
+    border-bottom: 1pt dashed rgba(255,102,204,0.15);
+  }
+  .flow .step:last-child { border-bottom: 0; }
+  .flow .step .when {
+    display: table-cell;
+    width: 90pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    color: #FF66CC;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    vertical-align: top;
+    padding-right: 8pt;
+  }
+  .flow .step .what {
+    display: table-cell;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    color: #E8F0E9;
+    vertical-align: top;
+  }
+  .flow .step .what strong { color: #FFD400; }
+
+  /* Numbered step-tiles — bigger visual weight than a plain <ol> */
   .steps {
     background: rgba(74,217,255,0.05);
     border: 1pt solid rgba(74,217,255,0.30);
     border-radius: 8pt;
-    padding: 8pt 12pt 8pt 14pt;
+    padding: 8pt 12pt;
     margin: 6pt 0;
   }
-  .steps ol { margin: 0; padding-left: 18pt; }
-  .steps li { font-size: 9.5pt; margin: 3pt 0; }
-  .steps li::marker { color: #4AD9FF; font-weight: 700; }
+  .steps .head {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4AD9FF;
+    font-size: 10pt;
+    letter-spacing: 0.04em;
+    margin-bottom: 4pt;
+  }
+  .steps .row {
+    display: table; width: 100%;
+    padding: 5pt 0;
+    border-top: 1pt dashed rgba(74,217,255,0.15);
+  }
+  .steps .row:first-of-type { border-top: 0; }
+  .steps .row .num {
+    display: table-cell;
+    width: 24pt;
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 18pt;
+    color: #4AD9FF;
+    vertical-align: top;
+    line-height: 1;
+    padding-right: 6pt;
+  }
+  .steps .row .body {
+    display: table-cell;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    color: #E8F0E9;
+    vertical-align: top;
+    padding-top: 3pt;
+  }
+  .steps .row .body strong { color: #FFD400; }
 
   .kbd {
     background: #1A2822;
@@ -226,18 +316,44 @@
 
 <h2 class="night">A Wanstead Fellas Thursday</h2>
 
-<p><strong>Where:</strong> <em>Eton Manor</em>, Wanstead E11. Astroturf pitches down the far end.<br>
-<strong>When:</strong> Every Thursday, <strong>21:00–22:00</strong> kick-off — arrive 20:45 at the latest.<br>
-<strong>Format:</strong> Usually a <strong>four-team 8v8 round-robin</strong> — six 20-minute games. Occasionally a straight 10v10 or a tournament. Always social, always competitive.<br>
-<strong>Bring:</strong> Boots or astro trainers. Shirt (any colour — one team plays in bibs, the other in shirts). Water.</p>
+<div class="info-strip">
+  <div class="info">
+    <div class="label">📍 Where</div>
+    <div class="val"><strong>Eton Manor</strong>, Wanstead E11. Astro at the far end.</div>
+  </div>
+  <div class="info">
+    <div class="label">🕘 When</div>
+    <div class="val">Every Thu · <strong>21:00–22:00</strong> KO · arrive 20:45.</div>
+  </div>
+  <div class="info">
+    <div class="label">⚽ Format</div>
+    <div class="val">4-team <strong>8v8</strong> round-robin, ~6 × 20-min games.</div>
+  </div>
+  <div class="info">
+    <div class="label">🎒 Bring</div>
+    <div class="val">Boots · shirt (any colour) · water. Bibs supplied.</div>
+  </div>
+</div>
 
 <h3>What a typical night looks like</h3>
-<ol>
-  <li><strong>Teams are already published</strong> before you arrive — check the <span class="kbd">Teams</span> tab in the app on the way over.</li>
-  <li><strong>You'll play three short games</strong> — every team plays every other team, ~20 mins each. Rolling subs.</li>
-  <li><strong>Awards are voted</strong> the next morning in-app — Man of the Match, Dick of the Day, sometimes a themed award (e.g. "Peak dad-strength").</li>
-  <li><strong>After the game</strong> the drinks are in the <em>clubhouse</em> — optional but recommended, and where most of the banter for next week's report gets minted.</li>
-</ol>
+<div class="flow">
+  <div class="step">
+    <div class="when">🕘 20:45</div>
+    <div class="what"><strong>Arrive.</strong> Teams are already published — check the <span class="kbd">Teams</span> tab in the app on the way over so you know who you're with.</div>
+  </div>
+  <div class="step">
+    <div class="when">⚽ 21:00 → 22:00</div>
+    <div class="what"><strong>Three short games.</strong> Every team plays every other team, ~20 mins each, rolling subs. Bibs vs shirts each game.</div>
+  </div>
+  <div class="step">
+    <div class="when">🍺 22:15+</div>
+    <div class="what"><strong>Drinks in the clubhouse.</strong> Optional but recommended — most of the banter for next week's match report gets minted here.</div>
+  </div>
+  <div class="step">
+    <div class="when">🗳️ Fri 10am</div>
+    <div class="what"><strong>Awards ballot closes.</strong> Vote MOTM, DOTD, and (when set) Theme of the Night — winners auto-announced, match report drops with the results.</div>
+  </div>
+</div>
 
 <div class="callout pink">
   <strong>👋 Introduce yourself.</strong> If it's your first night, find <strong>Paul Barham</strong>, <strong>Tom Broughton</strong>, <strong>Edd Ezra</strong>, <strong>Scott Duncan</strong>, <strong>Lawrie Pointer</strong> — or honestly any other fella at pitch-side — and say hello. They'll point out who's who and make sure you know the drill. Everyone else will make themselves known — nobody stays a stranger past the first game.
@@ -260,14 +376,27 @@
 <p>The whole club runs off <strong><a style="color:#4AD9FF; text-decoration:none;">wanstead-fellas.vercel.app</a></strong>. It's a free web app — no App Store, no download. Open the URL, hit "Add to Home Screen" (iPhone Safari) or "Install" (Android Chrome) and you're set. It'll behave like a proper app after that.</p>
 
 <div class="steps">
-  <p style="margin: 0 0 4pt; font-family: 'Arial Black', 'Helvetica', sans-serif; color: #4AD9FF; font-size: 10pt; letter-spacing: 0.04em;">FIRST FIVE MINUTES</p>
-  <ol>
-    <li>Sign up with your email + password.</li>
-    <li>Go to <span class="kbd">Profile</span> — add a photo, name, age band, preferred position (GK / DEF / MID / ATT), preferred foot, favourite club. Two minutes.</li>
-    <li><strong>Enable notifications</strong> — the one-tap toggle on Profile. This is how you'll hear about teams being published, match reports going live, and dropouts.</li>
-    <li>Go to <span class="kbd">Tonight</span> and hit <strong>"Mark Me In"</strong> for the next game. Do this <strong>before Wednesday 10pm</strong>.</li>
-    <li>Have a poke around the other tabs — <span class="kbd">Cards</span>, <span class="kbd">History</span>, <span class="kbd">Predictor</span>. All will make more sense after your first Thursday.</li>
-  </ol>
+  <div class="head">FIRST FIVE MINUTES</div>
+  <div class="row">
+    <div class="num">1</div>
+    <div class="body"><strong>Sign up</strong> with your email + password.</div>
+  </div>
+  <div class="row">
+    <div class="num">2</div>
+    <div class="body"><strong>Fill your Profile</strong> — photo, name, age band, preferred position (GK / DEF / MID / ATT), preferred foot, favourite club. Two minutes.</div>
+  </div>
+  <div class="row">
+    <div class="num">3</div>
+    <div class="body"><strong>Enable notifications</strong> — the one-tap toggle on Profile. How you'll hear about teams being published, match reports going live, and dropouts.</div>
+  </div>
+  <div class="row">
+    <div class="num">4</div>
+    <div class="body"><strong>Sign up for Thursday</strong> — <span class="kbd">Tonight</span> tab → "Mark Me In". Deadline is <strong>Wednesday 10pm</strong>.</div>
+  </div>
+  <div class="row">
+    <div class="num">5</div>
+    <div class="body"><strong>Have a poke around</strong> the other tabs — <span class="kbd">Cards</span>, <span class="kbd">History</span>, <span class="kbd">Predictor</span>. All will make more sense after your first Thursday.</div>
+  </div>
 </div>
 
 <h3>The tabs, in one line each</h3>
