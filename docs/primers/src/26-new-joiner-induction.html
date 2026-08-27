@@ -148,23 +148,46 @@
   /* Fine strip */
   .fines { display: table; width: 100%; border-spacing: 6pt 0; margin: 6pt 0; }
   .fines .f {
-    display: table-cell; width: 25%;
+    display: table-cell; width: 33%;
     background: rgba(220,38,38,0.10);
     border: 1pt solid rgba(220,38,38,0.35);
     border-radius: 6pt;
-    padding: 6pt 8pt;
+    padding: 8pt 10pt;
     vertical-align: top;
     text-align: center;
   }
   .fines .f .amt {
     font-family: 'Arial Black', 'Helvetica', sans-serif;
-    color: #FFD400; font-size: 16pt; line-height: 1;
-    margin-bottom: 2pt;
+    color: #FFD400; font-size: 18pt; line-height: 1;
+    margin-bottom: 3pt;
   }
   .fines .f .what {
     font-size: 8.5pt; color: #E8F0E9;
     letter-spacing: 0.04em;
+    line-height: 1.3;
   }
+
+  /* Banter-tier "other points" — deliberately lighter than the fines */
+  .banter-rules {
+    background: rgba(255,102,204,0.06);
+    border-left: 3pt solid #FF66CC;
+    border-radius: 4pt;
+    padding: 8pt 12pt;
+    margin: 6pt 0;
+    font-size: 9.5pt;
+    line-height: 1.5;
+  }
+  .banter-rules .head {
+    font-family: 'Courier New', monospace;
+    color: #FF66CC;
+    font-size: 8.5pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4pt;
+  }
+  .banter-rules ul { margin: 0; padding-left: 16pt; }
+  .banter-rules li { margin: 2pt 0; }
+  .banter-rules li::marker { color: #FF66CC; }
 
   /* First-5-minutes checklist */
   /* Info strip — 4 mini-tiles for venue/when/format/bring on P1 */
@@ -363,7 +386,7 @@
 <p>Four unwritten ones that the app can't enforce:</p>
 <ul>
   <li><strong>Play through niggles when you can</strong> — but log real injuries in the app so admin can plan (see p3).</li>
-  <li><strong>Don't be a cunt.</strong> There's literally a fine for this. It's called Cuntiness.</li>
+  <li><strong>Don't be a cunt (and mean it).</strong> There's literally a fine for it — see the Fine System on p3.</li>
   <li><strong>Buy your round.</strong> On pitch and off it.</li>
   <li><strong>Bibs go home, get washed, come back.</strong> If you played in bibs, take yours home and wash it — don't chuck it damp into the kit bag. Nobody wants to pull on last week's.</li>
 </ul>
@@ -460,30 +483,39 @@
 
 <p style="font-size: 9.5pt; color: #9CA897; margin-top: 6pt;">Fees are tracked in-app under <span class="kbd">Profile → My Finances</span>. Pay by bank transfer (details are on the Finances page). Grace period is 2 weeks past a match — beyond that, unpaid balances block future sign-ups until settled.</p>
 
-<h2 class="rules">Sign-up rules & fines</h2>
+<h2 class="rules">Sign-up rules</h2>
 
 <p><strong>Sign up:</strong> Tonight tab → <em>Mark Me In</em>. <strong>Deadline: Wednesday 10pm.</strong> Teams get auto-balanced and published minutes later.</p>
+
+<h2 class="money">The Fine System</h2>
 
 <div class="fines">
   <div class="f">
     <div class="amt">£2</div>
-    <div class="what">LATE</div>
-  </div>
-  <div class="f">
-    <div class="amt">£2</div>
-    <div class="what">DROPOUT AFTER WED 10PM</div>
+    <div class="what">NOT ON TIME FOR KICK-OFF<br>(9:10PM LATEST)</div>
   </div>
   <div class="f">
     <div class="amt">£3</div>
-    <div class="what">LOST BALL</div>
+    <div class="what">LOSING A BALL<br>OVER THE ALLOTMENTS</div>
   </div>
   <div class="f">
     <div class="amt">£5</div>
-    <div class="what">CUNTINESS</div>
+    <div class="what">CALLING SOMEONE A C**T<br>(AND MEANING IT)</div>
   </div>
 </div>
 
-<p style="font-size: 9.5pt; color: #9CA897; margin-top: 4pt;">Late = arriving after kick-off. Dropout is waived if you find your own replacement before Thursday. Cuntiness is the group's catch-all for being a moaner, playing dirty, or wilfully spoiling the vibe — the committee has ruled it a fineable offence and, on rare occasions, the committee is right.</p>
+<div class="callout yellow" style="margin-top:8pt;">
+  <strong>Settle monthly, straight into the kitty.</strong> Failure to settle amounts owed will result in a <strong>one-match ban</strong> until it's cleared. For the avoidance of doubt: this isn't a money-making scheme — it's to keep kick-off on time, cut the ball-replacement bill, and remind everyone it's a kickabout (and a beer) with likeminded people from the local area.
+</div>
+
+<div class="banter-rules">
+  <div class="head">▶ Other points to note</div>
+  <ul>
+    <li><strong>No slide tackles.</strong></li>
+    <li><strong>Calling Ross a c*nt and not meaning it</strong> is a permitted exception (see fine above for the meaning-it case).</li>
+    <li><strong>No Mags.</strong> Might be pushing this one, but worth a try. 😃</li>
+  </ul>
+</div>
 
 <h2 class="awards">Awards, injury list & the rest</h2>
 
