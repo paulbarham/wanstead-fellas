@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — New Joiner Induction</title>
+<style>
+  @page {
+    size: A4;
+    margin: 15mm 14mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · NEW JOINER · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 14pt 16pt;
+    border-radius: 12pt;
+    margin-bottom: 12pt;
+    display: table;
+    width: 100%;
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 22pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #FF66CC;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.25);
+    padding: 3pt 6pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 13pt;
+    margin: 12pt 0 3pt;
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h2::before { content: "▶ "; color: #FF66CC; }
+  h2.welcome::before { content: "👋 "; }
+  h2.night::before { content: "⚽ "; }
+  h2.app::before { content: "📱 "; }
+  h2.rules::before { content: "📋 "; }
+  h2.money::before { content: "💷 "; }
+  h2.awards::before { content: "🏆 "; }
+  h2.injury::before { content: "🩹 "; }
+  h2.don::before { content: "🎩 "; }
+
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 10pt;
+    margin: 6pt 0 2pt;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  p { margin: 3pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  ul { margin: 3pt 0; padding-left: 16pt; }
+  ol { margin: 3pt 0; padding-left: 18pt; }
+  li { margin: 1.5pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(74,220,122,0.07);
+    border-left: 3pt solid #4ADC7A;
+    padding: 6pt 12pt; border-radius: 4pt;
+    margin: 6pt 0; font-size: 10pt;
+  }
+  .callout.cyan  { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.pink  { background: rgba(255,102,204,0.08); border-left-color: #FF66CC; }
+  .callout.yellow{ background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
+  .callout.red   { background: rgba(220,38,38,0.08); border-left-color: #DC2626; }
+
+  /* Stack of two-column tiles for tab summaries */
+  .grid2 { display: table; width: 100%; border-spacing: 6pt 4pt; }
+  .grid2 .cell {
+    display: table-cell; width: 50%;
+    background: rgba(255,255,255,0.03);
+    border: 1pt solid rgba(255,255,255,0.10);
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+  }
+  .grid2 .cell .name {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 10pt;
+    margin-bottom: 2pt;
+  }
+  .grid2 .cell .desc {
+    font-size: 9pt; line-height: 1.4;
+    color: #E8F0E9;
+  }
+
+  /* Player-tier tiles */
+  .tiers { display: table; width: 100%; border-spacing: 6pt 0; margin: 6pt 0; }
+  .tiers .t {
+    display: table-cell; width: 33%;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    vertical-align: top;
+    border: 1pt solid rgba(255,255,255,0.10);
+  }
+  .tiers .t .label {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 12pt; letter-spacing: 0.04em;
+    margin-bottom: 3pt;
+  }
+  .tiers .t .cost {
+    font-family: 'Courier New', monospace;
+    color: #FFD400; font-size: 9pt;
+    margin-bottom: 4pt;
+    letter-spacing: 0.06em;
+  }
+  .tiers .t .body { font-size: 9pt; line-height: 1.4; }
+  .tiers .sub  .label { color: #4ADC7A; }
+  .tiers .wtpp .label { color: #FFD400; }
+  .tiers .wtp  .label { color: #4AD9FF; }
+
+  /* Fine strip */
+  .fines { display: table; width: 100%; border-spacing: 6pt 0; margin: 6pt 0; }
+  .fines .f {
+    display: table-cell; width: 25%;
+    background: rgba(220,38,38,0.10);
+    border: 1pt solid rgba(220,38,38,0.35);
+    border-radius: 6pt;
+    padding: 6pt 8pt;
+    vertical-align: top;
+    text-align: center;
+  }
+  .fines .f .amt {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 16pt; line-height: 1;
+    margin-bottom: 2pt;
+  }
+  .fines .f .what {
+    font-size: 8.5pt; color: #E8F0E9;
+    letter-spacing: 0.04em;
+  }
+
+  /* First-5-minutes checklist */
+  .steps {
+    background: rgba(74,217,255,0.05);
+    border: 1pt solid rgba(74,217,255,0.30);
+    border-radius: 8pt;
+    padding: 8pt 12pt 8pt 14pt;
+    margin: 6pt 0;
+  }
+  .steps ol { margin: 0; padding-left: 18pt; }
+  .steps li { font-size: 9.5pt; margin: 3pt 0; }
+  .steps li::marker { color: #4AD9FF; font-weight: 700; }
+
+  .kbd {
+    background: #1A2822;
+    color: #FFD400;
+    border: 1pt solid rgba(255,255,255,0.15);
+    border-radius: 3pt;
+    padding: 1pt 5pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+  }
+
+  .closer {
+    margin-top: 10pt;
+    padding: 10pt 12pt;
+    background: linear-gradient(180deg, #0D6B52 0%, #062A22 100%);
+    color: #FFD400;
+    border-radius: 8pt;
+    text-align: center;
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 10.5pt;
+    letter-spacing: 0.06em;
+  }
+
+  hr {
+    border: none;
+    border-top: 1pt dashed rgba(255,255,255,0.15);
+    margin: 10pt 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ PAGE 1 ═══════════════════════════════════ -->
+<div class="masthead">
+  <div class="left">
+    <h1>WELCOME · WANSTEAD FELLAS</h1>
+    <div class="sub">The new-joiner three-pager · 26 Aug 2026</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P526 · INDUCTION</span>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Welcome in.</strong> You've joined <strong>Wanstead Fellas</strong> — a Thursday-night 8-a-side football group in E11 that's been running since <em>2020</em> and grown to <em>~70 fellas</em> across every age from Under-20s to 50+. What follows is everything you need to know in three pages. Read once, come Thursday.
+</div>
+
+<h2 class="night">A Wanstead Fellas Thursday</h2>
+
+<p><strong>Where:</strong> <em>Eton Manor</em>, Ruckholt Rd, Leyton E10. Astroturf pitches at the bottom.<br>
+<strong>When:</strong> Every Thursday, <strong>21:00–22:00</strong> kick-off — arrive 20:45 at the latest.<br>
+<strong>Format:</strong> Usually a <strong>four-team 8v8 round-robin</strong> — six 20-minute games. Occasionally a straight 10v10 or a tournament. Always social, always competitive.<br>
+<strong>Bring:</strong> Boots or astro trainers. Something dark and something light — teams are bibs vs skins, decided per game. Water.</p>
+
+<h3>What a typical night looks like</h3>
+<ol>
+  <li><strong>Teams are already published</strong> before you arrive — check the <span class="kbd">Teams</span> tab in the app on the way over.</li>
+  <li><strong>You'll play three short games</strong> — every team plays every other team, ~20 mins each. Rolling subs.</li>
+  <li><strong>Awards are voted</strong> the next morning in-app — Man of the Match, Dick of the Day, sometimes a themed award (e.g. "Peak dad-strength").</li>
+  <li><strong>Post-match pub</strong> is optional but recommended. The <em>Fellowship Inn</em> or wherever the group heads.</li>
+</ol>
+
+<div class="callout pink">
+  <strong>👋 Introduce yourself.</strong> If it's your first night, find <strong>Paul Barham</strong> (organiser) at pitch-side and say hello. He'll point out who's who and make sure you know the drill. Everyone else will make themselves known — nobody stays a stranger past the first game.
+</div>
+
+<h2 class="don">Under-the-radar rules</h2>
+<p>Three unwritten ones that the app can't enforce:</p>
+<ul>
+  <li><strong>Play through niggles when you can</strong> — but log real injuries in the app so admin can plan (see p3).</li>
+  <li><strong>Don't be a cunt.</strong> There's literally a fine for this. It's called Cuntiness.</li>
+  <li><strong>Buy your round.</strong> On pitch and off it.</li>
+</ul>
+
+<!-- ═══════════════════════════════════ PAGE 2 ═══════════════════════════════════ -->
+<div style="page-break-before: always;"></div>
+
+<h2 class="app">The app — 60-second orientation</h2>
+
+<p>The whole club runs off <strong><a style="color:#4AD9FF; text-decoration:none;">wanstead-fellas.vercel.app</a></strong>. It's a free web app — no App Store, no download. Open the URL, hit "Add to Home Screen" (iPhone Safari) or "Install" (Android Chrome) and you're set. It'll behave like a proper app after that.</p>
+
+<div class="steps">
+  <p style="margin: 0 0 4pt; font-family: 'Arial Black', 'Helvetica', sans-serif; color: #4AD9FF; font-size: 10pt; letter-spacing: 0.04em;">FIRST FIVE MINUTES</p>
+  <ol>
+    <li>Sign up with your email + password.</li>
+    <li>Go to <span class="kbd">Profile</span> — add a photo, name, age band, preferred position (GK / DEF / MID / ATT), preferred foot, favourite club. Two minutes.</li>
+    <li><strong>Enable notifications</strong> — the one-tap toggle on Profile. This is how you'll hear about teams being published, match reports going live, and dropouts.</li>
+    <li>Go to <span class="kbd">Tonight</span> and hit <strong>"Mark Me In"</strong> for the next game. Do this <strong>before Wednesday 10pm</strong>.</li>
+    <li>Have a poke around the other tabs — <span class="kbd">Cards</span>, <span class="kbd">History</span>, <span class="kbd">Predictor</span>. All will make more sense after your first Thursday.</li>
+  </ol>
+</div>
+
+<h3>The tabs, in one line each</h3>
+<div class="grid2">
+  <div class="cell">
+    <div class="name">⚽ Tonight</div>
+    <div class="desc">Sign up. See who else is in. Countdown to kick-off. Weather. The injury list.</div>
+  </div>
+  <div class="cell">
+    <div class="name">👥 Teams</div>
+    <div class="desc">Published after Wednesday 10pm. Your team is highlighted; captains and bibs shown.</div>
+  </div>
+  <div class="cell">
+    <div class="name">📊 Match</div>
+    <div class="desc">Latest result, group table, scorers, match report, awards ballot.</div>
+  </div>
+  <div class="cell">
+    <div class="name">📈 Stats</div>
+    <div class="desc">Season leaderboards — top scorers, MOTM count, appearances, clean sheets.</div>
+  </div>
+  <div class="cell">
+    <div class="name">🎯 Predictor</div>
+    <div class="desc"><strong>Free-to-play</strong> — pick the score of a weekly PL/Championship game (Match of the Week) or fill in a full-season prediction card. Bragging rights only.</div>
+  </div>
+  <div class="cell">
+    <div class="name">⋯ More · then Cards, History, Help, Feedback</div>
+    <div class="desc">Your player card is under Cards. Past match reports under History. Stuck? Help articles + a Feedback tab straight to admin.</div>
+  </div>
+</div>
+
+<div class="callout yellow">
+  <strong>The two things that trip new joiners up:</strong>
+  &nbsp;(1) <em>Notifications not enabled</em> — you'll miss the "teams are ready" ping and the match report drop. Fix it once on Profile.
+  &nbsp;(2) <em>Not adding a photo</em> — cards look drab, and the group can't put a face to your name. Takes 5 seconds.
+</div>
+
+<!-- ═══════════════════════════════════ PAGE 3 ═══════════════════════════════════ -->
+<div style="page-break-before: always;"></div>
+
+<h2 class="money">Costs and player tiers</h2>
+
+<p>Three tiers, priority in this order when the game oversubscribes (max 32/night):</p>
+
+<div class="tiers">
+  <div class="t sub">
+    <div class="label">SUB</div>
+    <div class="cost">£95 / season</div>
+    <div class="body">Full season paid up front. Guaranteed spot every week. Most regular players are on this.</div>
+  </div>
+  <div class="t wtpp">
+    <div class="label">WTP★</div>
+    <div class="cost">£5 / game</div>
+    <div class="body">Long-standing "Wait To Play" players with priority — bumped up ahead of standard WTP when spots are tight.</div>
+  </div>
+  <div class="t wtp">
+    <div class="label">WTP</div>
+    <div class="cost">£5 / game</div>
+    <div class="body">Pay-as-you-play. Fill remaining spots on a first-come basis. Most new joiners start here.</div>
+  </div>
+</div>
+
+<p style="font-size: 9.5pt; color: #9CA897; margin-top: 6pt;">Fees are tracked in-app under <span class="kbd">Profile → My Finances</span>. Pay by bank transfer (details are on the Finances page). Grace period is 2 weeks past a match — beyond that, unpaid balances block future sign-ups until settled.</p>
+
+<h2 class="rules">Sign-up rules & fines</h2>
+
+<p><strong>Sign up:</strong> Tonight tab → <em>Mark Me In</em>. <strong>Deadline: Wednesday 10pm.</strong> Teams get auto-balanced and published minutes later.</p>
+
+<div class="fines">
+  <div class="f">
+    <div class="amt">£2</div>
+    <div class="what">LATE</div>
+  </div>
+  <div class="f">
+    <div class="amt">£2</div>
+    <div class="what">DROPOUT AFTER WED 10PM</div>
+  </div>
+  <div class="f">
+    <div class="amt">£3</div>
+    <div class="what">LOST BALL</div>
+  </div>
+  <div class="f">
+    <div class="amt">£5</div>
+    <div class="what">CUNTINESS</div>
+  </div>
+</div>
+
+<p style="font-size: 9.5pt; color: #9CA897; margin-top: 4pt;">Late = arriving after kick-off. Dropout is waived if you find your own replacement before Thursday. Cuntiness is the group's catch-all for being a moaner, playing dirty, or wilfully spoiling the vibe — the committee has ruled it a fineable offence and, on rare occasions, the committee is right.</p>
+
+<h2 class="awards">Awards, injury list & the rest</h2>
+
+<p><strong>🏆 Awards.</strong> After every match: <strong>Man of the Match</strong> (best on the pitch) and <strong>Dick of the Day</strong> (least — usually a spectacular own-goal, air-kick or full-blown meltdown). Occasional themed award set by admin (Kevin Keegan tribute, Italian football, etc.). Voting closes 10am Friday; winners auto-announced.</p>
+
+<p><strong>🩹 Injury list.</strong> Picked up a knock? Profile → <em>Mark myself injured</em> → pick a type + when you're back. The group sees a "🩹 On the injury list" strip on the Tonight tab so nobody chases you for numbers. Play through niggles if you can — the app <em>warns</em> if you sign up while marked injured, but doesn't block.</p>
+
+<p><strong>💬 WhatsApp vs the app.</strong> WhatsApp for banter and last-minute shouts. App for anything with a deadline (sign-ups, votes, fines, predictor). Admin lives in the app; the group chat is the pub.</p>
+
+<div class="callout cyan">
+  <strong>Any questions:</strong> Feedback tab in the app goes straight to Paul. Category "General" if you're not sure. Zero-friction, no reply expected within any particular window — but it never goes unread.
+</div>
+
+<div class="closer">
+  📟 SEE YOU THURSDAY · PITCH AT 21:00 · WELCOME TO THE FELLAS
+</div>
+
+</body>
+</html>
