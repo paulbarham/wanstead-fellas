@@ -1,0 +1,528 @@
+<title>Squad Ratings Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F5F7F2; --surface:#FFFFFF; --surface-2:#EFF2EC;
+  --ink:#16211C; --muted:#5F6D66; --line:#DCE3D8;
+  --accent:#1B6B45; --accent-soft:rgba(27,107,69,0.10);
+  --signal:#9C5D12; --signal-soft:rgba(156,93,18,0.12);
+  --under:#25627F; --under-soft:rgba(37,98,127,0.12);
+  --over:#9A3E35; --over-soft:rgba(154,62,53,0.12);
+  --field:#FFFFFF; --field-line:#C9D3C6;
+  --shadow:0 1px 2px rgba(22,33,28,0.06), 0 8px 24px rgba(22,33,28,0.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1412; --surface:#171E1A; --surface-2:#1D2621;
+    --ink:#E6EDE7; --muted:#93A29B; --line:#27322C;
+    --accent:#5FBE8C; --accent-soft:rgba(95,190,140,0.14);
+    --signal:#D69A45; --signal-soft:rgba(214,154,69,0.15);
+    --under:#6FB4D4; --under-soft:rgba(111,180,212,0.15);
+    --over:#DE8279; --over-soft:rgba(222,130,121,0.15);
+    --field:#111815; --field-line:#33403A;
+    --shadow:0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1412; --surface:#171E1A; --surface-2:#1D2621;
+  --ink:#E6EDE7; --muted:#93A29B; --line:#27322C;
+  --accent:#5FBE8C; --accent-soft:rgba(95,190,140,0.14);
+  --signal:#D69A45; --signal-soft:rgba(214,154,69,0.15);
+  --under:#6FB4D4; --under-soft:rgba(111,180,212,0.15);
+  --over:#DE8279; --over-soft:rgba(222,130,121,0.15);
+  --field:#111815; --field-line:#33403A;
+  --shadow:0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1060px; margin:0 auto; padding:40px 20px 140px}
+
+/* ---------- masthead ---------- */
+.masthead{display:flex; flex-direction:column; gap:10px; margin-bottom:28px}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+}
+h1{
+  font-family:"Barlow Condensed",ui-sans-serif,system-ui,sans-serif;
+  font-weight:700; font-size:clamp(38px,7vw,60px); line-height:.95;
+  letter-spacing:-.01em; margin:0; text-wrap:balance; text-transform:uppercase;
+}
+.standfirst{max-width:62ch; color:var(--muted); margin:0; font-size:15.5px}
+
+/* ---------- counters ---------- */
+.counters{display:flex; flex-wrap:wrap; gap:10px; margin:24px 0 34px}
+.counter{
+  background:var(--surface); border:1px solid var(--line); border-radius:3px;
+  padding:12px 16px; min-width:132px; box-shadow:var(--shadow);
+}
+.counter b{
+  display:block; font-family:"Barlow Condensed",sans-serif; font-weight:700;
+  font-size:32px; line-height:1; font-variant-numeric:tabular-nums;
+}
+.counter span{
+  display:block; margin-top:4px; font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+}
+.counter.done b{color:var(--accent)}
+
+/* ---------- sections ---------- */
+section{margin-bottom:44px}
+.sec-head{
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+  border-bottom:2px solid var(--ink); padding-bottom:8px; margin-bottom:6px;
+}
+h2{
+  font-family:"Barlow Condensed",sans-serif; font-weight:600; text-transform:uppercase;
+  font-size:24px; letter-spacing:.02em; margin:0;
+}
+.sec-note{color:var(--muted); font-size:13.5px; margin:10px 0 18px; max-width:70ch}
+.sub-head{
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted); margin:26px 0 8px;
+  display:flex; align-items:center; gap:10px;
+}
+.sub-head::after{content:""; flex:1; height:1px; background:var(--line)}
+
+/* ---------- player rows ---------- */
+.rows{display:flex; flex-direction:column; gap:8px}
+.row{
+  background:var(--surface); border:1px solid var(--line); border-radius:3px;
+  padding:12px 14px; display:grid; gap:12px 14px; box-shadow:var(--shadow);
+  grid-template-columns:minmax(190px,1.1fr) minmax(280px,auto);
+  align-items:center;
+}
+@media (max-width:720px){ .row{grid-template-columns:1fr} }
+.row.flag-under{border-left:3px solid var(--under)}
+.row.flag-over{border-left:3px solid var(--over)}
+.row.filled{background:var(--accent-soft); border-color:var(--accent)}
+
+.who{display:flex; flex-direction:column; gap:5px; min-width:0}
+.nm{
+  font-family:"Barlow Condensed",sans-serif; font-weight:600; font-size:21px;
+  line-height:1.05; letter-spacing:.01em;
+}
+.ev{display:flex; flex-wrap:wrap; gap:5px}
+.chip{
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.04em;
+  border:1px solid var(--line); border-radius:2px; padding:2px 6px; color:var(--muted);
+  white-space:nowrap;
+}
+.chip.pos{border-color:var(--accent); color:var(--accent)}
+.chip.warn{border-color:var(--signal); color:var(--signal); background:var(--signal-soft)}
+.chip.good{border-color:var(--accent); color:var(--accent); background:var(--accent-soft)}
+.chip.bad{border-color:var(--over); color:var(--over); background:var(--over-soft)}
+
+/* ---------- inputs ---------- */
+.stats{display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end}
+.f{display:flex; flex-direction:column; gap:3px}
+.f label{
+  font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted);
+}
+.f input, .f select{
+  font-family:"IBM Plex Mono",monospace; font-size:15px; font-weight:500;
+  width:52px; padding:6px 4px; text-align:center;
+  background:var(--field); color:var(--ink);
+  border:1px solid var(--field-line); border-radius:2px;
+  font-variant-numeric:tabular-nums;
+}
+.f select{width:76px; font-size:12px; text-align:left; padding-left:7px}
+.f.ovr input{width:58px; border-color:var(--accent); border-width:2px; font-weight:600}
+.f input:focus-visible, .f select:focus-visible, button:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+.f input::-webkit-outer-spin-button,.f input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.f input[type=number]{-moz-appearance:textfield}
+.arrow{font-family:"IBM Plex Mono",monospace; color:var(--muted); padding-bottom:7px}
+.cur{
+  font-family:"Barlow Condensed",sans-serif; font-size:26px; font-weight:700;
+  line-height:1; padding-bottom:2px; color:var(--muted); font-variant-numeric:tabular-nums;
+}
+
+/* ---------- verdict / callouts ---------- */
+.verdict{
+  font-size:13px; color:var(--muted); grid-column:1/-1;
+  border-top:1px dashed var(--line); padding-top:9px; margin-top:2px;
+}
+.verdict b{color:var(--ink); font-weight:600}
+.note{
+  background:var(--surface-2); border-left:3px solid var(--signal);
+  padding:14px 16px; border-radius:0 3px 3px 0; font-size:14px; margin:18px 0;
+}
+.note b{font-weight:600}
+.keep{
+  border-left-color:var(--accent); font-size:13.5px;
+}
+
+/* ---------- export bar ---------- */
+.bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:50;
+  background:var(--surface); border-top:1px solid var(--line);
+  box-shadow:0 -6px 24px rgba(0,0,0,0.10);
+  padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+}
+.bar-in{
+  max-width:1060px; margin:0 auto; display:flex; align-items:center;
+  gap:14px; flex-wrap:wrap; justify-content:space-between;
+}
+.prog{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted)}
+.prog b{color:var(--ink); font-variant-numeric:tabular-nums}
+.btns{display:flex; gap:8px}
+button{
+  font-family:"IBM Plex Sans",sans-serif; font-size:13.5px; font-weight:600;
+  padding:9px 16px; border-radius:2px; cursor:pointer; border:1px solid var(--line);
+  background:var(--surface-2); color:var(--ink);
+}
+button.primary{background:var(--accent); border-color:var(--accent); color:var(--ground)}
+button:hover{opacity:.88}
+button:active{transform:translateY(1px)}
+
+.out{
+  margin-top:12px; width:100%; min-height:150px; display:none;
+  font-family:"IBM Plex Mono",monospace; font-size:12px; line-height:1.6;
+  background:var(--field); color:var(--ink); border:1px solid var(--field-line);
+  border-radius:2px; padding:12px; white-space:pre; overflow:auto;
+}
+.out.show{display:block}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="eyebrow">Wanstead Fellas · 30 Aug 2026</div>
+    <h1>Squad Ratings Audit</h1>
+    <p class="standfirst">
+      Nineteen players are running on flat 7s with no card stats, and nine more look out of step
+      with what they've actually done on the pitch. Fill this in, hit copy, and paste it back.
+    </p>
+  </div>
+
+  <div class="counters">
+    <div class="counter"><b id="c-unrated">19</b><span>On flat 7s</span></div>
+    <div class="counter"><b id="c-aug">8</b><span>Played in August</span></div>
+    <div class="counter"><b id="c-review">9</b><span>Flagged for review</span></div>
+    <div class="counter done"><b id="c-done">0</b><span>Filled in</span></div>
+  </div>
+
+  <div class="note">
+    <b>Fill the six card stats, not just Overall.</b> The balancer only reads card stats when
+    <span style="font-family:'IBM Plex Mono',monospace">card_pace</span> is set. If you enter Overall on its own,
+    the team draft carries on seeing a flat 7 while the star cap and the RTG chip use your new number —
+    the two halves of the balancer end up disagreeing. Scale is 1–10; the squad currently runs 4–10.
+    <br><br>
+    <b>Overall does double duty.</b> Stamina, Aggression, Composure and Work Rate are all derived
+    straight from it — there's no card stat for those four.
+  </div>
+
+  <section>
+    <div class="sec-head"><h2>Rate these</h2></div>
+    <p class="sec-note">
+      Everyone here has all nine base attributes sitting at the default 7 and no card stats at all.
+      Positions marked <span class="chip warn">no position</span> need setting too — the balancer's swaps are
+      position-matched, and a player without one drops into a catch-all bucket that quietly blocks both
+      the star cap and the age spread from fixing any team he's on.
+    </p>
+
+    <div class="sub-head">Played in August · do these first</div>
+    <div class="rows" id="rows-aug"></div>
+
+    <div class="sub-head">Last played July or earlier · lower priority</div>
+    <div class="rows" id="rows-old"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Review these</h2></div>
+    <p class="sec-note">
+      These are already rated, but the numbers sit awkwardly against the record. This is inference, not fact:
+      all I can see is goals, MOTM votes and DOTDs — no assists, no defensive actions, no minutes. MOTM votes
+      are the only peer-judged signal available, and they track popularity and winning teams as well as ability.
+      You've watched the games; treat these as prompts, not corrections. Leave the box blank to keep a rating as-is.
+    </p>
+
+    <div class="sub-head">Possibly under-rated</div>
+    <div class="rows" id="rows-under"></div>
+
+    <div class="sub-head">Possibly over-rated</div>
+    <div class="rows" id="rows-over"></div>
+
+    <div class="note keep">
+      <b>Two that look odd but I'd leave alone.</b>
+      <b>Aaron Franklin</b> (ATT, 8) has zero MOTM votes in 9 games, which looks alarming until you see
+      8 goals in those 9 — the rating holds up.
+      <b>Lawrie Pointer</b> (DEF, 9) has just one vote, but 6 goals in 6 games from defence is exceptional,
+      and he's one of the few with hand-curated attributes rather than card stats.
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>The one I'd push you on</h2></div>
+    <p class="sec-note">
+      Your three keepers, ordered by how often team-mates voted for them. Peter May is rated
+      <b>above</b> both Finches on zero votes and zero MOTM wins across 8 games, while Callum has the best
+      vote rate of any keeper and two MOTM wins. Whichever way you correct it, the current order looks wrong —
+      and it matters more than most, because GK distribution is a hard constraint in the balancer, so a
+      mis-rated keeper skews his whole team's rating sum every single week.
+    </p>
+    <div style="overflow-x:auto">
+      <table style="border-collapse:collapse; width:100%; min-width:460px; font-size:14px">
+        <thead>
+          <tr style="text-align:left; border-bottom:1px solid var(--line)">
+            <th style="padding:8px 10px 8px 0; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500">Keeper</th>
+            <th style="padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500">Overall</th>
+            <th style="padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500">Apps</th>
+            <th style="padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500">MOTM</th>
+            <th style="padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500">Votes</th>
+            <th style="padding:8px 0 8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500">Per app</th>
+          </tr>
+        </thead>
+        <tbody style="font-variant-numeric:tabular-nums; font-family:'IBM Plex Mono',monospace; font-size:13px">
+          <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px 9px 0; font-family:'IBM Plex Sans',sans-serif; font-weight:500">Callum Finch</td><td style="padding:9px 10px">7</td><td style="padding:9px 10px">17</td><td style="padding:9px 10px">2</td><td style="padding:9px 10px">12</td><td style="padding:9px 0 9px 10px; color:var(--accent); font-weight:600">0.71</td></tr>
+          <tr style="border-bottom:1px solid var(--line)"><td style="padding:9px 10px 9px 0; font-family:'IBM Plex Sans',sans-serif; font-weight:500">Paul Finch</td><td style="padding:9px 10px">7</td><td style="padding:9px 10px">17</td><td style="padding:9px 10px">1</td><td style="padding:9px 10px">10</td><td style="padding:9px 0 9px 10px; color:var(--accent); font-weight:600">0.59</td></tr>
+          <tr><td style="padding:9px 10px 9px 0; font-family:'IBM Plex Sans',sans-serif; font-weight:500">Peter May</td><td style="padding:9px 10px; color:var(--over); font-weight:600">8</td><td style="padding:9px 10px">8</td><td style="padding:9px 10px">0</td><td style="padding:9px 10px">0</td><td style="padding:9px 0 9px 10px; color:var(--over); font-weight:600">0.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <textarea class="out" id="out" readonly aria-label="Filled ratings, ready to copy"></textarea>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="prog"><b id="p-done">0</b> of <b id="p-total">28</b> rows filled · saved in this browser</div>
+    <div class="btns">
+      <button type="button" id="btn-clear">Clear all</button>
+      <button type="button" class="primary" id="btn-copy">Copy for Claude</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STATS = ["pac","sho","pas","dri","def","phy"];
+const STAT_LABEL = {pac:"Pace",sho:"Shoot",pas:"Pass",dri:"Drib",def:"Def",phy:"Phys"};
+
+// apps / goals / motm / dotd / votes are real figures pulled from the database
+// on 30 Aug 2026. goals are summed from goals_count, excluding own goals.
+const UNRATED_AUG = [
+  {n:"Max Farley",       pos:"MID",  age:"Under 20", apps:7, g:2, motm:1, dotd:0, v:8, hi:"1 MOTM · 8 votes — best evidence of anyone unrated"},
+  {n:"Marshall Winter",  pos:null,   age:"Under 20", apps:6, g:2, motm:0, dotd:0, v:0},
+  {n:"Father Emmanuel",  pos:"MID",  age:"50+",      apps:5, g:0, motm:0, dotd:1, v:1},
+  {n:"Ollie Hoad",       pos:"DEF",  age:"40–49",    apps:3, g:0, motm:0, dotd:0, v:0},
+  {n:"Gavin Fulcher",    pos:null,   age:"40–49",    apps:2, g:0, motm:0, dotd:1, v:0},
+  {n:"Sam Yeats",        pos:"MID",  age:"40–49",    apps:2, g:3, motm:0, dotd:0, v:0, hi:"3 goals in 2 games"},
+  {n:"Matthew Sharpe",   pos:"DEF",  age:"40–49",    apps:1, g:0, motm:0, dotd:0, v:0},
+  {n:"Fraser Day",       pos:"ATT",  age:"20–29",    apps:1, g:2, motm:1, dotd:0, v:2, hi:"MOTM on debut"}
+];
+const UNRATED_OLD = [
+  {n:"Rob Hall",         pos:"DEF",  age:"40–49",    apps:5, g:0, motm:0, dotd:0, v:0, last:"30 Jul"},
+  {n:"Chris Hughes",     pos:"MID",  age:"40–49",    apps:3, g:1, motm:0, dotd:0, v:1, last:"9 Jul"},
+  {n:"kevin sweeney",    pos:"MID",  age:"40–49",    apps:2, g:0, motm:0, dotd:0, v:0, last:"30 Jul"},
+  {n:"Ed Adamson",       pos:"MID",  age:"40–49",    apps:2, g:1, motm:0, dotd:0, v:1, last:"2 Jul"},
+  {n:"Emmanuel",         pos:"MID",  age:null,       apps:2, g:2, motm:0, dotd:0, v:2, last:"18 Jun", hi:"surname missing on profile"},
+  {n:"Bodhi Quinlan-May",pos:null,   age:"Under 20", apps:1, g:1, motm:0, dotd:0, v:0, last:"30 Jul"},
+  {n:"Neil Perry",       pos:"GK",   age:"40–49",    apps:1, g:0, motm:0, dotd:0, v:0, last:"25 Jun", hi:"keeper — needs the six GK stats, not these"},
+  {n:"Phil Mowat",       pos:"MID",  age:"40–49",    apps:1, g:0, motm:0, dotd:1, v:1, last:"11 Jun"},
+  {n:"Stuart Jack",      pos:"DEF",  age:"40–49",    apps:1, g:0, motm:0, dotd:0, v:0, last:"11 Jun"},
+  {n:"James Lightbody",  pos:null,   age:"Under 20", apps:1, g:0, motm:0, dotd:0, v:1, last:"28 May"},
+  {n:"Daniel K",         pos:null,   age:null,       apps:1, g:0, motm:0, dotd:0, v:0, last:"23 Apr"}
+];
+const UNDER = [
+  {n:"Rory Wilson",  pos:"MID", ovr:8, apps:5,  g:2, motm:1, v:8,  why:"<b>1.60 votes per game</b> — the highest rate in the whole squad. Only 5 appearances, so treat with some caution."},
+  {n:"Callum Finch", pos:"GK",  ovr:7, apps:17, g:0, motm:2, v:12, why:"Most-recognised keeper you have: <b>2 MOTM wins and 12 votes</b>, yet rated below Peter May."},
+  {n:"Paul Finch",   pos:"GK",  ovr:7, apps:17, g:0, motm:1, v:10, why:"<b>10 votes and a MOTM</b> across 17 games. Same story as Callum."},
+  {n:"Mark Pearson", pos:"DEF", ovr:6, apps:8,  g:1, motm:0, v:2,  why:"0.25 votes per game — a better recognition rate than several players rated 7 and 8."}
+];
+const OVER = [
+  {n:"Peter May",      pos:"GK",  ovr:8, apps:8,  g:1, motm:0, v:0, why:"<b>Zero votes and zero MOTM in 8 games</b>, yet rated above both Finches. The clearest mismatch in the data."},
+  {n:"Noah Higgins",   pos:"ATT", ovr:9, apps:17, g:12,motm:0, v:2, why:"Scores well (0.71 a game) but has the <b>lowest peer recognition of any 9</b> — no MOTM wins, 2 votes in 17 games."},
+  {n:"Michael Farley", pos:"MID", ovr:9, apps:17, g:11,motm:1, v:5, why:"0.29 votes per game and <b>5 DOTDs</b>, the joint-most in the squad."},
+  {n:"Pete Healey",    pos:"MID", ovr:8, apps:9,  g:2, motm:0, v:1, why:"2 goals and 1 vote in 9 games — the weakest output of the 8-rated midfielders."},
+  {n:"Gary Edwards",   pos:"DEF", ovr:8, apps:10, g:1, motm:0, v:2, why:"Modest on every measure available."}
+];
+
+const KEY = "wf-ratings-audit-v1";
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { saved = {}; }
+
+function persist(){
+  try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* private mode — sheet still works */ }
+}
+
+function chips(p, opts){
+  const out = [];
+  out.push(`<span class="chip pos">${p.pos || "?"}</span>`);
+  if (!p.pos) out.push(`<span class="chip warn">no position</span>`);
+  if (p.age) out.push(`<span class="chip">${p.age}</span>`); else out.push(`<span class="chip warn">no age group</span>`);
+  out.push(`<span class="chip">${p.apps} app${p.apps === 1 ? "" : "s"}</span>`);
+  out.push(`<span class="chip${p.g > 0 ? " good" : ""}">${p.g} goal${p.g === 1 ? "" : "s"}</span>`);
+  if (p.motm) out.push(`<span class="chip good">${p.motm} MOTM</span>`);
+  if (p.v) out.push(`<span class="chip">${p.v} vote${p.v === 1 ? "" : "s"}</span>`);
+  if (p.dotd) out.push(`<span class="chip bad">${p.dotd} DOTD</span>`);
+  if (p.last) out.push(`<span class="chip">last ${p.last}</span>`);
+  return out.join("");
+}
+
+function newRow(p, group){
+  const id = p.n.replace(/\s+/g, "_");
+  const posField = p.pos ? "" : `
+    <div class="f"><label>Position</label>
+      <select data-id="${id}" data-k="pos">
+        <option value="">—</option><option>GK</option><option>DEF</option><option>MID</option><option>ATT</option>
+      </select></div>`;
+  return `
+  <div class="row" data-row="${id}">
+    <div class="who">
+      <div class="nm">${p.n}</div>
+      <div class="ev">${chips(p)}</div>
+      ${p.hi ? `<div style="font-size:12.5px;color:var(--muted)">${p.hi}</div>` : ""}
+    </div>
+    <div class="stats">
+      ${posField}
+      ${STATS.map(s => `
+        <div class="f"><label>${STAT_LABEL[s]}</label>
+          <input type="number" min="1" max="10" inputmode="numeric" data-id="${id}" data-k="${s}"></div>`).join("")}
+      <div class="f ovr"><label>Overall</label>
+        <input type="number" min="1" max="10" inputmode="numeric" data-id="${id}" data-k="ovr"></div>
+    </div>
+  </div>`;
+}
+
+function reviewRow(p, dir){
+  const id = p.n.replace(/\s+/g, "_");
+  return `
+  <div class="row flag-${dir}" data-row="${id}">
+    <div class="who">
+      <div class="nm">${p.n}</div>
+      <div class="ev">
+        <span class="chip pos">${p.pos}</span>
+        <span class="chip">${p.apps} apps</span>
+        <span class="chip${p.g > 0 ? " good" : ""}">${p.g} goals</span>
+        ${p.motm ? `<span class="chip good">${p.motm} MOTM</span>` : ""}
+        <span class="chip">${p.v} votes</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="cur">${p.ovr}</div>
+      <div class="arrow">→</div>
+      <div class="f ovr"><label>New overall</label>
+        <input type="number" min="1" max="10" inputmode="numeric" data-id="${id}" data-k="ovr"></div>
+    </div>
+    <div class="verdict">${p.why}</div>
+  </div>`;
+}
+
+document.getElementById("rows-aug").innerHTML   = UNRATED_AUG.map(p => newRow(p)).join("");
+document.getElementById("rows-old").innerHTML   = UNRATED_OLD.map(p => newRow(p)).join("");
+document.getElementById("rows-under").innerHTML = UNDER.map(p => reviewRow(p, "under")).join("");
+document.getElementById("rows-over").innerHTML  = OVER.map(p => reviewRow(p, "over")).join("");
+
+const ALL_NEW = UNRATED_AUG.concat(UNRATED_OLD);
+const ALL_REV = UNDER.concat(OVER);
+document.getElementById("p-total").textContent = ALL_NEW.length + ALL_REV.length;
+
+// restore
+document.querySelectorAll("[data-id]").forEach(el => {
+  const rec = saved[el.dataset.id];
+  if (rec && rec[el.dataset.k] != null) el.value = rec[el.dataset.k];
+});
+
+function rowFilled(id, isNew){
+  const r = saved[id];
+  if (!r) return false;
+  if (!isNew) return r.ovr != null && r.ovr !== "";
+  return STATS.every(s => r[s] != null && r[s] !== "") && r.ovr != null && r.ovr !== "";
+}
+
+function refresh(){
+  let done = 0;
+  ALL_NEW.forEach(p => {
+    const id = p.n.replace(/\s+/g, "_");
+    const ok = rowFilled(id, true);
+    if (ok) done++;
+    const el = document.querySelector(`[data-row="${id}"]`);
+    if (el) el.classList.toggle("filled", ok);
+  });
+  ALL_REV.forEach(p => {
+    const id = p.n.replace(/\s+/g, "_");
+    const ok = rowFilled(id, false);
+    if (ok) done++;
+    const el = document.querySelector(`[data-row="${id}"]`);
+    if (el) el.classList.toggle("filled", ok);
+  });
+  document.getElementById("p-done").textContent = done;
+  document.getElementById("c-done").textContent = done;
+}
+
+document.addEventListener("input", e => {
+  const el = e.target;
+  if (!el.dataset || !el.dataset.id) return;
+  let v = el.value;
+  if (el.type === "number" && v !== "") {
+    v = Math.max(1, Math.min(10, parseInt(v, 10) || 1));
+    el.value = v;
+  }
+  saved[el.dataset.id] = saved[el.dataset.id] || {};
+  if (v === "") delete saved[el.dataset.id][el.dataset.k];
+  else saved[el.dataset.id][el.dataset.k] = v;
+  persist();
+  refresh();
+});
+
+function buildOutput(){
+  const lines = [];
+  const news = [];
+  ALL_NEW.forEach(p => {
+    const id = p.n.replace(/\s+/g, "_");
+    const r = saved[id]; if (!r) return;
+    const bits = STATS.filter(s => r[s] != null && r[s] !== "").map(s => `${STAT_LABEL[s].toUpperCase()} ${r[s]}`);
+    if (!bits.length && !r.ovr && !r.pos) return;
+    const pos = p.pos || r.pos || "?";
+    news.push(`${p.n} | ${pos} | ${bits.join(" ")}${r.ovr ? ` | OVR ${r.ovr}` : ""}`);
+  });
+  const revs = [];
+  ALL_REV.forEach(p => {
+    const id = p.n.replace(/\s+/g, "_");
+    const r = saved[id]; if (!r || r.ovr == null || r.ovr === "") return;
+    revs.push(`${p.n} | OVR ${p.ovr} -> ${r.ovr}`);
+  });
+  if (news.length) lines.push("NEW RATINGS (card stats)", ...news);
+  if (revs.length) { if (lines.length) lines.push(""); lines.push("OVERALL REVISIONS", ...revs); }
+  return lines.length ? lines.join("\n") : "Nothing filled in yet.";
+}
+
+document.getElementById("btn-copy").addEventListener("click", async () => {
+  const text = buildOutput();
+  const out = document.getElementById("out");
+  out.value = text; out.classList.add("show");
+  const btn = document.getElementById("btn-copy");
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = "Copied";
+  } catch (e) {
+    out.select();
+    btn.textContent = "Select and copy above";
+  }
+  setTimeout(() => { btn.textContent = "Copy for Claude"; }, 2200);
+  out.scrollIntoView({behavior:"smooth", block:"center"});
+});
+
+document.getElementById("btn-clear").addEventListener("click", () => {
+  saved = {}; persist();
+  document.querySelectorAll("[data-id]").forEach(el => { el.value = ""; });
+  document.getElementById("out").classList.remove("show");
+  refresh();
+});
+
+refresh();
+</script>
