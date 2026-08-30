@@ -55,10 +55,17 @@ Deno.serve(async (req) => {
       tag: `feature-${row.id}`,
     })
 
-    const { data: subs } = await supabase
-      .from('push_subscriptions')
-      .select('id, endpoint, p256dh, auth')
-    const subList = (subs || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string }>
+    // Club-wide, gated on the 'club_news' preference (mig 081). Note that
+    // total_subs below is now the ELIGIBLE count, not the raw subscription
+    // count — that's deliberate, it's the number the admin bar should show
+    // as the denominator ("12/12 delivered", not "12/18").
+    const { data: targets, error: targetErr } = await supabase.rpc('push_targets', {
+      p_category: 'club_news',
+      p_player_ids: null,
+      p_include_admins: true,
+    })
+    if (targetErr) return json({ error: `push_targets failed: ${targetErr.message}` }, 500)
+    const subList = (targets || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string }>
 
     const outcomes = await Promise.all(subList.map(async (s) => {
       try {

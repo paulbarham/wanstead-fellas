@@ -7,6 +7,7 @@ import PlayerCard from '../components/PlayerCard'
 import PlayerAvatar from '../components/PlayerAvatar'
 import MyFinances from '../components/MyFinances'
 import PushOptInCard from '../components/PushOptInCard'
+import NotificationPrefsCard from '../components/NotificationPrefsCard'
 import InjuryCard from '../components/InjuryCard'
 import TextSizeToggle from '../components/TextSizeToggle'
 import PositionPicker from '../components/PositionPicker'
@@ -580,8 +581,15 @@ export default function ProfilePage() {
       </div>
 
       {/* Match-night push notifications */}
-      <div className="mb-6">
+      <div className="mb-3">
         <PushOptInCard />
+      </div>
+
+      {/* Per-category opt-outs (mig 081). Sits directly under the on/off card
+          so "enable notifications" and "…but not these ones" read as one
+          decision rather than two unrelated settings. */}
+      <div className="mb-6">
+        <NotificationPrefsCard />
       </div>
 
       {/* Text-size preference */}

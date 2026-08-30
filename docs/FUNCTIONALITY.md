@@ -99,6 +99,45 @@ Generic voting system keyed by `award_type`, currently `motm` (Man of the Match)
 
 ---
 
+## 6b. Push notifications
+
+Web Push via VAPID. `push_subscriptions` holds one row per **(player, browser)** — a fella with a phone and a laptop has two. Three edge functions fan out: `send-vote-notifications` (match night, results, dropouts), `mow-notify` (Match of the Week), `send-feature-announcement` (admin broadcasts).
+
+### What gets sent
+
+| Push | Fires when | Audience | Category |
+|---|---|---|---|
+| 🟢 Teams are ready | `voting_windows` INSERT >15 min ahead | Rostered + admins | `match_night` |
+| 🏆 Vote for tonight's awards | `voting_windows` INSERT / `fanout-vote-open` cron | Rostered + admins | `results` |
+| 📝 Match report is live | `max(voting close, report written)` — mig `077` handshake | Club-wide | `results` |
+| 📊 MOTM & DOTD published | Same handshake, when no report was written | Club-wide | `results` |
+| 🎯 Match of the Week | `mow_fixtures` INSERT | Club-wide | `games` |
+| 🎯 MoW Result | `mow_pool_fixtures` score UPDATE | Club-wide | `games` |
+| *(admin-authored)* | 15-min cron picks up a scheduled announcement | Club-wide | `club_news` |
+| 🔄 Roster change | `player_dropout` RPC | Admins | **always-on** |
+| ⚽ You're in tonight | `player_dropout` RPC, when a WTP fills the gap | The replacement | **always-on** |
+
+### Audience resolution
+
+Every fan-out routes through **`public.push_targets(category, player_ids, include_admins)`** (mig `081`) — security-definer, service-role only. It applies two gates in one query:
+
+1. **Roster gate** — club-wide (`player_ids` null), or a specific roster, plus admins when `include_admins` is true. Admins ride along past the roster filter so an organiser publishing on a week they aren't playing still gets confirmation it went out.
+2. **Preference gate** — the player's `notification_preferences` row. **No row means everything is on**, so nothing is ever seeded and new signups inherit defaults.
+
+Keeping both gates in one SQL function is deliberate: the rules previously lived inline in each edge function and drifted apart.
+
+### Player preferences
+
+`notification_preferences` is keyed on `player_id` (not on the subscription — muting on your phone must mute your laptop too). Five boolean categories: `match_night`, `results`, `games`, `money`, `club_news`. Players manage them on Profile via `NotificationPrefsCard`, sitting directly under the on/off card. All default on; "Turn everything off" is a destructive pill behind a confirm sheet.
+
+**Always-on tier:** pushes that tell a player they're playing tonight carry no category and bypass preferences entirely (`push_targets(p_category => null)`). If those could be muted we'd be a man short on Thursday.
+
+### Known constraint
+
+Adoption is the ceiling, not the code: **18 push subscriptions against 86 profiles**. Every push feature is capped by that number until more of the group opts in.
+
+---
+
 ## 7. Data model highlights & sync rules
 
 - **Two roster stores must stay in sync:** `team_players` (relational, drives MOTM/DOTD eligibility + appearances) and `team_drafts.draft` (JSONB, what the Teams tab reads). This is an active `in_flight` roadmap item to automate.

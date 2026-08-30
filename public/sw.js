@@ -1,9 +1,9 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v47 — feature-announcement broadcasts (20 Aug 2026 · mig 079).
+// Bumped to v48 — per-player notification preferences (30 Aug 2026 · mig 081).
 // Admin (top of Admin page) can post a "what's new" push — title, body,
 // deep link — scheduled for the next 9am UK. 15-min pg_cron fires them,
 // send-feature-announcement edge fn fans out to every push_subscription.
-const CACHE = 'wf-v47'
+const CACHE = 'wf-v48'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

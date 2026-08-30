@@ -98,10 +98,16 @@ Deno.serve(async (req) => {
       bodyText = `${homeName} ${fx.home_score}-${fx.away_score} ${awayName}. Check your points.`
     }
 
-    const { data: subs } = await supabase
-      .from('push_subscriptions')
-      .select('id, endpoint, p256dh, auth')
-    const subList = (subs || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string }>
+    // Club-wide, but gated on the 'games' preference (mig 081). MoW is the
+    // most opt-out-able push we send — plenty of fellas play football without
+    // caring about a Premier League score predictor.
+    const { data: targets, error: targetErr } = await supabase.rpc('push_targets', {
+      p_category: 'games',
+      p_player_ids: null,
+      p_include_admins: true,
+    })
+    if (targetErr) return json({ error: `push_targets failed: ${targetErr.message}` }, 500)
+    const subList = (targets || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string }>
     if (subList.length === 0) return json({ sent: 0, total: 0 })
 
     const payload = JSON.stringify({

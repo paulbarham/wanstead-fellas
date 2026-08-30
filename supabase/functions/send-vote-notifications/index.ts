@@ -1,16 +1,11 @@
 // Fans out web push notifications for a given match. Four topics:
 //   * 'teams_ready' — teams for the next match have just been published
 //     (voting_windows INSERT where opens_at is > 15 min in the future).
-//     Recipients: EVERY active push subscription — the line-up going up
-//     is club-wide news, and the previous roster-only cut missed anyone
-//     who cares who's playing tonight but hasn't signed up themselves
-//     (partners, older players, the admin on off-weeks). 13 Aug 2026.
+//     Recipients: rostered players + admins. Category 'match_night'.
 //   * 'vote_open'   — voting window has just opened, players still need to
 //     cast their MOTM/DOTD picks (voting_windows INSERT where opens_at is
 //     imminent OR the Stage 2 cron firing when opens_at is reached).
-//     Recipients: rostered players (only they can vote) PLUS admins even
-//     when not rostered — the admin publishes results and needs the same
-//     confirmation ping as the players.
+//     Recipients: rostered players + admins. Category 'results'.
 //   * 'results'     — awards + match report have been published for the
 //     round. If a match report has been written (results.summary NOT NULL)
 //     the push is framed as "Match report is live". Otherwise falls back
@@ -74,41 +69,53 @@ Deno.serve(async (req) => {
       return await handleDropout(supabase, matchId, body)
     }
 
-    // Recipients:
-    //  * 'results' AND 'teams_ready' → EVERY active push subscription.
-    //    Both are club-wide news: the report + the "who's playing tonight"
-    //    line-up. Historically teams_ready was roster-only which meant
-    //    partners, older players, and admins on off-weeks got nothing —
-    //    widened 13 Aug 2026.
-    //  * 'vote_open' → rostered players (only they can vote MOTM/DOTD)
-    //    PLUS admins even when not rostered, so the publisher gets the
-    //    same confirmation ping as the players.
-    let subList: Array<{ id: string; endpoint: string; p256dh: string; auth: string }> = []
-    if (topic === 'results' || topic === 'teams_ready') {
-      const { data: subs } = await supabase
-        .from('push_subscriptions')
-        .select('id, endpoint, p256dh, auth')
-      subList = (subs || []) as typeof subList
-    } else {
+    // Recipients now resolve through public.push_targets (mig 081) so the
+    // audience rules live in ONE place instead of being smeared across three
+    // edge functions. Two gates inside it: a roster gate and a per-player
+    // preference gate (absence of a preferences row = everything on).
+    //
+    //  * 'teams_ready' → rostered players, category 'match_night'.
+    //    NOT club-wide. The 13 Aug widening was reverted 30 Aug: with only
+    //    18 subscriptions across 86 profiles, buzzing non-players about a
+    //    line-up they aren't in is the fastest way to make them turn push
+    //    off altogether. Revisit once adoption is materially higher.
+    //  * 'vote_open'   → rostered players, category 'results'. Only they can
+    //    cast MOTM/DOTD picks.
+    //  * 'results'     → club-wide, category 'results'. The report and the
+    //    awards are news for everyone, players or not.
+    //
+    // Both roster-scoped topics pass p_include_admins => true, so an admin
+    // who isn't playing this week still gets the confirmation that the
+    // line-up (or the voting window) actually went out. That was the gap:
+    // publish on an off-week and you'd hear nothing back.
+    const CATEGORY: Record<string, string> = {
+      teams_ready: 'match_night',
+      vote_open: 'results',
+      results: 'results',
+    }
+
+    let rosterIds: string[] | null = null
+    if (topic === 'teams_ready' || topic === 'vote_open') {
       const { data: teams } = await supabase.from('teams').select('id').eq('match_id', matchId)
       const teamIds = (teams || []).map((t: any) => t.id)
       const { data: tp } = teamIds.length
         ? await supabase.from('team_players').select('player_id').in('team_id', teamIds)
         : { data: [] as { player_id: string }[] }
-      const rosterIds = new Set(((tp || []) as { player_id: string }[]).map(r => r.player_id))
+      rosterIds = [...new Set(((tp || []) as { player_id: string }[]).map(r => r.player_id))]
+    }
 
-      // Include admins even when they aren't rostered — the publisher
-      // needs the same "vote open" confirmation as the players.
-      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-      for (const a of (admins || []) as { id: string }[]) rosterIds.add(a.id)
+    const { data: targets, error: targetErr } = await supabase.rpc('push_targets', {
+      p_category: CATEGORY[topic] ?? null,
+      p_player_ids: rosterIds,
+      p_include_admins: true,
+    })
+    if (targetErr) return json({ error: `push_targets failed: ${targetErr.message}` }, 500)
 
-      if (rosterIds.size === 0) return json({ sent: 0, total: 0, reason: 'no players or admins' })
-
-      const { data: subs } = await supabase
-        .from('push_subscriptions')
-        .select('id, endpoint, p256dh, auth')
-        .in('player_id', Array.from(rosterIds))
-      subList = (subs || []) as typeof subList
+    const subList = (targets || []) as Array<{
+      id: string; endpoint: string; p256dh: string; auth: string; player_id: string
+    }>
+    if (subList.length === 0) {
+      return json({ sent: 0, total: 0, reason: 'no eligible subscriptions after roster + preference filter' })
     }
 
     // Build payload
@@ -254,11 +261,18 @@ async function handleDropout(supabase: any, matchId: string, body: any): Promise
   const allIds = [...new Set([...adminIds, ...(replacementId ? [replacementId] : [])])]
   if (allIds.length === 0) return json({ sent: 0, total: 0, reason: 'no admin or replacement subs' })
 
-  const { data: allSubs } = await supabase
-    .from('push_subscriptions')
-    .select('id, endpoint, p256dh, auth, player_id')
-    .in('player_id', allIds)
-  const subs = (allSubs || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string; player_id: string }>
+  // ALWAYS-ON TIER: p_category => null, so preferences are ignored entirely.
+  // "You're in tonight" tells a fella he is playing in a few hours. If he
+  // could mute that we'd be a man short. The admin roster-change ping rides
+  // the same tier — it's operational, not news. Explicit id list already
+  // contains the admins, so p_include_admins is false to avoid double logic.
+  const { data: dropoutTargets, error: dropoutErr } = await supabase.rpc('push_targets', {
+    p_category: null,
+    p_player_ids: allIds,
+    p_include_admins: false,
+  })
+  if (dropoutErr) return json({ error: `push_targets failed: ${dropoutErr.message}` }, 500)
+  const subs = (dropoutTargets || []) as Array<{ id: string; endpoint: string; p256dh: string; auth: string; player_id: string }>
 
   const adminPayload = JSON.stringify({
     title: '🔄 Roster change',
