@@ -14,8 +14,7 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {})
-  })
-}
+// Service-worker registration now lives in UpdatePrompt via
+// registerWithUpdates(), so the same registration that installs the worker
+// is the one watching for updates. Registering here as well raced with it
+// and could swallow the 'updatefound' event.

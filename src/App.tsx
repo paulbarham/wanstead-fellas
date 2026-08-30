@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
+import UpdatePrompt from './components/UpdatePrompt'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import { syncPushSubscription } from './lib/push'
@@ -93,6 +94,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        {/* App-wide: a new build can land while someone is on the login
+            screen just as easily as mid-session. */}
+        <UpdatePrompt />
         <div style={{ width: '100%', maxWidth: 430, margin: '0 auto', height: '100%', position: 'relative', overflowX: 'hidden' }}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />

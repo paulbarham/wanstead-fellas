@@ -138,6 +138,16 @@ Adoption is the ceiling, not the code: **18 push subscriptions against 86 profil
 
 ---
 
+## 6c. App updates
+
+The app is an installed PWA, so a deployed build does not reach a phone until that phone reloads. `public/sw.js` deliberately does **not** call `skipWaiting()` on install: a new worker installs and parks in `waiting`, `registerWithUpdates()` (`src/lib/swUpdate.ts`) detects it, and `UpdatePrompt` surfaces a "New version available — Refresh" toast above the bottom nav.
+
+Tapping Refresh posts `SKIP_WAITING` to the waiting worker and reloads on `controllerchange` (not immediately — reloading before the new worker controls the page re-serves the old bundle and loops). The app re-checks for updates whenever it returns to the foreground and every 30 minutes while open.
+
+Bump `CACHE` in `sw.js` on any change that needs a hard refresh across the group.
+
+---
+
 ## 7. Data model highlights & sync rules
 
 - **Two roster stores must stay in sync:** `team_players` (relational, drives MOTM/DOTD eligibility + appearances) and `team_drafts.draft` (JSONB, what the Teams tab reads). This is an active `in_flight` roadmap item to automate.

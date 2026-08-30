@@ -1,14 +1,28 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v48 — per-player notification preferences (30 Aug 2026 · mig 081).
+// Bumped to v49 — in-app "new version available" update prompt (30 Aug 2026).
+//
+// NOTE: install no longer calls skipWaiting(). That was swapping the worker
+// out from under a running page, which meant a new build activated silently
+// and there was never a *waiting* worker for the app to notice — so people
+// sat on a stale bundle until they happened to fully relaunch. Now the new
+// worker parks in 'waiting', the app spots it and shows a Refresh prompt,
+// and only then do we skipWaiting() via the SKIP_WAITING message below.
+// The user chooses the moment, so we never reload mid-vote or mid-team-edit.
 // Admin (top of Admin page) can post a "what's new" push — title, body,
 // deep link — scheduled for the next 9am UK. 15-min pg_cron fires them,
 // send-feature-announcement edge fn fans out to every push_subscription.
-const CACHE = 'wf-v48'
+const CACHE = 'wf-v49'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)))
-  self.skipWaiting()
+  // Deliberately NOT skipWaiting() — see the note at the top of this file.
+})
+
+// The app posts this when the player taps "Refresh" on the update prompt.
+// Activating here fires 'controllerchange' in the page, which reloads.
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting()
 })
 
 self.addEventListener('activate', event => {
