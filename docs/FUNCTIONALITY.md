@@ -148,6 +148,19 @@ Bump `CACHE` in `sw.js` on any change that needs a hard refresh across the group
 
 ---
 
+## 6d. Team balancing
+
+`snakeDraft` splits the roster by position and deals rating-balanced teams; `enforceBalanceConstraints` (`src/lib/balance.ts`) then applies two post-draft constraints as a greedy, position-preserving swap pass:
+
+- **Star cap** — `starCapFor(totalStars, numTeams) = max(1, ceil(stars / teams))`. Scales with the night's format: 4 stars across 4 teams means one each, and it can never be mathematically unsatisfiable.
+- **Age spread** — over-40 count within ±1 across teams.
+
+Both are best-effort. If one cannot be satisfied it stops and the other still runs; any successful swap re-scans both, since an over-40 player may also be a star. Admin preview chips (RTG · GK · 40+ · ★) use the same cap the balancer used.
+
+Preferred format is **4 teams**; 2-team nights happen when turnout is low and both constraints are much weaker there.
+
+---
+
 ## 7. Data model highlights & sync rules
 
 - **Two roster stores must stay in sync:** `team_players` (relational, drives MOTM/DOTD eligibility + appearances) and `team_drafts.draft` (JSONB, what the Teams tab reads). This is an active `in_flight` roadmap item to automate.

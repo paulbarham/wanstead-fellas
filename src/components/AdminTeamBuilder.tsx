@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { getVotingWindow, canGenerateTeams } from '../lib/time'
+import {
+  enforceBalanceConstraints, isStar, isOver40, posBucket, starCapFor,
+  AGE_SPREAD_TOLERANCE,
+} from '../lib/balance'
 import type { Profile, Match, Team } from '../types'
 import PlayerAvatar from './PlayerAvatar'
 import { pickConfig, formatLabelFor, splitPlayingAndReserves, stripFC } from '../lib/format'
@@ -172,93 +176,6 @@ function pickCaptain(players: Profile[]): Profile {
 // Swaps are position-preserving — a MID only ever swaps with a MID, a
 // DEF with a DEF, etc. Position balance from the snake draft is untouched.
 
-const STAR_THRESHOLD = 9
-const MAX_STARS_PER_TEAM = 2
-const AGE_SPREAD_TOLERANCE = 1
-
-function isStar(p: Profile): boolean {
-  return (p.overall_rating ?? 0) >= STAR_THRESHOLD
-}
-
-function isOver40(p: Profile): boolean {
-  const g = p.age_group
-  return g === '40–49' || g === '50+' || g === '40+'
-}
-
-function posBucket(p: Profile): string {
-  return p.preferred_position_primary ?? p.position ?? 'REST'
-}
-
-function enforceBalanceConstraints(teams: Profile[][]): Profile[][] {
-  const MAX_ITER = 200
-  const working = teams.map(t => [...t])
-
-  const starCounts = () => working.map(t => t.filter(isStar).length)
-  const oldCounts = () => working.map(t => t.filter(isOver40).length)
-
-  // Try to swap `player` (currently on `fromIdx`) with any position-matching
-  // player on any team from `candidates`. Returns true if a swap happened.
-  function trySwapOutOf(
-    fromIdx: number,
-    player: Profile,
-    candidateIdxs: number[],
-    swapPartnerFilter: (p: Profile) => boolean,
-  ): boolean {
-    const bucket = posBucket(player)
-    for (const toIdx of candidateIdxs) {
-      if (toIdx === fromIdx) continue
-      const partner = working[toIdx].find(
-        p => posBucket(p) === bucket && swapPartnerFilter(p),
-      )
-      if (!partner) continue
-      working[fromIdx] = working[fromIdx].filter(p => p.id !== player.id).concat(partner)
-      working[toIdx] = working[toIdx].filter(p => p.id !== partner.id).concat(player)
-      return true
-    }
-    return false
-  }
-
-  for (let i = 0; i < MAX_ITER; i++) {
-    // Star violations first — they matter more (three stars on one team is
-    // the classic "obvious best team gets beaten" failure).
-    const stars = starCounts()
-    const overStarIdx = stars.findIndex(n => n > MAX_STARS_PER_TEAM)
-    if (overStarIdx !== -1) {
-      const targets = stars
-        .map((n, i) => [n, i] as [number, number])
-        .filter(([n, i]) => n < MAX_STARS_PER_TEAM && i !== overStarIdx)
-        .sort((a, b) => a[0] - b[0])
-        .map(([, i]) => i)
-      const surplusStar = working[overStarIdx].find(isStar)
-      if (surplusStar && trySwapOutOf(overStarIdx, surplusStar, targets, p => !isStar(p))) {
-        continue
-      }
-      // Couldn't relocate this star (no position-matching non-star on the
-      // target teams). Break — greedy pass has done what it can.
-      break
-    }
-
-    // Age spread next.
-    const olds = oldCounts()
-    const maxOld = Math.max(...olds)
-    const minOld = Math.min(...olds)
-    if (maxOld - minOld > AGE_SPREAD_TOLERANCE) {
-      const highIdx = olds.indexOf(maxOld)
-      const lowIdx = olds.indexOf(minOld)
-      const surplusOld = working[highIdx].find(isOver40)
-      if (surplusOld && trySwapOutOf(highIdx, surplusOld, [lowIdx], p => !isOver40(p))) {
-        continue
-      }
-      break
-    }
-
-    // No violations → we're done.
-    break
-  }
-
-  return working
-}
-
 // Balance stats used by the admin-preview chips (D). Kept out of render
 // so both the chip row and any future publish-time guard can share it.
 interface TeamBalanceStats {
@@ -266,13 +183,17 @@ interface TeamBalanceStats {
   gkCount: number
   over40Count: number
   starCount: number
-  starOver: boolean          // > MAX_STARS_PER_TEAM
+  starOver: boolean          // > starCapFor(totalStars, numTeams)
   ageOutOfBand: boolean      // this team's over-40 count is > min + AGE_SPREAD_TOLERANCE
 }
 
 function computeBalanceStats(teams: TeamDraft[]): TeamBalanceStats[] {
   const oldCounts = teams.map(t => t.players.filter(isOver40).length)
   const minOld = Math.min(...oldCounts)
+  // Same cap the balancer used, so a ★ chip never flags a team the
+  // algorithm considered fine (or stays quiet on one it couldn't fix).
+  const totalStars = teams.reduce((n, t) => n + t.players.filter(isStar).length, 0)
+  const starCap = starCapFor(totalStars, teams.length)
   return teams.map((t, i) => {
     const starCount = t.players.filter(isStar).length
     return {
@@ -280,7 +201,7 @@ function computeBalanceStats(teams: TeamDraft[]): TeamBalanceStats[] {
       gkCount: t.players.filter(p => posBucket(p) === 'GK').length,
       over40Count: oldCounts[i],
       starCount,
-      starOver: starCount > MAX_STARS_PER_TEAM,
+      starOver: starCount > starCap,
       ageOutOfBand: oldCounts[i] - minOld > AGE_SPREAD_TOLERANCE,
     }
   })
