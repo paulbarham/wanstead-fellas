@@ -18,6 +18,7 @@ interface Subscription {
   paid: boolean
   paid_at: string | null
   notes: string | null
+  created_at: string
 }
 
 interface Expense {
@@ -132,6 +133,20 @@ export default function ClubFinancesPanel() {
     }
   }, [subs, expenses, income, wtpRows, fineRows])
 
+  // Chase-up card: only renders when there's something to chase.
+  // Deliberately loud styling — the sub monthly reminder push (mig 083)
+  // also fires on the 1st, so admin already gets a nudge; this is the
+  // year-round persistent form for whenever they open Club Finances.
+  const chase = useMemo(() => {
+    const unpaid = subs.filter(s => !s.paid)
+    if (unpaid.length === 0) return null
+    const totalOwed = unpaid.reduce((s, r) => s + Number(r.amount), 0)
+    const oldestIso = unpaid
+      .map(r => r.created_at)
+      .sort()[0] ?? null
+    return { count: unpaid.length, totalOwed, oldestIso }
+  }, [subs])
+
   const expensesByMonth = useMemo(() => {
     const map = new Map<string, { total: number; paid: number; rows: Expense[] }>()
     for (const e of expenses) {
@@ -220,6 +235,40 @@ export default function ClubFinancesPanel() {
           </p>
         </div>
       </div>
+
+      {/* ── Chase-up callout — only when there are unpaid subs ────── */}
+      {chase && (
+        <div className="rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
+          style={{
+            background: 'var(--color-warning-bg)',
+            border: '1px solid var(--color-warning-text)',
+          }}>
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-widest font-semibold"
+              style={{ color: 'var(--color-warning-text)' }}>
+              💷 Chase list · {season}
+            </p>
+            <p className="text-sm font-semibold mt-0.5"
+              style={{ color: 'var(--color-text)' }}>
+              {chase.count} unpaid · {gbp(chase.totalOwed)} owed
+            </p>
+            {chase.oldestIso && (
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                Oldest chase since {format(new Date(chase.oldestIso), 'do MMM yyyy')}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => setFilter('unpaid')}
+            className="flex-shrink-0 text-[11px] px-3 py-1.5 rounded-lg font-semibold"
+            style={{
+              background: 'var(--color-warning-text)',
+              color: 'var(--color-surface)',
+            }}>
+            Show unpaid
+          </button>
+        </div>
+      )}
 
       {/* ── Subscriptions ─────────────────────────────────────────── */}
       <div className="rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', backgroundClip: 'padding-box' }}>

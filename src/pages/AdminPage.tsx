@@ -15,6 +15,7 @@ import PositionAdoptionTracker from '../components/PositionAdoptionTracker'
 import AdminCsvImport from '../components/AdminCsvImport'
 import AdminInjuriesPanel from '../components/AdminInjuriesPanel'
 import AdminAnnouncementsBar from '../components/AdminAnnouncementsBar'
+import AdminDecisionsPanel from '../components/AdminDecisionsPanel'
 
 interface LinkedProfileRow {
   id: string
@@ -67,7 +68,7 @@ interface FeedbackWithPlayer extends Feedback {
 export default function AdminPage() {
   const { profile } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'players' | 'finance' | 'club' | 'families' | 'injuries' | 'feedback' | 'audit'>('players')
+  const [tab, setTab] = useState<'players' | 'finance' | 'club' | 'families' | 'injuries' | 'decisions' | 'feedback' | 'audit'>('players')
 
   useEffect(() => {
     if (profile && !profile.is_admin) navigate('/', { replace: true })
@@ -89,7 +90,7 @@ export default function AdminPage() {
 
       {/* Tab toggle */}
       <div className="flex gap-1 mb-4 p-1 rounded-xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-        {(['players', 'finance', 'club', 'families', 'injuries', 'feedback', 'audit'] as const).map(t => (
+        {(['players', 'finance', 'club', 'families', 'injuries', 'decisions', 'feedback', 'audit'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -104,6 +105,7 @@ export default function AdminPage() {
               : t === 'club' ? 'Club'
               : t === 'families' ? 'Family'
               : t === 'injuries' ? 'Injury'
+              : t === 'decisions' ? 'Decisions'
               : t === 'feedback' ? 'Feedback'
               : 'Audit'}
           </button>
@@ -115,6 +117,7 @@ export default function AdminPage() {
         : tab === 'club' ? <ClubFinancesPanel />
         : tab === 'families' ? <FamiliesPanel />
         : tab === 'injuries' ? <AdminInjuriesPanel />
+        : tab === 'decisions' ? <AdminDecisionsPanel />
         : tab === 'feedback' ? <FeedbackPanel />
         : <AdminProfileAudit />}
     </div>
