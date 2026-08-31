@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-08-31 (Shipped decisions log v1 — Admin → Decisions tab with append-only composer, 24h grace window · mig 082 · SW v50 · club_subscriptions.decision_id FK. Shipped monthly admin sub-chase reminder — pg_cron 08:00 UTC 1st of month + persistent Chase list card on Club Finances · mig 083)_
+_Last updated: 2026-08-31 (Shipped rivalry cards v1 — Profile "Duos & rivals" card backed by first materialised view in the codebase, nightly refresh cron · mig 084 · SW v51. Earlier: decisions log v1 · mig 082 · monthly sub-chase reminder · mig 083.)_
 
 ---
 
@@ -200,7 +200,8 @@ Narrative depth around the game — throwbacks, photo culture, moments that turn
 |---|---|---|---|
 | On-this-day throwback in match report | 🟢 | chat 31 Aug 2026 | Auto-inserted `app_watch` entry: "One year ago tonight: 6-4 to Bibs, Sheridan hat-trick, Paul saved a pen." Pulls from `results` + `goals` for the same Thursday last year. Free narrative depth for zero admin effort; deeper archive → richer entries over time. Skip when no data exists (year one). ~2 hours; pure query + template. |
 | Photo of the week — winning team + trophy | 🟢 | chat 31 Aug 2026 | New `match_photos` table (submitted_by / image_url / match_id / winning_team_id). Any player can submit; admin picks one per week. Renders as a hero on the Tonight tab through Wed → Thu, and inline in the match report. Angle: focus on the winning team holding an (imagined for now, physical later?) trophy — makes winning feel like something. Ties to profile-photo adoption (35%) — showing the culture normalizes uploads. ~1 day; standard Supabase Storage flow. |
-| Rivalry cards — head-to-head Duos + Nemesis/Bogey | 🟢 | chat 31 Aug 2026 | Pure derived view over `team_players` + `fixtures` + `results` (materialised, refresh nightly). **Profile "Duos & rivals" card**: your top 3 duos (best win-rate together, ≥5 games) + your top 3 rivals (played against most). **Stats "Duo of the Month" hero**: highest win-rate pair with ≥3 games that month, alongside existing 4 heroes. **Team publish inline chips**: "You + Sheridan: 8W-2L this season" on each PlayerCard when teams are published. Season-scoped default with all-time toggle. Skip pairs with <5 games. Positive framing on Profile; Nemesis/Bogey labels only on the head-to-head detail view (opt-in). ~2 evenings all-in. |
+| Rivalry cards v1 — Profile Duos + Rivals | ✅ | commit pending 31 Aug 2026 · mig `084` · SW v51 | First materialised view in the codebase. `v_player_pair_stats` aggregates per (canonical pair, season, same-team-boolean): `fixtures_played`, `matches_played`, W/D/L from player_a's perspective. `player_pair_stats_for(p_player_id, p_season)` RPC hides the "am I A or B" inversion. Refreshed nightly at 04:00 UTC via pg_cron. **Profile "🤝 Duos & rivals" card** live: top 3 duos by win-rate + top 3 rivals by encounters. Season-scoped default (min 5 fixtures) with all-time toggle (min 10). Self-hides for new players. Verified against real data — Paul + Beau 5 games / 15 fixtures / 67% win-rate this season. |
+| Rivalry cards v1.5 — Stats hero + team-publish chips | 🟢 | chat 31 Aug 2026 | Two remaining surfaces from the v1 spec, deferred so admin can react to Profile card first. **Stats "Duo of the Month" hero**: highest win-rate pair with ≥3 games that month. **Team publish inline chips**: "You + Sheridan: 8W-2L this season" on each PlayerCard when teams are published. Same MV as v1; ~1 evening for both surfaces. |
 
 ## ⚽ Team tactics
 

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import DuosAndRivalsCard from '../components/DuosAndRivalsCard'
 import { supabase } from '../lib/supabase'
 import { cropAndResizeImage } from '../lib/imageUtils'
 import PlayerCard from '../components/PlayerCard'
@@ -444,6 +445,10 @@ export default function ProfilePage() {
       <div className="mb-8">
         <PlayerCard profile={previewProfile} />
       </div>
+
+      {/* Head-to-head — top duos + rivals for this player.
+          Self-hides when the player hasn't played enough games. */}
+      <DuosAndRivalsCard playerId={profile.id} />
 
       {/* Edit form */}
       <form onSubmit={handleSave} className="space-y-4 mb-8">
