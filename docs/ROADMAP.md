@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-08-31 (Match report Predictor Watch now covers last-week result AND this-week just-picked fixture — 27 Aug report retro-updated, template locked in CLAUDE.md)_
+_Last updated: 2026-08-31 (Match report Predictor Watch now covers last-week result AND this-week just-picked fixture; new 🎬 Match narrative theme with on-this-day throwback + photo-of-the-week rows)_
 
 ---
 
@@ -190,6 +190,15 @@ Self-service injury reporting so admin doesn't chase, and the group knows why a 
 | Item | Status | Source | Notes |
 |---|---|---|---|
 | Injury list — v1 self-service | ✅ | chat 20 Aug 2026 · commit pending · migration `078` | New `injuries` table (player_id / injury_type / notes / reported_at / return_date / cleared_at / cleared_by) with a CHECK constraint forcing `return_date` onto a Thursday. Read policy public, write policy self-or-admin, delete admin-only. Player self-serves from Profile → Injury status card: pick from quick-chip types (Hamstring / Calf / Knee / Ankle / Back / Shoulder / Illness / Other) or type free-text, pick a return-Thursday from the next 8 available, and hit report. Later they clear via "I'm fit" or push their return date out with "+1 week". Tonight tab surfaces `v_active_injuries` under a "🩹 On the injury list" strip (public — everyone sees who's out and until when); auto-hides when the list is empty. Sign-up shows a warn-only banner if the fella has an active injury for that Thursday — admin call: some fellas play through niggles, don't block them. Admin → Injury tab lists currently-out fellas with a "Clear on behalf" button (useful for stubs / forgetful players) + the last 90 days of history. SW bumped to v46. |
+
+## 🎬 Match narrative & rituals
+
+Narrative depth around the game — throwbacks, photo culture, moments that turn a Thursday into a shared story.
+
+| Item | Status | Source | Notes |
+|---|---|---|---|
+| On-this-day throwback in match report | 🟢 | chat 31 Aug 2026 | Auto-inserted `app_watch` entry: "One year ago tonight: 6-4 to Bibs, Sheridan hat-trick, Paul saved a pen." Pulls from `results` + `goals` for the same Thursday last year. Free narrative depth for zero admin effort; deeper archive → richer entries over time. Skip when no data exists (year one). ~2 hours; pure query + template. |
+| Photo of the week — winning team + trophy | 🟢 | chat 31 Aug 2026 | New `match_photos` table (submitted_by / image_url / match_id / winning_team_id). Any player can submit; admin picks one per week. Renders as a hero on the Tonight tab through Wed → Thu, and inline in the match report. Angle: focus on the winning team holding an (imagined for now, physical later?) trophy — makes winning feel like something. Ties to profile-photo adoption (35%) — showing the culture normalizes uploads. ~1 day; standard Supabase Storage flow. |
 
 ## ⚽ Team tactics
 
