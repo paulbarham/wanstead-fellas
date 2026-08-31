@@ -6,7 +6,7 @@
 <style>
   @page {
     size: A4;
-    margin: 14mm 14mm;
+    margin: 12mm 12mm;
     background: #0F1710;
     @bottom-center {
       content: "WANSTEAD FELLAS · ROADMAP · page " counter(page) " of " counter(pages);
@@ -23,15 +23,15 @@
     color: #E8F0E9;
     font-family: 'Helvetica', 'Arial', sans-serif;
     font-size: 8.5pt;
-    line-height: 1.4;
+    line-height: 1.35;
   }
 
   .masthead {
     background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
     color: #FFFFFF;
-    padding: 11pt 14pt;
+    padding: 10pt 14pt;
     border-radius: 10pt;
-    margin-bottom: 8pt;
+    margin-bottom: 6pt;
     display: table;
     width: 100%;
   }
@@ -39,13 +39,13 @@
   .masthead .right { text-align: right; }
   .masthead h1 {
     font-family: 'Arial Black', 'Helvetica', sans-serif;
-    font-size: 19pt; margin: 0;
+    font-size: 18pt; margin: 0;
     letter-spacing: 0.03em; color: #FFD400; line-height: 1;
   }
   .masthead .sub {
-    margin-top: 4pt;
+    margin-top: 3pt;
     font-family: 'Courier New', monospace;
-    font-size: 8.5pt; letter-spacing: 0.18em;
+    font-size: 8pt; letter-spacing: 0.16em;
     text-transform: uppercase; color: #4ADC7A;
   }
   .masthead .pageid {
@@ -58,26 +58,26 @@
 
   h2 {
     font-family: 'Arial Black', 'Helvetica', sans-serif;
-    color: #FFD400; font-size: 11.5pt;
-    margin: 10pt 0 3pt;
+    color: #FFD400; font-size: 10.5pt;
+    margin: 8pt 0 2pt;
     letter-spacing: 0.02em; page-break-after: avoid;
   }
   h2::before { content: "▶ "; color: #4AD9FF; }
-  h3 { color: #4ADC7A; font-size: 9pt; margin: 7pt 0 2pt; font-family: 'Arial Black', sans-serif; page-break-after: avoid; }
+  h3 { color: #4ADC7A; font-size: 8.5pt; margin: 6pt 0 2pt; font-family: 'Arial Black', sans-serif; page-break-after: avoid; letter-spacing: 0.03em; }
 
-  p { margin: 3pt 0; font-size: 8.5pt; }
+  p { margin: 2pt 0; font-size: 8pt; }
   strong { color: #FFD400; font-weight: 700; }
   em { color: #4AD9FF; font-style: normal; }
-  ul { margin: 3pt 0; padding-left: 15pt; }
-  li { margin: 1.5pt 0; }
+  ul { margin: 2pt 0; padding-left: 14pt; }
+  li { margin: 1pt 0; font-size: 8pt; }
   li::marker { color: #FFD400; }
-  code { font-family: 'Courier New', monospace; color: #4AD9FF; font-size: 8pt; }
+  code { font-family: 'Courier New', monospace; color: #4AD9FF; font-size: 7.5pt; }
 
   .callout {
     background: rgba(255,212,0,0.08);
     border-left: 3pt solid #FFD400;
-    padding: 6pt 9pt; border-radius: 4pt;
-    margin: 6pt 0; font-size: 8.5pt;
+    padding: 5pt 8pt; border-radius: 4pt;
+    margin: 5pt 0; font-size: 8pt;
   }
   .callout.cyan { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
   .callout.green { background: rgba(74,220,122,0.07); border-left-color: #4ADC7A; }
@@ -85,13 +85,13 @@
 
   /* Status key visual */
   .status-key {
-    display: table; width: 100%; border-spacing: 4pt 0; margin: 4pt 0 8pt;
+    display: table; width: 100%; border-spacing: 3pt 0; margin: 3pt 0 6pt;
   }
   .status-key .row { display: table-row; }
   .status-key .cell {
-    display: table-cell; padding: 4pt 6pt;
+    display: table-cell; padding: 3pt 5pt;
     background: #15211A; border: 1px solid #2D4A2F;
-    border-radius: 6pt; vertical-align: middle;
+    border-radius: 5pt; vertical-align: middle;
     font-size: 7.5pt;
   }
   .status-key .badge {
@@ -100,26 +100,28 @@
   }
 
   /* At-a-glance totals tiles */
-  .totals { display: table; width: 100%; border-spacing: 4pt 0; margin: 4pt 0 8pt; }
+  .totals { display: table; width: 100%; border-spacing: 3pt 0; margin: 3pt 0 6pt; }
   .totals .tile {
     display: table-cell; vertical-align: top;
     background: #15211A; border: 1px solid #2D4A2F;
-    border-radius: 6pt; padding: 6pt 8pt;
-    width: 33%;
+    border-radius: 5pt; padding: 5pt 7pt;
+    width: 20%;
   }
   .totals .tile .label {
     font-family: 'Courier New', monospace;
-    font-size: 7.5pt; color: #9CA897;
+    font-size: 7pt; color: #9CA897;
     letter-spacing: 0.08em; text-transform: uppercase;
   }
   .totals .tile .num {
     font-family: 'Courier New', monospace;
-    font-size: 22pt; font-weight: 800; line-height: 1;
+    font-size: 18pt; font-weight: 800; line-height: 1;
     margin-top: 2pt;
   }
   .totals .tile.shipped .num { color: #4ADC7A; }
   .totals .tile.proposed .num { color: #FFD400; }
   .totals .tile.blocker .num { color: #FF66CC; }
+  .totals .tile.scheduled .num { color: #FF9F40; }
+  .totals .tile.retired .num { color: #FF5555; }
   .totals .tile .sub {
     font-size: 7pt; color: #9CA897; margin-top: 2pt;
   }
@@ -127,33 +129,35 @@
   /* Roadmap row table */
   table.roadmap {
     width: 100%; border-collapse: collapse;
-    margin: 3pt 0 6pt; font-size: 7.5pt;
+    margin: 2pt 0 5pt; font-size: 7.25pt;
   }
   table.roadmap th {
     background: #1A2B1C; color: #FFD400;
-    padding: 4pt 6pt; text-align: left;
+    padding: 3pt 5pt; text-align: left;
     font-family: 'Courier New', monospace;
-    font-size: 7pt; letter-spacing: 0.08em;
+    font-size: 6.5pt; letter-spacing: 0.08em;
     text-transform: uppercase;
     border-bottom: 1px solid #2D4A2F;
   }
   table.roadmap td {
-    padding: 3pt 6pt;
+    padding: 2.5pt 5pt;
     border-bottom: 1px dashed rgba(45,74,47,0.6);
     vertical-align: top;
   }
-  table.roadmap td.status { width: 22pt; text-align: center; font-size: 11pt; line-height: 1; }
-  table.roadmap td.item { color: #E8F0E9; font-weight: 600; width: 38%; }
-  table.roadmap td.source { color: #9CA897; font-family: 'Courier New', monospace; font-size: 7pt; white-space: nowrap; }
-  table.roadmap td.notes { color: #9CA897; font-style: italic; font-size: 7.5pt; }
+  table.roadmap td.status { width: 18pt; text-align: center; font-size: 9.5pt; line-height: 1; }
+  table.roadmap td.item { color: #E8F0E9; font-weight: 600; width: 32%; }
+  table.roadmap td.source { color: #9CA897; font-family: 'Courier New', monospace; font-size: 6.75pt; white-space: nowrap; width: 22%; }
+  table.roadmap td.notes { color: #9CA897; font-style: italic; font-size: 7.25pt; }
   table.roadmap tr.shipped td.item { color: #4ADC7A; }
   table.roadmap tr.blocker td.item { color: #FF66CC; }
+  table.roadmap tr.scheduled td.item { color: #FF9F40; }
+  table.roadmap tr.retired td.item { color: #FF5555; text-decoration: line-through; }
 
   /* Section/theme heading */
   .theme-head {
     display: table; width: 100%;
-    margin: 10pt 0 4pt;
-    padding: 5pt 8pt;
+    margin: 8pt 0 3pt;
+    padding: 4pt 7pt;
     background: rgba(74,217,255,0.04);
     border-left: 3pt solid #4AD9FF;
     border-radius: 4pt;
@@ -161,39 +165,43 @@
   }
   .theme-head .icon {
     display: table-cell; vertical-align: middle;
-    width: 26pt; font-size: 16pt;
+    width: 22pt; font-size: 14pt;
   }
   .theme-head .title {
     display: table-cell; vertical-align: middle;
     font-family: 'Arial Black', 'Helvetica', sans-serif;
-    color: #FFD400; font-size: 12pt;
+    color: #FFD400; font-size: 11pt;
     letter-spacing: 0.02em;
   }
   .theme-head .meta {
     display: table-cell; vertical-align: middle;
     text-align: right;
     font-family: 'Courier New', monospace;
-    font-size: 7.5pt; color: #9CA897;
+    font-size: 7pt; color: #9CA897;
     letter-spacing: 0.06em;
   }
   .theme-head .meta .pill {
     display: inline-block;
-    padding: 1pt 5pt; margin-left: 3pt;
+    padding: 1pt 4pt; margin-left: 3pt;
     border-radius: 3pt; font-weight: 700;
   }
   .pill-shipped { background: rgba(74,220,122,0.15); color: #4ADC7A; }
   .pill-proposed { background: rgba(255,212,0,0.10); color: #FFD400; }
   .pill-blocker { background: rgba(255,102,204,0.10); color: #FF66CC; }
+  .pill-scheduled { background: rgba(255,159,64,0.10); color: #FF9F40; }
+  .pill-retired { background: rgba(255,85,85,0.10); color: #FF5555; }
 
-  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 8pt 0; }
+  .theme-block { page-break-inside: avoid; }
+
+  hr { border: 0; border-top: 1px dashed rgba(74,220,122,0.3); margin: 6pt 0; }
 
   .closer {
     text-align: center;
     color: #9CA897;
     font-family: 'Courier New', monospace;
-    font-size: 8.5pt;
+    font-size: 8pt;
     letter-spacing: 0.1em;
-    margin-top: 10pt;
+    margin-top: 8pt;
     padding: 6pt;
     border: 1px dashed #2D4A2F;
     border-radius: 6pt;
@@ -206,7 +214,7 @@
 <div class="masthead">
   <div class="left">
     <h1>ROADMAP</h1>
-    <div class="sub">Snapshot · 21 Jun 2026 (post Player Credits)</div>
+    <div class="sub">Snapshot · 31 Aug 2026 (post balancer v2 fixes + push prefs)</div>
   </div>
   <div class="right">
     <span class="pageid">P703 · ROADMAP</span>
@@ -221,18 +229,28 @@
 <div class="totals">
   <div class="tile shipped">
     <div class="label">✅ Shipped</div>
-    <div class="num">13</div>
-    <div class="sub">Carryover + block + relaxed + player credits</div>
+    <div class="num">65</div>
+    <div class="sub">Live on main</div>
   </div>
   <div class="tile proposed">
     <div class="label">🟢 Proposed</div>
-    <div class="num">44</div>
-    <div class="sub">Across 7 themes</div>
+    <div class="num">82</div>
+    <div class="sub">20 themes</div>
+  </div>
+  <div class="tile scheduled">
+    <div class="label">🟡 Scheduled</div>
+    <div class="num">4</div>
+    <div class="sub">Queued</div>
   </div>
   <div class="tile blocker">
     <div class="label">⚠️ Blockers</div>
-    <div class="num">3</div>
-    <div class="sub">Sequencing dependencies</div>
+    <div class="num">8</div>
+    <div class="sub">Sequencing</div>
+  </div>
+  <div class="tile retired">
+    <div class="label">❌ Retired</div>
+    <div class="num">2</div>
+    <div class="sub">Reversed</div>
   </div>
 </div>
 
@@ -248,100 +266,123 @@
   </div>
   <div class="row">
     <div class="cell"><span class="badge">⚠️</span> <strong>Blocker</strong> — dependency that gates other items</div>
-    <div class="cell"><span class="badge">🟥</span> <strong>Known issue</strong> — bug or wart on the fix list</div>
+    <div class="cell"><span class="badge">❌</span> <strong>Retired</strong> — reversed or torn down</div>
   </div>
 </div>
 
+<div class="theme-block">
 <div class="theme-head">
   <div class="icon">🪪</div>
-  <div class="title">Identity · Preferred Position</div>
+  <div class="title">Identity · Preferred Position &amp; Foot</div>
   <div class="meta">
-    <span class="pill pill-shipped">8 ✅</span>
+    <span class="pill pill-shipped">13 ✅</span>
     <span class="pill pill-proposed">4 🟢</span>
     <span class="pill pill-blocker">1 ⚠️</span>
   </div>
 </div>
-<p>Picker and DB are live. The visible payoff (position-aware cards, stats, balancer) is still to come.</p>
+<p>Picker and DB live. The visible payoff (position-aware cards, stats, balancer) mostly landed; a few tail items remain.</p>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">DB columns: <code>preferred_position_primary</code> + <code>_secondary</code></td><td class="source">04 · 86c6edd</td><td class="notes">Backfilled from legacy <code>position</code></td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">PositionPicker component (4-button grid)</td><td class="source">86c6edd</td><td class="notes">Reusable, supports compact mode</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Profile page picker</td><td class="source">86c6edd</td><td class="notes">Saves with the existing form</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item"><code>preferred_foot</code> column on <code>profiles</code></td><td class="source">mig 046</td><td class="notes">left / right / both nullable; set on Profile or via nudge</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">FootPicker component (3-option tap-cycle)</td><td class="source">commit pending</td><td class="notes">LEFT / RIGHT / BOTH; mirrors PositionPicker</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Preferred-foot nudge on Next Game</td><td class="source">commit pending</td><td class="notes">Yellow banner when null; dismissable per session</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Foot badge on PlayerCard (compact + full)</td><td class="source">commit pending</td><td class="notes">Cyan LEFT / yellow RIGHT / green BOTH pill under position</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Balancer soft constraint: spread lefties</td><td class="source">chat</td><td class="notes">Blocked on adoption ≥80%</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item"><code>preferred_position_primary</code> + <code>_secondary</code></td><td class="source">86c6edd</td><td class="notes">Backfilled from legacy <code>position</code></td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">PositionPicker component (4-btn grid)</td><td class="source">86c6edd</td><td class="notes">Reusable, compact mode</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Profile page picker</td><td class="source">86c6edd</td><td class="notes">Saves with existing form</td></tr>
   <tr class="shipped"><td class="status">✅</td><td class="item">Next Game inline nudge for unset players</td><td class="source">86c6edd</td><td class="notes">Dismissible per session</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Admin position adoption tracker + <code>v_position_adoption</code> view</td><td class="source">3a7d82f</td><td class="notes">Currently 49 / 59 = 83% set</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Card: prominent position badge (primary + secondary chip)</td><td class="source">04 · ace97e1</td><td class="notes">Colour per position; full + compact cards</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Card: position-rank pill in footer (e.g. "#1 ATT · 14 goals")</td><td class="source">04</td><td class="notes">Deferred — needs aggregated cross-player data</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Position-aware Stats panels (Top 3 by position filter)</td><td class="source">04 · 9e5979c</td><td class="notes">Chip strip filters every panel + hero strip</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">4th hero card on Stats — Top GK</td><td class="source">04 · 9e5979c</td><td class="notes">Clean sheets leader · green tier</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Position-weighted overall rating</td><td class="source">04 · 06 p6</td><td class="notes">No more "60 ATT" dragging defenders down</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Balancer hard constraint: ≥1 GK / ≥1 ATT / ≥1 DEF per team</td><td class="source">04</td><td class="notes">Uses secondaries if short</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Balancer soft constraint: MID count within ±1 across teams</td><td class="source">04</td><td class="notes"></td></tr>
-  <tr class="blocker"><td class="status">⚠️</td><td class="item">Position-aware balancer ships only once ≥80% of regulars have a position set</td><td class="source">04</td><td class="notes">Currently 83% — bar cleared, chase the last 10</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Admin position adoption tracker</td><td class="source">3a7d82f</td><td class="notes"><code>v_position_adoption</code>; currently 49/59 = 83%</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Card: prominent position badge (primary+secondary)</td><td class="source">ace97e1</td><td class="notes">Colour per position; legacy fallback</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Card: position-rank pill in footer</td><td class="source">primer 04</td><td class="notes">Needs cross-player aggregation; do on Profile first</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Position-aware Stats panels (Top 3 by position)</td><td class="source">9e5979c</td><td class="notes">Chip strip filters every panel</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">4th hero card for Top GK on Stats</td><td class="source">9e5979c</td><td class="notes">Clean-sheet leader; green tier</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Position-weighted overall rating</td><td class="source">primer 04/06 p6</td><td class="notes">Defender's low ATT stops dragging overall down</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Balancer position-aware distribution</td><td class="source">commit pending</td><td class="notes">GK→ATT→DEF→MID snake with shared cursor + max cap</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Balancer soft: MID count within ±1</td><td class="source">primer 04</td><td class="notes"></td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Position-aware balancer needs ≥80% adoption</td><td class="source">primer 04</td><td class="notes">Currently 83% — clears bar; chase the last 10</td></tr>
 </table>
+</div>
 
 <div style="page-break-after: always;"></div>
 
-<!-- ── PAGE 2: OPERATIONS + STATS THEATRE ──────────────────────── -->
+<!-- ── PAGE 2: BALANCER V2 + STATS THEATRE ─────────────────────── -->
 <div class="masthead">
   <div class="left">
     <h1>ROADMAP · 2</h1>
-    <div class="sub">Operations · Stats Theatre</div>
+    <div class="sub">Balancer v2 · Stats Theatre</div>
   </div>
   <div class="right">
     <span class="pageid">P703 · ROADMAP</span>
   </div>
 </div>
 
+<div class="theme-block">
 <div class="theme-head">
   <div class="icon">🛠️</div>
   <div class="title">Operations · Balancer v2</div>
-  <div class="meta"><span class="pill pill-proposed">7 🟢</span></div>
+  <div class="meta">
+    <span class="pill pill-shipped">6 ✅</span>
+    <span class="pill pill-proposed">6 🟢</span>
+    <span class="pill pill-blocker">3 ⚠️</span>
+  </div>
 </div>
-<p>Same 11 players, mathematically fairer teams. The 18 Jun match is the case study: SHO spread was ±12, with 3 swaps it would have been ±3.</p>
+<p>Same 11 players, mathematically fairer teams. Star cap + age spread shipped; two bugs found + fixed 30 Aug; validation still pending real 4-team data.</p>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
-  <tr><td class="status">🟢</td><td class="item">Categorical balance — each attribute total within ±X across teams</td><td class="source">07</td><td class="notes">Today balances overall sum only</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Star cap (max 2 OVR ≥ 85 per team)</td><td class="source">07</td><td class="notes">Stops talent stacking</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Defender floor (≥1 with DEF ≥ 8 per team)</td><td class="source">07</td><td class="notes">Most stompings = no defender</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Simulated annealing algorithm</td><td class="source">07</td><td class="notes">~1000 iter, &lt;100ms</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Rematch penalty — spread frequently-together players</td><td class="source">07</td><td class="notes">Bonus social-mixing effect</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Avg score-differential tracking (validation metric)</td><td class="source">07</td><td class="notes">Target: drop ~2.5 → ~1.5 goals</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Admin escape hatch: drag-swap + regenerate button</td><td class="source">07</td><td class="notes">Algorithm = suggestion, not mandate</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Review + prioritise auto-balance rules</td><td class="source">chat 8 Jul · primer 07</td><td class="notes">Gating item; age band / foot / GK dist / local minima weaknesses on 9 Jul</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Categorical balance — each attr within ±X</td><td class="source">primer 07</td><td class="notes">Currently only minimises overall sum</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Star cap (max 2 OVR≥9 per team)</td><td class="source">commit pending · 14 Aug</td><td class="notes">Post-draft greedy position-preserving swap</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Age spread — over-40 count within ±1</td><td class="source">commit pending · 14 Aug</td><td class="notes">Same pass; kills "Aaron Franklin FC" nights</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Admin balance-preview chips (RTG / GK / 40+ / ★)</td><td class="source">commit pending · 14 Aug</td><td class="notes">4 chips tint amber/red on violation; SW v45</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Bug: star cap silently disabled age pass</td><td class="source">commit pending · 30 Aug</td><td class="notes">Loop break aborted both passes; fixed with independent latches</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Bug: star cap didn't scale with team count</td><td class="source">commit pending · 30 Aug</td><td class="notes">Hardcoded 2 wrong both ways; replaced with <code>starCapFor(stars, teams)</code></td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Balancer logic extracted to <code>lib/balance.ts</code> + tests</td><td class="source">commit pending · 30 Aug</td><td class="notes">Pure module, 8 tests; suite 73 → 81</td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Balancer v2 remains UNVALIDATED</td><td class="source">chat 30 Aug</td><td class="notes">Only 2 games under it, both 2-team; can't measure founding metric</td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">19 players on default ratings</td><td class="source">primer 27</td><td class="notes">Blocks re-measurement; <code>effectiveAttrs</code> needs card_* stats, not just overall</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Defender floor (≥1 with DEF≥8 per team)</td><td class="source">primer 07</td><td class="notes">Most stompings = no defender</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Simulated annealing algorithm</td><td class="source">primer 07</td><td class="notes">~1000 iter, &lt;100ms</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Rematch penalty — spread frequent partners</td><td class="source">primer 07</td><td class="notes">Bonus social-mixing effect</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Avg score-differential tracking (validation)</td><td class="source">primer 07</td><td class="notes">Target: drop ~2.5 → ~1.5 goals</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Admin escape hatch: drag-swap + regenerate</td><td class="source">primer 07</td><td class="notes">Algorithm as suggestion, not mandate</td></tr>
 </table>
+</div>
 
+<div class="theme-block">
 <div class="theme-head">
   <div class="icon">🎭</div>
   <div class="title">Stats Theatre · Rating Engine</div>
   <div class="meta"><span class="pill pill-proposed">13 🟢</span></div>
 </div>
-<p>Card attributes are admin-set today. The plan turns them into live, derived values that reflect actual play. <strong>Promised in user guide v4 page 6.</strong></p>
+<p>Card attributes are admin-set today. The plan turns them into live, derived values that reflect actual play. <strong>Promised in user guide v3 page 6.</strong></p>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
-  <tr><td class="status">🟢</td><td class="item">SHO ← goals / appearance (with form decay)</td><td class="source">06 p6 · 07</td><td class="notes">Half-life ~6 weeks</td></tr>
-  <tr><td class="status">🟢</td><td class="item">DEF ← inverse Wall + clean-sheet bonus</td><td class="source">06 p6</td><td class="notes">Data already exists</td></tr>
-  <tr><td class="status">🟢</td><td class="item">PAC ← <code>max_speed_kmh</code> from fitness sessions</td><td class="source">06 p6</td><td class="notes">Only for tracked players</td></tr>
-  <tr><td class="status">🟢</td><td class="item">PHY ← total distance × HR-zone workload</td><td class="source">06 p6</td><td class="notes">Bayesian shrinkage if no fitness</td></tr>
-  <tr><td class="status">🟢</td><td class="item">PAS ← aggregated peer-rating signal</td><td class="source">06 p6</td><td class="notes">Depends on peer ratings shipping</td></tr>
-  <tr><td class="status">🟢</td><td class="item">DRI ← stays admin-set</td><td class="source">06 p6</td><td class="notes">No good honest signal</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Position-weighted overall (not flat mean)</td><td class="source">06 p6</td><td class="notes">See Identity theme</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Form arrow on cards (↗︎ / ↘︎)</td><td class="source">06 p6 · 07</td><td class="notes">4-match rolling vs season</td></tr>
-  <tr><td class="status">🟢</td><td class="item">"Why this rating?" tooltip with full breakdown</td><td class="source">06 p6 · 07</td><td class="notes">Stops "algorithm is wrong" complaints</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Bayesian shrinkage for low-appearance players</td><td class="source">07</td><td class="notes">Under 3 apps → 70% blend to team mean</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Hybrid admin baseline + ±N auto-adjustment</td><td class="source">07</td><td class="notes">Cards drift ±5–10 from admin baseline</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Nightly cron + <code>card_history</code> table for delta log</td><td class="source">07</td><td class="notes">pg_cron already in use for cup-sync</td></tr>
-  <tr><td class="status">🟢</td><td class="item">MOTM / DOTD influence capped at ±5 on overall</td><td class="source">07</td><td class="notes">Anti-gaming</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">SHO ← goals / appearance with form decay</td><td class="source">primer 06 p6 · 07</td><td class="notes">Half-life ~6 weeks</td></tr>
+  <tr><td class="status">🟢</td><td class="item">DEF ← inverse Wall + clean-sheet bonus</td><td class="source">primer 06 p6</td><td class="notes">Data already exists</td></tr>
+  <tr><td class="status">🟢</td><td class="item">PAC ← <code>max_speed_kmh</code> from fitness</td><td class="source">primer 06 p6</td><td class="notes">Only for tracked players</td></tr>
+  <tr><td class="status">🟢</td><td class="item">PHY ← distance × HR-zone workload</td><td class="source">primer 06 p6</td><td class="notes">Bayesian shrinkage if no fitness</td></tr>
+  <tr><td class="status">🟢</td><td class="item">PAS ← aggregated peer-rating signal</td><td class="source">primer 06 p6</td><td class="notes">Depends on peer ratings shipping</td></tr>
+  <tr><td class="status">🟢</td><td class="item">DRI ← stays admin-set</td><td class="source">primer 06 p6</td><td class="notes">No good honest signal</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Position-weighted overall (not flat mean)</td><td class="source">primer 06 p6</td><td class="notes">See Identity theme</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Form arrow on cards (↗︎ / ↘︎)</td><td class="source">primer 06 p6 · 07</td><td class="notes">4-match rolling vs season</td></tr>
+  <tr><td class="status">🟢</td><td class="item">"Why this rating?" tooltip breakdown</td><td class="source">primer 06 p6 · 07</td><td class="notes">Transparency stops complaints</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Bayesian shrinkage for low-appearance</td><td class="source">primer 07</td><td class="notes">Under 3 apps → 70% blend to team mean</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Hybrid admin baseline + ±N auto-adjust</td><td class="source">primer 07</td><td class="notes">Drift ±5–10 from baseline</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Nightly cron + <code>card_history</code> delta log</td><td class="source">primer 07</td><td class="notes">pg_cron already in use</td></tr>
+  <tr><td class="status">🟢</td><td class="item">MOTM / DOTD influence capped ±5</td><td class="source">primer 07</td><td class="notes">Anti-gaming</td></tr>
 </table>
+</div>
 
 <div style="page-break-after: always;"></div>
 
-<!-- ── PAGE 3: ENGAGEMENT + COMMUNITY + DATA + KNOWN ───────────── -->
+<!-- ── PAGE 3: ENGAGEMENT + PUSH ───────────────────────────────── -->
 <div class="masthead">
   <div class="left">
     <h1>ROADMAP · 3</h1>
-    <div class="sub">Engagement · Community · Data · Issues</div>
+    <div class="sub">Engagement · Push notifications</div>
   </div>
   <div class="right">
     <span class="pageid">P703 · ROADMAP</span>
@@ -350,84 +391,429 @@
 
 <div class="theme-head">
   <div class="icon">🤝</div>
-  <div class="title">Engagement · Voting (and beyond)</div>
-  <div class="meta"><span class="pill pill-proposed">6 🟢</span></div>
+  <div class="title">Engagement · Voting and beyond</div>
+  <div class="meta">
+    <span class="pill pill-shipped">8 ✅</span>
+    <span class="pill pill-proposed">15 🟢</span>
+    <span class="pill pill-blocker">1 ⚠️</span>
+  </div>
 </div>
-<p>Avg MOTM/DOTD turnout is <strong>44%</strong> after the June 2026 single-pass ballot redesign. The blockers below are what's left to lift it. <em>Until they ship, peer ratings would inherit the same 44% ceiling — so engagement levers go first.</em></p>
+<p>44% turnout ceiling; peer ratings gated on lifting engagement first. Push infra shipped 5 Jul + preferences UI 30 Aug — theme unblocked.</p>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
-  <tr><td class="status">🟢</td><td class="item">Web push at full time ("Vote for tonight's MOTM")</td><td class="source">eng. review</td><td class="notes">Highest-impact, highest-effort lever</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Web push when results publish</td><td class="source">eng. review</td><td class="notes">Closes the loop that today voids</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Nav badge on Match tab when ballot open</td><td class="source">eng. review</td><td class="notes">Cheaper interim before push</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Voting streak counter ("🔥 4 weeks in a row")</td><td class="source">eng. review · 07</td><td class="notes">Loss aversion &gt; novelty</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Live social proof ("14 voted · 22 haven't")</td><td class="source">eng. review · 07</td><td class="notes">Already partially in — lift visually</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Results-reveal moment / Friday morning push</td><td class="source">eng. review</td><td class="notes">Pairs with results-publish push</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Web push at full time ("Vote for tonight's MOTM")</td><td class="source">migs 047+048 · f3c3285</td><td class="notes">pg_net → edge fn → web-push VAPID; verified on iOS 18.7</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Web push when results publish</td><td class="source">migs 047+048 · f3c3285</td><td class="notes">AFTER UPDATE trigger on <code>results_published</code> flag</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Nav badge on Match tab when ballot open</td><td class="source">commit pending</td><td class="notes">Red dot; refreshes 60s; clears on vote/close</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Voting streak counter ("🔥 4 weeks")</td><td class="source">a809deb</td><td class="notes">Chip on MotmVotingCard; skips non-rostered; shown ≥2</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Live social proof ("14 voted · 22 haven't")</td><td class="source">eng. review · 07</td><td class="notes">Partially in; lift visually</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Results-reveal moment / Fri morning push</td><td class="source">eng. review</td><td class="notes">Pairs with results-publish push</td></tr>
 </table>
 
+<h3>🔔 Additional push notifications (extends the pipeline)</h3>
+<p>4-push-per-week guard-rail was the design constraint; preferences UI (mig 081) unblocked layering more. Every new push declares a category — <em>match_night · results · money · club_news · predictor</em> — or is justified as always-on.</p>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Player notification preferences UI</td><td class="source">commit pending · mig 081</td><td class="notes">5 categories not per-topic; absence=all-on; keyed on <code>player_id</code></td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Audience resolver <code>push_targets()</code></td><td class="source">commit pending · mig 081</td><td class="notes">Security-definer; single place applies roster+preference gates</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Bug: admins missed pushes on off-weeks</td><td class="source">commit pending · mig 081</td><td class="notes"><code>p_include_admins=true</code> rides admins past roster gate</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Revert 13 Aug <code>teams_ready</code> widening</td><td class="source">commit pending · 30 Aug</td><td class="notes">Never deployed; club-wide push would kill adoption</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Always-on tier (call-ups can't be muted)</td><td class="source">commit pending · mig 081</td><td class="notes">Dropout + waitlist bypass prefs via <code>p_category=null</code></td></tr>
+  <tr><td class="status">🟢</td><td class="item">Match-report push (summary NULL → not-NULL)</td><td class="source">chat</td><td class="notes">New topic 'report'; ~10 min</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Sign-up deadline reminder 2h before lock</td><td class="source">chat</td><td class="notes">pg_cron Wed 20:00 London; roster filter</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Teams-published push</td><td class="source">chat</td><td class="notes">Nice-to-have but low-signal</td></tr>
+  <tr><td class="status">🟢</td><td class="item">⚽ Waitlist promotion push</td><td class="source">chat 30 Aug</td><td class="notes"><strong>Highest-value gap.</strong> Mig 030 promotes silently today; always-on tier</td></tr>
+  <tr><td class="status">🟢</td><td class="item">🩹 Injury return-date reminder</td><td class="source">chat 30 Aug</td><td class="notes">Wed cron for mig 078 return-Thu; category match_night</td></tr>
+  <tr><td class="status">🟢</td><td class="item">💷 WTP charge notification</td><td class="source">chat 30 Aug</td><td class="notes">Migs 023/043/044 debit silently; kills disputes; money</td></tr>
+  <tr><td class="status">🟢</td><td class="item">🎭 Theme of the Night reveal</td><td class="source">chat 30 Aug</td><td class="notes">Mig 060 only discovered on open; match_night</td></tr>
+  <tr><td class="status">🟢</td><td class="item">📅 Sign-up is open</td><td class="source">chat 30 Aug</td><td class="notes">No announce of window; match_night</td></tr>
+  <tr><td class="status">🟢</td><td class="item">📈 Monthly round-up published</td><td class="source">chat 30 Aug</td><td class="notes">PDF on 1st with nobody told; club_news</td></tr>
+  <tr><td class="status">🟢</td><td class="item">🃏 Your card's been updated</td><td class="source">chat 30 Aug</td><td class="notes">Rating changes invisible; club_news</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Voting-close warning ("2 hours left")</td><td class="source">chat 30 Aug</td><td class="notes">Lower priority; results</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Milestone pings (50th app, unbeaten run)</td><td class="source">chat 30 Aug</td><td class="notes">Nice-to-have; club_news</td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Sequencing: opt-out-per-type vs opt-in</td><td class="source">chat</td><td class="notes">Loose consensus opt-out; revisit before prefs UI</td></tr>
+</table>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 4: COMMUNITY + MONEY + DELEGATE + ANNOUNCEMENTS + INJURY -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROADMAP · 4</h1>
+    <div class="sub">Community · Money · Delegates · Broadcasts · Injuries</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · ROADMAP</span>
+  </div>
+</div>
+
+<div class="theme-block">
 <div class="theme-head">
   <div class="icon">🤝</div>
   <div class="title">Community · Peer Ratings (revised)</div>
-  <div class="meta"><span class="pill pill-proposed">5 🟢</span> <span class="pill pill-blocker">1 ⚠️</span></div>
+  <div class="meta">
+    <span class="pill pill-proposed">5 🟢</span>
+    <span class="pill pill-blocker">1 ⚠️</span>
+  </div>
 </div>
-<p>Original proposal 07 had a new screen. Revised in-chat: extend the existing MotmVotingCard with a third inline column rather than build a new flow.</p>
+<p>Primer 07 proposed a new screen. Revised in-chat: extend MotmVotingCard with a third inline column, not a new flow.</p>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
-  <tr><td class="status">🟢</td><td class="item">Third inline column on MotmVotingCard (🟢 / 🟡 / 🔴)</td><td class="source">chat ← 07</td><td class="notes">One extra optional tap per teammate</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Default = 🟡, no added friction</td><td class="source">chat</td><td class="notes">Voluntary, ballot still works if skipped</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Cap influence at ±2 per match, ±5 cumulative on overall</td><td class="source">chat · 07</td><td class="notes">Conservative; data is noisy</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">Third inline column (🟢 great · 🟡 OK · 🔴 off)</td><td class="source">chat ← 07</td><td class="notes">One extra optional tap per teammate</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Default = 🟡, no added friction</td><td class="source">chat</td><td class="notes">Voluntary, ballot works if skipped</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Cap ±2 / match, ±5 cumulative on overall</td><td class="source">chat · 07</td><td class="notes">Conservative; data is noisy</td></tr>
   <tr><td class="status">🟢</td><td class="item">Bayesian shrinkage when &lt;5 voters</td><td class="source">chat · 07</td><td class="notes">Sample-size guard</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Feed balancer as small synthetic adjustment</td><td class="source">chat · 07</td><td class="notes">Not a primary signal</td></tr>
-  <tr class="blocker"><td class="status">⚠️</td><td class="item">Sequencing: engagement levers ship FIRST</td><td class="source">chat</td><td class="notes">Below 65% turnout, peer-rating signal is too thin</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Feed balancer as small synthetic adjustment</td><td class="source">chat · 07</td><td class="notes">Not primary signal</td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Engagement levers ship FIRST</td><td class="source">chat</td><td class="notes">Below 65% turnout, signal too thin</td></tr>
 </table>
+</div>
 
+<div class="theme-block">
 <div class="theme-head">
   <div class="icon">💷</div>
   <div class="title">Money &amp; Enforcement</div>
-  <div class="meta"><span class="pill pill-shipped">5 ✅</span> <span class="pill pill-proposed">5 🟢</span></div>
+  <div class="meta">
+    <span class="pill pill-shipped">7 ✅</span>
+    <span class="pill pill-proposed">8 🟢</span>
+  </div>
 </div>
 <p>Keeping the books straight and chasing what's owed without admin having to nag manually.</p>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Auto-charge £5 WTP fee on confirmed signup</td><td class="source">migr 023 · 38be733</td><td class="notes">DB trigger; auto-reaps unpaid row on drop-out</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Admin Finance: prior-month carryover surfaced inline</td><td class="source">98eea49</td><td class="notes">"+£X prior" per row; all-time sort</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Unpaid signup block (2-week grace, DB + UI)</td><td class="source">migr 026 · f75eef8</td><td class="notes">Blocked players can't confirm; admin override; auto-promotion skips them</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Block-start cutoff (Jun 2026 onwards)</td><td class="source">migr 027</td><td class="notes">May &amp; earlier carryover still visible but doesn't gate signups</td></tr>
-  <tr class="shipped"><td class="status">✅</td><td class="item">Player credits (overpayments + goodwill, green vs red)</td><td class="source">migr 028 · c20bc79</td><td class="notes">Net balance everywhere; "+ Credit" admin form; My Finances "In Credit" state</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Auto-apply credit when payment recorded</td><td class="source">chat</td><td class="notes">"Mike paid £5" → marks fine paid + adds £3 credit in one action</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Make block-start cutoff a setting (not hardcoded)</td><td class="source">chat</td><td class="notes">Move <code>block_start</code> to an editable setting</td></tr>
-  <tr><td class="status">🟢</td><td class="item">All-Time view toggle on AdminFinancePanel</td><td class="source">chat</td><td class="notes">Aggregate per player across every month</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Player-facing notice when grace is approaching</td><td class="source">chat</td><td class="notes">"You owe £X — pay by Sat or you'll be blocked"</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Stripe / online payment</td><td class="source">chat</td><td class="notes">One-tap settle from the app</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Auto-charge £5 WTP on confirmed signup</td><td class="source">mig 023 · 38be733</td><td class="notes">DB trigger; auto-reaps unpaid on drop-out</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Prior-month carryover surfaced inline</td><td class="source">98eea49</td><td class="notes">"+£X prior" per row; sort by all-time</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Unpaid signup block (2-week grace)</td><td class="source">mig 026 · f75eef8</td><td class="notes">Blocked can't confirm; admin override; skips auto-promo</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Block-start cutoff (Jun 2026 onwards)</td><td class="source">mig 027</td><td class="notes">Pre-cutoff visible but doesn't gate signups</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Player credits (overpayments + goodwill)</td><td class="source">mig 028 · c20bc79</td><td class="notes">Net balance shown; admin "+ Credit" button</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">DB-side auto-promote top reserve on drop</td><td class="source">mig 030</td><td class="notes">Charlie 24 Jun bug; mirrors <code>pickPromotion</code></td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Club Finances tracker v1</td><td class="source">mig 052 · 12 Jul</td><td class="notes">Admin→Club tab; subs income + pitch hire; backfilled 45 subs + 13 pitch rows</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Make block-start cutoff a setting</td><td class="source">chat</td><td class="notes">Move <code>block_start</code> to editable settings</td></tr>
+  <tr><td class="status">🟢</td><td class="item">All-Time view toggle on AdminFinancePanel</td><td class="source">chat</td><td class="notes">Full chase list across months</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Player-facing grace-approaching notice</td><td class="source">chat</td><td class="notes">"Pay by Sat or blocked from Thu"</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Club Finances v2: player sub status card</td><td class="source">chat 12 Jul</td><td class="notes">"Paid £95 on X, next Y" card on Profile</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Club Finances v2: WTP + fines fold in</td><td class="source">chat 12 Jul</td><td class="notes">v1 balance is subs-vs-pitch only</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Club Finances v2: admin UI for ad-hoc expenses</td><td class="source">chat 12 Jul</td><td class="notes">Schema supports; deferred until needed</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Stripe / online payment</td><td class="source">chat</td><td class="notes">One-tap settle</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Auto-apply credit when payment recorded</td><td class="source">chat</td><td class="notes">"Mike paid £5" → marks fine + adds credit</td></tr>
+</table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">🛂</div>
+  <div class="title">Delegate Roles</div>
+  <div class="meta">
+    <span class="pill pill-shipped">1 ✅</span>
+    <span class="pill pill-proposed">3 🟢</span>
+  </div>
+</div>
+<p>Granular permissions so admin can hand off narrow tasks without minting a full admin.</p>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item"><code>can_enter_results</code> delegate role</td><td class="source">mig 033 · 9c8e0a8</td><td class="notes">Ross Marks granted; RLS helper <code>can_manage_results()</code></td></tr>
+  <tr><td class="status">🟢</td><td class="item">Admin UI to toggle delegate roles per player</td><td class="source">chat</td><td class="notes">Avoids manual SQL</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Indicator on Admin profile showing holders</td><td class="source">chat</td><td class="notes">"Score entry: Ross Marks" — easy audit</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Additional delegate roles as needed</td><td class="source">chat</td><td class="notes">Same helper-fn pattern</td></tr>
+</table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">📣</div>
+  <div class="title">Feature Announcements</div>
+  <div class="meta"><span class="pill pill-shipped">1 ✅</span></div>
+</div>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Feature-announcement broadcasts v1</td><td class="source">mig 079 · deployed 30 Aug</td><td class="notes">Dead-on-arrival for a week; deployed <code>verify_jwt:false</code>; audience <code>push_targets('club_news')</code>; AdminAnnouncementsBar; 15-min pg_cron; SW v47</td></tr>
+</table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">🩹</div>
+  <div class="title">Availability · Injury List</div>
+  <div class="meta"><span class="pill pill-shipped">1 ✅</span></div>
+</div>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Injury list v1 self-service</td><td class="source">mig 078 · 20 Aug</td><td class="notes"><code>injuries</code> table (Thu-only return); quick chips; Tonight tab strip; warn-only signup banner; admin "clear on behalf"; SW v46</td></tr>
+</table>
+</div>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 5: TACTICS + MATCH DAY + PREDICTOR ─────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROADMAP · 5</h1>
+    <div class="sub">Tactics · Match day · Predictor games</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · ROADMAP</span>
+  </div>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">⚽</div>
+  <div class="title">Team Tactics</div>
+  <div class="meta">
+    <span class="pill pill-shipped">2 ✅</span>
+    <span class="pill pill-proposed">4 🟢</span>
+  </div>
+</div>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">FormationPicker on Match tab</td><td class="source">mig 045</td><td class="notes">5v5–8v8 shapes; auto-suggest by position; any team member or admin edits</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Auto-suggest by primary/secondary position</td><td class="source">mig 045</td><td class="notes">GK → row-fill by primary / secondary / rest</td></tr>
+  <tr><td class="status">🟢</td><td class="item">In-app team chat / tactics thread</td><td class="source">chat</td><td class="notes">Deferred; WhatsApp already carries chatter</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Captain badge → default edit rights</td><td class="source">chat</td><td class="notes">Gate if reshuffles get messy</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Formation snapshot in match report</td><td class="source">chat</td><td class="notes">Pitch thumbnail in History</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Position played per player from formation</td><td class="source">chat</td><td class="notes">Free data for stats engine</td></tr>
+</table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">🥅</div>
+  <div class="title">Match Day · Scoring &amp; Results</div>
+  <div class="meta">
+    <span class="pill pill-shipped">2 ✅</span>
+    <span class="pill pill-proposed">1 🟢</span>
+  </div>
+</div>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Penalty shootouts for drawn fixtures</td><td class="source">f73ebb6 · mig 035</td><td class="notes">Every draw → pens; winner +1 bonus; feeds all standings</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Shootout as opt-in per match</td><td class="source">mig 055</td><td class="notes"><code>matches.shootout_enabled</code> default false; backfilled 9 Jul</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Shared <code>buildTable</code> / standings helper</td><td class="source">chat</td><td class="notes">Kill 3-way duplication across AdminMatchEntry / MatchResultView / StatsPage</td></tr>
+</table>
+</div>
+
+<div class="theme-head">
+  <div class="icon">🎯</div>
+  <div class="title">Predictor Games · Season Formats</div>
+  <div class="meta">
+    <span class="pill pill-shipped">7 ✅</span>
+    <span class="pill pill-proposed">2 🟢</span>
+    <span class="pill pill-scheduled">4 🟡</span>
+    <span class="pill pill-retired">1 ❌</span>
+  </div>
+</div>
+<p>Post-WC, Predictor tab hosts MoW + Season Card; LMS deferred. MoW picker on v3 (scope + recency).</p>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Cup tab → Predictor tab shell</td><td class="source">mig 061 · chat 24 Jul</td><td class="notes">Nav slot 5 renamed; GameTabs sub-strip; <code>feature_interest_events</code></td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">World Cup tab archived</td><td class="source">commit pending · 31 Jul</td><td class="notes">Spain 1-0 Argentina; MoW default; DONE pill</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Match of the Week v1 (Chunks A + B)</td><td class="source">migs 062/066/067 · d8c3ac5</td><td class="notes">4 edge fns; pg_cron; recently-picked-club penalty</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">MoW picks hidden until kickoff</td><td class="source">commit pending · 1 Aug</td><td class="notes">Name-only view + 🔒 chip until phase='locked'; SW v42</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">MoW scoring rescaled 5/3/0 → 3/1/0</td><td class="source">mig 074 · commit pending</td><td class="notes">Rewrites settle trigger + rescores all; SW v44</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Predictor Watch covers last + this week</td><td class="source">cf495f6 · 31 Aug</td><td class="notes">Report + MoW picker both fire Fri; 27 Aug retro-updated; template locked in CLAUDE.md</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">MoW picker v3 — scope + recency</td><td class="source">commit pending · 28 Aug · v6</td><td class="notes">v1/v2 dominated by WH/Spurs; scope=PL + favourited-lower + exclude last 3 picks</td></tr>
+  <tr class="retired"><td class="status">❌</td><td class="item">Push audiences widened teams_ready + vote_open</td><td class="source">973f927 · superseded 30 Aug</td><td class="notes">Never deployed; admin-ride-along kept in mig 081, widening reverted</td></tr>
+  <tr class="scheduled"><td class="status">🟡</td><td class="item">MoW lower-league fixture pool</td><td class="source">chat 24 Jul</td><td class="notes">football-data free tier no L1/L2; openfootball 2026-27 not published; PL+Champ hits ~95%</td></tr>
+  <tr class="scheduled"><td class="status">🟡</td><td class="item">Season Prediction Card v1</td><td class="source">migs 063/064 · chat 24+26 Jul</td><td class="notes">Chunk A shipped: 7 markets; auto-save; 10 pts singles, 3/1 triples; WF wildcards cut</td></tr>
+  <tr class="scheduled"><td class="status">🟡</td><td class="item">Season Card player + manager options seed</td><td class="source">chat 26 Jul</td><td class="notes">Depends on deploying <code>season-card-seed-options</code> edge fn</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Season Card resolve/admin panel + notifications</td><td class="source">chat 26 Jul</td><td class="notes">Enter <code>resolved_answers</code> per market as season progresses</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Last Man Standing</td><td class="source">chat 24 Jul</td><td class="notes">Deferred; committee picked MoW + Season first</td></tr>
+  <tr class="scheduled"><td class="status">🟡</td><td class="item">Automated PL results feed (free tier)</td><td class="source">proposals 01+03</td><td class="notes">Prereq for MoW auto-scoring; football-data / api-football / manual</td></tr>
+  <tr class="scheduled"><td class="status">🟡</td><td class="item">Fixture-picker uses lower leagues + affinity</td><td class="source">chat 24 Jul</td><td class="notes">Weight fixtures with supporter's club first</td></tr>
 </table>
 
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 6: TEAM BUILDER + ADOPTION + DATA + AGENTS + MONTHLY ─ -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROADMAP · 6</h1>
+    <div class="sub">Team builder · Adoption · Data · Agents · Monthly</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · ROADMAP</span>
+  </div>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">🧢</div>
+  <div class="title">Team Builder Polish</div>
+  <div class="meta">
+    <span class="pill pill-shipped">2 ✅</span>
+    <span class="pill pill-proposed">2 🟢</span>
+  </div>
+</div>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Tag debutants in WhatsApp export</td><td class="source">59b6311 / 18a0068 / d24128a</td><td class="notes"><code>v_player_match_history</code> + <code>profiles.debut_at</code> override</td></tr>
+  <tr><td class="status">🟢</td><td class="item">"Mark as veteran" toggle on admin editor</td><td class="source">chat</td><td class="notes">Set <code>debut_at</code> from UI, not SQL</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Surface DEBUT badge in-app team list</td><td class="source">commit pending</td><td class="notes">Cyan chip on TeamsPage, same rule as export</td></tr>
+  <tr><td class="status">🟢</td><td class="item">One-click swap any two players</td><td class="source">chat</td><td class="notes">Currently requires drag</td></tr>
+</table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">📊</div>
+  <div class="title">Adoption · Closing Feature-Reach Gaps</div>
+  <div class="meta">
+    <span class="pill pill-shipped">4 ✅</span>
+    <span class="pill pill-proposed">4 🟢</span>
+  </div>
+</div>
+<p>Surfaced by app engagement review (primer 11), 24 Jun 2026. Fitness 2%, Polar 0%, secondary position 4%, photo 35%.</p>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">"Most Distance Tonight" hero card on Stats</td><td class="source">primer 11</td><td class="notes">High impact / low effort</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Fitness line on PlayerCard (km + avg HR)</td><td class="source">primer 11</td><td class="notes">Permanent home for the upload</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Fri-morning fitness-upload nav badge</td><td class="source">primer 11</td><td class="notes">Same play that fixed voting</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Strava connect-once auto-pull</td><td class="source">primer 11</td><td class="notes">Largest fitness-adoption lever</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Secondary-position prompt in PositionPicker</td><td class="source">commit pending</td><td class="notes">Absorbed into ProfileCompletionCard</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Profile-photo nudge on Cards tab</td><td class="source">commit pending</td><td class="notes">Absorbed into ProfileCompletionCard</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">"Complete your card" 30-sec first-login flow</td><td class="source">commit pending · primer 14</td><td class="notes">Consolidated banner + progress bar; auto-hides at 6/6</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">AgeBandPicker component (U20/20s/30s/40s/50+)</td><td class="source">commit pending</td><td class="notes">Privacy-preserving fallback; <code>profiles.age_group</code></td></tr>
+</table>
+</div>
+
+<div class="theme-block">
 <div class="theme-head">
   <div class="icon">📈</div>
   <div class="title">Data Quality</div>
   <div class="meta"><span class="pill pill-proposed">4 🟢</span></div>
 </div>
-<p>New signals the rating engine and balancer can use. Most are tiny additions to existing flows.</p>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
-  <tr><td class="status">🟢</td><td class="item">Position played per fixture — one-tap picker on match-entry</td><td class="source">chat</td><td class="notes">Unlocks "GK 1 goal ≠ striker 1 goal"</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Assists tracking</td><td class="source">chat</td><td class="notes">Exploring Veo recordings + shirt numbers</td></tr>
-  <tr><td class="status">🟢</td><td class="item">Self-rated form — Wednesday "how are the legs?" poll</td><td class="source">chat</td><td class="notes">🔥 💪 🆗 🤒 🛏️ → balancer input</td></tr>
-  <tr><td class="status">🟢</td><td class="item">HR-zone fatigue index</td><td class="source">chat</td><td class="notes">Flag "burnt", balance with extra runners</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr><td class="status">🟢</td><td class="item">Position played per fixture — one-tap picker</td><td class="source">chat</td><td class="notes">Unlocks "GK 1 goal ≠ striker 1 goal"</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Assists tracking</td><td class="source">chat</td><td class="notes">Exploring Veo + shirt numbers</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Self-rated form Wed poll</td><td class="source">chat</td><td class="notes">5 options 🔥 💪 🆗 🤒 🛏️ → balancer input</td></tr>
+  <tr><td class="status">🟢</td><td class="item">HR-zone fatigue index</td><td class="source">chat</td><td class="notes">Flag "burnt" for extra runners</td></tr>
 </table>
+</div>
 
+<div class="theme-block">
 <div class="theme-head">
-  <div class="icon">🟥</div>
-  <div class="title">Known Issues</div>
-  <div class="meta"><span class="pill pill-blocker">1</span></div>
+  <div class="icon">🤖</div>
+  <div class="title">Autonomous Agents</div>
+  <div class="meta">
+    <span class="pill pill-proposed">3 🟢</span>
+    <span class="pill pill-retired">1 ❌</span>
+  </div>
 </div>
 
 <table class="roadmap">
-  <tr><th style="width:22pt;"></th><th>Item</th><th colspan="2">Notes</th></tr>
-  <tr><td class="status">🟥</td><td class="item">MotmVotingCard context-mismatch</td><td colspan="2" class="notes">Loads the latest voting window independently of the displayed match. During an open window before that night's result is entered, the page shows last week's result + report with this week's ballot wedged in. (eng. review §"Still open")</td></tr>
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="retired"><td class="status">❌</td><td class="item">WC26 cup-audit cron (3× / day)</td><td class="source">chat</td><td class="notes">Torn down 8 Jul; hit "credit balance too low"; admin now manual</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Match-report drafter agent (weekly)</td><td class="source">chat</td><td class="notes">Fri morning: pulls fixtures/goals/awards, cross-checks, posts to GH issue</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Sign-up deadline reminder push via cron</td><td class="source">chat</td><td class="notes">Wed 20:00 London; same stack as cup-audit</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Cost + rate-limit budget guard</td><td class="source">chat</td><td class="notes">Prereq for any autonomous agent; ~$0.10–0.30 / run</td></tr>
 </table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">📆</div>
+  <div class="title">Monthly Stats Round-Up</div>
+  <div class="meta">
+    <span class="pill pill-shipped">3 ✅</span>
+    <span class="pill pill-proposed">1 🟢</span>
+  </div>
+</div>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Monthly stats PDF generator (GH Actions cron)</td><td class="source">commit pending · 10 Jul</td><td class="notes">1st of month 07:00 BST; Supabase → HTML → WeasyPrint → PDF; no Anthropic API</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Bug: workflow never actually ran (invalid YAML)</td><td class="source">3cbcb6f + e1e5526</td><td class="notes">Multi-line commit msg broke block scalar; 180+ phantom fails; fixed with two <code>-m</code> flags</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Deeper stats in monthly PDF</td><td class="source">commit pending · 1 Aug</td><td class="notes">Best Haul, hat-tricks, goals/game, position bar, Form section, Sieve, Fastest, OGs</td></tr>
+  <tr><td class="status">🟢</td><td class="item">In-app "Monthly" tab</td><td class="source">chat 10 Jul</td><td class="notes">Route <code>/monthly</code> with archive; ship after PDF battle-tested</td></tr>
+</table>
+</div>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 7: APP UPDATES + HELP CENTRE + KNOWN ISSUES ────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROADMAP · 7</h1>
+    <div class="sub">App updates · Help centre · Known issues</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P703 · ROADMAP</span>
+  </div>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">🔄</div>
+  <div class="title">App Updates</div>
+  <div class="meta">
+    <span class="pill pill-shipped">1 ✅</span>
+    <span class="pill pill-proposed">1 🟢</span>
+    <span class="pill pill-blocker">1 ⚠️</span>
+  </div>
+</div>
+<p>Getting a shipped build onto phones — an installed PWA can stay resident for days and quietly run last week's JS.</p>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">In-app "new version available" refresh prompt</td><td class="source">commit pending · 30 Aug</td><td class="notes">Dropped <code>skipWaiting</code>; <code>UpdatePrompt</code> toast; SKIP_WAITING msg; controllerchange reload; 3s iOS fallback; SW v49</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Show what's new in refresh prompt</td><td class="source">chat 30 Aug</td><td class="notes">Read latest <code>feature_announcements</code> or <code>version_notes</code></td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">First rollout needs one natural relaunch</td><td class="source">chat 30 Aug</td><td class="notes">v48 still <code>skipWaiting</code>s; unavoidable one-time cost</td></tr>
+</table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">📚</div>
+  <div class="title">Help Centre · In-App How-To Guides</div>
+  <div class="meta">
+    <span class="pill pill-shipped">5 ✅</span>
+    <span class="pill pill-proposed">3 🟢</span>
+    <span class="pill pill-blocker">1 ⚠️</span>
+  </div>
+</div>
+<p>18 primer PDFs are great for WhatsApp shares but bad for "I'm mid-tap and stuck". <code>/help</code> route hosts the same content as mobile-friendly markdown.</p>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item"><code>/help</code> route + HelpPage component</td><td class="source">commit pending</td><td class="notes">Lazy-loaded; main bundle 602 → 322 kb</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Categorised index (Basics · Match · Cup · Money)</td><td class="source">commit pending</td><td class="notes">4 categories, 7 seed articles</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Client-side search</td><td class="source">commit pending</td><td class="notes">Filters title + blurb + content</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Help tile on MorePage overflow</td><td class="source">commit pending</td><td class="notes">P820 · HELP · ❔ icon</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">7 seed articles</td><td class="source">commit pending</td><td class="notes">Content lives in <code>src/help/*.md</code></td></tr>
+  <tr><td class="status">🟢</td><td class="item">Article thumbs feedback</td><td class="source">chat</td><td class="notes">Feedback rows tagged with article slug</td></tr>
+  <tr><td class="status">🟢</td><td class="item">Contextual help links from feature UI</td><td class="source">chat</td><td class="notes">? icon deep-links to article</td></tr>
+  <tr><td class="status">🟢</td><td class="item">First-login onboarding tour</td><td class="source">chat</td><td class="notes">Swipeable intro carousel across 5 tabs</td></tr>
+  <tr class="blocker"><td class="status">⚠️</td><td class="item">Docs kept in sync with features</td><td class="source">chat</td><td class="notes">Same staleness fight; add to DoD</td></tr>
+</table>
+</div>
+
+<div class="theme-block">
+<div class="theme-head">
+  <div class="icon">🟥</div>
+  <div class="title">Known Issues (all now fixed)</div>
+  <div class="meta"><span class="pill pill-shipped">3 ✅</span></div>
+</div>
+<p>Three bugs logged over the summer, all landed fixes. Left in place as the audit trail.</p>
+
+<table class="roadmap">
+  <tr><th style="width:18pt;"></th><th>Item</th><th>Source</th><th>Notes</th></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">MotmVotingCard context-mismatch</td><td class="source">commit pending</td><td class="notes">Optional <code>expectedMatchId</code> prop; refuses if window <code>match_id</code> mismatches</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Admin tab blank-screen crash (2 Aug)</td><td class="source">commit pending · mig 073</td><td class="notes">Rossini null surname → <code>null.trim()</code> in AdminCsvImport; NOT NULL default; RouteErrorBoundary; SW v43</td></tr>
+  <tr class="shipped"><td class="status">✅</td><td class="item">Duplicate "match report is live" push</td><td class="source">migs 075 → 076 → 077</td><td class="notes">Landed on <code>max(voting_close, report_completion)</code>; each trigger checks the other; single push guaranteed</td></tr>
+</table>
+</div>
 
 <hr>
 
@@ -435,7 +821,7 @@
 <ol>
   <li>Drop a row in the matching theme with status 🟢 and a one-line note. If no theme fits, add a new one.</li>
   <li>If the idea warrants a full proposal, build a primer-style PDF and add it to <code>docs/primers/</code> as the next number; link from the row.</li>
-  <li><strong>When the item ships:</strong> change status to ✅, add the commit short hash, but leave the row in place.</li>
+  <li><strong>When the item ships:</strong> change status to ✅, add the commit short hash + migration num if there's DB work, but leave the row in place.</li>
   <li><strong>Don't delete shipped items.</strong> The audit trail of what we set out to do vs what landed is the whole point.</li>
   <li>Mark blockers explicitly with ⚠️ and link to the dependency. Sequencing matters more than priority.</li>
 </ol>
