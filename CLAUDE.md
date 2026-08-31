@@ -232,3 +232,11 @@ When writing or editing a match report on the `results` row, **populate the stru
 **Always include `predictions`.** Pull the actual final table from `fixtures` for the match, compare to the pre-match `LIKELY FINAL TABLE` (computed by `AdminTeamBuilder.predictTable`), and write a 4-row table with a short note on accuracy. The algorithm's track record is a recurring narrative thread — every week's report leans on it.
 
 **Cross-check rule.** Before writing, verify every named scorer against the `goals` table for the match. Flag any mismatch (player named in prose who didn't score; player who scored but isn't mentioned) — surface it to the admin rather than silently editing the prose.
+
+**Predictor Watch bullet — always cover last week AND this week.** The match report push fires Friday morning (max(voting_close, report_completion)), which is the same morning the MoW picker fires at 08:00 UTC. So by the time the report lands, both facts are available and both belong in the 🎯 Predictor watch entry in `app_watch`:
+
+1. **Last weekend's MoW result** — final score, exact-score hits (if any), plus current season leaderboard top line.
+2. **This weekend's just-picked MoW fixture** — home v away, kick-off day + UK time. No score (game hasn't been played), with a nudge to get predictions in on the Match tab before kick-off.
+3. **Season Card status** — locked / open window / entries count, whichever is relevant that week.
+
+The pick lives in `mow_fixtures` for `week_start = <Monday of the week the report is being sent from>`, joined to `mow_pool_fixtures` for the fixture detail. If the pick hasn't been made yet at report-drafting time (drafted Thursday evening for a Friday send), fetch it fresh before the push actually goes out — or leave a placeholder and top it up Friday morning. Don't ship a report whose Predictor Watch only mentions the settled result.
