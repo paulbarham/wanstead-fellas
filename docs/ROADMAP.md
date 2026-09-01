@@ -3,7 +3,7 @@
 > **Single source of truth for what's coming next.**
 > Add new ideas here the moment they're proposed — even rough ones. When something ships, leave the row in place but flip the status to ✅ and link the commit. Don't delete shipped items; the audit trail matters.
 
-_Last updated: 2026-09-01 (Shipped monthly personal review v1 — RPC + /profile/monthly/:month page + 07:15 UTC 1st-of-month push · migs 086+087 · SW v53. Earlier today: rivalry cards v1.5 · mig 085 · v1 · mig 084 · decisions log · mig 082 · monthly sub-chase · mig 083.)_
+_Last updated: 2026-09-01 (Push adoption drive: ProfileCompletionCard now 7/7 with Enable Notifications; louder Tonight banner with device-truth check · SW v54. Earlier today: monthly personal review · migs 086+087 · rivalry cards v1+v1.5 · migs 084+085 · decisions log · mig 082 · monthly sub-chase · mig 083.)_
 
 ---
 
@@ -274,6 +274,7 @@ Surfaced by the [app engagement review (11)](primers/pdf/11-app-engagement-revie
 | Profile-photo nudge on Cards tab | ✅ | [11](primers/pdf/11-app-engagement-review.pdf) · commit pending | Absorbed into ProfileCompletionCard — deep-links to Profile page for the photo upload flow |
 | "Complete your card" 30-second flow at first login | ✅ | [11](primers/pdf/11-app-engagement-review.pdf) · commit pending · [14](primers/pdf/14-profile-completeness.pdf) | Single consolidated banner at the top of Next Game with progress bar + one row per missing field. Inline pickers for position/foot/age band; deep-links to Profile for photo/club. Absorbs the standalone position + foot nudges. Auto-hides at 6/6 done. |
 | AgeBandPicker component (5-option: U20 / 20s / 30s / 40s / 50+) | ✅ | chat · commit pending | Privacy-preserving fallback for anyone unwilling to share exact DOB — persists as `profiles.age_group` |
+| Push adoption drive — completion card + louder Tonight banner | ✅ | commit pending 1 Sep 2026 · SW v54 | **Push subs at 18/86 = ~21%** — the single biggest engagement lever. Two changes: (a) ProfileCompletionCard bumped 6→7 fields with **Enable Notifications** as the 7th; async DB-check (`push_subscriptions` filtered by `player_id`) so the tick is truthful across devices; inline Enable button that calls `subscribeToPush()`; handles `denied`/`unsupported` states cleanly. (b) TonightPage `NotificationsBanner` rewritten louder + smarter: **DB-truth device check** via `getSubscription()` on the SW registration (catches "granted on desktop, on phone now" edge that v1 missed); yellow-tinted card w/ concrete value prop ("call-ups off the waiting list · voting opens · match reports · monthly wraps · duo callouts"); prominent Enable button + Later dismiss; 7-day cooldown on dismiss, 30-day cooldown on browser-denied. |
 
 ## 📈 Data quality
 

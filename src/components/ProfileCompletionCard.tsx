@@ -1,10 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import PositionPicker from './PositionPicker'
 import FootPicker from './FootPicker'
 import AgeBandPicker, { type AgeBand } from './AgeBandPicker'
+import {
+  getPermissionState,
+  subscribeToPush,
+  type PushPermissionState,
+} from '../lib/push'
 import type { PreferredPosition, PreferredFoot } from '../types'
 
 // Single "Complete your card" banner on Next Game — replaces the two
@@ -27,8 +32,9 @@ type Field =
   | 'pos1'
   | 'pos2'
   | 'foot'
+  | 'notifications'
 
-const TOTAL_FIELDS = 6
+const TOTAL_FIELDS = 7
 
 interface Row {
   key: Field
@@ -46,17 +52,58 @@ export default function ProfileCompletionCard() {
   const [expanded, setExpanded] = useState<Field | null>(null)
   const [saving, setSaving] = useState(false)
 
+  // Notifications state — checked async (DB truth, not per-device browser sub)
+  // so the tick reflects "this player has push on at least one device".
+  // pushCount: null while loading, then number of push_subscription rows.
+  // On 'unsupported' devices we count the row as set (nothing they can do).
+  const [pushCount, setPushCount] = useState<number | null>(null)
+  const [pushPermission, setPushPermission] = useState<PushPermissionState>('default')
+  const [pushBusy, setPushBusy] = useState(false)
+  const [pushErr, setPushErr] = useState<string | null>(null)
+
+  const refreshPushState = useCallback(async () => {
+    setPushPermission(getPermissionState())
+    if (!profile) return
+    const { count } = await supabase.from('push_subscriptions')
+      .select('id', { count: 'exact', head: true })
+      .eq('player_id', profile.id)
+    setPushCount(count ?? 0)
+  }, [profile])
+
+  useEffect(() => { refreshPushState() }, [refreshPushState])
+
+  async function enablePush() {
+    if (!profile || pushBusy) return
+    setPushBusy(true); setPushErr(null)
+    const res = await subscribeToPush(profile.id)
+    if (!res.ok) {
+      setPushErr(res.reason === 'denied'
+        ? 'Blocked in this browser. Toggle Notifications in your browser or system settings, then try again.'
+        : res.reason === 'unsupported'
+          ? 'This device doesn\'t support web push.'
+          : `Couldn't enable (${res.reason ?? 'unknown'}).`)
+    }
+    await refreshPushState()
+    setPushBusy(false)
+  }
+
+  const notificationsSet =
+    pushPermission === 'unsupported' ? true
+    : pushCount == null ? true                                // treat unknown as set while loading (no flicker)
+    : pushCount > 0
+
   const rows: Row[] = useMemo(() => {
     if (!profile) return []
     return [
-      { key: 'pos1',  icon: '⚙️', title: 'Preferred position',    blurb: 'Where do you play?',              set: !!profile.preferred_position_primary,   action: 'inline'  },
-      { key: 'foot',  icon: '🦶', title: 'Preferred foot',         blurb: 'Left, right or both?',            set: !!profile.preferred_foot,               action: 'inline'  },
-      { key: 'age',   icon: '🎂', title: 'Age',                    blurb: 'Pick a decade band, or add exact DOB on Profile.', set: !!(profile.dob || profile.age_group),   action: 'inline'  },
-      { key: 'pos2',  icon: '🛡️', title: 'Backup position',        blurb: 'Where can you cover if needed?',  set: !!profile.preferred_position_secondary, action: 'inline'  },
-      { key: 'photo', icon: '📸', title: 'Profile photo',          blurb: 'Puts a face on your card.',       set: !!profile.photo_url,                    action: 'profile' },
-      { key: 'club',  icon: '🏆', title: 'Favourite club',         blurb: 'The badge on your card.',         set: !!profile.favourite_club,               action: 'profile' },
+      { key: 'pos1',          icon: '⚙️', title: 'Preferred position',    blurb: 'Where do you play?',                              set: !!profile.preferred_position_primary,   action: 'inline'  },
+      { key: 'foot',          icon: '🦶', title: 'Preferred foot',         blurb: 'Left, right or both?',                            set: !!profile.preferred_foot,               action: 'inline'  },
+      { key: 'age',           icon: '🎂', title: 'Age',                    blurb: 'Pick a decade band, or add exact DOB on Profile.',set: !!(profile.dob || profile.age_group),   action: 'inline'  },
+      { key: 'pos2',          icon: '🛡️', title: 'Backup position',        blurb: 'Where can you cover if needed?',                  set: !!profile.preferred_position_secondary, action: 'inline'  },
+      { key: 'photo',         icon: '📸', title: 'Profile photo',          blurb: 'Puts a face on your card.',                       set: !!profile.photo_url,                    action: 'profile' },
+      { key: 'club',          icon: '🏆', title: 'Favourite club',         blurb: 'The badge on your card.',                         set: !!profile.favourite_club,               action: 'profile' },
+      { key: 'notifications', icon: '🔔', title: 'Notifications',          blurb: 'Get pinged on call-ups, teams, results & MOTM.',  set: notificationsSet,                        action: 'inline'  },
     ]
-  }, [profile])
+  }, [profile, notificationsSet])
 
   const setCount = rows.filter(r => r.set).length
   const missing = rows.filter(r => !r.set)
@@ -203,6 +250,30 @@ export default function ProfileCompletionCard() {
                           className="underline"
                           style={{ color: 'var(--tt-cyan)' }}
                         >Add on Profile →</button>
+                      </p>
+                    </>
+                  )}
+                  {r.key === 'notifications' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={enablePush}
+                        disabled={pushBusy || pushPermission === 'denied' || pushPermission === 'unsupported'}
+                        className="w-full py-2 rounded-lg text-sm font-semibold disabled:opacity-40"
+                        style={{ background: 'var(--tt-green)', color: 'var(--color-surface)' }}
+                      >
+                        {pushBusy ? 'Enabling…'
+                          : pushPermission === 'denied' ? '🚫 Blocked in browser settings'
+                          : pushPermission === 'unsupported' ? '🚫 Not supported on this device'
+                          : '🔔 Enable notifications'}
+                      </button>
+                      {pushErr && (
+                        <p className="mt-2 text-[11px]" style={{ color: 'var(--color-error-text)' }}>
+                          {pushErr}
+                        </p>
+                      )}
+                      <p className="mt-2 text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                        Fine-tune which categories buzz on Profile. Default: all on.
                       </p>
                     </>
                   )}
