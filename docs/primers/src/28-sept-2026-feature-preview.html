@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WF · September 2026 Feature Preview</title>
+<style>
+  @page {
+    size: A4;
+    margin: 12mm 12mm 14mm 12mm;
+    background: #0F1710;
+    @bottom-center {
+      content: "WANSTEAD FELLAS · SEPT 2026 FEATURE PREVIEW · page " counter(page) " of " counter(pages);
+      font-family: 'Courier New', monospace;
+      color: #4AD9FF;
+      font-size: 8pt;
+      letter-spacing: 0.15em;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 9pt;
+    line-height: 1.38;
+  }
+
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 11pt 15pt;
+    border-radius: 12pt;
+    margin-bottom: 9pt;
+    display: table;
+    width: 100%;
+    border: 1pt solid rgba(255,212,0,0.20);
+  }
+  .masthead .left, .masthead .right { display: table-cell; vertical-align: middle; }
+  .masthead .right { text-align: right; }
+  .masthead h1 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    font-size: 19pt; margin: 0;
+    letter-spacing: 0.03em; color: #FFD400; line-height: 1;
+  }
+  .masthead .sub {
+    margin-top: 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #FF66CC;
+  }
+  .masthead .pageid {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.16em;
+    color: #FFD400;
+    background: rgba(0,0,0,0.30);
+    padding: 3pt 7pt; border-radius: 4pt;
+  }
+
+  h2 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12pt;
+    margin: 9pt 0 3pt;
+    padding-bottom: 2pt;
+    border-bottom: 1pt solid rgba(255,212,0,0.20);
+    letter-spacing: 0.02em; page-break-after: avoid;
+  }
+  h3 {
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4ADC7A; font-size: 9pt;
+    margin: 7pt 0 3pt;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    page-break-after: avoid;
+  }
+
+  p { margin: 3pt 0; }
+  strong { color: #FFD400; font-weight: 700; }
+  em { color: #4AD9FF; font-style: normal; }
+  code { font-family: 'Courier New', monospace; font-size: 8.5pt; color: #4AD9FF;
+         background: rgba(74,217,255,0.06); padding: 1pt 4pt; border-radius: 3pt; }
+  ul { margin: 3pt 0; padding-left: 15pt; }
+  ol { margin: 3pt 0; padding-left: 17pt; }
+  li { margin: 1.5pt 0; }
+  li::marker { color: #FFD400; }
+
+  .callout {
+    background: rgba(74,220,122,0.07);
+    border-left: 3pt solid #4ADC7A;
+    padding: 6pt 10pt; border-radius: 4pt;
+    margin: 5pt 0; font-size: 9pt; line-height: 1.42;
+  }
+  .callout.cyan   { background: rgba(74,217,255,0.06); border-left-color: #4AD9FF; }
+  .callout.yellow { background: rgba(255,212,0,0.08); border-left-color: #FFD400; }
+  .callout.pink   { background: rgba(255,102,204,0.08); border-left-color: #FF66CC; }
+
+  /* Feature block: title bar + body */
+  .feat {
+    background: rgba(255,255,255,0.03);
+    border: 1pt solid rgba(255,255,255,0.11);
+    border-radius: 9pt;
+    padding: 0;
+    margin: 6pt 0 8pt;
+    page-break-inside: avoid;
+    overflow: hidden;
+  }
+  .feat .head {
+    display: table; width: 100%;
+    padding: 6pt 12pt;
+    background: rgba(255,212,0,0.06);
+    border-bottom: 1pt solid rgba(255,255,255,0.10);
+  }
+  .feat .head .icon {
+    display: table-cell; width: 28pt;
+    font-size: 15pt; vertical-align: middle;
+  }
+  .feat .head .title {
+    display: table-cell; vertical-align: middle;
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #FFD400; font-size: 12pt;
+    letter-spacing: 0.02em;
+  }
+  .feat .head .where {
+    display: table-cell; vertical-align: middle;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    color: #4AD9FF; font-size: 8pt;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+  }
+  .feat .body { padding: 8pt 12pt; font-size: 9pt; }
+  .feat .body p { margin: 2.5pt 0; }
+  .feat .body strong { color: #4ADC7A; }
+  .feat .body em     { color: #4AD9FF; }
+
+  /* Spot list — "here's the 3 places you'll see it" */
+  .spots {
+    margin: 5pt 0 3pt;
+  }
+  .spots .spot {
+    display: table; width: 100%;
+    padding: 5pt 0;
+    border-top: 1pt dashed rgba(255,255,255,0.10);
+  }
+  .spots .spot:first-child { border-top: 0; }
+  .spots .spot .where {
+    display: table-cell; width: 90pt;
+    vertical-align: top;
+    font-family: 'Arial Black', 'Helvetica', sans-serif;
+    color: #4AD9FF; font-size: 9pt;
+    letter-spacing: 0.02em;
+    padding-right: 8pt;
+  }
+  .spots .spot .what {
+    display: table-cell; vertical-align: top;
+    font-size: 9pt; line-height: 1.42;
+  }
+
+  .roll {
+    background: rgba(255,255,255,0.03);
+    border: 1pt solid rgba(255,255,255,0.11);
+    border-radius: 8pt;
+    padding: 7pt 10pt;
+    margin: 4pt 0;
+    font-size: 8.8pt;
+  }
+  .roll .when {
+    font-family: 'Courier New', monospace;
+    color: #FFD400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 8.5pt;
+  }
+
+  .closer {
+    text-align: center;
+    color: #4AD9FF;
+    font-family: 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.16em;
+    margin-top: 8pt;
+    padding: 6pt;
+    border: 1pt dashed rgba(74,217,255,0.30);
+    border-radius: 6pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE 1: HEADLINE FEATURES ────────────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>WHAT'S NEW · SEPT 2026</h1>
+    <div class="sub">Preview · not yet broadcast</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P801 · PREVIEW</span>
+  </div>
+</div>
+
+<div class="callout cyan">
+  <strong>For your eyes first.</strong> Everything below is live on the app right now
+  but hasn't been announced to the group yet. Have a play, and let me know
+  anything that reads badly or works differently to how you'd expect — I'll
+  fix it before pushing to everyone. Announcements go out one at a time
+  over the next fortnight so it doesn't blur into "the app changed a lot".
+</div>
+
+<!-- ── FEATURE 1: RIVALRY CARDS ─────────────────────────────────── -->
+<div class="feat">
+  <div class="head">
+    <div class="icon">🤝</div>
+    <div class="title">Duos &amp; rivals</div>
+    <div class="where">3 spots</div>
+  </div>
+  <div class="body">
+    <p>Head-to-head stats for every pair of players who've shared a pitch. Backed by
+    every fixture in the app's history, refreshed nightly. Same materialised data
+    powers three different surfaces so it's noticed even if you don't visit Profile.</p>
+
+    <div class="spots">
+      <div class="spot">
+        <div class="where">📊 Stats tab</div>
+        <div class="what"><strong>Duo of the Month</strong> hero card — highest win-rate
+        pair with 3+ games together this month, sitting alongside Top Scorer / Wall King / Most Wins / Top GK.
+        August's winner: <em>Callum Finch + Sheridan Winter</em>, 100% across 4 games.</div>
+      </div>
+      <div class="spot">
+        <div class="where">👥 Tonight tab</div>
+        <div class="what"><strong>Best duo tonight</strong> — one line at the bottom of each
+        published team card. "🤝 Best duo · Ross + Daren · 3W-1D". Pre-match banter
+        without anyone doing anything.</div>
+      </div>
+      <div class="spot">
+        <div class="where">👤 Profile</div>
+        <div class="what"><strong>Your top duos + biggest rivals</strong> — top 3 of
+        each, season-scoped default with an All-Time toggle. Skips pairs with fewer
+        than 5 fixtures so it doesn't render statistical noise.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURE 2: MONTHLY PERSONAL REVIEW ───────────────────────── -->
+<div class="feat">
+  <div class="head">
+    <div class="icon">📊</div>
+    <div class="title">Monthly personal review</div>
+    <div class="where">Profile · every 1st</div>
+  </div>
+  <div class="body">
+    <p>Per-player wrap of the month gone. Positive-only — highlights, streaks,
+    favourite teammate. Not a leaderboard, doesn't rank you against anyone else.</p>
+
+    <div class="spots">
+      <div class="spot">
+        <div class="where">Now</div>
+        <div class="what">Tile on Profile ("📊 Your monthly review") deep-links to
+        the most recent complete month. Also reachable at <code>/profile/monthly/YYYY-MM</code>
+        with prev/next month navigation.</div>
+      </div>
+      <div class="spot">
+        <div class="where">1st of month</div>
+        <div class="what">Auto-push at <strong>08:15 UK</strong> ("📊 Your August is in — Apps,
+        goals, MOTM wins, favourite teammate. Take a look on your Profile.") — only
+        to players who actually turned out that month.</div>
+      </div>
+      <div class="spot">
+        <div class="where">What's inside</div>
+        <div class="what">Apps · Goals · MOTM wins · DOTD nods · W-D-L · <strong>Best game</strong>
+        of the month (impact score) · <strong>Favourite teammate</strong> (most shared fixtures) ·
+        <strong>Turn-out streak</strong> (consecutive months with ≥1 app).</div>
+      </div>
+    </div>
+
+    <div class="callout yellow" style="margin-top:6pt;">
+      <strong>First live push:</strong> 1 October at 08:15 UK, for September stats.
+      August is browsable now via the Profile deep-link.
+    </div>
+  </div>
+</div>
+
+<div style="page-break-after: always;"></div>
+
+<!-- ── PAGE 2: ADOPTION + ROLLOUT PLAN ──────────────────────────── -->
+<div class="masthead">
+  <div class="left">
+    <h1>ROLLOUT &amp; NOTIFICATIONS</h1>
+    <div class="sub">Preview · not yet broadcast</div>
+  </div>
+  <div class="right">
+    <span class="pageid">P801 · PREVIEW</span>
+  </div>
+</div>
+
+<!-- ── FEATURE 3: NOTIFICATIONS ADOPTION ────────────────────────── -->
+<div class="feat">
+  <div class="head">
+    <div class="icon">🔔</div>
+    <div class="title">Notification prompts (adoption push)</div>
+    <div class="where">Tonight + Profile</div>
+  </div>
+  <div class="body">
+    <p><strong>Only 18 of 86 profiles</strong> have notifications enabled — meaning most
+    of the group misses call-ups off the waiting list, voting-open pings, match-report
+    releases, monthly wraps and Duo of the Month callouts. Two low-risk nudges to lift that:</p>
+
+    <div class="spots">
+      <div class="spot">
+        <div class="where">✅ Completion card</div>
+        <div class="what">The "👋 Complete your card" panel on the Tonight tab is now
+        <strong>7/7 fields</strong>, not 6/6. New "🔔 Notifications" row with a one-tap
+        Enable button. Ticks green as soon as any of your devices is subscribed —
+        no double-nagging if you enabled on desktop and now open on phone.</div>
+      </div>
+      <div class="spot">
+        <div class="where">🔔 Tonight banner</div>
+        <div class="what">The existing top-of-tab prompt has been rewritten louder,
+        with a punchier value prop ("You'll miss call-ups off the waiting list · voting
+        opens · match reports · monthly wraps · duo callouts"). Dismissable for
+        7 days at a time.</div>
+      </div>
+    </div>
+
+    <p style="margin-top:5pt;"><em>How to check yours:</em> on Profile the existing
+    "Push notifications" card shows whether you're on and lets you toggle it. Once on,
+    the five category chips let you mute individual streams (match night · results ·
+    money · club news · predictor) — absence = everything on, so nothing needed
+    unless you want less.</p>
+  </div>
+</div>
+
+<h2>Rollout plan</h2>
+<p>Announcements fire as feature-announcement pushes at 09:00 UK the morning after
+they're queued. Staggered so each one lands cleanly rather than blurring together.</p>
+
+<div class="roll">
+  <div class="when">Already sent · 31 Aug</div>
+  <strong>🩹 Injury list</strong> — delivered to 18/18 subscribed devices.
+</div>
+
+<div class="roll">
+  <div class="when">This week</div>
+  <strong>🤝 Duos &amp; rivals</strong> — new card on Profile, hero on Stats, best-duo
+  caption on each team when teams are published.
+</div>
+
+<div class="roll">
+  <div class="when">Next week</div>
+  <strong>📊 Monthly personal review</strong> — new Profile tile; primes people for the
+  first auto-push on 1 October.
+</div>
+
+<div class="roll">
+  <div class="when">Optional third slot</div>
+  <strong>🔔 Notification preferences</strong> — meta-info about pushes. Ship if the
+  monthly review push exposes people who want to fine-tune.
+</div>
+
+<h2>Also landed (not broadcasting)</h2>
+
+<p style="font-size:8.8pt;line-height:1.4;">
+  <strong>Predictor Watch in reports</strong> now covers last-weekend MoW result AND this-weekend fixture ·
+  <strong>MoW picker v3</strong> stops the West Ham / Spurs monopoly by excluding clubs seen in the last 3 picks ·
+  <strong>Balancer v2 bug fixes</strong> (star cap now scales with team count, age-spread pass no longer silently disabled) ·
+  <strong>Admin-only</strong>: Decisions log, monthly sub-chase reminder + Chase-list callout on Club Finances.
+</p>
+
+<div class="callout pink">
+  <strong>Feedback welcome.</strong> Anything confusing, anything you'd word differently,
+  anything that behaves oddly on your phone — tell me and I'll fix it before the
+  broadcast goes out. If it all reads right, that's an equally useful answer.
+</div>
+
+<div class="closer">
+  Wanstead Fellas · September 2026 · pabarham@gmail.com
+</div>
+
+</body>
+</html>
