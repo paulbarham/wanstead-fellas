@@ -8,6 +8,7 @@ import AdminTeamBuilder from '../components/AdminTeamBuilder'
 import CeefaxHeader from '../components/CeefaxHeader'
 import FormationPicker from '../components/FormationPicker'
 import DropoutButton from '../components/DropoutButton'
+import BestDuoCaption from '../components/BestDuoCaption'
 import { stripFC } from '../lib/format'
 
 interface TeamWithPlayers extends Team {
@@ -231,6 +232,9 @@ export default function TeamsPage() {
                     )
                   })}
                 </div>
+
+                {/* Best duo caption — self-hides when no pair meets the min */}
+                <BestDuoCaption playerIds={sortedPlayers.map(p => p.id)} />
               </div>
               {(isMyTeam || adminPreviewMode) && (
                 <FormationPicker

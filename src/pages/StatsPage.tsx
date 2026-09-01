@@ -197,7 +197,7 @@ function SectionHeader({ label }: { label: string }) {
 }
 
 function HeroCard({ tier, label, icon, player, value, unit }: {
-  tier: 'gold' | 'silver' | 'bronze' | 'green'
+  tier: 'gold' | 'silver' | 'bronze' | 'green' | 'purple'
   label: string
   icon: string
   player: string
@@ -207,6 +207,7 @@ function HeroCard({ tier, label, icon, player, value, unit }: {
   const accent = tier === 'gold' ? 'var(--tt-yellow)'
     : tier === 'silver' ? 'var(--tt-cyan)'
     : tier === 'bronze' ? 'var(--tt-magenta)'
+    : tier === 'purple' ? '#B980FF'
     : 'var(--tt-green)'
   const bgGrad = tier === 'gold'
     ? 'linear-gradient(160deg, rgba(255,212,0,0.08), var(--color-surface) 70%)'
@@ -214,7 +215,9 @@ function HeroCard({ tier, label, icon, player, value, unit }: {
       ? 'linear-gradient(160deg, rgba(74,217,255,0.07), var(--color-surface) 70%)'
       : tier === 'bronze'
         ? 'linear-gradient(160deg, rgba(255,102,204,0.06), var(--color-surface) 70%)'
-        : 'linear-gradient(160deg, rgba(74,220,122,0.08), var(--color-surface) 70%)'
+        : tier === 'purple'
+          ? 'linear-gradient(160deg, rgba(185,128,255,0.08), var(--color-surface) 70%)'
+          : 'linear-gradient(160deg, rgba(74,220,122,0.08), var(--color-surface) 70%)'
   return (
     <div
       className="flex-shrink-0 rounded-2xl px-3 py-2.5"
@@ -364,6 +367,30 @@ export default function StatsPage() {
   // (incentive to pick one).
   const [posFilter, setPosFilter] = useState<PosFilter>('all')
   const [finesType, setFinesType] = useState<FineType | 'all'>('all')
+
+  // Duo of the Month — 5th hero card. Backed by duo_of_the_month RPC (mig 085).
+  const [duoOfMonth, setDuoOfMonth] = useState<{
+    player_a_id: string
+    player_b_id: string
+    matches: number
+    fixtures: number
+    wins: number
+    win_rate: number | null
+  } | null>(null)
+
+  useEffect(() => {
+    ;(async () => {
+      const monthStart = new Date()
+      monthStart.setDate(1)
+      const iso = monthStart.toISOString().slice(0, 10)
+      const { data } = await supabase.rpc('duo_of_the_month', { p_month_start: iso })
+      const row = ((data ?? []) as Array<{
+        player_a_id: string; player_b_id: string
+        matches: number; fixtures: number; wins: number; win_rate: number | null
+      }>)[0] ?? null
+      setDuoOfMonth(row)
+    })()
+  }, [])
 
   useEffect(() => {
     async function load() {
@@ -812,6 +839,17 @@ export default function StatsPage() {
             player={`${heroGk.profile.name} ${heroGk.profile.surname}`}
             value={String(heroGk.cs)}
             unit={heroGk.cs === 1 ? 'clean sheet' : 'clean sheets'}
+          />
+        )}
+        {/* Duo of the Month — self-hides when no pair meets the min-3-fixtures floor for the current month */}
+        {duoOfMonth && profiles[duoOfMonth.player_a_id] && profiles[duoOfMonth.player_b_id] && (
+          <HeroCard
+            tier="purple"
+            label="Duo of the Month"
+            icon="🤝"
+            player={`${profiles[duoOfMonth.player_a_id].name.split(' ')[0]} + ${profiles[duoOfMonth.player_b_id].name.split(' ')[0]}`}
+            value={`${Math.round((duoOfMonth.win_rate ?? 0) * 100)}%`}
+            unit={`win rate · ${duoOfMonth.matches}g`}
           />
         )}
       </div>
