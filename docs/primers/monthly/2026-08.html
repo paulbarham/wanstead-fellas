@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wanstead Fellas — August 2026 Monthly Report</title>
+<style>
+  @page {
+    size: A4;
+    margin: 10mm 10mm;
+    background: #0F1710;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0F1710;
+    color: #E8F0E9;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 10pt;
+    line-height: 1.4;
+  }
+
+  /* ── Print pagination ───────────────────────────────────────
+     Keep each whole section together so page breaks fall cleanly
+     between sections — never mid-card, never a stranded heading.
+     (A section too tall to fit still breaks; avoid is a preference.) */
+  .section-label { break-after: avoid; page-break-after: avoid; }
+  .section, .masthead, .two-col, .stat-card, .honour-card, .shame-card,
+  .boot, .scorers, .fines, .iron-block {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .section + .section { margin-top: 2pt; }
+
+  /* ── Masthead ─────────────────────────────────────────────── */
+  .masthead {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    padding: 10pt 14pt 12pt;
+    border-radius: 10pt;
+    position: relative;
+    border-bottom: 3pt solid #FFD400;
+  }
+  .masthead .top {
+    display: table; width: 100%; margin-bottom: 4pt;
+  }
+  .masthead .brand {
+    display: table-cell; vertical-align: middle;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt; letter-spacing: 0.2em;
+    color: #FFFFFF; text-transform: uppercase;
+  }
+  .masthead .brand .wf {
+    display: inline-block;
+    width: 15pt; height: 15pt;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 2pt;
+    text-align: center; line-height: 15pt;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 8pt; font-weight: 900;
+    letter-spacing: 0;
+    margin-right: 6pt;
+    vertical-align: middle;
+  }
+  .masthead .handle {
+    display: table-cell; vertical-align: middle;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt; letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.6);
+  }
+  .masthead .title-row {
+    display: table; width: 100%;
+  }
+  .masthead h1 {
+    display: table-cell; vertical-align: middle;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 34pt;
+    color: #FFFFFF; margin: 0;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+  .masthead .badge {
+    display: table-cell; vertical-align: middle;
+    text-align: right;
+  }
+  .masthead .badge span {
+    display: inline-block;
+    background: #FFD400; color: #0F1710;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 8pt; letter-spacing: 0.16em;
+    padding: 4pt 10pt; border-radius: 6pt;
+    text-transform: uppercase;
+  }
+
+  /* ── Headline stat strip ─────────────────────────────────── */
+  .headline {
+    display: table;
+    width: 100%;
+    margin-top: 10pt;
+    background: transparent;
+    border-bottom: 1px solid rgba(255,212,0,0.3);
+    padding-bottom: 6pt;
+  }
+  .headline .cell {
+    display: table-cell;
+    text-align: center;
+    padding: 4pt 0;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    vertical-align: middle;
+  }
+  .headline .cell:last-child { border-right: none; }
+  .headline .n {
+    display: block;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 30pt;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+  .headline .u {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.2em;
+    color: rgba(255,212,0,0.7);
+    margin-top: 3pt;
+    text-transform: uppercase;
+  }
+
+  /* ── Section headings ─────────────────────────────────────── */
+  .section-label {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.2em;
+    color: #FFD400;
+    text-transform: uppercase;
+    margin: 10pt 0 5pt;
+    padding-left: 2pt;
+  }
+  .section-label::before {
+    content: "— ";
+    color: #FFD400;
+  }
+
+  /* ── Two-column row ──────────────────────────────────────── */
+  .two-col {
+    display: table;
+    width: 100%;
+    border-spacing: 6pt 0;
+    table-layout: fixed;
+  }
+  .two-col > div {
+    display: table-cell;
+    vertical-align: top;
+  }
+
+  /* ── Attack: Golden Boot card ────────────────────────────── */
+  .boot {
+    background: linear-gradient(160deg, #FFD400 0%, #D4A800 100%);
+    color: #1A1400;
+    padding: 12pt 14pt;
+    border-radius: 8pt;
+    height: 100%;
+    display: table;
+    width: 100%;
+  }
+  .boot .inner {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  .boot .label {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.18em;
+    color: rgba(26,20,0,0.7);
+    text-transform: uppercase;
+    margin-bottom: 4pt;
+  }
+  .boot .name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 22pt;
+    color: #1A1400;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+  .boot .count {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right;
+    padding-left: 8pt;
+    width: 30%;
+  }
+  .boot .count .n {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 40pt;
+    color: #1A1400;
+    line-height: 1;
+  }
+  .boot .count .u {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.16em;
+    color: rgba(26,20,0,0.7);
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  /* Scorers list */
+  .scorers {
+    background: #15211A;
+    border-radius: 8pt;
+    padding: 5pt 10pt;
+    height: 100%;
+  }
+  .scorer-row {
+    display: table;
+    width: 100%;
+    padding: 3pt 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .scorer-row:last-child { border-bottom: none; }
+  .scorer-row .rank {
+    display: table-cell;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    color: #9CA897;
+    letter-spacing: 0.05em;
+    width: 24pt;
+  }
+  .scorer-row .name {
+    display: table-cell;
+    font-size: 10pt;
+    color: #E8F0E9;
+  }
+  .scorer-row .goals {
+    display: table-cell;
+    text-align: right;
+    font-family: 'Arial Black', sans-serif;
+    color: #FFD400;
+    font-size: 11pt;
+    width: 30pt;
+  }
+
+  /* ── Honour cards (MOTM / winning team) ─────────────────── */
+  .honour-card {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 10pt;
+  }
+  .honour-label {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt;
+    color: #FFD400;
+    letter-spacing: 0.06em;
+    margin: 0 0 3pt;
+  }
+  .honour-sub {
+    font-size: 8pt;
+    color: #9CA897;
+    margin: 0 0 6pt;
+    letter-spacing: 0.02em;
+  }
+  .honour-grid {
+    display: block;
+    width: 100%;
+    margin-top: 2pt;
+  }
+  .honour-name {
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    box-sizing: border-box;
+    font-size: 9pt;
+    color: #E8F0E9;
+    font-weight: 500;
+    padding: 2pt 4pt;
+  }
+  .empty { font-size: 9pt; color: #647060; font-style: italic; }
+
+  /* ── Stat cards (Wall / Engine) ─────────────────────────── */
+  .stat-card {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 9pt 11pt;
+  }
+  .stat-card.muted { opacity: 0.6; }
+  .stat-label {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.16em;
+    color: #FFD400;
+    text-transform: uppercase;
+    margin-bottom: 3pt;
+  }
+  .stat-name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 16pt;
+    color: #FFFFFF;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+  .stat-sub {
+    font-size: 7.5pt;
+    color: #9CA897;
+    letter-spacing: 0.03em;
+    margin: 3pt 0 6pt;
+    text-transform: none;
+  }
+  .stat-values {
+    display: table; width: 100%; margin-top: 4pt;
+  }
+  .stat-values .v {
+    display: table-cell;
+    text-align: right;
+    padding-right: 4pt;
+  }
+  .stat-values .v:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.06); padding-right: 8pt; }
+  .stat-values .v + .v { padding-left: 8pt; }
+  .stat-values .val {
+    display: block;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 15pt;
+    color: #FFD400;
+    line-height: 1;
+  }
+  .stat-values .unit {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.14em;
+    color: #9CA897;
+    text-align: right;
+    margin-top: 2pt;
+    text-transform: uppercase;
+  }
+
+  /* ── Iron Men pills ─────────────────────────────────────── */
+  .iron-block {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 8pt 10pt;
+  }
+  .pill-row {
+    display: block;
+  }
+  .pill {
+    display: inline-block;
+    background: rgba(74,220,122,0.10);
+    border: 1px solid #2D4A2F;
+    color: #E8F0E9;
+    font-size: 8.5pt;
+    padding: 3pt 8pt;
+    border-radius: 12pt;
+    margin: 2pt 3pt 2pt 0;
+    font-weight: 500;
+  }
+
+  /* ── Shame files ─────────────────────────────────────────── */
+  .shame-card {
+    background: #15211A;
+    border: 1px solid #7A3A3A;
+    border-radius: 8pt;
+    padding: 9pt 11pt;
+    display: table;
+    width: 100%;
+  }
+  .shame-card.muted { opacity: 0.6; border-color: #2D4A2F; }
+  .shame-card .textcol {
+    display: table-cell; vertical-align: middle;
+  }
+  .shame-label {
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.16em;
+    color: #F59E0B;
+    text-transform: uppercase;
+    margin-bottom: 3pt;
+  }
+  .shame-name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 18pt;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+  .shame-count {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+    width: 30%;
+  }
+  .shame-count .n {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 24pt;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+  .shame-count .u {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.16em;
+    color: #9CA897;
+    text-align: right;
+    margin-top: 2pt;
+    text-transform: uppercase;
+  }
+  .shame-sub {
+    font-size: 8pt; color: #647060; font-style: italic;
+  }
+
+  .fines {
+    background: #15211A;
+    border: 1px solid #2D4A2F;
+    border-radius: 8pt;
+    padding: 7pt 10pt;
+  }
+  .fines-head {
+    display: table; width: 100%; margin-bottom: 4pt;
+  }
+  .fines-head .label {
+    display: table-cell;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt;
+    color: #FFD400;
+    letter-spacing: 0.06em;
+  }
+  .fines-head .totals {
+    display: table-cell; text-align: right;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 12pt;
+    color: #FFD400;
+  }
+  .fines-head .totals .out {
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    color: rgba(255,212,0,0.7);
+    letter-spacing: 0.1em;
+    margin-left: 3pt;
+    text-transform: uppercase;
+  }
+  .fine-row {
+    display: table; width: 100%;
+    padding: 3pt 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .fine-row:last-child { border-bottom: none; }
+  .fine-row .ft {
+    display: table-cell;
+    font-size: 9pt;
+    color: #FFD400;
+    width: 30%;
+  }
+  .fine-row .fp {
+    display: table-cell;
+    font-size: 8.5pt;
+    color: #E8F0E9;
+  }
+  .fine-row .fa {
+    display: table-cell;
+    text-align: right;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10pt;
+    color: #FFD400;
+    width: 15%;
+  }
+  .fine-row.spotless .fp { color: #4ADC7A; font-style: italic; }
+  .fine-row.spotless .fa { color: #4ADC7A; }
+
+  .footer {
+    background: linear-gradient(180deg, #0D6B52 0%, #095440 100%);
+    color: #FFFFFF;
+    padding: 6pt 10pt;
+    text-align: center;
+    border-radius: 6pt;
+    margin-top: 8pt;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.12em;
+  }
+  .footer strong { color: #FFD400; font-weight: 700; }
+  .footer .tag { display: block; margin-top: 2pt; color: rgba(255,255,255,0.7); font-size: 7pt; }
+
+  /* ── Goals-by-position bar ──────────────────────────────── */
+  .posbar {
+    display: block;
+    width: 100%;
+    height: 12pt;
+    border-radius: 6pt;
+    overflow: hidden;
+    margin: 6pt 0 5pt;
+    background: rgba(255,255,255,0.05);
+    font-size: 0;
+  }
+  .posbar .seg { display: inline-block; height: 12pt; }
+  .poslegend { display: block; }
+  .poslegend .lg {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.1em;
+    color: #9CA897;
+    margin: 0 8pt 0 0;
+    text-transform: uppercase;
+  }
+  .poslegend .dot {
+    display: inline-block;
+    width: 6pt; height: 6pt;
+    border-radius: 50%;
+    margin-right: 3pt;
+    vertical-align: middle;
+  }
+  .stat-row { margin-top: 6pt; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="top">
+    <div class="brand">
+      <span class="wf">WF</span> WANSTEAD FELLAS
+    </div>
+    <div class="handle">@wanstead_football_fellas</div>
+  </div>
+  <div class="title-row">
+    <h1>AUGUST 2026</h1>
+    <div class="badge"><span>Monthly Report</span></div>
+  </div>
+  <div class="headline">
+    <div class="cell"><span class="n">4</span><span class="u">Nights</span></div>
+    <div class="cell"><span class="n">4</span><span class="u">Games</span></div>
+    <div class="cell"><span class="n">26</span><span class="u">Goals</span></div>
+    <div class="cell"><span class="n">33</span><span class="u">Fellas</span></div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Attack · Goals</div>
+  <div class="two-col">
+    <div>
+      
+      <div class="boot">
+        <div class="inner">
+          <div class="label">Golden Boot · 1.5 / game</div>
+          <div class="name">SHERIDAN WINTER</div>
+        </div>
+        <div class="count">
+          <span class="n">6</span>
+          <span class="u">Goals</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="scorers">
+    <div class="scorer-row">
+      <span class="rank">02</span>
+      <span class="name">Noah Higgins</span>
+      <span class="goals">3</span>
+    </div>
+    <div class="scorer-row">
+      <span class="rank">03</span>
+      <span class="name">Tom Broughton</span>
+      <span class="goals">3</span>
+    </div>
+    <div class="scorer-row">
+      <span class="rank">04</span>
+      <span class="name">Beau Samuels</span>
+      <span class="goals">2</span>
+    </div>
+    <div class="scorer-row">
+      <span class="rank">05</span>
+      <span class="name">Fraser Day</span>
+      <span class="goals">2</span>
+    </div>
+    <div class="scorer-row">
+      <span class="rank">06</span>
+      <span class="name">Marshall Winter</span>
+      <span class="goals">2</span>
+    </div></div>
+    </div>
+  </div>
+  <div class="two-col stat-row">
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">🎯 BEST HAUL</div>
+      <div class="stat-name">SHERIDAN WINTER</div>
+      <div class="stat-sub">No hat-tricks this month</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">2</span><span class="unit">IN ONE NIGHT</span></div>
+      </div>
+    </div></div>
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">📍 GOALS BY POSITION</div>
+      <div class="posbar"><span class="seg" style="width:52.2%;background:#E8578A"></span><span class="seg" style="width:34.8%;background:#FFD400"></span><span class="seg" style="width:13.0%;background:#4FC3E8"></span></div>
+      <div class="poslegend"><span class="lg"><span class="dot" style="background:#E8578A"></span>ATT 52%</span><span class="lg"><span class="dot" style="background:#FFD400"></span>MID 35%</span><span class="lg"><span class="dot" style="background:#4FC3E8"></span>DEF 13%</span></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Form · Results</div>
+  <div class="two-col">
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">📈 WIN-RATE KING</div>
+      <div class="stat-name">CALLUM FINCH</div>
+      <div class="stat-sub">Most nights on the winning team, rate-adjusted</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">100%</span><span class="unit">WIN RATE</span></div>
+        <div class="v"><span class="val">4/4</span><span class="unit">W / PLAYED</span></div>
+      </div>
+    </div></div>
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">💥 BIGGEST WIN</div>
+      <div class="stat-name">6–2</div>
+      <div class="stat-sub">Non-Bibs FC over Bibs FC · 27 Aug</div>
+    </div></div>
+  </div>
+  <div class="two-col stat-row">
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">🔥 HIGHEST-SCORING GAME</div>
+      <div class="stat-name">3–6</div>
+      <div class="stat-sub">Aaron Franklin XI v Sheridan Winter XI · 20 Aug · 9 goals</div>
+    </div></div>
+    <div>
+    <div class="stat-card muted">
+      <div class="stat-label">🥅 SHOOTOUTS</div>
+      <div class="stat-sub">No shootouts this month</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Honours</div>
+  <div class="two-col">
+    <div class="honour-card">
+      <div class="honour-label">🏆 MAN OF THE MATCH</div>
+      <p class="honour-sub">Undisputed</p>
+       <div class="honour-grid"><div class="honour-name">Sheridan Winter</div></div>
+    </div>
+    <div class="honour-card">
+      <div class="honour-label">🥇 WINNING TEAM</div>
+      <p class="honour-sub">two fellas tied on 4 wins</p>
+       <div class="honour-grid"><div class="honour-name">Callum Finch</div><div class="honour-name">Sheridan Winter</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Defence · Distance</div>
+  <div class="two-col">
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">🧱 THE WALL</div>
+      <div class="stat-name">CALLUM FINCH</div>
+      <div class="stat-sub">Meanest defence in August</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">2.00</span><span class="unit">AVG GA</span></div>
+        <div class="v"><span class="val">0</span><span class="unit">CLEAN SHEETS</span></div>
+      </div>
+    </div></div>
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">🕳️ THE SIEVE</div>
+      <div class="stat-name">FATHER EMMANUEL</div>
+      <div class="stat-sub">Leakiest defence in August</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">4.50</span><span class="unit">AVG GA</span></div>
+        <div class="v"><span class="val">2</span><span class="unit">NIGHTS</span></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="two-col stat-row">
+    <div>
+    <div class="stat-card">
+      <div class="stat-label">🏃 THE ENGINE</div>
+      <div class="stat-name">PAUL BARHAM</div>
+      <div class="stat-sub">Most ground covered</div>
+      <div class="stat-values">
+        <div class="v"><span class="val">6.99</span><span class="unit">TOTAL KM</span></div>
+        <div class="v"><span class="val">6.99</span><span class="unit">KM / GAME</span></div>
+      </div>
+    </div></div>
+    <div>
+    <div class="stat-card muted">
+      <div class="stat-label">⚡ FASTEST</div>
+      <div class="stat-sub">No sprint speeds logged this month</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">Iron Men · Played all 4</div>
+  <div class="iron-block"><div class="pill-row"><span class="pill">Callum Finch</span><span class="pill">Marshall Winter</span><span class="pill">Noah Higgins</span><span class="pill">Ollie Cotton</span><span class="pill">Paul Finch</span><span class="pill">Sheridan Winter</span></div></div>
+</div>
+
+<div class="section keep">
+  <div class="section-label">The Shame Files</div>
+  <div class="two-col">
+    <div>
+    <div class="shame-card">
+      <div class="shame-label">😐 DICK OF THE DAY</div>
+      <div class="shame-name">FATHER EMMANUEL</div>
+      <div class="shame-count"><span class="n">1</span><span class="u">NOM</span></div>
+    </div></div>
+    <div>
+    <div class="shame-card">
+      <div class="textcol">
+        <div class="shame-label">🙈 OWN GOALS</div>
+        <div class="shame-name">PAUL FINCH</div>
+      </div>
+      <div class="shame-count"><span class="n">1</span><span class="u">OG</span></div>
+    </div></div>
+  </div>
+  <div class="stat-row">
+    <div class="fines">
+      <div class="fines-head">
+        <span class="label">💷 FINES POT</span>
+        <span class="totals">£2<span class="out"> · £2 paid</span></span>
+      </div>
+      
+    <div class="fine-row spotless">
+      <span class="ft">⚽ Lost ball</span>
+      <span class="fp">Nobody · spotless this month</span>
+      <span class="fa">£0</span>
+    </div>
+    <div class="fine-row spotless">
+      <span class="ft">📕 Dropout</span>
+      <span class="fp">Nobody · spotless this month</span>
+      <span class="fa">£0</span>
+    </div>
+    <div class="fine-row ">
+      <span class="ft">⏰ Late</span>
+      <span class="fp">Father Emmanuel</span>
+      <span class="fa">£2</span>
+    </div>
+    <div class="fine-row spotless">
+      <span class="ft">😐 Cuntiness</span>
+      <span class="fp">Nobody · spotless this month</span>
+      <span class="fa">£0</span>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Full live tables in the app · <strong>Stats tab</strong>
+  <span class="tag">@wanstead_football_fellas · Thursdays under the lights</span>
+</div>
+
+</body>
+</html>
