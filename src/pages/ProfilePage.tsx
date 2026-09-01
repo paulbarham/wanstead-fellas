@@ -450,6 +450,35 @@ export default function ProfilePage() {
           Self-hides when the player hasn't played enough games. */}
       <DuosAndRivalsCard playerId={profile.id} />
 
+      {/* Monthly review deep-link — always visible so past months are reachable */}
+      <button
+        onClick={() => {
+          const now = new Date()
+          // Deep-link to the most recent complete month by default.
+          // Rolls over automatically on the 1st of the next month.
+          const priorMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1
+          const priorYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear()
+          const slug = `${priorYear}-${String(priorMonth + 1).padStart(2, '0')}`
+          navigate(`/profile/monthly/${slug}`)
+        }}
+        className="w-full mb-6 flex items-center justify-between gap-3 rounded-2xl px-4 py-3"
+        style={{
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+          backgroundClip: 'padding-box',
+        }}>
+        <div className="text-left min-w-0">
+          <p className="text-[10px] uppercase tracking-widest font-semibold"
+            style={{ color: 'var(--tt-cyan, var(--color-primary))' }}>
+            📊 Your monthly review
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+            Apps · goals · MOTM wins · favourite teammate
+          </p>
+        </div>
+        <span className="text-lg" style={{ color: 'var(--color-text-muted)' }}>→</span>
+      </button>
+
       {/* Edit form */}
       <form onSubmit={handleSave} className="space-y-4 mb-8">
 

@@ -1,5 +1,5 @@
 // Bump cache version when the shell needs a hard refresh across the group.
-// Bumped to v52 — Rivalry cards v1.5: Stats Duo-of-the-Month + team-publish Best Duo caption (1 Sep 2026).
+// Bumped to v53 — Monthly personal review page + Profile deep-link (1 Sep 2026).
 //
 // NOTE: install no longer calls skipWaiting(). That was swapping the worker
 // out from under a running page, which meant a new build activated silently
@@ -11,7 +11,7 @@
 // Admin (top of Admin page) can post a "what's new" push — title, body,
 // deep link — scheduled for the next 9am UK. 15-min pg_cron fires them,
 // send-feature-announcement edge fn fans out to every push_subscription.
-const CACHE = 'wf-v52'
+const CACHE = 'wf-v53'
 const SHELL = ['/']
 
 self.addEventListener('install', event => {

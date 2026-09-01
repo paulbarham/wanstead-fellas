@@ -16,6 +16,7 @@ import StatsPage from './pages/StatsPage'
 import MorePage from './pages/MorePage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
+import ProfileMonthlyPage from './pages/ProfileMonthlyPage'
 
 // Cup (tournament-only) and Pods are heavy and rarely visited — load them on
 // demand so they don't bloat the main bundle for the weekly sign-up flow.
@@ -84,6 +85,7 @@ function ProtectedRoutes() {
           <Route path="help/:slug" element={<HelpPage />} />
           <Route path="admin" element={<AdminPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="profile/monthly/:month" element={<ProfileMonthlyPage />} />
         </Route>
       </Routes>
     </Suspense>
