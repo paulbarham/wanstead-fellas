@@ -9,6 +9,7 @@ import CeefaxHeader from '../components/CeefaxHeader'
 import MatchResultView, {
   type FixtureScorer, type FixtureWithTeams,
 } from '../components/MatchResultView'
+import MatchLineups, { type TeamLineup } from '../components/MatchLineups'
 import { stripFC } from '../lib/format'
 
 interface MatchRecord {
@@ -18,6 +19,7 @@ interface MatchRecord {
   fixtures: FixtureWithTeams[]
   scorersByFixture: Record<string, FixtureScorer[]>
   awards: AwardResult[]
+  lineups: TeamLineup[]
 }
 
 const AWARD_META: Record<AwardType, { label: string; icon: string }> = {
@@ -90,6 +92,44 @@ export default function HistoryPage() {
           .in('match_id', matchIds),
       ])
 
+      // Historical lineups — one fetch batch for all matches. Eager-loaded so
+      // expanding a match card is instant (no per-tap N+1 query).
+      const teamIds = ((teams as Team[]) ?? []).map(t => t.id)
+      const [{ data: tpRows }, { data: formRows }] = await Promise.all([
+        teamIds.length > 0
+          ? supabase.from('team_players').select('team_id, player_id').in('team_id', teamIds)
+          : Promise.resolve({ data: [] as { team_id: string; player_id: string }[] }),
+        teamIds.length > 0
+          ? supabase.from('team_formations').select('team_id, shape').in('team_id', teamIds)
+          : Promise.resolve({ data: [] as { team_id: string; shape: string }[] }),
+      ])
+      const playerIds = [...new Set((tpRows ?? []).map(r => r.player_id))]
+      const [{ data: playerProfs }, { data: histRows }] = await Promise.all([
+        playerIds.length > 0
+          ? supabase.from('profiles').select('id, name, surname').in('id', playerIds)
+          : Promise.resolve({ data: [] as { id: string; name: string; surname: string | null }[] }),
+        playerIds.length > 0
+          ? supabase.from('v_player_match_history').select('player_id, first_match_date').in('player_id', playerIds)
+          : Promise.resolve({ data: [] as { player_id: string; first_match_date: string | null }[] }),
+      ])
+      const playerNames: Record<string, { name: string; surname: string | null }> = {}
+      for (const p of (playerProfs ?? []) as { id: string; name: string; surname: string | null }[]) {
+        playerNames[p.id] = { name: p.name, surname: p.surname }
+      }
+      // A player is a debutant for match X if their first_match_date equals X's date.
+      const firstMatchByPlayer: Record<string, string | null> = {}
+      for (const h of (histRows ?? []) as { player_id: string; first_match_date: string | null }[]) {
+        firstMatchByPlayer[h.player_id] = h.first_match_date
+      }
+      const playersByTeam: Record<string, string[]> = {}
+      for (const tp of (tpRows ?? []) as { team_id: string; player_id: string }[]) {
+        (playersByTeam[tp.team_id] ??= []).push(tp.player_id)
+      }
+      const shapeByTeam: Record<string, string> = {}
+      for (const f of (formRows ?? []) as { team_id: string; shape: string }[]) {
+        shapeByTeam[f.team_id] = f.shape
+      }
+
       const awardList = (awards as AwardResult[]) || []
       const awardPlayerIds = [...new Set(awardList.map(a => a.player_id))]
       if (awardPlayerIds.length > 0) {
@@ -138,7 +178,26 @@ export default function HistoryPage() {
         const matchResult = (results as Result[] || []).find(r => r.match_id === m.id) ?? null
         const matchAwards = awardList.filter(a => a.match_id === m.id)
         const scorersByFixture = goalsByMatch[m.id] ?? {}
-        return { match: m, result: matchResult, teams: matchTeams, fixtures: matchFixtures, scorersByFixture, awards: matchAwards }
+        // Per-team lineups. Roster sorted alphabetically to match TeamsPage.
+        const lineups: TeamLineup[] = matchTeams.map(team => {
+          const ids = playersByTeam[team.id] ?? []
+          const players = ids
+            .map(pid => ({
+              id: pid,
+              name: playerNames[pid]?.name ?? 'Unknown',
+              surname: playerNames[pid]?.surname ?? null,
+              isCaptain: pid === team.captain_id,
+              isDebut: firstMatchByPlayer[pid] === m.match_date,
+            }))
+            .sort((a, b) =>
+              `${a.name} ${a.surname ?? ''}`.localeCompare(
+                `${b.name} ${b.surname ?? ''}`,
+                undefined, { sensitivity: 'base' }
+              )
+            )
+          return { team, players, shape: shapeByTeam[team.id] ?? null }
+        })
+        return { match: m, result: matchResult, teams: matchTeams, fixtures: matchFixtures, scorersByFixture, awards: matchAwards, lineups }
       })
 
       setRecords(enrichedRecords)
@@ -166,7 +225,7 @@ export default function HistoryPage() {
         </div>
       ) : (
         <div className="space-y-5">
-          {records.map(({ match, result, teams, fixtures, scorersByFixture, awards }, recordIdx) => {
+          {records.map(({ match, result, teams, fixtures, scorersByFixture, awards, lineups }, recordIdx) => {
             const isExpanded = expanded === match.id
             const dateLabel = format(new Date(match.match_date + 'T12:00:00'), 'do MMM yyyy').toUpperCase()
             const weekNum = records.length - recordIdx
@@ -230,6 +289,9 @@ export default function HistoryPage() {
                         fixtures={fixtures}
                         scorersByFixture={scorersByFixture}
                       />
+
+                      {/* Historical lineups — collapsed by default */}
+                      <MatchLineups lineups={lineups} />
 
                       {awards.length > 0 && (
                         <div className="rounded-2xl px-5 py-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
