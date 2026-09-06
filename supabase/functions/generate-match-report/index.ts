@@ -81,7 +81,7 @@ const REPORT_SCHEMA = {
     },
     banter: {
       type: 'array', items: SECTION_ITEM, minItems: 2, maxItems: 6,
-      description: 'Funny moments, side-stories, in-jokes.',
+      description: 'Funny moments, side-stories, in-jokes. The ONLY place an award may appear, and only when the award is itself the joke — see the awards rule in the system prompt.',
     },
     app_watch: {
       type: 'array', items: SECTION_ITEM, minItems: 1, maxItems: 6,
@@ -124,7 +124,21 @@ Names must be spelled exactly as the hooks spell them.
 
 Match the EXAMPLE REPORTS. They are the house style and the length target: direct, dry, present-tense punch, no hype, no purple prose, no motivational filler. Occasional profanity is in-register when quoting. Emoji only as a leading glyph on a label, never mid-sentence.
 
-Do not congratulate the group. Do not summarise what the app does. Do not repeat the MOTM/DOTD winners as highlights — they render separately from the ballot, and doubling up reads as self-congratulatory. You may reference the award result once, in passing, in the summary or conclusion.`
+Do not congratulate the group. Do not summarise what the app does.
+
+## MOTM and DOTD — punchline, never announcement
+
+The awards get no section of their own, and you never list the winners. They render separately from the ballot on the Match and History tabs, and a signpost line is appended to the closer automatically after you have finished — so a recap from you is the third telling of the same fact, and reads as self-congratulatory. Do not put them in \`key_highlights\`. Do not announce them in \`summary\`, \`conclusion\` or \`closer\`.
+
+The one exception: \`banter\` MAY use an award when there is a genuine joke in it. The award is the punchline, never the announcement. Cases that earn it:
+
+- a player taking DOTD the same night he scored a hat-trick
+- a captain winning MOTM in the team that finished bottom
+- a keeper collecting DOTD for the howler that decided the night
+
+The test: would the item still be funny with the award removed? If yes, the award was decoration — cut it. If the award is the turn the joke rests on, keep it.
+
+No joke in it, leave it out. An award mentioned for completeness is exactly the announcement this rule exists to prevent — and on a night where the awards went to the obvious people for the obvious reasons, the correct number of award mentions is zero.`
 
 interface Hook { family: string; priority: number; headline: string; facts: any }
 
@@ -450,7 +464,7 @@ Write this week's report as a single structured object. Every pitch fact traces 
 
 /**
  * Admin-only push. Deliberately NOT the group: the draft is unreviewed, and
- * the group push is fired by the publish flip in mig 090.
+ * the group push is fired by dispatch_report_notifications (mig 093).
  *
  * Category is null (always-on) — this is an operational nudge to the one
  * person who has to act on it, not a broadcast anyone should be able to mute.

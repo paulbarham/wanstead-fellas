@@ -195,7 +195,9 @@ Delivery has exactly one owner. The old mig `077` trigger pair (`results_notify_
 
 The cron runs at :05, :15, :25 … — deliberately five minutes behind `compute-award-results` at `*/10` rather than on the same tick, so awards are already computed when it looks. Sharing a minute would leave the order of two independent jobs to chance.
 
-**What the awards fill-in does.** When the push goes out, the cron appends `📟 MOTM & DOTD winners are up on the Match tab.` to the report's `closer` (only if there are award rows, and only if the closer doesn't already mention MOTM — it never double-appends and never overwrites an existing closer). It does **not** copy winner names into the report body: `award_results` already renders on the Match and History tabs, and CLAUDE.md is explicit that re-packaging MOTM/DOTD inside the report reads as self-congratulatory.
+**What the awards fill-in does.** When the push goes out, the cron appends `📟 MOTM & DOTD winners are up on the Match tab.` to the report's `closer` (only if there are award rows, and only if the closer doesn't already mention MOTM — it never double-appends and never overwrites an existing closer). That signpost is the report's only *announcement* of the awards.
+
+Winners are never listed in the report body — `award_results` already renders on Match and History. The one exception, per the **MOTM & DOTD — punchline, never announcement** rule in CLAUDE.md (amended 6 Sep 2026): `banter` may use an award when the award *is* the joke — a DOTD on the same night as a hat-trick, an MOTM in the team that finished bottom. No joke in it, leave it out. The same distinction is carried verbatim in the `generate-match-report` system prompt so the automated draft and a hand-written one follow one rule.
 
 **Zero-turnout nights still notify.** The gate is `voting_windows.results_published`, not "`award_results` has rows" — `compute_award_results` sets the flag even when nobody voted, and gating on award rows would silently swallow the push for those nights.
 

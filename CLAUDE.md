@@ -220,8 +220,8 @@ When writing or editing a match report on the `results` row, **populate the stru
 |---|---|---|
 | `summary` | `text` | Tweet-length lede paragraph — the headline narrative of the night |
 | `predictions` | `jsonb` | `{ note, rows: [{position, predicted, actual}] }` — pre-match predicted finish vs actual final standings + 1-line commentary on accuracy |
-| `key_highlights` | `jsonb` | Array of `{player?, label?, note}` — standout players, collective shoutouts, team-by-team commentary. This is where individual heroics live. Do NOT re-package the MOTM / DOTD winners here — the ballot renders separately and doubling up feels self-congratulatory. |
-| `banter` | `jsonb` | Array of `{player?, label?, note}` — funny moments, side-stories, in-jokes |
+| `key_highlights` | `jsonb` | Array of `{player?, label?, note}` — standout players, collective shoutouts, team-by-team commentary. This is where individual heroics live. Do NOT re-package the MOTM / DOTD winners here — the ballot renders separately and doubling up feels self-congratulatory. See **MOTM & DOTD — punchline, never announcement** below. |
+| `banter` | `jsonb` | Array of `{player?, label?, note}` — funny moments, side-stories, in-jokes. The one place an award may appear, and only when the award *is* the joke — see **MOTM & DOTD — punchline, never announcement** below. |
 | `app_watch` | `jsonb` | Array of `{player?, label?, note}` — fines, admin reminders, app/feature updates |
 | `conclusion` | `text` | 2–4 short lines (separated with `\n`) — the closing punch |
 | `closer` | `text` or `null` | One-line sign-off (e.g. "Roll on next Thursday. 📟 Ratings update to follow.") |
@@ -233,7 +233,21 @@ When writing or editing a match report on the `results` row, **populate the stru
 
 **Cross-check rule.** Before writing, verify every named scorer against the `goals` table for the match. Flag any mismatch (player named in prose who didn't score; player who scored but isn't mentioned) — surface it to the admin rather than silently editing the prose.
 
-**Predictor Watch bullet — always cover last week AND this week.** The match report push fires Friday morning (max(voting_close, report_completion)), which is the same morning the MoW picker fires at 08:00 UTC. So by the time the report lands, both facts are available and both belong in the 🎯 Predictor watch entry in `app_watch`:
+**MOTM & DOTD — punchline, never announcement.** (Amended 6 Sep 2026; supersedes the flat "never mention the awards" reading.)
+
+The standing rule is unchanged: **the awards get no section of their own, and the winners are not listed in the report body.** They render on the Match and History tabs from `award_results`, and `dispatch_report_notifications` appends the signpost line to `closer` when the push goes out (`📟 MOTM & DOTD winners are up on the Match tab.`) — that line stays exactly as it is and is the report's only *announcement* of the awards. A ceremonial recap on top of all that reads as self-congratulatory.
+
+The amendment: **`banter` MAY use an award when there is a genuine joke in it.** The award is the punchline, never the announcement. Cases that earn it:
+
+- a player taking DOTD the same night he scored a hat-trick
+- a captain winning MOTM in the team that finished bottom
+- a keeper collecting DOTD for the howler that decided the night
+
+The test is whether the item is still funny with the award removed. If it is, the award was decoration — cut it. If the award *is* the turn, keep it. **No joke in it, leave it out** — an award mentioned for completeness is exactly the announcement this rule exists to prevent.
+
+Applies identically to a hand-written report and to the automated draft: the same distinction is carried in the `generate-match-report` system prompt, so both follow one rule. If you change it in one place, change it in the other.
+
+**Predictor Watch bullet — always cover last week AND this week.** The match report push is sent by `dispatch_report_notifications` (mig `093`) once the report is published *and* the awards are final — in practice Friday morning, the same morning the MoW picker fires at 08:00 UTC. So by the time the report lands, both facts are available and both belong in the 🎯 Predictor watch entry in `app_watch`:
 
 1. **Last weekend's MoW result** — final score, exact-score hits (if any), plus current season leaderboard top line.
 2. **This weekend's just-picked MoW fixture** — home v away, kick-off day + UK time. No score (game hasn't been played), with a nudge to get predictions in on the Match tab before kick-off.
