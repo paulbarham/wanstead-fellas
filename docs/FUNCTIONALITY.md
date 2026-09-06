@@ -111,9 +111,9 @@ Web Push via VAPID. `push_subscriptions` holds one row per **(player, browser)**
 |---|---|---|---|
 | 🟢 Teams are ready | `voting_windows` INSERT >15 min ahead | Rostered + admins | `match_night` |
 | 🏆 Vote for tonight's awards | `voting_windows` INSERT / `fanout-vote-open` cron | Rostered + admins | `results` |
-| 📝 Match report is live | `max(voting close, report **published**)` — mig `077` handshake, re-pointed at the publish flip by mig `090` | Club-wide | `results` |
+| 📝 Match report is live | `dispatch_report_notifications()` cron, when report published **and** awards final **and** `results.notified_at` is null — mig `093` | Club-wide | `results` |
 | 📝 Match report draft ready | `generate-match-report` writes a draft (Fri 10:05) | **Admins only** | **always-on** |
-| 📊 MOTM & DOTD published | Same handshake, when no report was written | Club-wide | `results` |
+| 📊 MOTM & DOTD published | Same cron; the edge fn picks this title when the row has no report body | Club-wide | `results` |
 | 🎯 Match of the Week | `mow_fixtures` INSERT | Club-wide | `games` |
 | 🎯 MoW Result | `mow_pool_fixtures` score UPDATE | Club-wide | `games` |
 | *(admin-authored)* | 15-min cron picks up a scheduled announcement | Club-wide | `club_news` |
@@ -180,6 +180,24 @@ Match reports are drafted automatically every Friday and published by hand.
 **10:05 UTC, not 09:55.** `pg_cron` runs in UTC. 10:05 UTC is after 10:00 London in *both* BST (11:05) and GMT (10:05); 09:55 UTC would land at 09:55 London through the winter — before the ballot closes — silently reintroducing the exact bug this exists to kill. The function re-checks `voting_windows.closes_at` itself and refuses to run early.
 
 **What the model may and may not invent.** Framing is free — any lens the week's news suggests. Pitch **events** are not: every factual claim must trace to a hook. Names, scorers, scorelines, keepers, quotes and incidents all come from `get_match_hooks`. The predicted-vs-actual table is computed in code from `matches.predicted_order` (written by AdminTeamBuilder at announcement time) and never authored by the model.
+
+**Publishing and notifying are separate (mig `093`).** These are three independent events and the system no longer couples them:
+
+| Event | When | Effect |
+|---|---|---|
+| Report published | whenever the admin taps Publish — including match night | Live on the Match tab immediately. No dependency on the ballot. |
+| Awards final | `compute_award_results` cron sets `voting_windows.results_published` | MOTM/DOTD available. |
+| Push sent | `dispatch_report_notifications()` cron, at :05 past every ten minutes | **Exactly one** club-wide push, only once both of the above are true. |
+
+`results.notified_at` records the send. It is the thing that makes delivery exactly-once — a republish, an edit, or a second pass over the same row cannot send again, because the stamp is already set. The cron claims a row with `update … where id = ? and notified_at is null` before sending, so two overlapping runs can't both deliver, and the stamp and the queued push commit in the same transaction.
+
+Delivery has exactly one owner. The old mig `077` trigger pair (`results_notify_report_live`, `voting_windows_notify_results`) no longer sends anything — both are no-ops and their triggers are dropped. (`voting_windows_notify_open`, the "vote now" push, is a different trigger and is untouched.)
+
+The cron runs at :05, :15, :25 … — deliberately five minutes behind `compute-award-results` at `*/10` rather than on the same tick, so awards are already computed when it looks. Sharing a minute would leave the order of two independent jobs to chance.
+
+**What the awards fill-in does.** When the push goes out, the cron appends `📟 MOTM & DOTD winners are up on the Match tab.` to the report's `closer` (only if there are award rows, and only if the closer doesn't already mention MOTM — it never double-appends and never overwrites an existing closer). It does **not** copy winner names into the report body: `award_results` already renders on the Match and History tabs, and CLAUDE.md is explicit that re-packaging MOTM/DOTD inside the report reads as self-congratulatory.
+
+**Zero-turnout nights still notify.** The gate is `voting_windows.results_published`, not "`award_results` has rows" — `compute_award_results` sets the flag even when nobody voted, and gating on award rows would silently swallow the push for those nights.
 
 **Checking it without writing.** `POST` to the function with `{"match_date":"YYYY-MM-DD","dry_run":true}` generates as normal and returns the finished JSON under `would_write`, touching nothing and pushing nobody. Dry runs deliberately skip the anti-clobber guards — the point is to aim one at a past night that already has a published report and compare. Few-shot examples are always drawn strictly *before* the target date, so a dry run never sees its own report.
 

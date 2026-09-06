@@ -231,6 +231,12 @@ export interface Result {
    * 'published' live to the group (mig 090). Publishing fires the group push.
    */
   status: 'draft' | 'published'
+  /**
+   * When the club-wide report push was sent (mig 093). NULL = not yet sent.
+   * Written only by dispatch_report_notifications(); its presence is what
+   * makes delivery exactly-once.
+   */
+  notified_at: string | null
   created_at: string
 }
 

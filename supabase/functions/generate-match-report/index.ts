@@ -7,8 +7,9 @@
 // on file and land in the report.
 //
 // Writes a DRAFT (results.status = 'draft'). Nothing reaches the group until
-// an admin reviews it on the Report Review screen and hits Publish — that
-// flip is what fires the group push (mig 090).
+// an admin reviews it on the Report Review screen and hits Publish. Publishing
+// makes it live immediately; the single group push is sent separately by
+// dispatch_report_notifications() once the awards are also final (mig 093).
 //
 // Inputs, in order of authority:
 //   1. get_match_hooks(date)  — the ranked, factual account of the night.

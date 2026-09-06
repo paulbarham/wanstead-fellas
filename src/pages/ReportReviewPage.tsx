@@ -2,8 +2,13 @@
 //
 // generate-match-report writes results.status = 'draft' at 10:05 and pushes
 // Paul (and only Paul). Nothing is visible to anyone else until Publish is
-// pressed here, which flips status to 'published' and lets the mig 090
-// trigger fire the group notification.
+// pressed here, which flips status to 'published'.
+//
+// Publishing and notifying are separate (mig 093). Publish makes the report
+// live on the Match tab immediately, whatever the ballot is doing; the single
+// group push is sent by dispatch_report_notifications() once the awards are
+// also final. So a report can be published on the night without either
+// jumping the ballot or losing its push.
 //
 // Mobile-first by necessity: this gets read on a phone, on a Friday morning,
 // probably one-handed. Section by section, everything editable in place, one
@@ -226,6 +231,10 @@ export default function ReportReviewPage() {
   const [notice, setNotice] = useState<string | null>(null)
   const [confirmPublish, setConfirmPublish] = useState(false)
   const [seededFor, setSeededFor] = useState<string | null>(null)
+  // match_id -> awards are final (voting closed and computed). Drives the
+  // publish copy: with awards in, the push follows within ten minutes; without
+  // them, publishing is live-now and the push holds automatically.
+  const [awardsFinalBy, setAwardsFinalBy] = useState<Record<string, boolean>>({})
 
   // No state is touched before the first await: `loading` already starts true,
   // and refetches after a save are fast enough not to need a spinner (the
@@ -242,6 +251,21 @@ export default function ReportReviewPage() {
       const rows = (data as unknown as DraftRow[]) ?? []
       setDrafts(rows)
       setActiveId(prev => prev && rows.some(r => r.id === prev) ? prev : (rows[0]?.id ?? null))
+
+      // voting_windows has no direct FK to results, so it can't be embedded in
+      // the query above — one extra round trip for the whole set.
+      const matchIds = rows.map(r => r.match_id)
+      if (matchIds.length > 0) {
+        const { data: vw } = await supabase
+          .from('voting_windows')
+          .select('match_id, results_published')
+          .in('match_id', matchIds)
+        const map: Record<string, boolean> = {}
+        for (const w of ((vw as Array<{ match_id: string; results_published: boolean }>) ?? [])) {
+          map[w.match_id] = w.results_published === true
+        }
+        setAwardsFinalBy(map)
+      }
     }
     setLoading(false)
   }, [])
@@ -249,6 +273,7 @@ export default function ReportReviewPage() {
   useEffect(() => { load() }, [load])
 
   const active = drafts.find(d => d.id === activeId) ?? null
+  const awardsFinal = active ? awardsFinalBy[active.match_id] === true : false
 
   // Seed the editor when the SELECTED DRAFT changes — during render, keyed on
   // the id, rather than in an effect keyed on the row object. An effect would
@@ -314,7 +339,9 @@ export default function ReportReviewPage() {
     setBusy(null)
     if (e) { setError(e.message); return }
     setConfirmPublish(false)
-    setNotice('Published. The group push is on its way.')
+    setNotice(awardsFinal
+      ? 'Published. The group push goes out within ten minutes.'
+      : 'Published and live on the Match tab. The group push waits until voting closes and the awards are in — it will go automatically, you do not need to come back.')
     load()
   }
 
@@ -472,7 +499,9 @@ export default function ReportReviewPage() {
             </button>
           </div>
           <p className="text-[12px] mt-2" style={{ color: 'var(--color-text-muted)' }}>
-            Publishing makes the report live on the Match tab and pushes the whole group.
+            {awardsFinal
+              ? 'Publishing makes the report live on the Match tab and pushes the whole group within ten minutes.'
+              : 'Voting is still open. Publishing makes the report live on the Match tab now; the group push holds until the awards are in, then goes automatically.'}
           </p>
         </>
       )}
