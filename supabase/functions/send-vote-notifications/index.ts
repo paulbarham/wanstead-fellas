@@ -6,10 +6,11 @@
 //     cast their MOTM/DOTD picks (voting_windows INSERT where opens_at is
 //     imminent OR the Stage 2 cron firing when opens_at is reached).
 //     Recipients: rostered players + admins. Category 'results'.
-//   * 'results'     — awards + match report have been published for the
-//     round. If a match report has been written (results.summary NOT NULL)
-//     the push is framed as "Match report is live". Otherwise falls back
-//     to the awards-only copy for backwards compat.
+//   * 'results'     — the night has resolved: awards are final, and a match
+//     report may or may not exist. Both copies lead with the awards, because
+//     since mig 093 the report may have been published well before this push
+//     fires. If a published report with a summary exists the copy also points
+//     at it; if none does, the awards-only copy stands alone.
 //     Recipients: EVERY active push subscription — the report is club-wide
 //     news, not just relevant to the players rostered that week.
 //   * 'dropout'     — a rostered player has used the self-service dropout
@@ -21,8 +22,9 @@
 //
 // Called by a Postgres trigger on voting_windows INSERT (for teams_ready
 // or vote_open, depending on timing), by the pg_cron scheduled job (for
-// vote_open at the right time), and by the compute_award_results flow
-// (for results).
+// vote_open at the right time), and by dispatch_report_notifications (mig
+// 093/094) for results — which owns delivery and exactly-once via
+// voting_windows.notified_at.
 //
 // Env: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT — set as project
 // secrets. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are auto-injected.
@@ -127,12 +129,17 @@ Deno.serve(async (req) => {
       ? new Date(matchDate + 'T12:00:00').toLocaleString('en-GB', { day: 'numeric', month: 'short' })
       : 'tonight'
 
-    // For the 'results' topic, prefer the "match report is live" framing IF
-    // a structured report has actually been written for this match — the
-    // report + awards land at the same moment (voting closes 10am → awards
-    // publish → trigger fires), so the report is the bigger news. Fall back
-    // to the awards-only copy if no report exists (edge case: admin
-    // published awards without writing anything).
+    // Two copies for the 'results' topic, chosen on whether a report exists.
+    //
+    // Both are led by the awards, deliberately. Since mig 093 the report can
+    // be published days before this push fires — publishing and notifying are
+    // decoupled, and the push waits for the ballot — so "match report is
+    // live" would announce as new something a player may already have read.
+    // What is always newly true at send time is that the awards are settled.
+    //
+    // The awards-only copy is NOT a dead branch: a night can end with awards
+    // and no write-up (2026-05-21 is the precedent), and mig 094 widened the
+    // dispatcher to send for those after a grace period.
     let hasReport = false
     if (topic === 'results') {
       const { data: resultsRow } = await supabase
@@ -161,8 +168,8 @@ Deno.serve(async (req) => {
         : topic === 'results'
           ? hasReport
             ? {
-              title: '📝 Match report is live',
-              body: `Full ${readable} write-up + MOTM & DOTD awards are up. Tap to read.`,
+              title: '🏆 MOTM & DOTD are in',
+              body: `Settled for ${readable}, alongside the full match report — tap to read.`,
               url: '/match',
               tag: `report-${matchId}`,
             }

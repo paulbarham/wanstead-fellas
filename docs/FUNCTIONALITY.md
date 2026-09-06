@@ -111,9 +111,9 @@ Web Push via VAPID. `push_subscriptions` holds one row per **(player, browser)**
 |---|---|---|---|
 | 🟢 Teams are ready | `voting_windows` INSERT >15 min ahead | Rostered + admins | `match_night` |
 | 🏆 Vote for tonight's awards | `voting_windows` INSERT / `fanout-vote-open` cron | Rostered + admins | `results` |
-| 📝 Match report is live | `dispatch_report_notifications()` cron, when report published **and** awards final **and** `results.notified_at` is null — mig `093` | Club-wide | `results` |
+| 🏆 MOTM & DOTD are in | `dispatch_report_notifications()` cron, when awards final **and** a published report with a summary exists **and** `voting_windows.notified_at` is null — migs `093`/`094` | Club-wide | `results` |
 | 📝 Match report draft ready | `generate-match-report` writes a draft (Fri 10:05) | **Admins only** | **always-on** |
-| 📊 MOTM & DOTD published | Same cron; the edge fn picks this title when the row has no report body | Club-wide | `results` |
+| 📊 MOTM & DOTD results published | Same cron, when awards are final and **no** report has appeared within the 6-hour grace — mig `094`. Precedent: 2026-05-21, 4 award rows and no write-up | Club-wide | `results` |
 | 🎯 Match of the Week | `mow_fixtures` INSERT | Club-wide | `games` |
 | 🎯 MoW Result | `mow_pool_fixtures` score UPDATE | Club-wide | `games` |
 | *(admin-authored)* | 15-min cron picks up a scheduled announcement | Club-wide | `club_news` |
@@ -189,7 +189,9 @@ Match reports are drafted automatically every Friday and published by hand.
 | Awards final | `compute_award_results` cron sets `voting_windows.results_published` | MOTM/DOTD available. |
 | Push sent | `dispatch_report_notifications()` cron, at :05 past every ten minutes | **Exactly one** club-wide push, only once both of the above are true. |
 
-`results.notified_at` records the send. It is the thing that makes delivery exactly-once — a republish, an edit, or a second pass over the same row cannot send again, because the stamp is already set. The cron claims a row with `update … where id = ? and notified_at is null` before sending, so two overlapping runs can't both deliver, and the stamp and the queued push commit in the same transaction.
+`voting_windows.notified_at` records the send. It is the thing that makes delivery exactly-once — a republish, an edit, or a second pass cannot send again, because the stamp is already set. The cron claims a row with `update … where match_id = ? and notified_at is null` before sending, so two overlapping runs can't both deliver, and the stamp and the queued push commit in the same transaction.
+
+It sits on `voting_windows`, not `results` (where mig `093` first put it), because the push is per **match night**, not per report — and a night can resolve with awards and no report row worth the name. A voting window always exists for any night that can send (the gate is `results_published`, which only a window has; 0 award sets on this database exist without one), whereas 5 of the 21 results rows have no window at all and could never notify either way. One column, one meaning.
 
 Delivery has exactly one owner. The old mig `077` trigger pair (`results_notify_report_live`, `voting_windows_notify_results`) no longer sends anything — both are no-ops and their triggers are dropped. (`voting_windows_notify_open`, the "vote now" push, is a different trigger and is untouched.)
 
@@ -200,6 +202,18 @@ The cron runs at :05, :15, :25 … — deliberately five minutes behind `compute
 Winners are never listed in the report body — `award_results` already renders on Match and History. The one exception, per the **MOTM & DOTD — punchline, never announcement** rule in CLAUDE.md (amended 6 Sep 2026): `banter` may use an award when the award *is* the joke — a DOTD on the same night as a hat-trick, an MOTM in the team that finished bottom. No joke in it, leave it out. The same distinction is carried verbatim in the `generate-match-report` system prompt so the automated draft and a hand-written one follow one rule.
 
 **Zero-turnout nights still notify.** The gate is `voting_windows.results_published`, not "`award_results` has rows" — `compute_award_results` sets the flag even when nobody voted, and gating on award rows would silently swallow the push for those nights.
+
+**Nights with awards but no report also notify (mig `094`).** Mig `093` required a non-empty summary, which stranded a real case: awards computed, no write-up ever made, nobody told. The dispatcher now sends in three states:
+
+| State | What goes out | When |
+|---|---|---|
+| Published report with a summary | 🏆 report copy | immediately |
+| No report content at all | 📊 awards-only copy | once **6 hours** past `closes_at` |
+| Unreviewed draft pending | nothing yet | waits for publication |
+
+The 6-hour grace is load-bearing. The generator writes its draft at 10:05 Friday and this cron also runs at `:05` — without a wait, a run landing first would see "no summary", fire the awards-only push, stamp the window, and permanently suppress the push for the report that appears a minute later. It also gives a hand-writing admin the morning: voting closes 10:00, so nothing goes out awards-only before 16:00.
+
+A pending draft matches neither branch by design — it has a summary (so it isn't "no report") but isn't published (so it isn't the report branch). It waits rather than burning the window on an awards-only push and robbing the report of its own. The admin is already being pushed about the unreviewed draft.
 
 **Checking it without writing.** `POST` to the function with `{"match_date":"YYYY-MM-DD","dry_run":true}` generates as normal and returns the finished JSON under `would_write`, touching nothing and pushing nobody. Dry runs deliberately skip the anti-clobber guards — the point is to aim one at a past night that already has a published report and compare. Few-shot examples are always drawn strictly *before* the target date, so a dry run never sees its own report.
 
