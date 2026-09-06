@@ -1,8 +1,8 @@
 // Weekly context cache — the "what was going on in the world this week" feed
 // that the match report generator uses for FRAMING.
 //
-// Scheduled Friday 09:55 UK (mig 091), ten minutes ahead of
-// generate-match-report so the cache is warm when the generator reads it.
+// Scheduled Friday 09:00 UTC (mig 091), ahead of generate-match-report so the
+// cache is warm when the generator reads it.
 //
 // Two sources, deliberately different in kind:
 //
@@ -31,6 +31,14 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 const ANTHROPIC_MODEL = 'claude-opus-5'
 const COMPETITIONS = ['PL', 'ELC']
 
+// How many football scorelines survive into the cache. The first run returned
+// 54 — a full week of PL + ELC — which is a wall of numbers the report can't
+// use and pure prompt bloat. The value of this feed is the COLOUR items; the
+// scorelines are there so the report can nod at the weekend, not recite it.
+// Ranked by "would anyone mention this in a pub" (see headlineScore) and
+// trimmed to the top few.
+const MAX_FOOTBALL_RESULTS = 6
+
 interface ContextItem {
   kind: 'football_result' | 'football_story' | 'news'
   headline: string
@@ -53,7 +61,25 @@ function daysBefore(iso: string, n: number): string {
 }
 
 /**
- * Finished PL/ELC matches in the window. Scorelines only — no narrative.
+ * How newsworthy is a scoreline, roughly? Big margins and high-scoring games
+ * are what get talked about; a 1-0 between two mid-table sides is not. Top
+ * flight outranks the Championship on a tie. Crude on purpose — this only has
+ * to pick a decent six out of fifty, not be right about football.
+ */
+function headlineScore(hs: number, as: number, comp: string): number {
+  const margin = Math.abs(hs - as)
+  const goals = hs + as
+  let score = margin * 2 + goals
+  if (margin >= 4) score += 6              // a hiding
+  if (goals >= 6) score += 4               // a thriller
+  if (hs === as && goals >= 4) score += 3  // a high-scoring draw
+  if (comp === 'PL') score += 3            // top flight gets the benefit
+  return score
+}
+
+/**
+ * Finished PL/ELC matches in the window, trimmed to the MAX_FOOTBALL_RESULTS
+ * most talked-about. Scorelines only — no narrative.
  * A failure on one competition doesn't sink the others.
  */
 async function fetchFootballResults(from: string, to: string): Promise<ContextItem[]> {
@@ -63,7 +89,7 @@ async function fetchFootballResults(from: string, to: string): Promise<ContextIt
     return []
   }
 
-  const items: ContextItem[] = []
+  const scored: Array<{ item: ContextItem; score: number }> = []
   for (const comp of COMPETITIONS) {
     try {
       const url = `https://api.football-data.org/v4/competitions/${comp}/matches`
@@ -81,18 +107,25 @@ async function fetchFootballResults(from: string, to: string): Promise<ContextIt
         const hs = m.score?.fullTime?.home
         const as = m.score?.fullTime?.away
         if (!home || !away || hs == null || as == null) continue
-        items.push({
-          kind: 'football_result',
-          headline: `${home} ${hs}-${as} ${away}`,
-          detail: `${comp}, ${String(m.utcDate).slice(0, 10)}`,
-          source: 'football-data.org',
+        scored.push({
+          item: {
+            kind: 'football_result',
+            headline: `${home} ${hs}-${as} ${away}`,
+            detail: `${comp}, ${String(m.utcDate).slice(0, 10)}`,
+            source: 'football-data.org',
+          },
+          score: headlineScore(Number(hs), Number(as), comp),
         })
       }
     } catch (err) {
       console.warn(`football-data ${comp} failed:`, err)
     }
   }
-  return items
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, MAX_FOOTBALL_RESULTS)
+    .map(s => s.item)
 }
 
 /**

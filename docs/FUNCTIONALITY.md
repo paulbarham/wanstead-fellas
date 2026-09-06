@@ -172,7 +172,7 @@ Match reports are drafted automatically every Friday and published by hand.
 
 | Step | When | What happens |
 |---|---|---|
-| `weekly-context` | Fri 09:00 UTC | Caches the week's PL/ELC results from football-data.org (facts) plus 2-3 non-football colour items via Claude `web_search` (framing) into `weekly_context (week_start, items, fetched_at)`. Degrades to football-only if the search call fails. |
+| `weekly-context` | Fri 09:00 UTC | Caches the week's football results from football-data.org (facts) plus 2-3 non-football colour items via Claude `web_search` (framing) into `weekly_context (week_start, items, fetched_at)`. Football is capped at the **6 most newsworthy** scorelines — a full PL+ELC week is 54, which is prompt bloat the report can't use; the value here is the colour. Degrades to football-only if the search call fails. |
 | `generate-match-report` | Fri 10:05 UTC | Reads `get_match_hooks(date)` + `weekly_context` + the last 3 published reports, calls `claude-opus-5` with a JSON schema matching the existing section shape, writes `results.status = 'draft'`, pushes **Paul only**. |
 | Review | whenever | Admin opens **Report Review**, edits any section, taps Publish. |
 | Publish | on tap | `status` flips to `published`; the mig `090` trigger fires the club-wide push. |
@@ -180,6 +180,10 @@ Match reports are drafted automatically every Friday and published by hand.
 **10:05 UTC, not 09:55.** `pg_cron` runs in UTC. 10:05 UTC is after 10:00 London in *both* BST (11:05) and GMT (10:05); 09:55 UTC would land at 09:55 London through the winter — before the ballot closes — silently reintroducing the exact bug this exists to kill. The function re-checks `voting_windows.closes_at` itself and refuses to run early.
 
 **What the model may and may not invent.** Framing is free — any lens the week's news suggests. Pitch **events** are not: every factual claim must trace to a hook. Names, scorers, scorelines, keepers, quotes and incidents all come from `get_match_hooks`. The predicted-vs-actual table is computed in code from `matches.predicted_order` (written by AdminTeamBuilder at announcement time) and never authored by the model.
+
+**Checking it without writing.** `POST` to the function with `{"match_date":"YYYY-MM-DD","dry_run":true}` generates as normal and returns the finished JSON under `would_write`, touching nothing and pushing nobody. Dry runs deliberately skip the anti-clobber guards — the point is to aim one at a past night that already has a published report and compare. Few-shot examples are always drawn strictly *before* the target date, so a dry run never sees its own report.
+
+**Who can trigger it.** Both `pg_cron` callers (`call_weekly_context`, `call_generate_match_report`) are `SECURITY DEFINER` in `public`, so PostgREST exposes them at `/rest/v1/rpc/`. Mig `092` revokes `anon`/`PUBLIC` EXECUTE and adds an in-function guard: allowed if `session_user = 'postgres'` (the cron worker) or `is_admin()`. Note the guard is on **`session_user`, not `current_user`** — these functions are owned by `postgres`, so under `SECURITY DEFINER` `current_user` is `postgres` on every path including an anonymous web request, and a `current_user` check would be a no-op.
 
 **Draft visibility.** `results.status` is `'draft'` or `'published'`. RLS on `results` only returns drafts to `can_manage_results()`, and every player-facing query (Match, History, Tonight) also filters on `status = 'published'`. Hand-entered results from AdminMatchEntry insert as `published`, and re-submitting a corrected scoreline never flips a draft live.
 

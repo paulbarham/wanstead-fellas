@@ -20,7 +20,12 @@
 // and the standings hooks, not by the model. The model writes only the prose
 // note about how the balancer did. One less thing that can be invented.
 //
-// Body: { match_date?: 'YYYY-MM-DD', force?: boolean, skip_push?: boolean }
+// Body: { match_date?: 'YYYY-MM-DD', force?: boolean, skip_push?: boolean,
+//         dry_run?: boolean }
+//
+// dry_run generates as normal and returns the finished JSON in the response
+// WITHOUT touching results and without pushing anyone. Use it to check the
+// output against a past night before it is ever allowed to write.
 // Env:  ANTHROPIC_API_KEY, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT
 
 // deno-lint-ignore-file no-explicit-any
@@ -231,14 +236,18 @@ Deno.serve(async (req) => {
       .select('id, status, summary, scorers')
       .eq('match_id', match.id)
       .maybeSingle()
-    if (existing?.status === 'published' && existing?.summary && !body.force) {
+    // A dry run writes nothing, so the anti-clobber guards don't apply to it —
+    // and skipping them is the point: the whole use of dry_run is pointing it
+    // at a past night that already HAS a published report, to compare.
+    const dryRun = body.dry_run === true
+    if (!dryRun && existing?.status === 'published' && existing?.summary && !body.force) {
       return json({
         status: 'already_published',
         match_date: matchDate,
         note: 'a published report already exists — pass force:true to overwrite',
       })
     }
-    if (existing?.status === 'draft' && existing?.summary && !body.force) {
+    if (!dryRun && existing?.status === 'draft' && existing?.summary && !body.force) {
       return json({
         status: 'draft_exists',
         match_date: matchDate,
@@ -263,7 +272,8 @@ Deno.serve(async (req) => {
     const contextItems = (ctx?.items as any[]) ?? []
 
     // Few-shot: the last 3 PUBLISHED reports, most recent first. Voice and
-    // length come from here rather than from instructions.
+    // length come from here rather than from instructions. Strictly BEFORE the
+    // target date, so a dry run of a past night never sees its own report.
     const { data: recentMatches } = await supabase
       .from('matches')
       .select('id, match_date')
@@ -364,6 +374,30 @@ Write this week's report as a single structured object. Every pitch fact traces 
     } catch {
       console.error('unparseable model output', text.slice(0, 1000))
       return json({ error: 'model output was not valid JSON against the schema' }, 502)
+    }
+
+    // ── dry run: hand it back, write nothing ────────────────────────────────
+    if (dryRun) {
+      return json({
+        status: 'dry_run',
+        match_date: matchDate,
+        match_id: match.id,
+        hooks_used: hooks.length,
+        context_items: contextItems.length,
+        examples_used: examples.length,
+        usage: completion.usage ?? null,
+        // Exactly the shape that WOULD have been written to results, so it can
+        // be diffed against the real row for the same night.
+        would_write: {
+          summary: report.summary,
+          predictions: { note: report.predictions_note, rows: predictionRows },
+          key_highlights: stripNulls(report.key_highlights ?? []),
+          banter: stripNulls(report.banter ?? []),
+          app_watch: stripNulls(report.app_watch ?? []),
+          conclusion: report.conclusion,
+          closer: report.closer ?? null,
+        },
+      })
     }
 
     // ── write the draft ───────────────────────────────────────────────────
