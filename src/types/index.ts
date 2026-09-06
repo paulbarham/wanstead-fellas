@@ -226,6 +226,11 @@ export interface Result {
   app_watch: ReportNoteItem[] | null
   conclusion: string | null
   closer: string | null
+  /**
+   * 'draft'     written by the Friday generator, admin-visible only
+   * 'published' live to the group (mig 090). Publishing fires the group push.
+   */
+  status: 'draft' | 'published'
   created_at: string
 }
 

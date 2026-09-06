@@ -193,6 +193,7 @@ export default function TonightPage() {
         .from('results')
         .select('*')
         .eq('match_id', m.id)
+        .eq('status', 'published')
         .maybeSingle()
       const r = resultRaw as { report_text: string | null; scorers: string | null; highlights: string | null } | null
       setLastResult({

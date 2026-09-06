@@ -668,10 +668,17 @@ export default function AdminMatchEntry({ match, teams, fixtures: initialFixture
         ? { match_id: match.id, report_text: reportText, scorers: scorersText, highlights }
         : { match_id: match.id, scorers: scorersText }
       if (initialResult?.id) {
+        // status is deliberately absent from the update payload. A row the
+        // Friday generator left as 'draft' must stay a draft — re-submitting
+        // a corrected scoreline here must not publish an unreviewed report
+        // (and fire the group push) behind the admin's back. Publishing is
+        // the Report Review screen's job and nothing else's.
         const { error } = await supabase.from('results').update(payload).eq('id', initialResult.id)
         if (error) throw new Error(`Couldn't update result: ${error.message}`)
       } else {
-        const { error } = await supabase.from('results').insert(payload)
+        // First write for this match — match-night entry is live immediately,
+        // exactly as it behaved before results.status existed (mig 090).
+        const { error } = await supabase.from('results').insert({ ...payload, status: 'published' })
         if (error) throw new Error(`Couldn't save result: ${error.message}`)
       }
       const { error: matchErr } = await supabase.from('matches').update({ status: 'completed' }).eq('id', match.id)

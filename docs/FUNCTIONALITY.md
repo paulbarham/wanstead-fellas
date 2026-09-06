@@ -69,6 +69,8 @@ Categories: Bug Report, Feature Request, Design Feedback, General → straight t
 ### Admin (organisers, or delegated via `profiles.can_enter_results`)
 Manage players, teams, formations, fines, ratings, match data, club finances. `can_enter_results` grants a scoped delegate permission (fixtures/goals/results/match status only) without full admin rights.
 
+**Report Review** (`/admin/report-review`, admins only) is where the Friday auto-generated match report is checked before anyone else sees it — see §6e.
+
 ---
 
 ## 4. Player types & sign-up priority
@@ -101,7 +103,7 @@ Generic voting system keyed by `award_type`, currently `motm` (Man of the Match)
 
 ## 6b. Push notifications
 
-Web Push via VAPID. `push_subscriptions` holds one row per **(player, browser)** — a fella with a phone and a laptop has two. Three edge functions fan out: `send-vote-notifications` (match night, results, dropouts), `mow-notify` (Match of the Week), `send-feature-announcement` (admin broadcasts).
+Web Push via VAPID. `push_subscriptions` holds one row per **(player, browser)** — a fella with a phone and a laptop has two. Edge functions fan out: `send-vote-notifications` (match night, results, dropouts), `mow-notify` (Match of the Week), `send-feature-announcement` (admin broadcasts), `generate-match-report` (admin-only draft nudge).
 
 ### What gets sent
 
@@ -109,7 +111,8 @@ Web Push via VAPID. `push_subscriptions` holds one row per **(player, browser)**
 |---|---|---|---|
 | 🟢 Teams are ready | `voting_windows` INSERT >15 min ahead | Rostered + admins | `match_night` |
 | 🏆 Vote for tonight's awards | `voting_windows` INSERT / `fanout-vote-open` cron | Rostered + admins | `results` |
-| 📝 Match report is live | `max(voting close, report written)` — mig `077` handshake | Club-wide | `results` |
+| 📝 Match report is live | `max(voting close, report **published**)` — mig `077` handshake, re-pointed at the publish flip by mig `090` | Club-wide | `results` |
+| 📝 Match report draft ready | `generate-match-report` writes a draft (Fri 10:05) | **Admins only** | **always-on** |
 | 📊 MOTM & DOTD published | Same handshake, when no report was written | Club-wide | `results` |
 | 🎯 Match of the Week | `mow_fixtures` INSERT | Club-wide | `games` |
 | 🎯 MoW Result | `mow_pool_fixtures` score UPDATE | Club-wide | `games` |
@@ -158,6 +161,27 @@ Bump `CACHE` in `sw.js` on any change that needs a hard refresh across the group
 Both are best-effort. If one cannot be satisfied it stops and the other still runs; any successful swap re-scans both, since an over-40 player may also be a star. Admin preview chips (RTG · GK · 40+ · ★) use the same cap the balancer used.
 
 Preferred format is **4 teams**; 2-team nights happen when turnout is low and both constraints are much weaker there.
+
+---
+
+## 6e. Automated match reports
+
+Match reports are drafted automatically every Friday and published by hand.
+
+**Why the timing matters.** Reports used to be written around midnight on Thursday — *before* the voting window closes at 10:00 UK on Friday. That meant MOTM and DOTD could never appear in a report, because at write time the ballot was still open. The generator runs **after** the close, which fixes that.
+
+| Step | When | What happens |
+|---|---|---|
+| `weekly-context` | Fri 09:00 UTC | Caches the week's PL/ELC results from football-data.org (facts) plus 2-3 non-football colour items via Claude `web_search` (framing) into `weekly_context (week_start, items, fetched_at)`. Degrades to football-only if the search call fails. |
+| `generate-match-report` | Fri 10:05 UTC | Reads `get_match_hooks(date)` + `weekly_context` + the last 3 published reports, calls `claude-opus-5` with a JSON schema matching the existing section shape, writes `results.status = 'draft'`, pushes **Paul only**. |
+| Review | whenever | Admin opens **Report Review**, edits any section, taps Publish. |
+| Publish | on tap | `status` flips to `published`; the mig `090` trigger fires the club-wide push. |
+
+**10:05 UTC, not 09:55.** `pg_cron` runs in UTC. 10:05 UTC is after 10:00 London in *both* BST (11:05) and GMT (10:05); 09:55 UTC would land at 09:55 London through the winter — before the ballot closes — silently reintroducing the exact bug this exists to kill. The function re-checks `voting_windows.closes_at` itself and refuses to run early.
+
+**What the model may and may not invent.** Framing is free — any lens the week's news suggests. Pitch **events** are not: every factual claim must trace to a hook. Names, scorers, scorelines, keepers, quotes and incidents all come from `get_match_hooks`. The predicted-vs-actual table is computed in code from `matches.predicted_order` (written by AdminTeamBuilder at announcement time) and never authored by the model.
+
+**Draft visibility.** `results.status` is `'draft'` or `'published'`. RLS on `results` only returns drafts to `can_manage_results()`, and every player-facing query (Match, History, Tonight) also filters on `status = 'published'`. Hand-entered results from AdminMatchEntry insert as `published`, and re-submitting a corrected scoreline never flips a draft live.
 
 ---
 

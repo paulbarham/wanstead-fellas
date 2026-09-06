@@ -82,7 +82,7 @@ export default function HistoryPage() {
       const matchIds = (matches as Match[]).map(m => m.id)
 
       const [{ data: results }, { data: teams }, { data: fixtures }, { data: awards }, { data: goals }] = await Promise.all([
-        supabase.from('results').select('*').in('match_id', matchIds),
+        supabase.from('results').select('*').in('match_id', matchIds).eq('status', 'published'),
         supabase.from('teams').select('*').in('match_id', matchIds),
         supabase.from('fixtures').select('*').in('match_id', matchIds),
         supabase.from('award_results').select('*').in('match_id', matchIds),

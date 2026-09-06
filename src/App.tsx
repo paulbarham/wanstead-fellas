@@ -25,6 +25,7 @@ import ProfileMonthlyPage from './pages/ProfileMonthlyPage'
 const PodsPage = lazy(() => import('./pages/PodsPage'))
 const CupPage = lazy(() => import('./pages/CupPage'))
 const CupAdminPage = lazy(() => import('./pages/CupAdminPage'))
+const ReportReviewPage = lazy(() => import('./pages/ReportReviewPage'))
 const HelpPage = lazy(() => import('./pages/HelpPage'))
 
 function LoadingScreen() {
@@ -84,6 +85,7 @@ function ProtectedRoutes() {
           <Route path="help" element={<HelpPage />} />
           <Route path="help/:slug" element={<HelpPage />} />
           <Route path="admin" element={<AdminPage />} />
+          <Route path="admin/report-review" element={<ReportReviewPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="profile/monthly/:month" element={<ProfileMonthlyPage />} />
         </Route>

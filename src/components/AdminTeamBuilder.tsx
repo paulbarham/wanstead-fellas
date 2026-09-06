@@ -550,6 +550,18 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
     setPublishError(null)
     try {
       const themeValue = themePromptDraft.trim() || null
+
+      // Freeze the balancer's predicted finishing order onto the match row.
+      // This is the SAME predictTable call that renders the "LIKELY FINAL
+      // TABLE" block in the announcement — we're just persisting what the
+      // group is about to be told, so Friday's report can grade it.
+      //
+      // Without this the 'algorithm' hook in get_match_hooks has nothing to
+      // compare against and goes silent, and the predicted-vs-actual table
+      // (a recurring thread in every report) quietly disappears.
+      const predictedOrder = predictTable(draftTeams, weights)
+        .map((row, i) => ({ position: i + 1, team_name: row.team.name }))
+
       let matchId = match?.id
       if (!matchId) {
         const { data: newMatch, error: matchErr } = await supabase
@@ -559,13 +571,14 @@ export default function AdminTeamBuilder({ nextThursday, match, publishedTeams, 
             format: formatLabelFor(pickConfig(draftTeams.reduce((s, t) => s + t.players.length, 0))),
             status: 'published',
             theme_prompt: themeValue,
+            predicted_order: predictedOrder,
           })
           .select().single()
         if (matchErr) throw new Error(`Couldn't create match: ${matchErr.message}`)
         matchId = newMatch?.id
       } else {
         const { error: updErr } = await supabase.from('matches')
-          .update({ status: 'published', theme_prompt: themeValue })
+          .update({ status: 'published', theme_prompt: themeValue, predicted_order: predictedOrder })
           .eq('id', matchId)
         if (updErr) throw new Error(`Couldn't mark match published: ${updErr.message}`)
       }

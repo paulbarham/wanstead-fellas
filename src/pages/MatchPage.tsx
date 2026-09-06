@@ -22,7 +22,7 @@ async function loadMatchData(matchId: string): Promise<{
   const [{ data: td }, { data: fd }, { data: rd }, { data: gd }] = await Promise.all([
     supabase.from('teams').select('*').eq('match_id', matchId),
     supabase.from('fixtures').select('*').eq('match_id', matchId),
-    supabase.from('results').select('*').eq('match_id', matchId).maybeSingle(),
+    supabase.from('results').select('*').eq('match_id', matchId).eq('status', 'published').maybeSingle(),
     supabase
       .from('goals')
       .select('fixture_id, team_id, goals_count, own_goal, profiles:player_id(name, surname)')
